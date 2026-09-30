@@ -4,15 +4,21 @@ import { SiteChrome } from "@/components/site/SiteChrome";
 export default function Home() {
   return (
     <SiteChrome>
-      <img className="hero-photo" src="/lobby.jpg" alt="מסך דק על קיר אבן בלובי של בניין מגורים" />
-      <section className="hero-copy">
-        <p className="eyebrow">NYmedia</p>
-        <h1>מסך על הקיר. לובי שמסביר את עצמו.</h1>
-        <p className="lead">שילוט דיגיטלי לבנייני מגורים ולעסקים. הודעות הבניין, שעון, מזג אוויר וחדשות, על מסך בלובי, על הקיר או ליד המעלית.</p>
-        <Link className="cta" href="/contact">שיחה על הבניין</Link>
+      <img className="hero-photo" id="home" src="/hero.jpg" alt="לובי עם מסך גדול על הקיר" />
+      <section className="intro">
+        <div className="intro-copy">
+          <p className="eyebrow">NYMEDIA</p>
+          <h1>מסך על הקיר.<br />לובי שמסביר את עצמו.</h1>
+          <p className="lead">פתרונות שילוט דיגיטלי למשרדים, לובי, בתי מלון ומרכזי מסחר. המסך מעביר הודעה, שעון וחדשות, בלי מחשב ליד הטלוויזיה.</p>
+        </div>
+        <div className="intro-actions">
+          <a className="ghost" href="#projects">לצפייה בפרויקטים ‹</a>
+          <Link className="ghost" href="/contact">דברו איתנו ‹</Link>
+          <a className="down" href="#solutions" aria-label="למטה">↓</a>
+        </div>
       </section>
-      <section className="band">
-        <h2>איפה המסך יושב</h2>
+      <section className="band" id="solutions">
+        <h2>פתרונות</h2>
         <div className="places">
           <article className="place">
             <h3>על הקיר</h3>
@@ -28,26 +34,30 @@ export default function Home() {
           </article>
         </div>
       </section>
-      <section className="band">
-        <h2>מה רץ על המסך</h2>
-        <p>שקפים של הבניין, שעון, מזג אוויר, הדלקת נרות, פס חדשות ומטבעות. התמה נבחרת בבניין, בלי להחליף את המסך.</p>
-      </section>
-      <section className="band">
-        <h2>שאלות</h2>
-        <div className="faq">
-          <article className="qa">
-            <h3>מי מעדכן את התוכן?</h3>
-            <p>נציג הבניין נכנס עם משתמש וסיסמה משלו. מסך נוסף נפתח רק אחרי אישור של מנהל המערכת.</p>
+      <section className="band" id="fields">
+        <h2>תחומים</h2>
+        <div className="places">
+          <article className="place">
+            <h3>בנייני מגורים</h3>
+            <p>הודעות דיירים, הדלקת נרות ומזג אוויר, על מסך אחד בכניסה.</p>
           </article>
-          <article className="qa">
-            <h3>צריך מחשב ליד הטלוויזיה?</h3>
-            <p>הטלוויזיה פותחת כתובת אחת בדפדפן. אין התקנה במשרד.</p>
+          <article className="place">
+            <h3>משרדים</h3>
+            <p>מדריך קומות, לוגו החברה וחדשות, בלי להחליף את הטלוויזיה.</p>
           </article>
-          <article className="qa">
-            <h3>מה עם פרטיות?</h3>
-            <p>אין מעקב פרסומי באתר. הכניסה לניהול נשמרת רק אם סימנתם זאת במפורש.</p>
+          <article className="place">
+            <h3>מלונות ומסחר</h3>
+            <p>מסך שמקבל את האורח ומתחלף לפי מה שהמקום צריך להציג.</p>
           </article>
         </div>
+      </section>
+      <section className="band" id="projects">
+        <h2>פרויקטים</h2>
+        <p>כל בניין הוא מסך עם כתובת משלו. השקפים, הלוגו וההודעות מתעדכנים מהניהול, והטלוויזיה רק פותחת את הכתובת.</p>
+      </section>
+      <section className="band" id="about">
+        <h2>אודות</h2>
+        <p>NYmedia בונה מסכי שילוט לבניינים ולעסקים. נציג הבניין נכנס עם משתמש משלו. מסך נוסף נפתח רק אחרי אישור של מנהל המערכת.</p>
       </section>
     </SiteChrome>
   );
