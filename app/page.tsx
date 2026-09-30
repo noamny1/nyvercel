@@ -4,7 +4,7 @@ import { SiteChrome } from "@/components/site/SiteChrome";
 export default function Home() {
   return (
     <SiteChrome>
-      <img className="hero-photo" id="home" src="/hero.jpg" alt="לובי עם מסך גדול על הקיר" />
+      <img className="hero-photo" id="home" src="/lobby.jpg" alt="לובי עם מסך גדול על הקיר" />
       <section className="intro">
         <div className="intro-copy">
           <p className="eyebrow">NYMEDIA</p>
