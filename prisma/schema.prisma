@@ -1,0 +1,59 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  email        String   @unique
+  passwordHash String
+  role         String   @default("admin")
+  createdAt    DateTime @default(now())
+}
+
+model Screen {
+  id         Int      @id @default(autoincrement())
+  name       String
+  street     String   @default("")
+  number     String   @default("")
+  city       String   @default("")
+  theme      String   @default("modern")
+  logoUrl    String   @default("")
+  newsSource String   @default("ynet")
+  slides     Slide[]
+  notices    Notice[]
+  createdAt  DateTime @default(now())
+}
+
+model Slide {
+  id        Int      @id @default(autoincrement())
+  screenId  Int
+  screen    Screen   @relation(fields: [screenId], references: [id], onDelete: Cascade)
+  imageUrl  String
+  sort      Int      @default(0)
+  duration  Int      @default(8)
+  createdAt DateTime @default(now())
+}
+
+model Notice {
+  id        Int      @id @default(autoincrement())
+  screenId  Int
+  screen    Screen   @relation(fields: [screenId], references: [id], onDelete: Cascade)
+  text      String
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
+model NewsItem {
+  id        Int      @id @default(autoincrement())
+  source    String
+  title     String
+  link      String   @default("")
+  updatedAt DateTime @default(now())
+
+  @@index([source])
+}

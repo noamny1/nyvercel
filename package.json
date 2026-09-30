@@ -1,0 +1,26 @@
+{
+  "name": "nytv",
+  "private": true,
+  "scripts": {
+    "build": "prisma generate && node scripts/db-push.mjs && next build",
+    "dev": "next dev",
+    "start": "next start"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.6.0",
+    "@vercel/blob": "^0.27.3",
+    "bcryptjs": "^2.4.3",
+    "next": "^15.2.2",
+    "next-auth": "^4.24.11",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/node": "^22.13.10",
+    "@types/react": "^19.0.10",
+    "@types/react-dom": "^19.0.4",
+    "prisma": "^6.6.0",
+    "typescript": "^5.8.2"
+  }
+}
