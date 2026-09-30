@@ -56,6 +56,8 @@ model Screen {
   newsSource String       @default("ynet")
   groupId    Int?
   group      ScreenGroup? @relation(fields: [groupId], references: [id], onDelete: SetNull)
+  active     Boolean      @default(true)
+  lastPing   DateTime?
   slides     Slide[]
   notices    Notice[]
   createdAt  DateTime     @default(now())

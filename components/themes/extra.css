@@ -1,12 +1,31 @@
-.theme-responsive .rail { background: #eef3f8; color: #17324d; }
-.theme-responsive .ticker { background: #17324d; color: #fff; }
-.theme-index .rail { background: #111827; color: #f9fafb; }
-.theme-index .ticker { background: #f59e0b; color: #111827; }
-.theme-index-blue .rail { background: #0b3a75; color: #fff; }
-.theme-index-blue .ticker { background: #08284f; color: #fff; }
-.theme-index-green .rail { background: #14532d; color: #fff; }
-.theme-index-green .ticker { background: #052e16; color: #fff; }
-.theme-customer-logo .rail { background: #fff; color: #111; border-right: 8px solid #111; }
+.layout-yuval.stage { grid-template-columns: 320px 1fr; }
+.layout-yuval .slide { grid-column: 2; }
+.layout-yuval .rail { grid-column: 1; background: linear-gradient(#1f4b3a, #143528); color: #fff; }
+.layout-yuval .ticker { grid-column: 2; background: #143528; color: #f4efe6; }
+.layout-yuval .clock { font-size: 64px; }
+
+.theme-responsive .rail { background: #f7f7f5; color: #222; }
+.theme-responsive .ticker { background: #222; color: #fff; }
+.theme-responsive .clock { color: #7ac749; }
+
+.theme-basic .rail { background: #fff; color: #222; }
+.theme-basic .ticker { background: #eee; color: #222; }
+.theme-basic .clock { color: #7ac749; }
+
+.theme-customer-logo .rail { background: #fff; color: #111; }
 .theme-customer-logo .ticker { background: #111; color: #fff; }
-.theme-basic .rail { background: #fff; color: #111; }
-.theme-basic .ticker { background: #eee; color: #111; }
+.theme-customer-logo .logo { max-width: 220px; max-height: 140px; }
+
+.layout-index.stage { background: #111; }
+.layout-index .slide { background: #161616; color: #fff; direction: rtl; }
+.layout-index .index-board { height: 100%; padding: 28px; overflow: auto; }
+.layout-index .index-title { font-size: 42px; font-weight: 700; margin-bottom: 16px; }
+.layout-index .rail { background: #1c1c1c; color: #fff; }
+.layout-index .ticker { background: #111; color: #fff; }
+.theme-index-blue.layout-index .slide, .theme-index-blue .rail { background: #0b3a75; }
+.theme-index-blue .ticker { background: #08284f; }
+.theme-index-green.layout-index .slide, .theme-index-green .rail { background: #14532d; }
+.theme-index-green .ticker { background: #052e16; }
+
+.theme-residential .rail { background: #e7eef5; color: #16324a; }
+.theme-residential .ticker { background: #16324a; color: #fff; }

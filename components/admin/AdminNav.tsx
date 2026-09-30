@@ -7,6 +7,7 @@ const LINKS = [
   ["/admin/music", "מוזיקה"],
   ["/admin/news", "חדשות"],
   ["/admin/directory", "קומות"],
+  ["/admin/control", "לוח בקרה"],
 ];
 
 export function AdminNav() {

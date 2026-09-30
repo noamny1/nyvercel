@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { Player } from "@/components/player/Player";
 import { Music } from "@/components/player/Music";
+import { Ping } from "@/components/player/Ping";
 import { Clock } from "@/components/widgets/Clock";
 import { Directory } from "@/components/widgets/Directory";
 import { Markets } from "@/components/widgets/Markets";
@@ -57,11 +58,22 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
   ]);
   const ticker = screen.group?.tickers.map((item) => item.text) ?? [];
 
+  const indexTheme = source.theme.startsWith("index");
+  const floors = screen.group?.floors ?? [];
+
   return (
-    <main className={`stage theme-${source.theme}`}>
+    <main className={`stage theme-${source.theme}${source.theme === "yuval" ? " layout-yuval" : ""}${indexTheme ? " layout-index" : ""}`}>
       <Music url={screen.group?.musicUrl || ""} />
+      <Ping id={screen.id} />
       <section className="slide">
-        <Player slides={visible.map((slide) => ({ imageUrl: slide.imageUrl, duration: slide.duration }))} />
+        {indexTheme ? (
+          <div className="index-board">
+            <div className="index-title">מדריך משרדים</div>
+            <Directory floors={floors} />
+          </div>
+        ) : (
+          <Player slides={visible.map((slide) => ({ imageUrl: slide.imageUrl, duration: slide.duration }))} />
+        )}
       </section>
       <aside className="rail">
         <div className="address">{address(source.street, source.number, source.city)}</div>
@@ -70,7 +82,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
         <Weather temp={weather?.temp ?? null} label={weather?.label || ""} />
         <Shabbat candles={shabbat?.candles || ""} parsha={shabbat?.parsha || ""} />
         <Notices items={source.notices.map((notice) => notice.text)} />
-        <Directory floors={screen.group?.floors ?? []} />
+        <Directory floors={indexTheme ? [] : floors} />
         <Markets rows={rates} />
       </aside>
       <NewsTicker titles={[...ticker, ...headlines.map((item) => item.title)]} />
