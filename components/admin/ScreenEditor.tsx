@@ -3,9 +3,10 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { NEWS_SOURCES } from "@/lib/news-sources";
+import { THEMES } from "@/lib/themes";
 import { addGroupNotice, addNotice, deleteGroupNotice, deleteNotice, toggleGroupNotice, toggleNotice, updateGroup, updateScreen } from "@/app/admin/actions";
 
-type Slide = { id: number; imageUrl: string; duration: number; sort: number };
+type Slide = { id: number; imageUrl: string; duration: number; sort: number; weekdays?: string; active?: boolean };
 type Notice = { id: number; text: string; active: boolean };
 
 export function ScreenEditor({
@@ -13,6 +14,8 @@ export function ScreenEditor({
   slides,
   notices,
   scope = "screen",
+  buildings = [],
+  feeds,
 }: {
   screen: {
     id: number;
@@ -23,10 +26,14 @@ export function ScreenEditor({
     theme: string;
     logoUrl: string;
     newsSource: string;
+    musicUrl?: string;
+    buildingId?: number | null;
   };
   slides: Slide[];
   notices: Notice[];
   scope?: "screen" | "group";
+  buildings?: { id: number; name: string }[];
+  feeds?: { id: string; name: string }[];
 }) {
   const router = useRouter();
   const save = scope === "group" ? updateGroup : updateScreen;
@@ -71,7 +78,7 @@ export function ScreenEditor({
     }
   }
 
-  async function changeSlide(id: number, payload: { duration?: number; direction?: "up" | "down" }) {
+  async function changeSlide(id: number, payload: { duration?: number; direction?: "up" | "down"; weekdays?: string }) {
     await fetch("/api/slides", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -101,18 +108,31 @@ export function ScreenEditor({
           <label>עיר<input name="city" defaultValue={screen.city} /></label>
           <label>תמה
             <select name="theme" defaultValue={screen.theme}>
-              <option value="modern">מודרני</option>
-              <option value="yuval">יובל</option>
-              <option value="residential">בנייני מגורים</option>
+              {THEMES.map((theme) => (
+                <option key={theme.id} value={theme.id}>{theme.name}</option>
+              ))}
             </select>
           </label>
           <label>חדשות
             <select name="newsSource" defaultValue={screen.newsSource}>
-              {NEWS_SOURCES.map((source) => (
+              {(feeds && feeds.length > 0 ? feeds : NEWS_SOURCES).map((source) => (
                 <option key={source.id} value={source.id}>{source.name}</option>
               ))}
             </select>
           </label>
+          {scope === "group" ? (
+            <>
+              <label>מוזיקה<input name="musicUrl" defaultValue={screen.musicUrl || ""} placeholder="קישור לקובץ שמע" /></label>
+              <label>בניין
+                <select name="buildingId" defaultValue={screen.buildingId ?? ""}>
+                  <option value="">ללא</option>
+                  {buildings.map((building) => (
+                    <option key={building.id} value={building.id}>{building.name}</option>
+                  ))}
+                </select>
+              </label>
+            </>
+          ) : null}
         </div>
         <div className="row" style={{ marginTop: 12 }}>
           <label>לוגו הבניין
@@ -141,6 +161,11 @@ export function ScreenEditor({
             <label>שניות
               <input type="number" min={3} defaultValue={slide.duration} onBlur={(event) => {
                 void changeSlide(slide.id, { duration: Number(event.target.value) });
+              }} />
+            </label>
+            <label>ימים
+              <input defaultValue={slide.weekdays || "0123456"} title="0 ראשון עד 6 שבת" onBlur={(event) => {
+                void changeSlide(slide.id, { weekdays: event.target.value });
               }} />
             </label>
             <button className="light" type="button" onClick={() => changeSlide(slide.id, { direction: "up" })}>למעלה</button>

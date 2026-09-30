@@ -11,21 +11,25 @@ export default async function GroupPage({ params }: { params: Promise<{ id: stri
   const session = await requireSession();
   if (!session) redirect("/admin/login");
   const { id } = await params;
-  const group = await prisma.screenGroup.findUnique({
-    where: { id: Number(id) },
-    include: {
-      screens: { orderBy: { id: "asc" } },
-      slides: { orderBy: { sort: "asc" } },
-      notices: { orderBy: { id: "desc" } },
-    },
-  });
+  const [group, buildings, feeds] = await Promise.all([
+    prisma.screenGroup.findUnique({
+      where: { id: Number(id) },
+      include: {
+        screens: { orderBy: { id: "asc" } },
+        slides: { orderBy: { sort: "asc" } },
+        notices: { orderBy: { id: "desc" } },
+      },
+    }),
+    prisma.building.findMany({ orderBy: { name: "asc" } }),
+    prisma.feed.findMany({ orderBy: { name: "asc" } }),
+  ]);
   if (!group) notFound();
 
   return (
     <main className="admin">
       <p><Link href="/admin">כל הקבוצות</Link></p>
       <h1>{group.name}</h1>
-      <ScreenEditor screen={group} slides={group.slides} notices={group.notices} scope="group" />
+      <ScreenEditor screen={group} slides={group.slides} notices={group.notices} scope="group" buildings={buildings} feeds={feeds} />
       <section className="card">
         <h2>מסכים בקבוצה</h2>
         <p>כל מסך נפתח בכתובת משלו ומציג את תוכן הקבוצה.</p>

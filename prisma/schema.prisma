@@ -15,6 +15,16 @@ model User {
   createdAt    DateTime @default(now())
 }
 
+model Building {
+  id        Int           @id @default(autoincrement())
+  name      String
+  street    String        @default("")
+  number    String        @default("")
+  city      String        @default("")
+  groups    ScreenGroup[]
+  createdAt DateTime      @default(now())
+}
+
 model ScreenGroup {
   id         Int      @id @default(autoincrement())
   name       String
@@ -24,9 +34,14 @@ model ScreenGroup {
   theme      String   @default("modern")
   logoUrl    String   @default("")
   newsSource String   @default("ynet")
+  musicUrl   String   @default("")
+  buildingId Int?
+  building   Building? @relation(fields: [buildingId], references: [id], onDelete: SetNull)
   screens    Screen[]
   slides     Slide[]
   notices    Notice[]
+  tickers    Ticker[]
+  floors     Floor[]
   createdAt  DateTime @default(now())
 }
 
@@ -55,6 +70,8 @@ model Slide {
   imageUrl  String
   sort      Int          @default(0)
   duration  Int          @default(8)
+  active    Boolean      @default(true)
+  weekdays  String       @default("0123456")
   createdAt DateTime     @default(now())
 }
 
@@ -77,4 +94,34 @@ model NewsItem {
   updatedAt DateTime @default(now())
 
   @@index([source])
+}
+
+model Feed {
+  id   String @id
+  name String
+  url  String
+}
+
+model Ticker {
+  id      Int         @id @default(autoincrement())
+  groupId Int
+  group   ScreenGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  text    String
+  active  Boolean     @default(true)
+}
+
+model Floor {
+  id      Int         @id @default(autoincrement())
+  groupId Int
+  group   ScreenGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  name    String
+  rooms   Room[]
+}
+
+model Room {
+  id      Int    @id @default(autoincrement())
+  floorId Int
+  floor   Floor  @relation(fields: [floorId], references: [id], onDelete: Cascade)
+  name    String
+  detail  String @default("")
 }

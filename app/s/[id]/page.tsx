@@ -1,6 +1,8 @@
 import { notFound } from "next/navigation";
 import { Player } from "@/components/player/Player";
+import { Music } from "@/components/player/Music";
 import { Clock } from "@/components/widgets/Clock";
+import { Directory } from "@/components/widgets/Directory";
 import { Markets } from "@/components/widgets/Markets";
 import { NewsTicker } from "@/components/widgets/NewsTicker";
 import { Notices } from "@/components/widgets/Notices";
@@ -9,12 +11,14 @@ import { Weather } from "@/components/widgets/Weather";
 import { markets } from "@/lib/markets";
 import { newsFor } from "@/lib/news";
 import { prisma } from "@/lib/prisma";
+import { slideIsOn } from "@/lib/schedule";
 import { shabbatFor } from "@/lib/shabbat";
 import { weatherFor } from "@/lib/weather";
 import "@/components/player/player.css";
 import "@/components/themes/modern.css";
 import "@/components/themes/yuval.css";
 import "@/components/themes/residential.css";
+import "@/components/themes/extra.css";
 
 export const dynamic = "force-dynamic";
 
@@ -34,12 +38,16 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
         include: {
           slides: { orderBy: { sort: "asc" } },
           notices: { where: { active: true }, orderBy: { id: "desc" }, take: 4 },
+          tickers: { where: { active: true }, orderBy: { id: "desc" } },
+          floors: { include: { rooms: true }, orderBy: { id: "asc" } },
         },
       },
     },
   });
   if (!screen || Number.isNaN(Number(id))) notFound();
   const source = screen.group ?? screen;
+  const slides = source.slides.filter((slide) => slideIsOn(slide));
+  const visible = slides.length > 0 ? slides : source.slides;
 
   const [weather, shabbat, headlines, rates] = await Promise.all([
     weatherFor(source.city).catch(() => null),
@@ -47,11 +55,13 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
     newsFor(source.newsSource).catch(() => []),
     markets().catch(() => []),
   ]);
+  const ticker = screen.group?.tickers.map((item) => item.text) ?? [];
 
   return (
     <main className={`stage theme-${source.theme}`}>
+      <Music url={screen.group?.musicUrl || ""} />
       <section className="slide">
-        <Player slides={source.slides.map((slide) => ({ imageUrl: slide.imageUrl, duration: slide.duration }))} />
+        <Player slides={visible.map((slide) => ({ imageUrl: slide.imageUrl, duration: slide.duration }))} />
       </section>
       <aside className="rail">
         <div className="address">{address(source.street, source.number, source.city)}</div>
@@ -60,9 +70,10 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
         <Weather temp={weather?.temp ?? null} label={weather?.label || ""} />
         <Shabbat candles={shabbat?.candles || ""} parsha={shabbat?.parsha || ""} />
         <Notices items={source.notices.map((notice) => notice.text)} />
+        <Directory floors={screen.group?.floors ?? []} />
         <Markets rows={rates} />
       </aside>
-      <NewsTicker titles={headlines.map((item) => item.title)} />
+      <NewsTicker titles={[...ticker, ...headlines.map((item) => item.title)]} />
     </main>
   );
 }

@@ -57,6 +57,14 @@ export async function toggleNotice(formData: FormData) {
   redirect(`/admin/screens/${screenId}`);
 }
 
+export async function deleteNotice(formData: FormData) {
+  await gate();
+  const id = Number(formData.get("id"));
+  const screenId = Number(formData.get("screenId"));
+  await prisma.notice.delete({ where: { id } });
+  redirect(`/admin/screens/${screenId}`);
+}
+
 export async function createGroup(formData: FormData) {
   await gate();
   const group = await prisma.screenGroup.create({
@@ -83,6 +91,8 @@ export async function updateGroup(formData: FormData) {
       theme: String(formData.get("theme") || "modern"),
       newsSource: String(formData.get("newsSource") || "ynet"),
       logoUrl: String(formData.get("logoUrl") || ""),
+      musicUrl: String(formData.get("musicUrl") || ""),
+      buildingId: Number(formData.get("buildingId")) || null,
     },
   });
   redirect(`/admin/groups/${id}`);
@@ -131,4 +141,87 @@ export async function deleteGroupNotice(formData: FormData) {
   const groupId = Number(formData.get("groupId"));
   await prisma.notice.delete({ where: { id } });
   redirect(`/admin/groups/${groupId}`);
+}
+
+export async function createBuilding(formData: FormData) {
+  await gate();
+  await prisma.building.create({
+    data: {
+      name: String(formData.get("name") || "בניין"),
+      street: String(formData.get("street") || ""),
+      number: String(formData.get("number") || ""),
+      city: String(formData.get("city") || ""),
+    },
+  });
+  redirect("/admin/buildings");
+}
+
+export async function deleteBuilding(formData: FormData) {
+  await gate();
+  await prisma.building.delete({ where: { id: Number(formData.get("id")) } });
+  redirect("/admin/buildings");
+}
+
+export async function addTicker(formData: FormData) {
+  await gate();
+  const groupId = Number(formData.get("groupId"));
+  const text = String(formData.get("text") || "").trim();
+  if (text) await prisma.ticker.create({ data: { groupId, text, active: true } });
+  redirect("/admin/tickers");
+}
+
+export async function deleteTicker(formData: FormData) {
+  await gate();
+  await prisma.ticker.delete({ where: { id: Number(formData.get("id")) } });
+  redirect("/admin/tickers");
+}
+
+export async function setMusic(formData: FormData) {
+  await gate();
+  await prisma.screenGroup.update({
+    where: { id: Number(formData.get("id")) },
+    data: { musicUrl: String(formData.get("musicUrl") || "") },
+  });
+  redirect("/admin/music");
+}
+
+export async function saveFeed(formData: FormData) {
+  await gate();
+  const id = String(formData.get("id") || "").trim();
+  const name = String(formData.get("name") || "").trim();
+  const url = String(formData.get("url") || "").trim();
+  if (id && name && url) await prisma.feed.upsert({ where: { id }, update: { name, url }, create: { id, name, url } });
+  redirect("/admin/news");
+}
+
+export async function deleteFeed(formData: FormData) {
+  await gate();
+  await prisma.feed.delete({ where: { id: String(formData.get("id") || "") } });
+  redirect("/admin/news");
+}
+
+export async function addFloor(formData: FormData) {
+  await gate();
+  await prisma.floor.create({
+    data: { groupId: Number(formData.get("groupId")), name: String(formData.get("name") || "קומה") },
+  });
+  redirect("/admin/directory");
+}
+
+export async function addRoom(formData: FormData) {
+  await gate();
+  await prisma.room.create({
+    data: {
+      floorId: Number(formData.get("floorId")),
+      name: String(formData.get("name") || "חדר"),
+      detail: String(formData.get("detail") || ""),
+    },
+  });
+  redirect("/admin/directory");
+}
+
+export async function deleteFloor(formData: FormData) {
+  await gate();
+  await prisma.floor.delete({ where: { id: Number(formData.get("id")) } });
+  redirect("/admin/directory");
 }

@@ -54,8 +54,14 @@ async function download(url: string) {
   return response.text();
 }
 
+async function sourcesFor(sourceId?: string) {
+  const saved = await prisma.feed.findMany().catch(() => []);
+  const base = saved.length > 0 ? saved : NEWS_SOURCES.map((source) => ({ ...source }));
+  return base.filter((source) => !sourceId || source.id === sourceId);
+}
+
 export async function refreshNews(sourceId?: string) {
-  const sources = NEWS_SOURCES.filter((source) => !sourceId || source.id === sourceId);
+  const sources = await sourcesFor(sourceId);
   for (const source of sources) {
     let items: { title: string; link: string }[] = [];
     try {

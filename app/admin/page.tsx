@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/session";
 import { createGroup } from "./actions";
+import { AdminNav } from "@/components/admin/AdminNav";
 
 export const dynamic = "force-dynamic";
 
@@ -20,6 +21,7 @@ export default async function AdminHome() {
 
   return (
     <main className="admin">
+      <AdminNav />
       <h1>ניהול קבוצות מסכים</h1>
       <p>קבוצה אחת משמשת כמה מסכים באותו בניין. שינוי בקבוצה מתעדכן בכולם.</p>
       <div className="screens">

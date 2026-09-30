@@ -28,7 +28,7 @@ export async function POST(request: Request) {
 export async function PATCH(request: Request) {
   const session = await requireSession();
   if (!session) return NextResponse.json({ error: "נדרשת כניסה" }, { status: 401 });
-  const body = (await request.json()) as { id?: number; duration?: number; direction?: "up" | "down" };
+  const body = (await request.json()) as { id?: number; duration?: number; direction?: "up" | "down"; weekdays?: string };
   if (!body.id) return NextResponse.json({ error: "חסר מזהה" }, { status: 400 });
   const slide = await prisma.slide.findUnique({ where: { id: body.id } });
   if (!slide) return NextResponse.json({ error: "לא נמצא" }, { status: 404 });
@@ -37,6 +37,13 @@ export async function PATCH(request: Request) {
     await prisma.slide.update({
       where: { id: slide.id },
       data: { duration: Math.max(3, Number(body.duration) || slide.duration) },
+    });
+  }
+  if (body.weekdays !== undefined) {
+    const days = body.weekdays.replace(/[^0-6]/g, "");
+    await prisma.slide.update({
+      where: { id: slide.id },
+      data: { weekdays: days || "0123456" },
     });
   }
   if (body.direction) {
