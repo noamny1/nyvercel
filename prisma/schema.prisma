@@ -15,7 +15,7 @@ model User {
   createdAt    DateTime @default(now())
 }
 
-model Screen {
+model ScreenGroup {
   id         Int      @id @default(autoincrement())
   name       String
   street     String   @default("")
@@ -24,28 +24,49 @@ model Screen {
   theme      String   @default("modern")
   logoUrl    String   @default("")
   newsSource String   @default("ynet")
+  screens    Screen[]
   slides     Slide[]
   notices    Notice[]
   createdAt  DateTime @default(now())
 }
 
+model Screen {
+  id         Int          @id @default(autoincrement())
+  name       String
+  street     String       @default("")
+  number     String       @default("")
+  city       String       @default("")
+  theme      String       @default("modern")
+  logoUrl    String       @default("")
+  newsSource String       @default("ynet")
+  groupId    Int?
+  group      ScreenGroup? @relation(fields: [groupId], references: [id], onDelete: SetNull)
+  slides     Slide[]
+  notices    Notice[]
+  createdAt  DateTime     @default(now())
+}
+
 model Slide {
-  id        Int      @id @default(autoincrement())
-  screenId  Int
-  screen    Screen   @relation(fields: [screenId], references: [id], onDelete: Cascade)
+  id        Int          @id @default(autoincrement())
+  screenId  Int?
+  screen    Screen?      @relation(fields: [screenId], references: [id], onDelete: Cascade)
+  groupId   Int?
+  group     ScreenGroup? @relation(fields: [groupId], references: [id], onDelete: Cascade)
   imageUrl  String
-  sort      Int      @default(0)
-  duration  Int      @default(8)
-  createdAt DateTime @default(now())
+  sort      Int          @default(0)
+  duration  Int          @default(8)
+  createdAt DateTime     @default(now())
 }
 
 model Notice {
-  id        Int      @id @default(autoincrement())
-  screenId  Int
-  screen    Screen   @relation(fields: [screenId], references: [id], onDelete: Cascade)
+  id        Int          @id @default(autoincrement())
+  screenId  Int?
+  screen    Screen?      @relation(fields: [screenId], references: [id], onDelete: Cascade)
+  groupId   Int?
+  group     ScreenGroup? @relation(fields: [groupId], references: [id], onDelete: Cascade)
   text      String
-  active    Boolean  @default(true)
-  createdAt DateTime @default(now())
+  active    Boolean      @default(true)
+  createdAt DateTime     @default(now())
 }
 
 model NewsItem {

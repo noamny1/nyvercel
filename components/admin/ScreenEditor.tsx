@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { NEWS_SOURCES } from "@/lib/news-sources";
-import { addNotice, deleteNotice, toggleNotice, updateScreen } from "@/app/admin/actions";
+import { addGroupNotice, addNotice, deleteGroupNotice, deleteNotice, toggleGroupNotice, toggleNotice, updateGroup, updateScreen } from "@/app/admin/actions";
 
 type Slide = { id: number; imageUrl: string; duration: number; sort: number };
 type Notice = { id: number; text: string; active: boolean };
@@ -12,6 +12,7 @@ export function ScreenEditor({
   screen,
   slides,
   notices,
+  scope = "screen",
 }: {
   screen: {
     id: number;
@@ -25,8 +26,14 @@ export function ScreenEditor({
   };
   slides: Slide[];
   notices: Notice[];
+  scope?: "screen" | "group";
 }) {
   const router = useRouter();
+  const save = scope === "group" ? updateGroup : updateScreen;
+  const createNotice = scope === "group" ? addGroupNotice : addNotice;
+  const flipNotice = scope === "group" ? toggleGroupNotice : toggleNotice;
+  const dropNotice = scope === "group" ? deleteGroupNotice : deleteNotice;
+  const ownerField = scope === "group" ? "groupId" : "screenId";
   const [logoUrl, setLogoUrl] = useState(screen.logoUrl);
   const [message, setMessage] = useState("");
 
@@ -55,7 +62,7 @@ export function ScreenEditor({
       const response = await fetch("/api/slides", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ screenId: screen.id, imageUrl, duration }),
+        body: JSON.stringify({ [ownerField]: screen.id, imageUrl, duration }),
       });
       if (!response.ok) throw new Error("שמירת השקף נכשלה");
       router.refresh();
@@ -84,7 +91,7 @@ export function ScreenEditor({
 
   return (
     <div>
-      <form className="card" action={updateScreen}>
+      <form className="card" action={save}>
         <input type="hidden" name="id" value={screen.id} />
         <input type="hidden" name="logoUrl" value={logoUrl} />
         <div className="row">
@@ -145,22 +152,22 @@ export function ScreenEditor({
 
       <section className="card">
         <h2>הודעות בניין</h2>
-        <form className="row" action={addNotice}>
-          <input type="hidden" name="screenId" value={screen.id} />
+        <form className="row" action={createNotice}>
+          <input type="hidden" name={ownerField} value={screen.id} />
           <input name="text" placeholder="הודעה" required />
           <button type="submit">הוספה</button>
         </form>
         {notices.map((notice) => (
           <div className="row" key={notice.id} style={{ marginTop: 8 }}>
             <span>{notice.text}</span>
-            <form action={toggleNotice}>
+            <form action={flipNotice}>
               <input type="hidden" name="id" value={notice.id} />
-              <input type="hidden" name="screenId" value={screen.id} />
+              <input type="hidden" name={ownerField} value={screen.id} />
               <button className="light" type="submit">{notice.active ? "פעיל" : "כבוי"}</button>
             </form>
-            <form action={deleteNotice}>
+            <form action={dropNotice}>
               <input type="hidden" name="id" value={notice.id} />
-              <input type="hidden" name="screenId" value={screen.id} />
+              <input type="hidden" name={ownerField} value={screen.id} />
               <button className="light" type="submit">מחיקה</button>
             </form>
           </div>

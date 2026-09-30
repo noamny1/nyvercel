@@ -30,29 +30,36 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
     include: {
       slides: { orderBy: { sort: "asc" } },
       notices: { where: { active: true }, orderBy: { id: "desc" }, take: 4 },
+      group: {
+        include: {
+          slides: { orderBy: { sort: "asc" } },
+          notices: { where: { active: true }, orderBy: { id: "desc" }, take: 4 },
+        },
+      },
     },
   });
   if (!screen || Number.isNaN(Number(id))) notFound();
+  const source = screen.group ?? screen;
 
   const [weather, shabbat, headlines, rates] = await Promise.all([
-    weatherFor(screen.city).catch(() => null),
-    shabbatFor(screen.city).catch(() => null),
-    newsFor(screen.newsSource).catch(() => []),
+    weatherFor(source.city).catch(() => null),
+    shabbatFor(source.city).catch(() => null),
+    newsFor(source.newsSource).catch(() => []),
     markets().catch(() => []),
   ]);
 
   return (
-    <main className={`stage theme-${screen.theme}`}>
+    <main className={`stage theme-${source.theme}`}>
       <section className="slide">
-        <Player slides={screen.slides.map((slide) => ({ imageUrl: slide.imageUrl, duration: slide.duration }))} />
+        <Player slides={source.slides.map((slide) => ({ imageUrl: slide.imageUrl, duration: slide.duration }))} />
       </section>
       <aside className="rail">
-        <div className="address">{address(screen.street, screen.number, screen.city)}</div>
-        {screen.logoUrl ? <img className="logo" src={screen.logoUrl} alt="" /> : null}
+        <div className="address">{address(source.street, source.number, source.city)}</div>
+        {source.logoUrl ? <img className="logo" src={source.logoUrl} alt="" /> : null}
         <Clock />
         <Weather temp={weather?.temp ?? null} label={weather?.label || ""} />
         <Shabbat candles={shabbat?.candles || ""} parsha={shabbat?.parsha || ""} />
-        <Notices items={screen.notices.map((notice) => notice.text)} />
+        <Notices items={source.notices.map((notice) => notice.text)} />
         <Markets rows={rates} />
       </aside>
       <NewsTicker titles={headlines.map((item) => item.title)} />

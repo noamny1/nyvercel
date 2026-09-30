@@ -5,17 +5,18 @@ import { requireSession } from "@/lib/session";
 export async function POST(request: Request) {
   const session = await requireSession();
   if (!session) return NextResponse.json({ error: "נדרשת כניסה" }, { status: 401 });
-  const body = (await request.json()) as { screenId?: number; imageUrl?: string; duration?: number };
-  if (!body.screenId || !body.imageUrl) {
+  const body = (await request.json()) as { screenId?: number; groupId?: number; imageUrl?: string; duration?: number };
+  const owner = body.groupId ? { groupId: body.groupId } : body.screenId ? { screenId: body.screenId } : null;
+  if (!owner || !body.imageUrl) {
     return NextResponse.json({ error: "חסרים פרטים" }, { status: 400 });
   }
   const last = await prisma.slide.findFirst({
-    where: { screenId: body.screenId },
+    where: owner,
     orderBy: { sort: "desc" },
   });
   const slide = await prisma.slide.create({
     data: {
-      screenId: body.screenId,
+      ...owner,
       imageUrl: body.imageUrl,
       duration: Math.max(3, Number(body.duration) || 8),
       sort: (last?.sort ?? 0) + 1,
@@ -40,7 +41,10 @@ export async function PATCH(request: Request) {
   }
   if (body.direction) {
     const sibling = await prisma.slide.findFirst({
-      where: { screenId: slide.screenId, sort: body.direction === "up" ? { lt: slide.sort } : { gt: slide.sort } },
+      where: {
+        ...(slide.groupId ? { groupId: slide.groupId } : { screenId: slide.screenId }),
+        sort: body.direction === "up" ? { lt: slide.sort } : { gt: slide.sort },
+      },
       orderBy: { sort: body.direction === "up" ? "desc" : "asc" },
     });
     if (sibling) {
