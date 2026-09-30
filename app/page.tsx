@@ -12,7 +12,7 @@ export default function Home() {
           <p className="lead">פתרונות שילוט דיגיטלי למשרדים, לובי, בתי מלון ומרכזי מסחר. המסך מעביר הודעה, שעון וחדשות, בלי מחשב ליד הטלוויזיה.</p>
         </div>
         <div className="intro-actions">
-          <a className="ghost" href="#projects">לצפייה בפרויקטים ‹</a>
+          <a className="solid" href="#projects">לצפייה בפרויקטים ‹</a>
           <Link className="ghost" href="/contact">דברו איתנו ‹</Link>
           <a className="down" href="#solutions" aria-label="למטה">↓</a>
         </div>
