@@ -6,7 +6,7 @@ export default function Home() {
     <SiteChrome>
       <img className="hero-photo" src="/lobby.jpg" alt="מסך דק על קיר אבן בלובי של בניין מגורים" />
       <section className="hero-copy">
-        <p className="eyebrow">NYTV</p>
+        <p className="eyebrow">NYmedia</p>
         <h1>מסך על הקיר. לובי שמסביר את עצמו.</h1>
         <p className="lead">שילוט דיגיטלי לבנייני מגורים ולעסקים. הודעות הבניין, שעון, מזג אוויר וחדשות, על מסך בלובי, על הקיר או ליד המעלית.</p>
         <Link className="cta" href="/contact">שיחה על הבניין</Link>

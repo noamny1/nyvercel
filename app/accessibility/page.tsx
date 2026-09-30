@@ -1,6 +1,6 @@
 import { SiteChrome } from "@/components/site/SiteChrome";
 
-export const metadata = { title: "הצהרת נגישות · NYTV" };
+export const metadata = { title: "הצהרת נגישות · NYmedia" };
 
 export default function AccessibilityPage() {
   return (

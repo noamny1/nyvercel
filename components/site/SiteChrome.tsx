@@ -22,7 +22,7 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
       </nav>
       <div id="content">{children}</div>
       <footer className="foot">
-        <span>NYTV</span>
+        <span>NYmedia</span>
       </footer>
     </div>
   );

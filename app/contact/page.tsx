@@ -14,7 +14,7 @@ export default function ContactPage() {
     const email = String(data.get("email") || "");
     const message = String(data.get("message") || "");
     const body = `שם: ${name}\nדוא״ל: ${email}\n\n${message}`;
-    window.location.href = `mailto:noam6683@gmail.com?subject=${encodeURIComponent("פנייה מ-NYTV")}&body=${encodeURIComponent(body)}`;
+    window.location.href = `mailto:noam6683@gmail.com?subject=${encodeURIComponent("פנייה מ-NYmedia")}&body=${encodeURIComponent(body)}`;
   }
 
   return (

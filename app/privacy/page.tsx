@@ -1,6 +1,6 @@
 import { SiteChrome } from "@/components/site/SiteChrome";
 
-export const metadata = { title: "מדיניות פרטיות · NYTV" };
+export const metadata = { title: "מדיניות פרטיות · NYmedia" };
 
 export default function PrivacyPage() {
   return (
@@ -8,7 +8,7 @@ export default function PrivacyPage() {
       <article className="legal">
         <h1>מדיניות פרטיות</h1>
         <p className="note">טיוטה תפעולית לפי תיקון 13 לחוק הגנת הפרטיות. יש לאשר את הנוסח אצל עורך דין לפני שמסתמכים עליו.</p>
-        <p>בעל השליטה במאגר: NYTV, בדוא״ל noam6683@gmail.com.</p>
+        <p>בעל השליטה במאגר: NYmedia, בדוא״ל noam6683@gmail.com.</p>
         <h2>איזה מידע נשמר</h2>
         <p>פרטי כניסה של נציג בניין: כתובת דוא״ל וסיסמה שמורה כמוצפנת, לא כטקסט. פרטי מסך: שם, כתובת בניין, שקפים, לוגו והודעות שהלקוח מעלה. אות חיים מהטלוויזיה: מזהה המסך והשעה האחרונה שבה המסך היה פתוח.</p>
         <h2>למה</h2>
