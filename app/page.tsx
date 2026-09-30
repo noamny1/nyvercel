@@ -4,14 +4,12 @@ import { SiteChrome } from "@/components/site/SiteChrome";
 export default function Home() {
   return (
     <SiteChrome>
-      <section className="hero">
-        <img src="/lobby.jpg" alt="מסך דק על קיר אבן בלובי של בניין מגורים" />
-        <div className="hero-copy">
-          <p className="eyebrow">NYTV</p>
-          <h1>מסך על הקיר. לובי שמסביר את עצמו.</h1>
-          <p className="lead">שילוט דיגיטלי לבנייני מגורים ולעסקים. הודעות הבניין, שעון, מזג אוויר וחדשות, על מסך בלובי, על הקיר או ליד המעלית.</p>
-          <Link className="cta" href="/contact">שיחה על הבניין</Link>
-        </div>
+      <img className="hero-photo" src="/lobby.jpg" alt="מסך דק על קיר אבן בלובי של בניין מגורים" />
+      <section className="hero-copy">
+        <p className="eyebrow">NYTV</p>
+        <h1>מסך על הקיר. לובי שמסביר את עצמו.</h1>
+        <p className="lead">שילוט דיגיטלי לבנייני מגורים ולעסקים. הודעות הבניין, שעון, מזג אוויר וחדשות, על מסך בלובי, על הקיר או ליד המעלית.</p>
+        <Link className="cta" href="/contact">שיחה על הבניין</Link>
       </section>
       <section className="band">
         <h2>איפה המסך יושב</h2>
@@ -30,11 +28,9 @@ export default function Home() {
           </article>
         </div>
       </section>
-      <section className="dark">
-        <div className="band">
-          <h2>מה רץ על המסך</h2>
-          <p>שקפים של הבניין, שעון, מזג אוויר, הדלקת נרות, פס חדשות ומטבעות. התמה נבחרת בבניין, בלי להחליף את המסך.</p>
-        </div>
+      <section className="band">
+        <h2>מה רץ על המסך</h2>
+        <p>שקפים של הבניין, שעון, מזג אוויר, הדלקת נרות, פס חדשות ומטבעות. התמה נבחרת בבניין, בלי להחליף את המסך.</p>
       </section>
       <section className="band">
         <h2>שאלות</h2>
@@ -49,7 +45,7 @@ export default function Home() {
           </article>
           <article className="qa">
             <h3>מה עם פרטיות?</h3>
-            <p>אין מעקב פרסומי באתר. מדיניות הפרטיות מסבירה איזה מידע נשמר ולמה.</p>
+            <p>אין מעקב פרסומי באתר. הכניסה לניהול נשמרת רק אם סימנתם זאת במפורש.</p>
           </article>
         </div>
       </section>
