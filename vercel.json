@@ -1,4 +1,6 @@
 {
+  "framework": "nextjs",
+  "outputDirectory": null,
   "crons": [
     {
       "path": "/api/cron/news",
