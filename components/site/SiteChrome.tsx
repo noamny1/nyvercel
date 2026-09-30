@@ -22,7 +22,7 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
     <div className={`site ${heebo.className}`}>
       <a className="skip" href="#content">דילוג לתוכן</a>
       <header className="bar">
-        <Link className="admin-pill" href="/admin/login">ניהול ‹</Link>
+        <Link className="admin-pill" href="/admin/login">ניהול מסכים ‹</Link>
         <nav className="menu" aria-label="ניווט">
           {links.map((link) => (
             <Link key={link.href} href={link.href} className={link.href === "/#home" ? "is-here" : undefined}>{link.label}</Link>

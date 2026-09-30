@@ -35,8 +35,8 @@
   color: #F4F1ED;
   border: 1px solid rgba(244, 241, 237, 0.45);
   border-radius: 999px;
-  padding: 8px 16px;
-  font-size: 15px;
+  padding: 12px 22px;
+  font-size: 18px;
   font-weight: 300;
   white-space: nowrap;
 }
@@ -61,17 +61,17 @@
 .intro-actions { display: grid; justify-items: start; gap: 16px; align-content: center; }
 .solid, .ghost {
   display: inline-flex;
-  min-width: 230px;
+  min-width: 270px;
   justify-content: center;
-  padding: 12px 18px;
-  font-size: 17px;
+  padding: 16px 24px;
+  font-size: 19px;
   font-weight: 300;
 }
 .solid { background: #F4F1ED; color: #641E2C; border: 0; }
 .ghost { background: transparent; color: #F4F1ED; border: 1px solid #F4F1ED; }
 .down {
-  width: 42px;
-  height: 42px;
+  width: 48px;
+  height: 48px;
   border: 1px solid #F4F1ED;
   border-radius: 50%;
   display: grid;
