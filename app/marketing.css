@@ -25,16 +25,18 @@
   padding: 14px 28px;
   background: rgba(37, 37, 37, 0.92);
 }
-.brand { display: block; width: 168px; flex: 0 0 auto; }
-.brand svg { width: 168px; height: 64px; display: block; }
+.brand { display: block; width: auto; flex: 0 0 auto; }
+.brand img { height: 58px; width: auto; display: block; filter: brightness(0) invert(1); }
 .menu { display: flex; gap: 28px; align-items: center; font-size: 17px; font-weight: 300; }
 .menu a { color: #FFFFFF; font-weight: 300; }
+.menu a.is-here { text-decoration: underline; text-underline-offset: 6px; }
 .admin-pill {
   background: #641E2C;
   color: #F4F1ED;
+  border: 1px solid rgba(244, 241, 237, 0.45);
   border-radius: 999px;
-  padding: 10px 18px;
-  font-size: 16px;
+  padding: 8px 16px;
+  font-size: 15px;
   font-weight: 300;
   white-space: nowrap;
 }
@@ -100,7 +102,7 @@
     padding: 10px 14px;
     padding-top: max(10px, env(safe-area-inset-top));
   }
-  .brand, .brand svg { width: 132px; height: auto; }
+  .brand img { height: 44px; }
   .menu { flex-wrap: wrap; gap: 4px 16px; order: 3; width: 100%; font-size: 16px; }
   .menu a { padding: 8px 0; }
   .intro { grid-template-columns: 1fr; gap: 28px; padding: 48px 22px 36px; }
