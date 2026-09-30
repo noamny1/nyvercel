@@ -1,4 +1,4 @@
-.site { background: #4A2028; color: #F5F3EF; min-height: 100vh; }
+.site { background: #55232F; color: #F5F3EF; min-height: 100vh; font-family: Calibri, "Segoe UI", sans-serif; }
 .site a { text-decoration: none; }
 .site a:focus-visible, .site button:focus-visible, .site input:focus-visible, .site textarea:focus-visible {
   outline: 3px solid #F5F3EF;
@@ -21,7 +21,7 @@
   transform: translateX(-50%);
   z-index: 40;
   display: flex;
-  gap: 18px;
+  gap: 28px;
   flex-wrap: wrap;
   justify-content: center;
   width: max-content;
@@ -31,40 +31,40 @@
 .topbar a {
   background: transparent;
   color: #F5F3EF;
-  border: 2px solid #F5F3EF;
-  padding: 16px 28px;
-  border-radius: 999px;
-  font-size: 18px;
+  border: 0;
+  border-radius: 0;
+  padding: 6px 2px;
+  font-size: 22px;
   font-weight: 700;
-  letter-spacing: 0.01em;
-  text-shadow: 0 1px 8px rgba(24, 24, 24, 0.45);
+  box-shadow: none;
+  text-shadow: none;
 }
 .hero-photo { width: 100%; height: 72vh; object-fit: cover; display: block; }
 .hero-copy { max-width: 760px; margin: 0 auto; padding: 48px 24px 12px; }
 .hero-copy h1 { font-size: 52px; line-height: 1.15; margin: 0; color: #F5F3EF; }
 .eyebrow { color: #F5F3EF; margin: 0 0 8px; letter-spacing: 0.12em; }
 .lead { font-size: 20px; line-height: 1.6; margin: 12px 0 0; color: #F5F3EF; }
-.cta { display: inline-block; margin-top: 18px; background: #181818; color: #F5F3EF; padding: 12px 18px; border-radius: 8px; font-weight: 700; }
+.cta { display: inline-block; margin-top: 18px; background: transparent; color: #F5F3EF; padding: 0; border-radius: 0; font-weight: 700; text-decoration: underline; }
 .band { max-width: 1080px; margin: 0 auto; padding: 36px 24px; }
 .band h2 { font-size: 34px; margin: 0 0 12px; color: #F5F3EF; }
 .band > p { color: #F5F3EF; }
 .places, .faq { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
 .place, .qa { background: #F5F3EF; border-radius: 16px; padding: 20px; }
-.place h3, .qa h3 { margin: 0 0 8px; color: #181818; }
-.place p, .qa p { color: #5B5B5B; }
+.place h3, .qa h3 { margin: 0 0 8px; color: #252525; }
+.place p, .qa p { color: #252525; }
 .foot { padding: 28px 24px 48px; color: #F5F3EF; }
 .legal { max-width: 760px; margin: 0 auto; padding: 120px 20px 80px; }
 .legal h1, .legal h2 { color: #F5F3EF; }
 .legal h1 { margin-top: 0; }
 .legal h2 { margin-top: 28px; }
 .legal p { color: #F5F3EF; }
-.note { background: #F5F3EF; border-radius: 12px; padding: 12px 14px; color: #181818; }
+.note { background: #F5F3EF; border-radius: 12px; padding: 12px 14px; color: #252525; }
 .contact { display: grid; gap: 12px; max-width: 520px; }
-.contact input, .contact textarea { color: #181818; }
+.contact input, .contact textarea { color: #252525; }
 @media (max-width: 800px) {
   .places, .faq { grid-template-columns: 1fr; }
   .hero-copy h1 { font-size: 36px; }
   .hero-photo { height: 52vh; }
-  .topbar { gap: 12px; top: 12px; }
-  .topbar a { padding: 14px 18px; font-size: 16px; }
+  .topbar { gap: 16px; top: 12px; }
+  .topbar a { padding: 4px 0; font-size: 18px; }
 }

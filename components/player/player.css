@@ -23,7 +23,7 @@
 .empty {
   display: grid;
   place-items: center;
-  color: #fff;
+  color: #F5F3EF;
   font-size: 32px;
 }
 .rail {
