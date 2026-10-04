@@ -2,12 +2,12 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { ReadyLibrary } from "@/components/admin/ReadyLibrary";
+import { ReadyLibrary, SavedSlideEditor, type SlideDraft } from "@/components/admin/ReadyLibrary";
 import { NEWS_SOURCES } from "@/lib/news-sources";
 import { THEMES } from "@/lib/themes";
 import { addGroupNotice, addNotice, deleteGroupNotice, deleteNotice, toggleGroupNotice, toggleNotice, updateGroup, updateGroupNotice, updateNotice, updateScreen } from "@/app/admin/actions";
 
-type Slide = { id: number; imageUrl: string; duration: number; sort: number; weekdays?: string; active?: boolean };
+type Slide = { id: number; imageUrl: string; duration: number; sort: number; weekdays?: string; active?: boolean; kind?: string; templateId?: string; title?: string; detail?: string; meta?: string };
 type Notice = { id: number; text: string; active: boolean };
 
 export function ScreenEditor({
@@ -81,24 +81,29 @@ export function ScreenEditor({
     }
   }
 
-  async function onSlide(file: File, duration: number) {
+  async function onSlide(draft: SlideDraft) {
     setMessage("");
-    try {
-      const imageUrl = await upload(file, "slide");
-      const response = await fetch("/api/slides", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ [ownerField]: screen.id, imageUrl, duration }),
-      });
-      if (!response.ok) throw new Error("שמירת השקף נכשלה");
-      router.refresh();
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : "ההעלאה נכשלה");
-      throw error;
-    }
+    const imageUrl = draft.file ? await upload(draft.file, "slide") : draft.imageUrl || "";
+    if (!imageUrl) throw new Error("חסר קובץ או קישור");
+    const response = await fetch("/api/slides", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        [ownerField]: screen.id,
+        imageUrl,
+        duration: draft.duration || 8,
+        kind: draft.kind,
+        templateId: draft.templateId || "",
+        title: draft.title || "",
+        detail: draft.detail || "",
+        meta: draft.meta || "",
+      }),
+    });
+    if (!response.ok) throw new Error("שמירת השקף נכשלה");
+    router.refresh();
   }
 
-  async function changeSlide(id: number, payload: { duration?: number; direction?: "up" | "down"; weekdays?: string; imageUrl?: string }) {
+  async function changeSlide(id: number, payload: { duration?: number; direction?: "up" | "down"; weekdays?: string; imageUrl?: string; title?: string; detail?: string; meta?: string }) {
     await fetch("/api/slides", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -176,14 +181,14 @@ export function ScreenEditor({
 
       <section className="card">
         <h2>שקפים</h2>
-        <p>בוחרים קטגוריה, ואז שקף קטן. השקף נפתח בגדול ואפשר להוסיף אותו למסך או להחליף את התמונה.</p>
-        <ReadyLibrary onUse={(file) => onSlide(file, 8)} />
+        <p>בוחרים קטגוריה ושקף. אם יש יום או שעה, מעדכנים אותם בחלון הגדול. העלאת תמונה רק בשקף תמונה.</p>
+        <ReadyLibrary onAdd={onSlide} />
         <h3 className="ready-cat">השקפים של המסך</h3>
         <div className="slide-grid">
           {slides.map((slide) => (
             <button className="ready-card" type="button" key={slide.id} onClick={() => setOpenSlide(slide.id)}>
-              {slide.imageUrl.toLowerCase().includes(".pdf") ? <span className="pdf-mark">PDF</span> : <img src={slide.imageUrl} alt="" />}
-              <span>{slide.duration} שניות</span>
+              {slide.kind === "youtube" ? <span className="pdf-mark">יוטיוב</span> : slide.imageUrl.toLowerCase().includes(".pdf") ? <span className="pdf-mark">PDF</span> : <img src={slide.imageUrl} alt="" />}
+              <span>{slide.title || (slide.kind === "youtube" ? "סרטון" : "שקף")}</span>
             </button>
           ))}
         </div>
@@ -191,26 +196,12 @@ export function ScreenEditor({
           const slide = slides.find((item) => item.id === openSlide);
           if (!slide) return null;
           return (
-            <div className="slide-modal" role="dialog" aria-modal="true" onClick={() => setOpenSlide(null)}>
-              <div className="slide-modal-card" onClick={(event) => event.stopPropagation()}>
-                {slide.imageUrl.toLowerCase().includes(".pdf") ? <span className="pdf-mark large">PDF</span> : <img className="slide-modal-image" src={slide.imageUrl} alt="" />}
-                <div className="slide-modal-actions">
-                  <label>שניות
-                    <input type="number" min={3} defaultValue={slide.duration} onBlur={(event) => {
-                      void changeSlide(slide.id, { duration: Number(event.target.value) });
-                    }} />
-                  </label>
-                  <label className="replace-file">החלפת התמונה
-                    <input type="file" accept="image/*,.gif,.pdf,application/pdf" onChange={(event) => {
-                      const file = event.target.files?.[0];
-                      if (file) void upload(file, "slide").then((imageUrl) => changeSlide(slide.id, { imageUrl }));
-                    }} />
-                  </label>
-                  <button className="light" type="button" onClick={() => removeSlide(slide.id)}>מחיקה</button>
-                  <button className="light" type="button" onClick={() => setOpenSlide(null)}>סגירה</button>
-                </div>
-              </div>
-            </div>
+            <SavedSlideEditor
+              slide={slide}
+              onChange={(payload) => changeSlide(slide.id, payload)}
+              onRemove={() => removeSlide(slide.id)}
+              onClose={() => setOpenSlide(null)}
+            />
           );
         })() : null}
       </section>

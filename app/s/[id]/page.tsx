@@ -82,7 +82,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
             <Directory floors={floors} />
           </div>
         ) : (
-          <Player slides={visible.map((slide) => ({ imageUrl: slide.imageUrl, duration: slide.duration }))} />
+          <Player slides={visible.map((slide) => ({ imageUrl: slide.imageUrl, duration: slide.duration, kind: slide.kind, title: slide.title, detail: slide.detail }))} />
         )}
       </section>
       <aside className="rail">

@@ -157,23 +157,21 @@ body:has(.admin) { background: #F4F1ED; overflow-x: hidden; }
   border-radius: 10px;
 }
 .admin .ready-card > span { font-size: 13px; padding: 0 2px 4px; }
-.admin .poster {
-  aspect-ratio: 16 / 9;
-  border-radius: 10px;
-  display: grid;
-  align-content: center;
-  justify-items: start;
-  gap: 4px;
-  padding: 10px 12px;
-  overflow: hidden;
-  text-align: right;
+.admin .photo-slide { position: relative; aspect-ratio: 16 / 9; border-radius: 10px; overflow: hidden; background: #111; }
+.admin .photo-slide img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.admin .photo-slide div {
+  position: absolute; inset: auto 0 0 0; display: grid; gap: 2px; padding: 16px 12px 10px;
+  background: linear-gradient(transparent, rgba(12,10,10,.78)); color: #F4F1ED; text-align: right;
 }
-.admin .poster small { font-size: 11px; opacity: 0.8; }
-.admin .poster strong { font-size: 18px; line-height: 1.15; font-weight: 700; }
-.admin .poster span { font-size: 12px; line-height: 1.3; }
-.admin .tone-burgundy { background: #641E2C; color: #F4F1ED; }
-.admin .tone-charcoal { background: #252525; color: #F4F1ED; }
-.admin .tone-cream { background: #F4F1ED; color: #252525; border: 1px solid rgba(37,37,37,.12); }
+.admin .photo-slide small { font-size: 11px; opacity: .85; }
+.admin .photo-slide strong { font-size: 16px; line-height: 1.15; }
+.admin .photo-slide span { font-size: 12px; }
+.admin .slide-modal .photo-slide { min-height: 280px; }
+.admin .slide-modal .photo-slide strong { font-size: clamp(28px, 4vw, 52px); }
+.admin .slide-modal .photo-slide span { font-size: clamp(16px, 2vw, 26px); }
+.admin .special-slides { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+.admin .special-slides button { width: 100%; background: #252525; }
+.admin .yt-preview { margin: 0; padding: 48px 16px; background: #111; color: #F4F1ED; border-radius: 12px; text-align: center; }
 .admin .slide-modal {
   position: fixed;
   inset: 0;

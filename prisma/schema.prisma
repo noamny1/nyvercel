@@ -83,6 +83,11 @@ model Slide {
   groupId   Int?
   group     ScreenGroup? @relation(fields: [groupId], references: [id], onDelete: Cascade)
   imageUrl  String
+  kind      String       @default("image")
+  templateId String      @default("")
+  title     String       @default("")
+  detail    String       @default("")
+  meta      String       @default("")
   sort      Int          @default(0)
   duration  Int          @default(8)
   active    Boolean      @default(true)

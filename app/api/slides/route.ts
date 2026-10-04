@@ -5,7 +5,10 @@ import { requireSession } from "@/lib/session";
 export async function POST(request: Request) {
   const session = await requireSession();
   if (!session) return NextResponse.json({ error: "נדרשת כניסה" }, { status: 401 });
-  const body = (await request.json()) as { screenId?: number; groupId?: number; imageUrl?: string; duration?: number };
+  const body = (await request.json()) as {
+    screenId?: number; groupId?: number; imageUrl?: string; duration?: number;
+    kind?: string; templateId?: string; title?: string; detail?: string; meta?: string;
+  };
   const owner = body.groupId ? { groupId: body.groupId } : body.screenId ? { screenId: body.screenId } : null;
   if (!owner || !body.imageUrl) {
     return NextResponse.json({ error: "חסרים פרטים" }, { status: 400 });
@@ -19,6 +22,11 @@ export async function POST(request: Request) {
       ...owner,
       imageUrl: body.imageUrl,
       duration: Math.max(3, Number(body.duration) || 8),
+      kind: body.kind === "template" || body.kind === "youtube" ? body.kind : "image",
+      templateId: body.templateId || "",
+      title: body.title || "",
+      detail: body.detail || "",
+      meta: body.meta || "",
       sort: (last?.sort ?? 0) + 1,
     },
   });
@@ -28,11 +36,21 @@ export async function POST(request: Request) {
 export async function PATCH(request: Request) {
   const session = await requireSession();
   if (!session) return NextResponse.json({ error: "נדרשת כניסה" }, { status: 401 });
-  const body = (await request.json()) as { id?: number; duration?: number; direction?: "up" | "down"; weekdays?: string; imageUrl?: string };
+  const body = (await request.json()) as { id?: number; duration?: number; direction?: "up" | "down"; weekdays?: string; imageUrl?: string; title?: string; detail?: string; meta?: string };
   if (!body.id) return NextResponse.json({ error: "חסר מזהה" }, { status: 400 });
   const slide = await prisma.slide.findUnique({ where: { id: body.id } });
   if (!slide) return NextResponse.json({ error: "לא נמצא" }, { status: 404 });
 
+  if (body.title !== undefined || body.detail !== undefined || body.meta !== undefined) {
+    await prisma.slide.update({
+      where: { id: slide.id },
+      data: {
+        ...(body.title !== undefined ? { title: body.title } : {}),
+        ...(body.detail !== undefined ? { detail: body.detail } : {}),
+        ...(body.meta !== undefined ? { meta: body.meta } : {}),
+      },
+    });
+  }
   if (body.imageUrl) {
     await prisma.slide.update({ where: { id: slide.id }, data: { imageUrl: body.imageUrl } });
   }
