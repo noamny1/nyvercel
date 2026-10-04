@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { screenWhere } from "@/lib/access";
 import { requireSession, isSystemAdmin } from "@/lib/session";
 
 async function gate() {
@@ -357,4 +358,31 @@ export async function deleteFloor(formData: FormData) {
   await gate();
   await prisma.floor.delete({ where: { id: Number(formData.get("id")) } });
   redirect("/admin/directory");
+}
+
+export async function saveUpdate(formData: FormData) {
+  const session = await gate();
+  const id = Number(formData.get("id")) || 0;
+  const returnId = Number(formData.get("returnId"));
+  const text = String(formData.get("text") || "").trim();
+  const requested = formData.getAll("screenId").map(Number).filter(Boolean);
+  const allowed = await prisma.screen.findMany({ where: await screenWhere(session), select: { id: true } });
+  const allowedIds = new Set(allowed.map((screen) => screen.id));
+  const screenIds = requested.filter((screenId) => allowedIds.has(screenId));
+  if (!text || !screenIds.length) redirect(`/admin/screens/${returnId}/updates`);
+  const links = screenIds.map((screenId) => ({ id: screenId }));
+  if (id) await prisma.update.update({ where: { id }, data: { text, screens: { set: links } } });
+  else await prisma.update.create({ data: { text, active: true, screens: { connect: links } } });
+  redirect(`/admin/screens/${returnId}/updates`);
+}
+
+export async function deleteUpdate(formData: FormData) {
+  const session = await gate();
+  const id = Number(formData.get("id"));
+  const returnId = Number(formData.get("returnId"));
+  const allowed = await prisma.screen.findMany({ where: await screenWhere(session), select: { id: true } });
+  const allowedIds = new Set(allowed.map((screen) => screen.id));
+  const update = id ? await prisma.update.findUnique({ where: { id }, include: { screens: { select: { id: true } } } }) : null;
+  if (update && update.screens.every((screen) => allowedIds.has(screen.id))) await prisma.update.delete({ where: { id } });
+  redirect(`/admin/screens/${returnId}/updates`);
 }

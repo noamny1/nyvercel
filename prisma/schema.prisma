@@ -65,6 +65,7 @@ model Screen {
   users      User[]
   slides     Slide[]
   notices    Notice[]
+  updates    Update[]
   createdAt  DateTime     @default(now())
 
   @@index([groupId])
@@ -120,6 +121,14 @@ model Ticker {
   group   ScreenGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
   text    String
   active  Boolean     @default(true)
+}
+
+model Update {
+  id        Int      @id @default(autoincrement())
+  text      String
+  active    Boolean  @default(true)
+  screens   Screen[]
+  createdAt DateTime @default(now())
 }
 
 model Floor {

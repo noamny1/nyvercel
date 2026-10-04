@@ -98,6 +98,7 @@ export default async function BuildingsPage({ searchParams }: { searchParams: Pr
                   <td data-label="סטטוס"><span className={`status ${state}`}><i />{label}</span></td>
                   <td data-label="פעולות" className="acts">
                     <a className="icon-btn" href={`/s/${screen.id}`} target="_blank">פתיחה</a>
+                    <Link className="icon-btn" href={`/admin/screens/${screen.id}/updates`}>עדכונים</Link>
                     <Link className="icon-btn" href={editHref}>עריכה</Link>
                     {owner ? (
                       <form action={deleteListedScreen}>

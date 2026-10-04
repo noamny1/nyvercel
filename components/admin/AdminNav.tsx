@@ -13,7 +13,6 @@ const CLIENT_LINKS = [
 const OWNER_LINKS = [
   ["/admin", "קבוצות"],
   ["/admin/buildings", "בניינים"],
-  ["/admin/tickers", "טיקרים"],
   ["/admin/music", "מוזיקה"],
   ["/admin/news", "חדשות"],
   ["/admin/directory", "קומות"],

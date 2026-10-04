@@ -35,6 +35,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
     include: {
       slides: { orderBy: { sort: "asc" } },
       notices: { where: { active: true }, orderBy: { id: "desc" }, take: 4 },
+      updates: { where: { active: true }, orderBy: { id: "desc" } },
       group: {
         include: {
           slides: { orderBy: { sort: "asc" } },
@@ -59,7 +60,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
     newsFor(source.newsSource).catch(() => []),
     markets().catch(() => []),
   ]);
-  const ticker = screen.group?.tickers.map((item) => item.text) ?? [];
+  const ticker = screen.updates.map((item) => item.text);
 
   const indexTheme = source.theme.startsWith("index");
   const floors = screen.group?.floors ?? [];
