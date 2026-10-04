@@ -1,11 +1,13 @@
 type MailCard = { name: string; email: string; password: string; screens: string[] };
 
+const LOGIN = "https://nytv.app/admin/login";
+
 export function mailText(card: MailCard) {
   return [
     `שלום ${card.name || ""}`,
     "",
     "לחצו על הקישור והיכנסו:",
-    "https://nytv.app/admin/login",
+    LOGIN,
     `אימייל: ${card.email}`,
     `סיסמה: ${card.password}`,
     "",
@@ -17,13 +19,27 @@ export function mailText(card: MailCard) {
   ].join("\n");
 }
 
-export function mailtoLink(card: MailCard) {
-  return `mailto:${card.email}?subject=${encodeURIComponent("פרטי כניסה למסכים של NYmedia")}&body=${encodeURIComponent(mailText(card))}`;
+function mailHtml(card: MailCard) {
+  const screens = (card.screens.length ? card.screens : ["לא שויכו מסכים"])
+    .map((line) => `<li>${escapeHtml(line)}</li>`)
+    .join("");
+  return `<div dir="rtl" style="font-family:Calibri,Arial,sans-serif;color:#252525">
+    <p>שלום ${escapeHtml(card.name || "")}</p>
+    <p><a href="${LOGIN}">לחצו כאן לכניסה למסכים</a></p>
+    <p>אימייל: ${escapeHtml(card.email)}<br>סיסמה: ${escapeHtml(card.password)}</p>
+    <p>המסכים:</p>
+    <ul>${screens}</ul>
+    <p>אפשר לנהל רק את המסכים שמופיעים כאן.</p>
+  </div>`;
+}
+
+function escapeHtml(value: string) {
+  return value.replace(/&/g, "&").replace(/</g, "<").replace(/>/g, ">");
 }
 
 export async function sendClientMail(card: MailCard) {
   const key = process.env.RESEND_API_KEY;
-  if (!key) return { ok: false as const, error: "missing-key" };
+  if (!key) return { ok: false as const, error: "שליחת המייל מהמערכת עדיין לא מחוברת." };
   const response = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {
@@ -31,12 +47,13 @@ export async function sendClientMail(card: MailCard) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      from: process.env.EMAIL_FROM || "NYmedia <onboarding@resend.dev>",
+      from: process.env.EMAIL_FROM || "NYmedia <noreply@nytv.app>",
       to: [card.email],
       subject: "פרטי כניסה למסכים של NYmedia",
       text: mailText(card),
+      html: mailHtml(card),
     }),
   });
-  if (!response.ok) return { ok: false as const, error: "failed" };
+  if (!response.ok) return { ok: false as const, error: "המשתמש נשמר, אבל המייל לא יצא מהמערכת." };
   return { ok: true as const };
 }

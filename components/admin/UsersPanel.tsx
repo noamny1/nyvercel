@@ -4,7 +4,6 @@ import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { assignScreens, createClientUser, deleteClientUser } from "@/app/admin/users/actions";
 import { ClientCard } from "@/components/admin/ClientCard";
-import { mailtoLink } from "@/lib/mail";
 
 type Screen = { id: number; street: string; number: string; city: string; name: string };
 type UserRow = { id: number; name: string; email: string; screenIds: number[] };
@@ -88,11 +87,7 @@ export function UsersPanel({ screens, users }: { screens: Screen[]; users: UserR
     setPassword("");
     setSelected([]);
     if (formData.get("intent") === "send") {
-      if (result.sent) setNotice("המשתמש נשמר והפרטים נשלחו למייל.");
-      else {
-        setNotice("המשתמש נשמר. נפתח המייל כדי לשלוח לו את הפרטים.");
-        window.location.href = mailtoLink(result.card);
-      }
+      setNotice(result.sent ? "המשתמש נשמר והמייל נשלח ללקוח מהמערכת." : result.mailError || "המשתמש נשמר, אבל המייל לא נשלח.");
     }
     router.refresh();
   }
