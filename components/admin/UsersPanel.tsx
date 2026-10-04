@@ -63,7 +63,7 @@ function ScreenSearch({
   );
 }
 
-export function UsersPanel({ screens, users }: { screens: Screen[]; users: UserRow[] }) {
+export function UsersPanel({ screens, users, query }: { screens: Screen[]; users: UserRow[]; query: string }) {
   const router = useRouter();
   const [card, setCard] = useState<{ name: string; email: string; password: string; screens: string[] } | null>(null);
   const [dialog, setDialog] = useState<{ ok: boolean; message: string } | null>(null);
@@ -115,6 +115,14 @@ export function UsersPanel({ screens, users }: { screens: Screen[]; users: UserR
           <button type="submit" name="intent" value="send">שמירה ושליחה</button>
         </div>
       </form>
+      <form className="card" action="/admin/users">
+        <h2>חיפוש משתמש</h2>
+        <div className="row">
+          <label>שם או אימייל<input name="q" defaultValue={query} placeholder="שם או אימייל" /></label>
+          <button type="submit">חיפוש</button>
+        </div>
+        {query && users.length === 0 ? <p>לא נמצא משתמש.</p> : null}
+      </form>
       {users.map((user) => (
         <UserAssign key={user.id} user={user} screens={screens} />
       ))}
@@ -143,6 +151,7 @@ function UserAssign({ user, screens }: { user: UserRow; screens: Screen[] }) {
       <h2>{user.name || user.email}</h2>
       <p>{user.email}</p>
       <input type="hidden" name="userId" value={user.id} />
+      <input type="hidden" name="q" value={user.email} />
       {selected.map((id) => <input key={id} type="hidden" name="screenId" value={id} />)}
       <ScreenSearch screens={screens} selected={selected} onToggle={toggle} />
       <div className="row">

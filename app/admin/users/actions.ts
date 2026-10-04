@@ -79,7 +79,8 @@ export async function assignScreens(formData: FormData) {
     where: { id: userId },
     data: { screens: { set: ids.map((id) => ({ id })) } },
   });
-  redirect("/admin/users");
+  const email = String(formData.get("q") || "").trim();
+  redirect(email ? `/admin/users?q=${encodeURIComponent(email)}` : "/admin/users");
 }
 
 export async function deleteClientUser(formData: FormData) {

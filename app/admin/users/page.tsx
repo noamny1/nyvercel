@@ -6,25 +6,37 @@ import { isSystemAdmin, requireSession } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 
-export default async function UsersPage() {
+export default async function UsersPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
   const session = await requireSession();
   if (!session) redirect("/admin/login");
   if (!isSystemAdmin(session)) redirect("/admin");
+  const { q = "" } = await searchParams;
+  const query = q.trim();
   const [screens, users] = await Promise.all([
     prisma.screen.findMany({ orderBy: { id: "asc" }, include: { group: true } }),
-    prisma.user.findMany({
-      where: { role: "client" },
-      orderBy: { id: "asc" },
-      include: { screens: { select: { id: true } } },
-    }),
+    query
+      ? prisma.user.findMany({
+          where: {
+            role: "client",
+            OR: [
+              { name: { contains: query, mode: "insensitive" } },
+              { email: { contains: query, mode: "insensitive" } },
+            ],
+          },
+          orderBy: { name: "asc" },
+          take: 8,
+          include: { screens: { select: { id: true } } },
+        })
+      : Promise.resolve([]),
   ]);
 
   return (
     <main className="admin">
       <AdminNav />
       <h1>משתמשים</h1>
-      <p>יוצרים לקוח, משייכים לו מסכים, ומעתיקים לו קישור כניסה עם האימייל והסיסמה.</p>
+      <p>יוצרים לקוח, או מחפשים משתמש קיים לפי שם או אימייל.</p>
       <UsersPanel
+        query={query}
         screens={screens.map((screen) => ({
           id: screen.id,
           street: screen.street || screen.group?.street || "",
