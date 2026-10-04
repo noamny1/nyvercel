@@ -48,9 +48,10 @@ export function ScreenEditor({
   const [message, setMessage] = useState("");
   const [editing, setEditing] = useState<number | null>(null);
 
-  async function upload(file: File) {
+  async function upload(file: File, kind: "image" | "slide") {
     const body = new FormData();
     body.set("file", file);
+    body.set("kind", kind);
     const response = await fetch("/api/upload", { method: "POST", body });
     const data = (await response.json()) as { url?: string; error?: string };
     if (!response.ok || !data.url) throw new Error(data.error || "ההעלאה נכשלה");
@@ -60,7 +61,7 @@ export function ScreenEditor({
   async function onLogo(file: File) {
     setMessage("");
     try {
-      setLogoUrl(await upload(file));
+      setLogoUrl(await upload(file, "image"));
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "ההעלאה נכשלה");
     }
@@ -69,7 +70,7 @@ export function ScreenEditor({
   async function onSlide(file: File, duration: number) {
     setMessage("");
     try {
-      const imageUrl = await upload(file);
+      const imageUrl = await upload(file, "slide");
       const response = await fetch("/api/slides", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -139,7 +140,7 @@ export function ScreenEditor({
         </div>
         <div className="row" style={{ marginTop: 12 }}>
           <label>לוגו הבניין
-            <input type="file" accept="image/*" onChange={(event) => {
+            <input type="file" accept="image/*,.gif" onChange={(event) => {
               const file = event.target.files?.[0];
               if (file) void onLogo(file);
             }} />
@@ -152,7 +153,7 @@ export function ScreenEditor({
       <section className="card">
         <h2>שקפים</h2>
         <label>תמונה חדשה
-          <input type="file" accept="image/*" onChange={(event) => {
+          <input type="file" accept="image/*,.pdf,application/pdf" onChange={(event) => {
             const file = event.target.files?.[0];
             if (file) void onSlide(file, 8);
             event.currentTarget.value = "";
@@ -160,7 +161,11 @@ export function ScreenEditor({
         </label>
         {slides.map((slide) => (
           <div className="row" key={slide.id} style={{ marginTop: 10 }}>
-            <img src={slide.imageUrl} alt="" style={{ width: 96, height: 54, objectFit: "cover" }} />
+            {slide.imageUrl.toLowerCase().includes(".pdf") ? (
+              <span className="pdf-mark">PDF</span>
+            ) : (
+              <img src={slide.imageUrl} alt="" style={{ width: 96, height: 54, objectFit: "cover" }} />
+            )}
             <label>שניות
               <input type="number" min={3} defaultValue={slide.duration} onBlur={(event) => {
                 void changeSlide(slide.id, { duration: Number(event.target.value) });

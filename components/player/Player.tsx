@@ -13,5 +13,10 @@ export function Player({ slides }: { slides: { imageUrl: string; duration: numbe
   }, [current, slides.length]);
 
   if (!current) return <div className="empty">אין שקפים</div>;
-  return <img className="slide-image" src={current.imageUrl} alt="" />;
+  const pdf = current.imageUrl.toLowerCase().includes(".pdf");
+  return pdf ? (
+    <iframe className="slide-image" src={`${current.imageUrl}#toolbar=0&navpanes=0`} title="שקף" />
+  ) : (
+    <img className="slide-image" src={current.imageUrl} alt="" />
+  );
 }

@@ -11,8 +11,11 @@ export async function POST(request: Request) {
   if (!(file instanceof File) || file.size === 0) {
     return NextResponse.json({ error: "לא נבחרה תמונה" }, { status: 400 });
   }
-  if (!file.type.startsWith("image/")) {
-    return NextResponse.json({ error: "אפשר להעלות רק תמונה" }, { status: 400 });
+  const kind = String(form.get("kind") || "image");
+  const isImage = file.type.startsWith("image/");
+  const isPdf = file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
+  if (kind === "slide" ? !(isImage || isPdf) : !isImage) {
+    return NextResponse.json({ error: kind === "slide" ? "אפשר להעלות תמונה או PDF" : "אפשר להעלות תמונה או GIF" }, { status: 400 });
   }
 
   const blob = await put(`uploads/${Date.now()}-${file.name}`, file, {

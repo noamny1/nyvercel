@@ -19,6 +19,8 @@
   height: 100%;
   object-fit: cover;
   display: block;
+  border: 0;
+  background: #000;
 }
 .empty {
   display: grid;
