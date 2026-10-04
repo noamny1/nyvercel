@@ -16,6 +16,7 @@ export function ScreenEditor({
   scope = "screen",
   buildings = [],
   feeds,
+  lockAddress = false,
 }: {
   screen: {
     id: number;
@@ -34,6 +35,7 @@ export function ScreenEditor({
   scope?: "screen" | "group";
   buildings?: { id: number; name: string }[];
   feeds?: { id: string; name: string }[];
+  lockAddress?: boolean;
 }) {
   const router = useRouter();
   const save = scope === "group" ? updateGroup : updateScreen;
@@ -102,10 +104,9 @@ export function ScreenEditor({
         <input type="hidden" name="id" value={screen.id} />
         <input type="hidden" name="logoUrl" value={logoUrl} />
         <div className="row">
-          <label>שם<input name="name" defaultValue={screen.name} /></label>
-          <label>רחוב<input name="street" defaultValue={screen.street} /></label>
-          <label>מספר<input name="number" defaultValue={screen.number} /></label>
-          <label>עיר<input name="city" defaultValue={screen.city} /></label>
+          <label>רחוב<input name="street" defaultValue={screen.street} readOnly={lockAddress} /></label>
+          <label>מספר<input name="number" defaultValue={screen.number} readOnly={lockAddress} /></label>
+          <label>עיר<input name="city" defaultValue={screen.city} readOnly={lockAddress} /></label>
           <label>תמה
             <select name="theme" defaultValue={screen.theme}>
               {THEMES.map((theme) => (

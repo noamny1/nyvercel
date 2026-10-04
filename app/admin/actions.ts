@@ -31,15 +31,18 @@ export async function createScreen(formData: FormData) {
 }
 
 export async function updateScreen(formData: FormData) {
-  await gate();
+  const session = await gate();
   const id = Number(formData.get("id"));
+  const current = await prisma.screen.findUnique({ where: { id } });
+  if (!current) redirect("/admin/buildings");
+  const owner = isSystemAdmin(session);
   await prisma.screen.update({
     where: { id },
     data: {
-      name: String(formData.get("name") || ""),
-      street: String(formData.get("street") || ""),
-      number: String(formData.get("number") || ""),
-      city: String(formData.get("city") || ""),
+      name: current.name,
+      street: owner ? String(formData.get("street") || "") : current.street,
+      number: owner ? String(formData.get("number") || "") : current.number,
+      city: owner ? String(formData.get("city") || "") : current.city,
       theme: String(formData.get("theme") || "modern"),
       newsSource: String(formData.get("newsSource") || "ynet"),
       logoUrl: String(formData.get("logoUrl") || ""),
