@@ -230,7 +230,7 @@ body:has(.admin) { background: #F4F1ED; overflow-x: hidden; }
 .admin .suggest button { text-align: right; background: #fff; color: #252525; border: 1px solid rgba(37, 37, 37, 0.16); }
 .admin .chosen span { display: flex; justify-content: space-between; gap: 10px; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(37, 37, 37, 0.08); }
 .admin .table-wrap { overflow-x: auto; }
-.admin table.screen-table { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
+.admin .assigned-user { display: block; font-size: 13px; line-height: 1.35; }
 .admin table.screen-table th, .admin table.screen-table td { text-align: right; vertical-align: middle; padding: 12px 10px; }
 .admin table.screen-table th { color: #5c5854; font-size: 13px; font-weight: 400; }
 .admin table.screen-table td { background: #fff; border-top: 1px solid rgba(37, 37, 37, 0.1); border-bottom: 1px solid rgba(37, 37, 37, 0.1); }

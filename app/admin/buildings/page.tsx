@@ -11,6 +11,14 @@ export const dynamic = "force-dynamic";
 
 const ONLINE_MS = 8 * 60 * 1000;
 
+function assignedUsers(users: { name: string; email: string; role: string }[]) {
+  const admin = process.env.ADMIN_EMAIL?.trim().toLowerCase();
+  return users.filter((user) => {
+    const email = user.email.trim().toLowerCase();
+    return user.role !== "owner" && user.name !== "owner" && email !== "noam6683@gmail.com" && email !== admin;
+  });
+}
+
 function stateOf(screen: { active: boolean; lastPing: Date | null }, now: number) {
   if (!screen.active) return "inactive";
   if (screen.lastPing && now - screen.lastPing.getTime() <= ONLINE_MS) return "online";
@@ -45,7 +53,7 @@ export default async function BuildingsPage({ searchParams }: { searchParams: Pr
       },
       orderBy: { id: "asc" },
       take: 30,
-      include: { group: true },
+      include: { group: true, users: { select: { name: true, email: true, role: true }, orderBy: { email: "asc" } } },
     }),
     prisma.screenGroup.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
   ]);
@@ -71,6 +79,7 @@ export default async function BuildingsPage({ searchParams }: { searchParams: Pr
               <th>עיר</th>
               {owner ? <th>קבוצה</th> : null}
               {owner ? <th>סטטוס</th> : null}
+              <th>משתמשים</th>
               <th>פעולות</th>
             </tr>
           </thead>
@@ -82,6 +91,7 @@ export default async function BuildingsPage({ searchParams }: { searchParams: Pr
               const city = screen.city || screen.group?.city || "";
               const editHref = `/admin/screens/${screen.id}`;
               const label = state === "online" ? "מחובר" : state === "inactive" ? "כבוי" : "לא מחובר";
+              const people = assignedUsers(screen.users);
               return (
                 <tr key={screen.id}>
                   <td data-label="מסך">{screen.id}</td>
@@ -94,6 +104,9 @@ export default async function BuildingsPage({ searchParams }: { searchParams: Pr
                     </td>
                   ) : null}
                   {owner ? <td data-label="סטטוס"><span className={`status ${state}`}><i />{label}</span></td> : null}
+                  <td data-label="משתמשים">
+                    {people.length ? people.map((user) => <span key={user.email} className="assigned-user">{user.name || user.email}</span>) : "—"}
+                  </td>
                   <td data-label="פעולות" className="acts">
                     <a className="icon-btn" href={`/s/${screen.id}`} target="_blank">פתיחה</a>
                     <Link className="icon-btn" href={editHref}>עריכה</Link>
