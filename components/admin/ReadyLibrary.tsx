@@ -114,7 +114,24 @@ export function ReadyLibrary({ onAdd }: { onAdd: (draft: SlideDraft) => Promise<
           </div>
         </div>
       ) : null}
-      {mode ? <SlideAgent mode={mode} onAdd={onAdd} onClose={() => setMode("")} /> : null}
+      {mode === "image" ? (
+        <div className="slide-modal" role="dialog" aria-modal="true" onClick={() => setMode("")}>
+          <div className="slide-modal-card" onClick={(event) => event.stopPropagation()}>
+            <h3>שקף תמונה</h3>
+            <p>מעלים תמונה, GIF או PDF.</p>
+            <label>קובץ
+              <input type="file" accept="image/*,.gif,.pdf,application/pdf" onChange={(event) => {
+                const file = event.target.files?.[0];
+                if (!file) return;
+                void onAdd({ kind: "image", file, duration: 8 }).then(() => setMode("")).catch((reason) => setError(reason instanceof Error ? reason.message : "השמירה נכשלה"));
+              }} />
+            </label>
+            {error ? <p className="error">{error}</p> : null}
+            <button type="button" className="light" onClick={() => setMode("")}>סגירה</button>
+          </div>
+        </div>
+      ) : null}
+      {mode === "youtube" ? <SlideAgent onAdd={onAdd} onClose={() => setMode("")} /> : null}
     </div>
   );
 }
