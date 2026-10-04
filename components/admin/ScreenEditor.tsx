@@ -182,7 +182,7 @@ export function ScreenEditor({
         <h2>הודעות בניין</h2>
         <form className="notice-add" action={createNotice}>
           <input type="hidden" name={ownerField} value={screen.id} />
-          <input name="text" placeholder="הודעה חדשה" maxLength={120} required />
+          <textarea name="text" placeholder="הודעה חדשה" maxLength={120} rows={3} required />
           <button type="submit">הוספה</button>
         </form>
         <div className="notices">
@@ -192,7 +192,7 @@ export function ScreenEditor({
                 <form className="notice-add" action={editNotice}>
                   <input type="hidden" name="id" value={notice.id} />
                   <input type="hidden" name={ownerField} value={screen.id} />
-                  <input name="text" defaultValue={notice.text} required />
+                  <textarea name="text" defaultValue={notice.text} maxLength={120} rows={3} required />
                   <button type="submit">שמירה</button>
                   <button className="light" type="button" onClick={() => setEditing(null)}>ביטול</button>
                 </form>
