@@ -76,6 +76,15 @@ export async function deleteNotice(formData: FormData) {
   redirect(`/admin/screens/${screenId}`);
 }
 
+export async function updateNotice(formData: FormData) {
+  await gate();
+  const id = Number(formData.get("id"));
+  const screenId = Number(formData.get("screenId"));
+  const text = String(formData.get("text") || "").trim();
+  if (text) await prisma.notice.update({ where: { id }, data: { text } });
+  redirect(`/admin/screens/${screenId}`);
+}
+
 export async function createGroup(formData: FormData) {
   await gate();
   const group = await prisma.screenGroup.create({
@@ -256,6 +265,15 @@ export async function deleteGroupNotice(formData: FormData) {
   const id = Number(formData.get("id"));
   const groupId = Number(formData.get("groupId"));
   await prisma.notice.delete({ where: { id } });
+  redirect(`/admin/groups/${groupId}`);
+}
+
+export async function updateGroupNotice(formData: FormData) {
+  await gate();
+  const id = Number(formData.get("id"));
+  const groupId = Number(formData.get("groupId"));
+  const text = String(formData.get("text") || "").trim();
+  if (text) await prisma.notice.update({ where: { id }, data: { text } });
   redirect(`/admin/groups/${groupId}`);
 }
 

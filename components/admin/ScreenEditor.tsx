@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { NEWS_SOURCES } from "@/lib/news-sources";
 import { THEMES } from "@/lib/themes";
-import { addGroupNotice, addNotice, deleteGroupNotice, deleteNotice, toggleGroupNotice, toggleNotice, updateGroup, updateScreen } from "@/app/admin/actions";
+import { addGroupNotice, addNotice, deleteGroupNotice, deleteNotice, toggleGroupNotice, toggleNotice, updateGroup, updateGroupNotice, updateNotice, updateScreen } from "@/app/admin/actions";
 
 type Slide = { id: number; imageUrl: string; duration: number; sort: number; weekdays?: string; active?: boolean };
 type Notice = { id: number; text: string; active: boolean };
@@ -42,9 +42,11 @@ export function ScreenEditor({
   const createNotice = scope === "group" ? addGroupNotice : addNotice;
   const flipNotice = scope === "group" ? toggleGroupNotice : toggleNotice;
   const dropNotice = scope === "group" ? deleteGroupNotice : deleteNotice;
+  const editNotice = scope === "group" ? updateGroupNotice : updateNotice;
   const ownerField = scope === "group" ? "groupId" : "screenId";
   const [logoUrl, setLogoUrl] = useState(screen.logoUrl);
   const [message, setMessage] = useState("");
+  const [editing, setEditing] = useState<number | null>(null);
 
   async function upload(file: File) {
     const body = new FormData();
@@ -178,26 +180,43 @@ export function ScreenEditor({
 
       <section className="card">
         <h2>הודעות בניין</h2>
-        <form className="row" action={createNotice}>
+        <form className="notice-add" action={createNotice}>
           <input type="hidden" name={ownerField} value={screen.id} />
-          <input name="text" placeholder="הודעה" required />
+          <input name="text" placeholder="הודעה חדשה" required />
           <button type="submit">הוספה</button>
         </form>
-        {notices.map((notice) => (
-          <div className="row" key={notice.id} style={{ marginTop: 8 }}>
-            <span>{notice.text}</span>
-            <form action={flipNotice}>
-              <input type="hidden" name="id" value={notice.id} />
-              <input type="hidden" name={ownerField} value={screen.id} />
-              <button className="light" type="submit">{notice.active ? "פעיל" : "כבוי"}</button>
-            </form>
-            <form action={dropNotice}>
-              <input type="hidden" name="id" value={notice.id} />
-              <input type="hidden" name={ownerField} value={screen.id} />
-              <button className="light" type="submit">מחיקה</button>
-            </form>
-          </div>
-        ))}
+        <div className="notices">
+          {notices.map((notice) => (
+            <article className="notice-item" key={notice.id}>
+              {editing === notice.id ? (
+                <form className="notice-add" action={editNotice}>
+                  <input type="hidden" name="id" value={notice.id} />
+                  <input type="hidden" name={ownerField} value={screen.id} />
+                  <input name="text" defaultValue={notice.text} required />
+                  <button type="submit">שמירה</button>
+                  <button className="light" type="button" onClick={() => setEditing(null)}>ביטול</button>
+                </form>
+              ) : (
+                <>
+                  <p>{notice.text}</p>
+                  <div className="notice-actions">
+                    <form action={flipNotice}>
+                      <input type="hidden" name="id" value={notice.id} />
+                      <input type="hidden" name={ownerField} value={screen.id} />
+                      <button className={`light state-dot ${notice.active ? "on" : "off"}`} type="submit">{notice.active ? "פעיל" : "כבוי"}</button>
+                    </form>
+                    <button className="light" type="button" onClick={() => setEditing(notice.id)}>עריכה</button>
+                    <form action={dropNotice}>
+                      <input type="hidden" name="id" value={notice.id} />
+                      <input type="hidden" name={ownerField} value={screen.id} />
+                      <button className="light" type="submit">מחיקה</button>
+                    </form>
+                  </div>
+                </>
+              )}
+            </article>
+          ))}
+        </div>
       </section>
       {message ? <p className="error">{message}</p> : null}
     </div>
