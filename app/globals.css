@@ -169,6 +169,13 @@ body:has(.admin) { background: #F4F1ED; overflow-x: hidden; }
 .admin .slide-modal .photo-slide { min-height: 280px; }
 .admin .slide-modal .photo-slide strong { font-size: clamp(28px, 4vw, 52px); }
 .admin .slide-modal .photo-slide span { font-size: clamp(16px, 2vw, 26px); }
+.admin .agent-card { display: grid; gap: 12px; }
+.admin .agent-lines { display: grid; gap: 8px; }
+.admin .agent-lines p { margin: 0; padding: 10px 12px; border-radius: 10px; line-height: 1.45; }
+.admin .agent-lines .agent { background: #F4F1ED; color: #252525; }
+.admin .agent-lines .user { background: #252525; color: #F4F1ED; }
+.admin .agent-ask { display: flex; gap: 8px; }
+.admin .agent-ask input { flex: 1; }
 .admin .special-slides { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
 .admin .special-slides button { width: 100%; background: #252525; }
 .admin .yt-preview { margin: 0; padding: 48px 16px; background: #111; color: #F4F1ED; border-radius: 12px; text-align: center; }

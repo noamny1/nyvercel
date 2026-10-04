@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { SlideAgent } from "@/components/admin/SlideAgent";
 import { fillLine, READY_CATEGORIES, READY_SLIDES, readMeta, WEEKDAYS, type ReadySlide, type SlideMeta } from "@/lib/ready-slides";
 
 export type SlideDraft = {
@@ -32,7 +33,6 @@ export function ReadyLibrary({ onAdd }: { onAdd: (draft: SlideDraft) => Promise<
   const [open, setOpen] = useState<ReadySlide | null>(null);
   const [meta, setMeta] = useState<SlideMeta>({});
   const [mode, setMode] = useState<"" | "image" | "youtube">("");
-  const [links, setLinks] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const slides = READY_SLIDES.filter((slide) => slide.category === category);
@@ -59,38 +59,6 @@ export function ReadyLibrary({ onAdd }: { onAdd: (draft: SlideDraft) => Promise<
         duration: 10,
       });
       setOpen(null);
-    } catch (reason) {
-      setError(reason instanceof Error ? reason.message : "השמירה נכשלה");
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  async function saveImage(file: File) {
-    setBusy(true);
-    setError("");
-    try {
-      await onAdd({ kind: "image", file, duration: 8 });
-      setMode("");
-    } catch (reason) {
-      setError(reason instanceof Error ? reason.message : "השמירה נכשלה");
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  async function saveYoutube() {
-    const urls = links.split(/\s+/).map((item) => item.trim()).filter((item) => /youtu\.?be/.test(item));
-    if (urls.length === 0) {
-      setError("מדביקים קישור אחד או יותר מיוטיוב");
-      return;
-    }
-    setBusy(true);
-    setError("");
-    try {
-      for (const url of urls) await onAdd({ kind: "youtube", imageUrl: url, title: "יוטיוב", duration: 30 });
-      setLinks("");
-      setMode("");
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "השמירה נכשלה");
     } finally {
@@ -146,34 +114,7 @@ export function ReadyLibrary({ onAdd }: { onAdd: (draft: SlideDraft) => Promise<
           </div>
         </div>
       ) : null}
-      {mode === "image" ? (
-        <div className="slide-modal" role="dialog" aria-modal="true" onClick={() => setMode("")}>
-          <div className="slide-modal-card" onClick={(event) => event.stopPropagation()}>
-            <h3>שקף תמונה</h3>
-            <p>כאן מעלים תמונה, GIF או PDF. בשקפים המוכנים אין העלאה.</p>
-            <label>קובץ
-              <input type="file" accept="image/*,.gif,.pdf,application/pdf" onChange={(event) => {
-                const file = event.target.files?.[0];
-                if (file) void saveImage(file);
-              }} />
-            </label>
-            {error ? <p className="error">{error}</p> : null}
-            <button type="button" className="light" onClick={() => setMode("")}>סגירה</button>
-          </div>
-        </div>
-      ) : null}
-      {mode === "youtube" ? (
-        <div className="slide-modal" role="dialog" aria-modal="true" onClick={() => setMode("")}>
-          <div className="slide-modal-card" onClick={(event) => event.stopPropagation()}>
-            <h3>סרטוני יוטיוב</h3>
-            <p>מדביקים קישור אחד או כמה, כל קישור בשורה. אם יוטיוב חוסם ניגון באתרים אחרים, נכנסים לשקף שנשמר ומעלים קובץ MP4. המסך ינגן את הקובץ.</p>
-            <textarea rows={5} value={links} onChange={(event) => setLinks(event.target.value)} placeholder={"https://www.youtube.com/watch?v=...\nhttps://youtu.be/..."} />
-            <button type="button" disabled={busy} onClick={() => void saveYoutube()}>{busy ? "שומר..." : "הוספה למסך"}</button>
-            <button type="button" className="light" onClick={() => setMode("")}>סגירה</button>
-      {error ? <p className="error">{error}</p> : null}
-          </div>
-        </div>
-      ) : null}
+      {mode ? <SlideAgent mode={mode} onAdd={onAdd} onClose={() => setMode("")} /> : null}
     </div>
   );
 }
