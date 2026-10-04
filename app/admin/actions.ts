@@ -85,6 +85,24 @@ export async function createGroup(formData: FormData) {
   redirect(`/admin/groups/${group.id}`);
 }
 
+export async function renameGroup(formData: FormData) {
+  await gate();
+  const id = Number(formData.get("id"));
+  const name = String(formData.get("name") || "").trim();
+  if (id && name) await prisma.screenGroup.update({ where: { id }, data: { name } });
+  redirect("/admin");
+}
+
+export async function deleteGroup(formData: FormData) {
+  await ownerGate();
+  const id = Number(formData.get("id"));
+  if (id) {
+    await prisma.screen.deleteMany({ where: { groupId: id } });
+    await prisma.screenGroup.delete({ where: { id } });
+  }
+  redirect("/admin");
+}
+
 export async function updateGroup(formData: FormData) {
   await gate();
   const id = Number(formData.get("id"));

@@ -88,7 +88,7 @@ body:has(.admin) { background: #F4F1ED; overflow-x: hidden; }
 .admin .screen-actions form { display: flex; gap: 8px; align-items: center; }
 .admin .screen-actions select { width: auto; min-width: 140px; }
 .admin .screens { display: grid; gap: 10px; }
-.admin .screens a, .admin .screens > div {
+.admin .screens > a, .admin .screens > div {
   display: flex;
   justify-content: space-between;
   gap: 16px;
@@ -100,7 +100,7 @@ body:has(.admin) { background: #F4F1ED; overflow-x: hidden; }
   border-right: 3px solid #5A1F2B;
   color: #252525;
 }
-.admin .screens a:hover { background: #F4F1ED; }
+.admin .screens > a:hover { background: #F4F1ED; }
 .admin .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 18px 0; }
 .admin .stat {
   display: grid;
@@ -165,5 +165,5 @@ body:has(.admin) { background: #F4F1ED; overflow-x: hidden; }
   .admin .acts form button { width: 100%; }
   .admin-bar-inner { flex-direction: column; align-items: flex-start; }
   .admin .stats { grid-template-columns: 1fr 1fr; }
-  .admin .screens a, .admin .screens > div { flex-direction: column; }
+  .admin .screens > a, .admin .screens > div { flex-direction: column; }
 }

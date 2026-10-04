@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { requireSession } from "@/lib/session";
-import { createGroup } from "./actions";
+import { isSystemAdmin, requireSession } from "@/lib/session";
+import { createGroup, deleteGroup, renameGroup } from "./actions";
 import { AdminNav } from "@/components/admin/AdminNav";
 
 export const dynamic = "force-dynamic";
@@ -10,20 +10,17 @@ export const dynamic = "force-dynamic";
 export default async function AdminHome() {
   const session = await requireSession();
   if (!session) redirect("/admin/login");
+  const owner = isSystemAdmin(session);
   const groups = await prisma.screenGroup.findMany({
     orderBy: { id: "asc" },
     include: { screens: { select: { street: true, number: true, city: true } } },
-  });
-  const loose = await prisma.screen.findMany({
-    where: { groupId: null },
-    orderBy: { id: "asc" },
   });
 
   return (
     <main className="admin">
       <AdminNav />
       <h1>ניהול קבוצות מסכים</h1>
-      <p>כל קבוצה היא שם. הכתובות שלה נמצאות בתוכה.</p>
+      <p>כל קבוצה היא שם. בתוכה המסכים שמשויכים אליה.</p>
       <div className="screens">
         {groups.map((group) => {
           const own = group.screens
@@ -36,12 +33,26 @@ export default async function AdminHome() {
           const groupAddress = [place, group.city].filter(Boolean).join(", ");
           const lines = groupAddress && !own.includes(groupAddress) ? [groupAddress, ...own] : own;
           return (
-            <Link key={group.id} href={`/admin/groups/${group.id}`}>
+            <div key={group.id}>
               <span className="screen-title">
-                {group.name}
+                <Link href={`/admin/groups/${group.id}`}>{group.name}</Link>
+                <small>{group.screens.length} מסכים</small>
                 {lines.map((line, index) => <small key={`${line}-${index}`}>{line}</small>)}
               </span>
-            </Link>
+              <span className="screen-actions">
+                <form action={renameGroup}>
+                  <input type="hidden" name="id" value={group.id} />
+                  <input name="name" defaultValue={group.name} aria-label="שם הקבוצה" required />
+                  <button className="light" type="submit">שמירת שם</button>
+                </form>
+                {owner ? (
+                  <form action={deleteGroup}>
+                    <input type="hidden" name="id" value={group.id} />
+                    <button className="light" type="submit">מחיקה</button>
+                  </form>
+                ) : null}
+              </span>
+            </div>
           );
         })}
       </div>
@@ -52,19 +63,6 @@ export default async function AdminHome() {
           <button type="submit">יצירה</button>
         </div>
       </form>
-      {loose.length > 0 ? (
-        <section className="card">
-          <h2>מסכים בלי קבוצה</h2>
-          <div className="screens">
-            {loose.map((screen) => (
-              <Link key={screen.id} href={`/admin/screens/${screen.id}`}>
-                <span>{screen.name}</span>
-                <span>/s/{screen.id}</span>
-              </Link>
-            ))}
-          </div>
-        </section>
-      ) : null}
     </main>
   );
 }

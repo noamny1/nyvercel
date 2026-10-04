@@ -40,32 +40,6 @@ export default async function GroupPage({
   ]);
   if (!group) notFound();
   const others = groups.filter((item) => item.id !== group.id);
-  const rows: { key: string; label: string; screenId: number | null; street: string; number: string; city: string }[] = [];
-  for (const screen of group.screens) {
-    const own = addressOf(screen.street, screen.number, screen.city);
-    if (own) {
-      rows.push({
-        key: `s-${screen.id}`,
-        label: own,
-        screenId: screen.id,
-        street: screen.street,
-        number: screen.number,
-        city: screen.city,
-      });
-    }
-  }
-  const groupLabel = addressOf(group.street, group.number, group.city);
-  if (groupLabel && !rows.some((row) => row.label === groupLabel)) {
-    const blank = group.screens.find((screen) => !addressOf(screen.street, screen.number, screen.city));
-    rows.unshift({
-      key: blank ? `s-${blank.id}` : "group",
-      label: groupLabel,
-      screenId: blank?.id ?? null,
-      street: group.street,
-      number: group.number,
-      city: group.city,
-    });
-  }
 
   return (
     <main className="admin">
@@ -73,22 +47,30 @@ export default async function GroupPage({
       <p><Link href="/admin">כל הקבוצות</Link></p>
       <h1>{group.name}</h1>
       <section className="card">
-        <h2>כתובות</h2>
-        {rows.length === 0 ? <p>אין עדיין כתובות בקבוצה.</p> : null}
+        <h2>מסכים בקבוצה</h2>
+        {group.screens.length === 0 ? <p>אין מסכים בקבוצה.</p> : null}
         <div className="screens">
-          {rows.map((row) => (
-            <div key={row.key}>
-              <span>{row.label}</span>
-              {owner ? (
+          {group.screens.map((screen) => {
+            const street = screen.street || group.street;
+            const number = screen.number || group.number;
+            const city = screen.city || group.city;
+            const label = addressOf(street, number, city) || screen.name;
+            return (
+              <div key={screen.id}>
+                <span className="screen-title">
+                  מסך {screen.id}
+                  <small>{label}</small>
+                </span>
                 <span className="screen-actions">
-                  {others.length > 0 ? (
+                  <a href={`/s/${screen.id}`} target="_blank">פתיחה</a>
+                  {owner && others.length > 0 ? (
                     <form action={moveAddress}>
-                      <input type="hidden" name="screenId" value={row.screenId ?? ""} />
+                      <input type="hidden" name="screenId" value={screen.id} />
                       <input type="hidden" name="groupId" value={group.id} />
-                      <input type="hidden" name="label" value={row.label} />
-                      <input type="hidden" name="street" value={row.street} />
-                      <input type="hidden" name="number" value={row.number} />
-                      <input type="hidden" name="city" value={row.city} />
+                      <input type="hidden" name="label" value={label} />
+                      <input type="hidden" name="street" value={street} />
+                      <input type="hidden" name="number" value={number} />
+                      <input type="hidden" name="city" value={city} />
                       <select name="targetGroupId" defaultValue={others[0]?.id || ""} aria-label="קבוצה אחרת">
                         {others.map((item) => (
                           <option key={item.id} value={item.id}>{item.name}</option>
@@ -97,16 +79,18 @@ export default async function GroupPage({
                       <button className="light" type="submit">העברה</button>
                     </form>
                   ) : null}
-                  <form action={deleteAddress}>
-                    <input type="hidden" name="screenId" value={row.screenId ?? ""} />
-                    <input type="hidden" name="groupId" value={group.id} />
-                    <input type="hidden" name="label" value={row.label} />
-                    <button className="light" type="submit">מחיקה</button>
-                  </form>
+                  {owner ? (
+                    <form action={deleteAddress}>
+                      <input type="hidden" name="screenId" value={screen.id} />
+                      <input type="hidden" name="groupId" value={group.id} />
+                      <input type="hidden" name="label" value={label} />
+                      <button className="light" type="submit">מחיקה</button>
+                    </form>
+                  ) : null}
                 </span>
-              ) : null}
-            </div>
-          ))}
+              </div>
+            );
+          })}
         </div>
         <form className="row" action={addAddress} style={{ marginTop: 12 }}>
           <input type="hidden" name="groupId" value={group.id} />
