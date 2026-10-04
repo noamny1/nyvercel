@@ -43,10 +43,15 @@ export const authOptions: NextAuthOptions = {
         if (!user) return null;
         const ok = await bcrypt.compare(password, user.passwordHash);
         if (!ok) return null;
+        const ownerEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
+        const owner = email === "noam6683@gmail.com" || email === ownerEmail;
+        if (owner && user.role !== "owner") {
+          await prisma.user.update({ where: { id: user.id }, data: { role: "owner" } });
+        }
         return {
           id: String(user.id),
           email: user.email,
-          name: user.role,
+          name: owner ? "owner" : user.role,
           remember: credentials?.remember?.toString() === "1",
         };
       },
@@ -65,8 +70,15 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       if (session.user) {
-        session.user.email = typeof token.email === "string" ? token.email : session.user.email;
-        session.user.name = typeof token.name === "string" ? token.name : session.user.name;
+        const email = (typeof token.email === "string" ? token.email : session.user.email || "").trim().toLowerCase();
+        session.user.email = email;
+        const ownerEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
+        let owner = email === "noam6683@gmail.com" || (!!ownerEmail && email === ownerEmail);
+        if (!owner && email) {
+          const account = await prisma.user.findUnique({ where: { email } });
+          owner = account?.role === "owner";
+        }
+        session.user.name = owner ? "owner" : "user";
       }
       return session;
     },

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { ScreenEditor } from "@/components/admin/ScreenEditor";
 import { AdminNav } from "@/components/admin/AdminNav";
-import { addAddress, clearGroupAddress, moveScreen, removeScreen } from "@/app/admin/actions";
+import { addAddress, deleteAddress, moveAddress } from "@/app/admin/actions";
 import { prisma } from "@/lib/prisma";
 import { isSystemAdmin, requireSession } from "@/lib/session";
 
@@ -40,15 +40,31 @@ export default async function GroupPage({
   ]);
   if (!group) notFound();
   const others = groups.filter((item) => item.id !== group.id);
-  const rows: { key: string; label: string; screenId: number | null }[] = [];
+  const rows: { key: string; label: string; screenId: number | null; street: string; number: string; city: string }[] = [];
   for (const screen of group.screens) {
     const own = addressOf(screen.street, screen.number, screen.city);
-    if (own) rows.push({ key: `s-${screen.id}`, label: own, screenId: screen.id });
+    if (own) {
+      rows.push({
+        key: `s-${screen.id}`,
+        label: own,
+        screenId: screen.id,
+        street: screen.street,
+        number: screen.number,
+        city: screen.city,
+      });
+    }
   }
   const groupLabel = addressOf(group.street, group.number, group.city);
   if (groupLabel && !rows.some((row) => row.label === groupLabel)) {
     const blank = group.screens.find((screen) => !addressOf(screen.street, screen.number, screen.city));
-    rows.unshift({ key: blank ? `s-${blank.id}` : "group", label: groupLabel, screenId: blank?.id ?? null });
+    rows.unshift({
+      key: blank ? `s-${blank.id}` : "group",
+      label: groupLabel,
+      screenId: blank?.id ?? null,
+      street: group.street,
+      number: group.number,
+      city: group.city,
+    });
   }
 
   return (
@@ -65,10 +81,14 @@ export default async function GroupPage({
               <span>{row.label}</span>
               {owner ? (
                 <span className="screen-actions">
-                  {others.length > 0 && row.screenId ? (
-                    <form action={moveScreen}>
-                      <input type="hidden" name="id" value={row.screenId} />
+                  {others.length > 0 ? (
+                    <form action={moveAddress}>
+                      <input type="hidden" name="screenId" value={row.screenId ?? ""} />
                       <input type="hidden" name="groupId" value={group.id} />
+                      <input type="hidden" name="label" value={row.label} />
+                      <input type="hidden" name="street" value={row.street} />
+                      <input type="hidden" name="number" value={row.number} />
+                      <input type="hidden" name="city" value={row.city} />
                       <select name="targetGroupId" defaultValue={others[0]?.id || ""} aria-label="קבוצה אחרת">
                         {others.map((item) => (
                           <option key={item.id} value={item.id}>{item.name}</option>
@@ -77,18 +97,12 @@ export default async function GroupPage({
                       <button className="light" type="submit">העברה</button>
                     </form>
                   ) : null}
-                  {row.screenId ? (
-                    <form action={removeScreen}>
-                      <input type="hidden" name="id" value={row.screenId} />
-                      <input type="hidden" name="groupId" value={group.id} />
-                      <button className="light" type="submit">מחיקה</button>
-                    </form>
-                  ) : (
-                    <form action={clearGroupAddress}>
-                      <input type="hidden" name="groupId" value={group.id} />
-                      <button className="light" type="submit">מחיקה</button>
-                    </form>
-                  )}
+                  <form action={deleteAddress}>
+                    <input type="hidden" name="screenId" value={row.screenId ?? ""} />
+                    <input type="hidden" name="groupId" value={group.id} />
+                    <input type="hidden" name="label" value={row.label} />
+                    <button className="light" type="submit">מחיקה</button>
+                  </form>
                 </span>
               ) : null}
             </div>

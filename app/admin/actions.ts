@@ -120,14 +120,65 @@ export async function addAddress(formData: FormData) {
   redirect(`/admin/groups/${groupId}`);
 }
 
-export async function clearGroupAddress(formData: FormData) {
+function writtenAddress(street: string, number: string, city: string) {
+  const place = [street, number].filter(Boolean).join(" ");
+  return [place, city].filter(Boolean).join(", ");
+}
+
+export async function deleteAddress(formData: FormData) {
   await ownerGate();
   const groupId = Number(formData.get("groupId"));
-  await prisma.screenGroup.update({
-    where: { id: groupId },
-    data: { street: "", number: "", city: "" },
-  });
+  const screenId = Number(formData.get("screenId")) || 0;
+  const label = String(formData.get("label") || "");
+  const group = await prisma.screenGroup.findUnique({ where: { id: groupId } });
+  if (!group) redirect("/admin");
+  if (screenId) {
+    const screen = await prisma.screen.findUnique({ where: { id: screenId } });
+    if (screen && (screen.street || screen.number || screen.city)) {
+      await prisma.screen.delete({ where: { id: screenId } });
+    }
+  }
+  if (label && label === writtenAddress(group.street, group.number, group.city)) {
+    await prisma.screenGroup.update({
+      where: { id: groupId },
+      data: { street: "", number: "", city: "" },
+    });
+  }
   redirect(`/admin/groups/${groupId}`);
+}
+
+export async function moveAddress(formData: FormData) {
+  await ownerGate();
+  const from = Number(formData.get("groupId"));
+  const to = Number(formData.get("targetGroupId"));
+  const screenId = Number(formData.get("screenId")) || 0;
+  const label = String(formData.get("label") || "");
+  if (!to || to === from) redirect(`/admin/groups/${from}`);
+  const [fromGroup, target] = await Promise.all([
+    prisma.screenGroup.findUnique({ where: { id: from } }),
+    prisma.screenGroup.findUnique({ where: { id: to } }),
+  ]);
+  if (!fromGroup || !target) redirect(`/admin/groups/${from}`);
+  const street = String(formData.get("street") || fromGroup.street);
+  const number = String(formData.get("number") || fromGroup.number);
+  const city = String(formData.get("city") || fromGroup.city);
+  if (screenId) {
+    await prisma.screen.update({
+      where: { id: screenId },
+      data: { groupId: to, street, number, city, name: label || street },
+    });
+  } else {
+    await prisma.screen.create({
+      data: { groupId: to, street, number, city, name: label || "כתובת" },
+    });
+  }
+  if (label && label === writtenAddress(fromGroup.street, fromGroup.number, fromGroup.city)) {
+    await prisma.screenGroup.update({
+      where: { id: from },
+      data: { street: "", number: "", city: "" },
+    });
+  }
+  redirect(`/admin/groups/${from}`);
 }
 
 export async function removeScreen(formData: FormData) {
