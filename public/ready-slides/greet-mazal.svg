@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900">
+  <rect width="1600" height="900" fill="#641E2C"/>
+  <rect x="0" y="0" width="1600" height="16" fill="#F4F1ED"/>
+  <text x="1480" y="250" fill="#F4F1ED" fill-opacity="0.75" font-family="Arial, 'Segoe UI', sans-serif" font-size="42" text-anchor="end" direction="rtl">ברכות</text>
+  <text x="1480" y="470" fill="#F4F1ED" font-family="Arial, 'Segoe UI', sans-serif" font-size="96" font-weight="700" text-anchor="end" direction="rtl">מזל טוב</text>
+  <text x="1480" y="580" fill="#F4F1ED" font-family="Arial, 'Segoe UI', sans-serif" font-size="40" text-anchor="end" direction="rtl">ברכות למשפחה החדשה בבניין</text>
+</svg>

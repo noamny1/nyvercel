@@ -131,7 +131,14 @@ body:has(.admin) { background: #F4F1ED; overflow-x: hidden; }
 .admin .modal { position: fixed; inset: 0; background: rgba(37, 37, 37, 0.45); display: grid; place-items: center; padding: 18px; z-index: 20; }
 .admin .modal .card { width: min(460px, 100%); }
 .admin .media-box { display: grid; gap: 8px; }
-.admin .thumb-row, .admin .slide-card { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.admin .ready-cat { margin: 14px 0 8px; font-size: 16px; font-weight: 600; }
+.admin .ready-grid { display: flex; flex-wrap: wrap; gap: 10px; }
+.admin .ready-thumb { display: grid; gap: 4px; width: 140px; padding: 0; border: 0; background: transparent; color: inherit; text-align: right; cursor: pointer; }
+.admin .ready-thumb img, .admin .ready-thumb .pdf-mark { width: 140px; height: 79px; object-fit: cover; border-radius: 8px; background: #252525; }
+.admin .ready-thumb span { font-size: 13px; }
+.admin .ready-large { display: grid; gap: 12px; margin: 14px 0; padding: 12px; border: 1px solid rgba(255,255,255,.16); border-radius: 12px; }
+.admin .ready-large img { width: min(100%, 720px); height: auto; border-radius: 10px; background: #111; }
+.admin .slide-card.open { flex-basis: 100%; }
 .admin .thumb-row img, .admin .slide-card img, .admin .pdf-mark { width: 120px; height: 68px; object-fit: contain; background: #111; border-radius: 8px; }
 .admin .pdf-mark { display: grid; place-items: center; color: #F4F1ED; }
 .admin .pending-thumb { width: 120px; height: 68px; object-fit: contain; background: #111; border-radius: 8px; }
