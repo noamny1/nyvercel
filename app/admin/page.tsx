@@ -15,7 +15,7 @@ export default async function AdminHome() {
   const groups = await prisma.screenGroup.findMany({
     where: await groupWhere(session),
     orderBy: { id: "asc" },
-    include: { screens: { select: { street: true, number: true, city: true } } },
+    include: { _count: { select: { screens: true } } },
   });
 
   return (
