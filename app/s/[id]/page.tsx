@@ -11,7 +11,7 @@ import { Shabbat } from "@/components/widgets/Shabbat";
 import { Weather } from "@/components/widgets/Weather";
 import { ModernRail } from "@/components/themes/ModernRail";
 import { markets } from "@/lib/markets";
-import { newsFor } from "@/lib/news";
+import { liveHeadlines } from "@/lib/news";
 import { prisma } from "@/lib/prisma";
 import { slideIsOn } from "@/lib/schedule";
 import { shabbatFor } from "@/lib/shabbat";
@@ -60,7 +60,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
   const [weather, shabbat, headlines, rates] = await Promise.all([
     weatherFor(city).catch(() => null),
     shabbatFor(city).catch(() => null),
-    newsFor(screen.newsSource || source.newsSource, screen.newsCount || 8).catch(() => []),
+    liveHeadlines(screen.newsSource || source.newsSource || "ynet", screen.newsCount || 8).catch(() => []),
     markets().catch(() => []),
   ]);
   const theme = screen.theme || source.theme || "modern";

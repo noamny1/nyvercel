@@ -85,6 +85,27 @@ export async function refreshNews(sourceId?: string) {
   }
 }
 
+export async function liveHeadlines(sourceId: string, take = 8) {
+  const id = sourceId === "וואלה" ? "walla" : sourceId === "חדשות 14" ? "channel14" : sourceId || "ynet";
+  const source = NEWS_SOURCES.find((item) => item.id === id) ?? NEWS_SOURCES[0];
+  const limit = Math.min(20, Math.max(1, take));
+  try {
+    const text = await download(source.url);
+    let items = text.includes("<item") ? parseRss(text) : [];
+    if (source.id === "channel14" && items.length === 0) {
+      try {
+        items = parseC14(await download("https://www.c14.co.il/"));
+      } catch {
+        items = [];
+      }
+    }
+    if (items.length > 0) return items.slice(0, limit);
+  } catch {
+    /* fall through to the saved headlines */
+  }
+  return newsFor(source.id, limit).catch(() => []);
+}
+
 export async function newsFor(sourceId: string, take = 8) {
   const latest = await prisma.newsItem.findFirst({
     where: { source: sourceId },
