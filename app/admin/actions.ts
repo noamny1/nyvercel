@@ -2,11 +2,18 @@
 
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { requireSession } from "@/lib/session";
+import { requireSession, isSystemAdmin } from "@/lib/session";
 
 async function gate() {
   const session = await requireSession();
   if (!session) redirect("/admin/login");
+  return session;
+}
+
+async function ownerGate() {
+  const session = await gate();
+  if (!isSystemAdmin(session)) redirect("/admin");
+  return session;
 }
 
 export async function createScreen(formData: FormData) {
@@ -95,27 +102,55 @@ export async function updateGroup(formData: FormData) {
       buildingId: Number(formData.get("buildingId")) || null,
     },
   });
+  await prisma.screen.updateMany({
+    where: { groupId: id },
+    data: {
+      street: String(formData.get("street") || ""),
+      number: String(formData.get("number") || ""),
+      city: String(formData.get("city") || ""),
+    },
+  });
   redirect(`/admin/groups/${id}`);
 }
 
 export async function addScreenToGroup(formData: FormData) {
   await gate();
   const groupId = Number(formData.get("groupId"));
+  const group = await prisma.screenGroup.findUnique({ where: { id: groupId } });
+  if (!group) redirect("/admin");
   await prisma.screen.create({
     data: {
       name: String(formData.get("name") || "מסך"),
       groupId,
+      street: group.street,
+      number: group.number,
+      city: group.city,
     },
   });
   redirect(`/admin/groups/${groupId}`);
 }
 
 export async function removeScreen(formData: FormData) {
-  await gate();
+  await ownerGate();
   const id = Number(formData.get("id"));
   const groupId = Number(formData.get("groupId"));
   await prisma.screen.delete({ where: { id } });
   redirect(`/admin/groups/${groupId}`);
+}
+
+export async function moveScreen(formData: FormData) {
+  await ownerGate();
+  const id = Number(formData.get("id"));
+  const from = Number(formData.get("groupId"));
+  const to = Number(formData.get("targetGroupId"));
+  if (!to || to === from) redirect(`/admin/groups/${from}`);
+  const target = await prisma.screenGroup.findUnique({ where: { id: to } });
+  if (!target) redirect(`/admin/groups/${from}`);
+  await prisma.screen.update({
+    where: { id },
+    data: { groupId: to, street: target.street, number: target.number, city: target.city },
+  });
+  redirect(`/admin/groups/${from}`);
 }
 
 export async function addGroupNotice(formData: FormData) {

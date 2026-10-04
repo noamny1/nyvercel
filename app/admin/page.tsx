@@ -25,12 +25,19 @@ export default async function AdminHome() {
       <h1>ניהול קבוצות מסכים</h1>
       <p>קבוצה אחת משמשת כמה מסכים באותו בניין. שינוי בקבוצה מתעדכן בכולם.</p>
       <div className="screens">
-        {groups.map((group) => (
-          <Link key={group.id} href={`/admin/groups/${group.id}`}>
-            <span>{group.name}</span>
-            <span>{group.screens.length} מסכים</span>
-          </Link>
-        ))}
+        {groups.map((group) => {
+          const place = [group.street, group.number].filter(Boolean).join(" ");
+          const address = [place, group.city].filter(Boolean).join(", ");
+          return (
+            <Link key={group.id} href={`/admin/groups/${group.id}`}>
+              <span className="screen-title">
+                {group.name}
+                <small>{address || "אין כתובת"}</small>
+              </span>
+              <span>{group.screens.length} מסכים</span>
+            </Link>
+          );
+        })}
       </div>
       <form className="card" action={createGroup}>
         <h2>קבוצה חדשה</h2>

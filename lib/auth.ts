@@ -54,10 +54,21 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async jwt({ token, user }) {
+      if (user) {
+        token.email = user.email;
+        token.name = user.name;
+      }
       if (user && "remember" in user) {
         (token as JWT & { remember?: boolean }).remember = Boolean(user.remember);
       }
       return token;
+    },
+    async session({ session, token }) {
+      if (session.user) {
+        session.user.email = typeof token.email === "string" ? token.email : session.user.email;
+        session.user.name = typeof token.name === "string" ? token.name : session.user.name;
+      }
+      return session;
     },
   },
   jwt: {

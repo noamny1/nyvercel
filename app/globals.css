@@ -82,6 +82,11 @@ body:has(.admin) { background: #F4F1ED; overflow-x: hidden; }
   color: #252525;
   border: 1px solid rgba(37, 37, 37, 0.22);
 }
+.admin .screen-title { display: grid; gap: 2px; }
+.admin .screen-title small { color: #5c5854; font-size: 13px; }
+.admin .screen-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: flex-end; }
+.admin .screen-actions form { display: flex; gap: 8px; align-items: center; }
+.admin .screen-actions select { width: auto; min-width: 140px; }
 .admin .screens { display: grid; gap: 10px; }
 .admin .screens a, .admin .screens > div {
   display: flex;
