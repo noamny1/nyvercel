@@ -54,7 +54,7 @@ export async function updateScreen(formData: FormData) {
 export async function addNotice(formData: FormData) {
   await gate();
   const screenId = Number(formData.get("screenId"));
-  const text = String(formData.get("text") || "").trim();
+  const text = String(formData.get("text") || "").trim().slice(0, 120);
   if (text) await prisma.notice.create({ data: { screenId, text, active: true } });
   redirect(`/admin/screens/${screenId}`);
 }
@@ -80,7 +80,7 @@ export async function updateNotice(formData: FormData) {
   await gate();
   const id = Number(formData.get("id"));
   const screenId = Number(formData.get("screenId"));
-  const text = String(formData.get("text") || "").trim();
+  const text = String(formData.get("text") || "").trim().slice(0, 120);
   if (text) await prisma.notice.update({ where: { id }, data: { text } });
   redirect(`/admin/screens/${screenId}`);
 }
@@ -246,7 +246,7 @@ export async function moveScreen(formData: FormData) {
 export async function addGroupNotice(formData: FormData) {
   await gate();
   const groupId = Number(formData.get("groupId"));
-  const text = String(formData.get("text") || "").trim();
+  const text = String(formData.get("text") || "").trim().slice(0, 120);
   if (text) await prisma.notice.create({ data: { groupId, text, active: true } });
   redirect(`/admin/groups/${groupId}`);
 }
@@ -272,7 +272,7 @@ export async function updateGroupNotice(formData: FormData) {
   await gate();
   const id = Number(formData.get("id"));
   const groupId = Number(formData.get("groupId"));
-  const text = String(formData.get("text") || "").trim();
+  const text = String(formData.get("text") || "").trim().slice(0, 120);
   if (text) await prisma.notice.update({ where: { id }, data: { text } });
   redirect(`/admin/groups/${groupId}`);
 }

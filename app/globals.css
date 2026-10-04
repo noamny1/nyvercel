@@ -134,7 +134,7 @@ body:has(.admin) { background: #F4F1ED; overflow-x: hidden; }
 .admin .notice-add input { flex: 1 1 180px; }
 .admin .notices { display: grid; gap: 8px; margin-top: 12px; }
 .admin .notice-item { display: flex; justify-content: space-between; gap: 12px; align-items: center; background: #fff; border: 1px solid rgba(37, 37, 37, 0.1); border-radius: 12px; padding: 12px; }
-.admin .notice-item p { margin: 0; }
+.admin .notice-item p { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.45; }
 .admin .notice-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 .admin .state-dot { position: relative; padding-inline-start: 22px; }
 .admin .state-dot::before { content: ""; position: absolute; inset-inline-start: 8px; top: 50%; width: 8px; height: 8px; border-radius: 50%; transform: translateY(-50%); }

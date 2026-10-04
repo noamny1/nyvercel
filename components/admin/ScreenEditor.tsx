@@ -182,7 +182,7 @@ export function ScreenEditor({
         <h2>הודעות בניין</h2>
         <form className="notice-add" action={createNotice}>
           <input type="hidden" name={ownerField} value={screen.id} />
-          <input name="text" placeholder="הודעה חדשה" required />
+          <input name="text" placeholder="הודעה חדשה" maxLength={120} required />
           <button type="submit">הוספה</button>
         </form>
         <div className="notices">
