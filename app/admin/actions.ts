@@ -239,12 +239,16 @@ export async function deleteGroupNotice(formData: FormData) {
 
 export async function createBuilding(formData: FormData) {
   await gate();
+  const street = String(formData.get("street") || "").trim();
+  const number = String(formData.get("number") || "").trim();
+  const city = String(formData.get("city") || "").trim();
+  const place = [street, number].filter(Boolean).join(" ");
   await prisma.building.create({
     data: {
-      name: String(formData.get("name") || "בניין"),
-      street: String(formData.get("street") || ""),
-      number: String(formData.get("number") || ""),
-      city: String(formData.get("city") || ""),
+      name: [place, city].filter(Boolean).join(", ") || "בניין",
+      street,
+      number,
+      city,
     },
   });
   redirect("/admin/buildings");

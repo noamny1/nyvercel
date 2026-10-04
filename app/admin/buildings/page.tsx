@@ -18,7 +18,7 @@ export default async function BuildingsPage() {
       <p>בניין הוא היישוב מהמערכת הישנה. קבוצת מסכים משויכת אליו.</p>
       {buildings.map((building) => (
         <div className="card row" key={building.id}>
-          <span>{building.name} · {[building.street, building.number, building.city].filter(Boolean).join(" ")}</span>
+          <span>{[building.street, building.number, building.city].filter(Boolean).join(" ") || building.name}</span>
           <span>{building.groups.length} קבוצות</span>
           <form action={deleteBuilding}>
             <input type="hidden" name="id" value={building.id} />
@@ -29,9 +29,8 @@ export default async function BuildingsPage() {
       <form className="card" action={createBuilding}>
         <h2>בניין חדש</h2>
         <div className="row">
-          <label>שם<input name="name" required /></label>
-          <label>רחוב<input name="street" /></label>
-          <label>מספר<input name="number" /></label>
+          <label>רחוב<input name="street" required /></label>
+          <label>מספר<input name="number" required /></label>
           <label>עיר<input name="city" required /></label>
           <button type="submit">יצירה</button>
         </div>
