@@ -5,7 +5,7 @@ import { ScreenEditor } from "@/components/admin/ScreenEditor";
 import { deleteUpdate, saveUpdate } from "@/app/admin/actions";
 import { prisma } from "@/lib/prisma";
 import { screenWhere } from "@/lib/access";
-import { isSystemAdmin, requireSession } from "@/lib/session";
+import { requireSession } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 
@@ -30,7 +30,6 @@ export default async function ScreenPage({ params }: { params: Promise<{ id: str
   });
   if (!screen) notFound();
   const screens = await prisma.screen.findMany({ where, orderBy: { id: "asc" }, include: { group: true } });
-  const owner = isSystemAdmin(session);
 
   return (
     <main className="admin">
@@ -73,7 +72,7 @@ export default async function ScreenPage({ params }: { params: Promise<{ id: str
           <button type="submit">הוספה</button>
         </form>
       </section>
-      {owner ? <ScreenEditor screen={screen} slides={screen.slides} notices={screen.notices} /> : null}
+      <ScreenEditor screen={screen} slides={screen.slides} notices={screen.notices} />
     </main>
   );
 }

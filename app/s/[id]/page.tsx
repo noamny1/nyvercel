@@ -51,8 +51,10 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
   const street = screen.street || source.street;
   const number = screen.number || source.number;
   const city = screen.city || source.city;
-  const slides = source.slides.filter((slide) => slideIsOn(slide));
-  const visible = slides.length > 0 ? slides : source.slides;
+  const ownSlides = screen.slides.filter((slide) => slideIsOn(slide));
+  const groupSlides = source.slides.filter((slide) => slideIsOn(slide));
+  const visible = ownSlides.length > 0 ? ownSlides : groupSlides.length > 0 ? groupSlides : screen.slides.length > 0 ? screen.slides : source.slides;
+  const notices = screen.notices.length > 0 ? screen.notices : source.notices;
 
   const [weather, shabbat, headlines, rates] = await Promise.all([
     weatherFor(city).catch(() => null),
@@ -85,7 +87,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
         <Clock />
         <Weather temp={weather?.temp ?? null} label={weather?.label || ""} />
         <Shabbat candles={shabbat?.candles || ""} parsha={shabbat?.parsha || ""} />
-        <Notices items={source.notices.map((notice) => notice.text)} />
+        <Notices items={notices.map((notice) => notice.text)} />
         <Directory floors={indexTheme ? [] : floors} />
         <Markets rows={rates} />
       </aside>

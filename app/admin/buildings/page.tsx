@@ -69,8 +69,8 @@ export default async function BuildingsPage({ searchParams }: { searchParams: Pr
               <th>רחוב</th>
               <th>מספר</th>
               <th>עיר</th>
-              <th>קבוצה</th>
-              <th>סטטוס</th>
+              {owner ? <th>קבוצה</th> : null}
+              {owner ? <th>סטטוס</th> : null}
               <th>פעולות</th>
             </tr>
           </thead>
@@ -88,14 +88,12 @@ export default async function BuildingsPage({ searchParams }: { searchParams: Pr
                   <td data-label="רחוב"><Link href={editHref}>{street || "—"}</Link></td>
                   <td data-label="מספר">{number || "—"}</td>
                   <td data-label="עיר">{city || "—"}</td>
-                  <td data-label="קבוצה">
-                    {owner ? (
+                  {owner ? (
+                    <td data-label="קבוצה">
                       <GroupMove screenId={screen.id} groupId={screen.groupId} groups={groups} />
-                    ) : (
-                      screen.group?.name || "—"
-                    )}
-                  </td>
-                  <td data-label="סטטוס"><span className={`status ${state}`}><i />{label}</span></td>
+                    </td>
+                  ) : null}
+                  {owner ? <td data-label="סטטוס"><span className={`status ${state}`}><i />{label}</span></td> : null}
                   <td data-label="פעולות" className="acts">
                     <a className="icon-btn" href={`/s/${screen.id}`} target="_blank">פתיחה</a>
                     <Link className="icon-btn" href={editHref}>עריכה</Link>
