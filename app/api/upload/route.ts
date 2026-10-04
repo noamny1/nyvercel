@@ -18,6 +18,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: kind === "slide" ? "אפשר להעלות תמונה או PDF" : "אפשר להעלות תמונה או GIF" }, { status: 400 });
   }
 
+  if (!process.env.BLOB_READ_WRITE_TOKEN) {
+    return NextResponse.json({ error: "אחסון התמונות לא מחובר" }, { status: 500 });
+  }
   const blob = await put(`uploads/${Date.now()}-${file.name}`, file, {
     access: "public",
     contentType: file.type,

@@ -45,9 +45,12 @@ export function ScreenEditor({
   const editNotice = scope === "group" ? updateGroupNotice : updateNotice;
   const ownerField = scope === "group" ? "groupId" : "screenId";
   const [logoUrl, setLogoUrl] = useState(screen.logoUrl);
+  const [logoPreview, setLogoPreview] = useState(screen.logoUrl);
   const [message, setMessage] = useState("");
   const [editing, setEditing] = useState<number | null>(null);
   const [pendingSlide, setPendingSlide] = useState<File | null>(null);
+  const [slidePreview, setSlidePreview] = useState("");
+  const [saving, setSaving] = useState(false);
 
   async function upload(file: File, kind: "image" | "slide") {
     const body = new FormData();
@@ -61,11 +64,24 @@ export function ScreenEditor({
 
   async function onLogo(file: File) {
     setMessage("");
+    setLogoPreview(URL.createObjectURL(file));
     try {
       setLogoUrl(await upload(file, "image"));
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "ההעלאה נכשלה");
     }
+  }
+
+  async function saveSlide() {
+    if (!pendingSlide) {
+      setMessage("קודם בוחרים קובץ");
+      return;
+    }
+    setSaving(true);
+    await onSlide(pendingSlide, 8);
+    setPendingSlide(null);
+    setSlidePreview("");
+    setSaving(false);
   }
 
   async function onSlide(file: File, duration: number) {
@@ -146,13 +162,14 @@ export function ScreenEditor({
               if (file) void onLogo(file);
             }} />
           </label>
-          {logoUrl ? (
+          {logoPreview ? (
             <div className="thumb-row">
-              <img src={logoUrl} alt="" />
-              <button className="light" type="button" onClick={() => setLogoUrl("")}>מחיקה</button>
+              <img src={logoPreview} alt="" />
+              <button className="light" type="button" onClick={() => { setLogoUrl(""); setLogoPreview(""); }}>מחיקה</button>
             </div>
           ) : null}
           <button type="submit">שמירה</button>
+          {message ? <p className="error">{message}</p> : null}
         </div>
       </form>
 
@@ -161,9 +178,14 @@ export function ScreenEditor({
         <p>אפשר כמה שקפים. הם יופיעו אחד אחרי השני וחוזר חלילה.</p>
         <div className="media-box">
           <label>תמונה או PDF
-            <input type="file" accept="image/*,.pdf,application/pdf" onChange={(event) => setPendingSlide(event.target.files?.[0] || null)} />
+            <input type="file" accept="image/*,.pdf,application/pdf" onChange={(event) => {
+              const file = event.target.files?.[0] || null;
+              setPendingSlide(file);
+              setSlidePreview(file && !file.name.toLowerCase().endsWith(".pdf") ? URL.createObjectURL(file) : "");
+            }} />
           </label>
-          <button type="button" onClick={() => { if (pendingSlide) void onSlide(pendingSlide, 8).then(() => setPendingSlide(null)); }}>שמירה</button>
+          {slidePreview ? <img className="pending-thumb" src={slidePreview} alt="" /> : null}
+          <button type="button" onClick={() => void saveSlide()}>{saving ? "שומר..." : "שמירה"}</button>
         </div>
         <div className="slide-grid">
           {slides.map((slide) => (
