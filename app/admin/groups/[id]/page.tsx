@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { ScreenEditor } from "@/components/admin/ScreenEditor";
 import { AdminNav } from "@/components/admin/AdminNav";
-import { addAddress, deleteAddress, moveAddress } from "@/app/admin/actions";
+import { deleteAddress, moveAddress } from "@/app/admin/actions";
 import { prisma } from "@/lib/prisma";
 import { screenWhere } from "@/lib/access";
 import { isSystemAdmin, requireSession } from "@/lib/session";
@@ -51,8 +51,8 @@ export default async function GroupPage({
       <p><Link href="/admin">כל הקבוצות</Link></p>
       <h1>{group.name}</h1>
       <section className="card">
-        <h2>מסכים בקבוצה</h2>
-        {screens.length === 0 ? <p>אין מסכים בקבוצה.</p> : null}
+        <h2>מסכים משויכים</h2>
+        {screens.length === 0 ? <p>אין עדיין כתובת בקבוצה. יוצרים כתובת בלשונית בניינים ומשייכים אותה לכאן.</p> : null}
         <div className="screens">
           {screens.map((screen) => {
             const street = screen.street || group.street;
@@ -96,15 +96,6 @@ export default async function GroupPage({
             );
           })}
         </div>
-        {owner ? (
-          <form className="row" action={addAddress} style={{ marginTop: 12 }}>
-            <input type="hidden" name="groupId" value={group.id} />
-            <label>רחוב<input name="street" required /></label>
-            <label>מספר<input name="number" required /></label>
-            <label>עיר<input name="city" required /></label>
-            <button type="submit">הוספת כתובת</button>
-          </form>
-        ) : null}
       </section>
       <p><Link href={edit ? `/admin/groups/${group.id}` : `/admin/groups/${group.id}?edit=1`}>{edit ? "סגירת עריכת התוכן" : "עריכת תוכן הקבוצה"}</Link></p>
       {edit ? <ScreenEditor screen={group} slides={group.slides} notices={group.notices} scope="group" buildings={buildings} feeds={feeds} /> : null}

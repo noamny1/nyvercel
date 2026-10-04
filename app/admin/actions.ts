@@ -260,6 +260,7 @@ export async function createListedScreen(formData: FormData) {
   const street = String(formData.get("street") || "").trim();
   const number = String(formData.get("number") || "").trim();
   const city = String(formData.get("city") || "").trim();
+  const groupId = Number(formData.get("groupId")) || null;
   const place = [street, number].filter(Boolean).join(" ");
   await prisma.screen.create({
     data: {
@@ -267,6 +268,7 @@ export async function createListedScreen(formData: FormData) {
       street,
       number,
       city,
+      groupId,
     },
   });
   redirect("/admin/buildings");

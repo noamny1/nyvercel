@@ -22,7 +22,7 @@ export default async function AdminHome() {
     <main className="admin">
       <AdminNav />
       <h1>ניהול קבוצות מסכים</h1>
-      <p>כל קבוצה היא שם. בתוכה המסכים שמשויכים אליה.</p>
+      <p>קבוצה היא שם בלבד. את הכתובות יוצרים בלשונית בניינים ומשייכים משם.</p>
       <div className="screens">
         {groups.map((group) => {
           const own = group.screens

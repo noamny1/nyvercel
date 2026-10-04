@@ -119,6 +119,12 @@ export default async function BuildingsPage({ searchParams }: { searchParams: Pr
             <label>רחוב<input name="street" required /></label>
             <label>מספר<input name="number" required /></label>
             <label>עיר<input name="city" required /></label>
+            <label>קבוצה
+              <select name="groupId" defaultValue="">
+                <option value="">בלי קבוצה</option>
+                {groups.map((group) => <option key={group.id} value={group.id}>{group.name}</option>)}
+              </select>
+            </label>
             <button type="submit">יצירה</button>
           </div>
         </form>
