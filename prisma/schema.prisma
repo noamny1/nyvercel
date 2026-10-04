@@ -11,7 +11,9 @@ model User {
   id           Int      @id @default(autoincrement())
   email        String   @unique
   passwordHash String
-  role         String   @default("admin")
+  name         String   @default("")
+  role         String   @default("client")
+  screens      Screen[]
   createdAt    DateTime @default(now())
 }
 
@@ -58,6 +60,7 @@ model Screen {
   group      ScreenGroup? @relation(fields: [groupId], references: [id], onDelete: SetNull)
   active     Boolean      @default(true)
   lastPing   DateTime?
+  users      User[]
   slides     Slide[]
   notices    Notice[]
   createdAt  DateTime     @default(now())

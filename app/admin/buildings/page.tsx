@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { AdminNav } from "@/components/admin/AdminNav";
 import { createListedScreen, deleteListedScreen } from "@/app/admin/actions";
 import { prisma } from "@/lib/prisma";
+import { screenWhere } from "@/lib/access";
 import { isSystemAdmin, requireSession } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
@@ -21,6 +22,7 @@ export default async function BuildingsPage() {
   const owner = isSystemAdmin(session);
   const now = Date.now();
   const screens = await prisma.screen.findMany({
+    where: await screenWhere(session),
     orderBy: { id: "asc" },
     include: { group: true },
   });
@@ -67,15 +69,17 @@ export default async function BuildingsPage() {
           );
         })}
       </div>
-      <form className="card" action={createListedScreen}>
-        <h2>מסך חדש</h2>
-        <div className="row">
-          <label>רחוב<input name="street" required /></label>
-          <label>מספר<input name="number" required /></label>
-          <label>עיר<input name="city" required /></label>
-          <button type="submit">יצירה</button>
-        </div>
-      </form>
+      {owner ? (
+        <form className="card" action={createListedScreen}>
+          <h2>מסך חדש</h2>
+          <div className="row">
+            <label>רחוב<input name="street" required /></label>
+            <label>מספר<input name="number" required /></label>
+            <label>עיר<input name="city" required /></label>
+            <button type="submit">יצירה</button>
+          </div>
+        </form>
+      ) : null}
     </main>
   );
 }

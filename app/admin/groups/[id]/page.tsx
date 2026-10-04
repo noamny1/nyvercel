@@ -4,6 +4,7 @@ import { ScreenEditor } from "@/components/admin/ScreenEditor";
 import { AdminNav } from "@/components/admin/AdminNav";
 import { addAddress, deleteAddress, moveAddress } from "@/app/admin/actions";
 import { prisma } from "@/lib/prisma";
+import { screenWhere } from "@/lib/access";
 import { isSystemAdmin, requireSession } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
@@ -39,6 +40,9 @@ export default async function GroupPage({
     prisma.screenGroup.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
   ]);
   if (!group) notFound();
+  const allowed = owner ? null : new Set((await prisma.screen.findMany({ where: await screenWhere(session), select: { id: true } })).map((screen) => screen.id));
+  const screens = owner ? group.screens : group.screens.filter((screen) => allowed?.has(screen.id));
+  if (!owner && screens.length === 0) notFound();
   const others = groups.filter((item) => item.id !== group.id);
 
   return (
@@ -48,9 +52,9 @@ export default async function GroupPage({
       <h1>{group.name}</h1>
       <section className="card">
         <h2>מסכים בקבוצה</h2>
-        {group.screens.length === 0 ? <p>אין מסכים בקבוצה.</p> : null}
+        {screens.length === 0 ? <p>אין מסכים בקבוצה.</p> : null}
         <div className="screens">
-          {group.screens.map((screen) => {
+          {screens.map((screen) => {
             const street = screen.street || group.street;
             const number = screen.number || group.number;
             const city = screen.city || group.city;
@@ -92,13 +96,15 @@ export default async function GroupPage({
             );
           })}
         </div>
-        <form className="row" action={addAddress} style={{ marginTop: 12 }}>
-          <input type="hidden" name="groupId" value={group.id} />
-          <label>רחוב<input name="street" required /></label>
-          <label>מספר<input name="number" required /></label>
-          <label>עיר<input name="city" required /></label>
-          <button type="submit">הוספת כתובת</button>
-        </form>
+        {owner ? (
+          <form className="row" action={addAddress} style={{ marginTop: 12 }}>
+            <input type="hidden" name="groupId" value={group.id} />
+            <label>רחוב<input name="street" required /></label>
+            <label>מספר<input name="number" required /></label>
+            <label>עיר<input name="city" required /></label>
+            <button type="submit">הוספת כתובת</button>
+          </form>
+        ) : null}
       </section>
       <p><Link href={edit ? `/admin/groups/${group.id}` : `/admin/groups/${group.id}?edit=1`}>{edit ? "סגירת עריכת התוכן" : "עריכת תוכן הקבוצה"}</Link></p>
       {edit ? <ScreenEditor screen={group} slides={group.slides} notices={group.notices} scope="group" buildings={buildings} feeds={feeds} /> : null}

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AdminNav } from "@/components/admin/AdminNav";
 import { prisma } from "@/lib/prisma";
+import { screenWhere } from "@/lib/access";
 import { requireSession } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
@@ -21,6 +22,7 @@ export default async function ControlPage({ searchParams }: { searchParams: Prom
   const filter = status || "all";
   const now = Date.now();
   const screens = await prisma.screen.findMany({
+    where: await screenWhere(session),
     orderBy: { id: "asc" },
     include: { group: { include: { building: true } } },
   });

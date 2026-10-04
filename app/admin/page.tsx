@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { groupWhere } from "@/lib/access";
 import { isSystemAdmin, requireSession } from "@/lib/session";
 import { createGroup, deleteGroup, renameGroup } from "./actions";
 import { AdminNav } from "@/components/admin/AdminNav";
@@ -12,6 +13,7 @@ export default async function AdminHome() {
   if (!session) redirect("/admin/login");
   const owner = isSystemAdmin(session);
   const groups = await prisma.screenGroup.findMany({
+    where: await groupWhere(session),
     orderBy: { id: "asc" },
     include: { screens: { select: { street: true, number: true, city: true } } },
   });
@@ -39,30 +41,32 @@ export default async function AdminHome() {
                 <small>{group.screens.length} מסכים</small>
                 {lines.map((line, index) => <small key={`${line}-${index}`}>{line}</small>)}
               </span>
-              <span className="screen-actions">
-                <form action={renameGroup}>
-                  <input type="hidden" name="id" value={group.id} />
-                  <input name="name" defaultValue={group.name} aria-label="שם הקבוצה" required />
-                  <button className="light" type="submit">שמירת שם</button>
-                </form>
-                {owner ? (
+              {owner ? (
+                <span className="screen-actions">
+                  <form action={renameGroup}>
+                    <input type="hidden" name="id" value={group.id} />
+                    <input name="name" defaultValue={group.name} aria-label="שם הקבוצה" required />
+                    <button className="light" type="submit">שמירת שם</button>
+                  </form>
                   <form action={deleteGroup}>
                     <input type="hidden" name="id" value={group.id} />
                     <button className="light" type="submit">מחיקה</button>
                   </form>
-                ) : null}
-              </span>
+                </span>
+              ) : null}
             </div>
           );
         })}
       </div>
-      <form className="card" action={createGroup}>
-        <h2>קבוצה חדשה</h2>
-        <div className="row">
-          <label>שם הקבוצה<input name="name" required placeholder="דיין אחזקות" /></label>
-          <button type="submit">יצירה</button>
-        </div>
-      </form>
+      {owner ? (
+        <form className="card" action={createGroup}>
+          <h2>קבוצה חדשה</h2>
+          <div className="row">
+            <label>שם הקבוצה<input name="name" required placeholder="דיין אחזקות" /></label>
+            <button type="submit">יצירה</button>
+          </div>
+        </form>
+      ) : null}
     </main>
   );
 }
