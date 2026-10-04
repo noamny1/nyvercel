@@ -36,6 +36,7 @@ export async function updateScreen(formData: FormData) {
   const current = await prisma.screen.findUnique({ where: { id } });
   if (!current) redirect("/admin/buildings");
   const owner = isSystemAdmin(session);
+  const incomingLogo = String(formData.get("logoUrl") || "");
   await prisma.screen.update({
     where: { id },
     data: {
@@ -45,7 +46,9 @@ export async function updateScreen(formData: FormData) {
       city: owner ? String(formData.get("city") || "") : current.city,
       theme: String(formData.get("theme") || "modern"),
       newsSource: String(formData.get("newsSource") || "ynet"),
-      logoUrl: String(formData.get("logoUrl") || ""),
+      newsCount: Math.min(20, Math.max(1, Number(formData.get("newsCount")) || current.newsCount || 8)),
+      tickerSeconds: Math.min(40, Math.max(6, Number(formData.get("tickerSeconds")) || current.tickerSeconds || 12)),
+      logoUrl: String(formData.get("clearLogo") || "") === "1" ? "" : incomingLogo.startsWith("http") ? incomingLogo : current.logoUrl,
     },
   });
   redirect(`/admin/screens/${id}`);

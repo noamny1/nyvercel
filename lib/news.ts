@@ -85,7 +85,7 @@ export async function refreshNews(sourceId?: string) {
   }
 }
 
-export async function newsFor(sourceId: string) {
+export async function newsFor(sourceId: string, take = 8) {
   const latest = await prisma.newsItem.findFirst({
     where: { source: sourceId },
     orderBy: { updatedAt: "desc" },
@@ -98,9 +98,10 @@ export async function newsFor(sourceId: string) {
       /* keep the previous headlines */
     }
   }
+  const limit = Math.min(20, Math.max(1, take));
   return prisma.newsItem.findMany({
     where: { source: sourceId },
     orderBy: { id: "desc" },
-    take: 20,
+    take: limit,
   });
 }

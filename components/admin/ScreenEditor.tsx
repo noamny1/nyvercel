@@ -27,6 +27,8 @@ export function ScreenEditor({
     theme: string;
     logoUrl: string;
     newsSource: string;
+    newsCount?: number;
+    tickerSeconds?: number;
     musicUrl?: string;
     buildingId?: number | null;
   };
@@ -46,6 +48,8 @@ export function ScreenEditor({
   const ownerField = scope === "group" ? "groupId" : "screenId";
   const [logoUrl, setLogoUrl] = useState(screen.logoUrl);
   const [logoPreview, setLogoPreview] = useState(screen.logoUrl);
+  const [uploading, setUploading] = useState(false);
+  const [clearLogo, setClearLogo] = useState(false);
   const [message, setMessage] = useState("");
   const [editing, setEditing] = useState<number | null>(null);
   const [pendingSlide, setPendingSlide] = useState<File | null>(null);
@@ -64,11 +68,17 @@ export function ScreenEditor({
 
   async function onLogo(file: File) {
     setMessage("");
+    setClearLogo(false);
+    setUploading(true);
     setLogoPreview(URL.createObjectURL(file));
     try {
-      setLogoUrl(await upload(file, "image"));
+      const url = await upload(file, "image");
+      setLogoUrl(url);
+      setLogoPreview(url);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "ההעלאה נכשלה");
+    } finally {
+      setUploading(false);
     }
   }
 
@@ -122,7 +132,8 @@ export function ScreenEditor({
     <div>
       <form className="card" action={save}>
         <input type="hidden" name="id" value={screen.id} />
-        <input type="hidden" name="logoUrl" value={logoUrl} />
+        <input type="hidden" name="logoUrl" value={logoUrl.startsWith("http") ? logoUrl : screen.logoUrl} />
+        <input type="hidden" name="clearLogo" value={clearLogo ? "1" : ""} />
         <div className="row">
           <label>רחוב<input name="street" defaultValue={screen.street} readOnly={lockAddress} /></label>
           <label>מספר<input name="number" defaultValue={screen.number} readOnly={lockAddress} /></label>
@@ -141,6 +152,8 @@ export function ScreenEditor({
               ))}
             </select>
           </label>
+          <label>כמות כתבות<input name="newsCount" type="number" min={1} max={20} defaultValue={screen.newsCount ?? 8} /></label>
+          <label>שניות לכתבה<input name="tickerSeconds" type="number" min={6} max={40} defaultValue={screen.tickerSeconds ?? 12} /></label>
           {scope === "group" ? (
             <>
               <label>מוזיקה<input name="musicUrl" defaultValue={screen.musicUrl || ""} placeholder="קישור לקובץ שמע" /></label>
@@ -165,10 +178,10 @@ export function ScreenEditor({
           {logoPreview ? (
             <div className="thumb-row">
               <img src={logoPreview} alt="" />
-              <button className="light" type="button" onClick={() => { setLogoUrl(""); setLogoPreview(""); }}>מחיקה</button>
+              <button className="light" type="button" onClick={() => { setLogoUrl(""); setLogoPreview(""); setClearLogo(true); }}>מחיקה</button>
             </div>
           ) : null}
-          <button type="submit">שמירה</button>
+          <button type="submit" disabled={uploading}>{uploading ? "מעלה את הלוגו..." : "שמירה"}</button>
           {message ? <p className="error">{message}</p> : null}
         </div>
       </form>

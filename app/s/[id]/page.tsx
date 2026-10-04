@@ -59,7 +59,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
   const [weather, shabbat, headlines, rates] = await Promise.all([
     weatherFor(city).catch(() => null),
     shabbatFor(city).catch(() => null),
-    newsFor(source.newsSource).catch(() => []),
+    newsFor(screen.newsSource || source.newsSource, screen.newsCount || 8).catch(() => []),
     markets().catch(() => []),
   ]);
   const ticker = screen.updates.map((item) => item.text);
@@ -91,7 +91,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
         <Directory floors={indexTheme ? [] : floors} />
         <Markets rows={rates} />
       </aside>
-      <NewsTicker titles={[...ticker, ...headlines.map((item) => item.title)]} />
+      <NewsTicker titles={[...ticker, ...headlines.map((item) => item.title)]} seconds={screen.tickerSeconds || 12} />
     </main>
   );
 }

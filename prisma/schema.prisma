@@ -58,6 +58,8 @@ model Screen {
   theme      String       @default("modern")
   logoUrl    String       @default("")
   newsSource String       @default("ynet")
+  newsCount  Int          @default(8)
+  tickerSeconds Int       @default(12)
   groupId    Int?
   group      ScreenGroup? @relation(fields: [groupId], references: [id], onDelete: SetNull)
   active     Boolean      @default(true)
