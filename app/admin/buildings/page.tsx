@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AdminNav } from "@/components/admin/AdminNav";
-import { createListedScreen, deleteListedScreen, moveListedScreen } from "@/app/admin/actions";
+import { GroupMove } from "@/components/admin/GroupMove";
+import { createListedScreen, deleteListedScreen } from "@/app/admin/actions";
 import { prisma } from "@/lib/prisma";
 import { screenWhere } from "@/lib/access";
 import { isSystemAdmin, requireSession } from "@/lib/session";
@@ -64,16 +65,7 @@ export default async function BuildingsPage() {
                   <td data-label="עיר">{city || "—"}</td>
                   <td data-label="קבוצה">
                     {owner ? (
-                      <form className="group-move" action={moveListedScreen}>
-                        <input type="hidden" name="id" value={screen.id} />
-                        <select name="groupId" defaultValue={screen.groupId ?? ""} aria-label="קבוצה">
-                          <option value="">בלי קבוצה</option>
-                          {groups.map((group) => (
-                            <option key={group.id} value={group.id}>{group.name}</option>
-                          ))}
-                        </select>
-                        <button className="light" type="submit">העברה</button>
-                      </form>
+                      <GroupMove screenId={screen.id} groupId={screen.groupId} groups={groups} />
                     ) : (
                       screen.group?.name || "—"
                     )}
