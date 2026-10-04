@@ -68,6 +68,7 @@ body:has(.admin) { background: #F4F1ED; overflow-x: hidden; }
   width: 100%;
 }
 .admin input[type="checkbox"] { width: auto; }
+.admin .btn, .admin button {
   border: 0;
   background: #5A1F2B;
   color: #F4F1ED;
