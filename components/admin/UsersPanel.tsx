@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { assignScreens, createClientUser, deleteClientUser } from "@/app/admin/users/actions";
 import { ClientCard } from "@/components/admin/ClientCard";
+import { mailtoLink } from "@/lib/mail";
 
 type Screen = { id: number; street: string; number: string; city: string; name: string };
 type UserRow = { id: number; name: string; email: string; screenIds: number[] };
@@ -66,6 +67,7 @@ function ScreenSearch({
 export function UsersPanel({ screens, users }: { screens: Screen[]; users: UserRow[] }) {
   const router = useRouter();
   const [card, setCard] = useState<{ name: string; email: string; password: string; screens: string[] } | null>(null);
+  const [notice, setNotice] = useState("");
   const [error, setError] = useState("");
   const [password, setPassword] = useState("");
   const [selected, setSelected] = useState<number[]>([]);
@@ -76,6 +78,7 @@ export function UsersPanel({ screens, users }: { screens: Screen[]; users: UserR
 
   async function onCreate(formData: FormData) {
     setError("");
+    setNotice("");
     const result = await createClientUser(formData);
     if (!result.ok) {
       setError(result.error);
@@ -84,6 +87,13 @@ export function UsersPanel({ screens, users }: { screens: Screen[]; users: UserR
     setCard(result.card);
     setPassword("");
     setSelected([]);
+    if (formData.get("intent") === "send") {
+      if (result.sent) setNotice("המשתמש נשמר והפרטים נשלחו למייל.");
+      else {
+        setNotice("המשתמש נשמר. נפתח המייל כדי לשלוח לו את הפרטים.");
+        window.location.href = mailtoLink(result.card);
+      }
+    }
     router.refresh();
   }
 
@@ -102,7 +112,11 @@ export function UsersPanel({ screens, users }: { screens: Screen[]; users: UserR
         {selected.map((id) => <input key={id} type="hidden" name="screenId" value={id} />)}
         <ScreenSearch screens={screens} selected={selected} onToggle={toggle} />
         {error ? <p className="error">{error}</p> : null}
-        <button type="submit">יצירה והצגת כרטיס</button>
+        {notice ? <p>{notice}</p> : null}
+        <div className="row">
+          <button type="submit" name="intent" value="save">יצירה והצגת כרטיס</button>
+          <button type="submit" name="intent" value="send">שמירה ושליחה</button>
+        </div>
       </form>
       {users.map((user) => (
         <UserAssign key={user.id} user={user} screens={screens} />

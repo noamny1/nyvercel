@@ -4,6 +4,7 @@ import bcrypt from "bcryptjs";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { isSystemAdmin, requireSession } from "@/lib/session";
+import { sendClientMail } from "@/lib/mail";
 
 async function ownerGate() {
   const session = await requireSession();
@@ -34,15 +35,16 @@ export async function createClientUser(formData: FormData) {
     },
     include: { screens: true },
   });
-  return {
-    ok: true as const,
-    card: {
-      name: user.name,
-      email: user.email,
-      password,
-      screens: user.screens.map(line),
-    },
+  const card = {
+    name: user.name,
+    email: user.email,
+    password,
+    screens: user.screens.map(line),
   };
+  const send = formData.get("intent") === "send";
+  if (!send) return { ok: true as const, card, sent: false as const };
+  const mail = await sendClientMail(card);
+  return { ok: true as const, card, sent: mail.ok, mailError: mail.ok ? "" : mail.error };
 }
 
 export async function assignScreens(formData: FormData) {
