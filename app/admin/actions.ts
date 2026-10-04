@@ -279,6 +279,14 @@ export async function deleteListedScreen(formData: FormData) {
   redirect("/admin/buildings");
 }
 
+export async function moveListedScreen(formData: FormData) {
+  await ownerGate();
+  const id = Number(formData.get("id"));
+  const groupId = Number(formData.get("groupId")) || null;
+  if (id) await prisma.screen.update({ where: { id }, data: { groupId } });
+  redirect("/admin/buildings");
+}
+
 export async function deleteBuilding(formData: FormData) {
   await gate();
   await prisma.building.delete({ where: { id: Number(formData.get("id")) } });
