@@ -17,15 +17,34 @@ function stateOf(screen: { active: boolean; lastPing: Date | null }, now: number
   return "offline";
 }
 
-export default async function BuildingsPage() {
+export default async function BuildingsPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
   const session = await requireSession();
   if (!session) redirect("/admin/login");
   const owner = isSystemAdmin(session);
   const now = Date.now();
+  const { q = "" } = await searchParams;
+  const query = q.trim();
+  const id = Number(query);
   const [screens, groups] = await Promise.all([
     prisma.screen.findMany({
-      where: await screenWhere(session),
+      where: {
+        AND: [
+          await screenWhere(session),
+          query
+            ? {
+                OR: [
+                  ...(Number.isInteger(id) && id > 0 ? [{ id }] : []),
+                  { street: { contains: query, mode: "insensitive" } },
+                  { number: { contains: query, mode: "insensitive" } },
+                  { city: { contains: query, mode: "insensitive" } },
+                  { name: { contains: query, mode: "insensitive" } },
+                ],
+              }
+            : {},
+        ],
+      },
       orderBy: { id: "asc" },
+      take: 30,
       include: { group: true },
     }),
     prisma.screenGroup.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
@@ -35,7 +54,13 @@ export default async function BuildingsPage() {
     <main className="admin">
       <AdminNav />
       <h1>בניינים</h1>
-      <p>כל שורה היא מסך בשטח. ירוק אומר שהמסך שלח אות ב-8 הדקות האחרונות.</p>
+      <p>מוצגים עד 30 מסכים. לחיפוש מדויק מקלידים רחוב, עיר או מספר מסך.</p>
+      <form className="card" action="/admin/buildings">
+        <div className="row">
+          <label>חיפוש בניין<input name="q" defaultValue={query} placeholder="רחוב, עיר או מספר מסך" /></label>
+          <button type="submit">חיפוש</button>
+        </div>
+      </form>
       <div className="table-wrap">
         <table className="screen-table">
           <thead>

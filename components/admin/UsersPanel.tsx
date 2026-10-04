@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { assignScreens, createClientUser, deleteClientUser, saveAndSendUser } from "@/app/admin/users/actions";
 import { ClientCard } from "@/components/admin/ClientCard";
 
@@ -21,40 +21,48 @@ function makePassword() {
 }
 
 function ScreenSearch({
-  screens,
   selected,
   onToggle,
 }: {
-  screens: Screen[];
-  selected: number[];
-  onToggle: (id: number) => void;
+  selected: Screen[];
+  onToggle: (screen: Screen) => void;
 }) {
   const [query, setQuery] = useState("");
+  const [matches, setMatches] = useState<Screen[]>([]);
+  const [empty, setEmpty] = useState(false);
   const text = query.trim();
-  const matches = useMemo(() => {
-    if (text.length < 1) return [];
-    const needle = text.toLowerCase();
-    return screens
-      .filter((screen) => `${screen.id} ${line(screen)} ${screen.name}`.toLowerCase().includes(needle))
-      .slice(0, 8);
-  }, [screens, text]);
-  const chosen = screens.filter((screen) => selected.includes(screen.id));
+
+  useEffect(() => {
+    if (!text) {
+      setMatches([]);
+      setEmpty(false);
+      return;
+    }
+    const handle = setTimeout(async () => {
+      const response = await fetch(`/api/admin/screens?q=${encodeURIComponent(text)}`);
+      const data = await response.json();
+      const screens = data.screens || [];
+      setMatches(screens);
+      setEmpty(screens.length === 0);
+    }, 180);
+    return () => clearTimeout(handle);
+  }, [text]);
 
   return (
     <div className="picks">
       <label>חיפוש מסך<input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="רחוב, מספר, עיר או מספר מסך" /></label>
-      {text && matches.length === 0 ? <p>אין מסך שמתאים לחיפוש.</p> : null}
+      {empty ? <p>אין מסך שמתאים לחיפוש.</p> : null}
       {matches.map((screen) => (
-        <button className="light" type="button" key={screen.id} onClick={() => onToggle(screen.id)}>
-          {selected.includes(screen.id) ? "הסר" : "שייך"} · מסך {screen.id} · {line(screen)}
+        <button className="light" type="button" key={screen.id} onClick={() => onToggle(screen)}>
+          {selected.some((item) => item.id === screen.id) ? "הסר" : "שייך"} · מסך {screen.id} · {line(screen)}
         </button>
       ))}
-      {chosen.length > 0 ? (
+      {selected.length > 0 ? (
         <div className="chosen">
-          {chosen.map((screen) => (
+          {selected.map((screen) => (
             <span key={screen.id}>
               מסך {screen.id} · {line(screen)}
-              <button className="light" type="button" onClick={() => onToggle(screen.id)}>הסרה</button>
+              <button className="light" type="button" onClick={() => onToggle(screen)}>הסרה</button>
             </span>
           ))}
         </div>
@@ -63,16 +71,16 @@ function ScreenSearch({
   );
 }
 
-export function UsersPanel({ screens, users, query }: { screens: Screen[]; users: UserRow[]; query: string }) {
+export function UsersPanel({ users, query }: { users: UserRow[]; query: string }) {
   const router = useRouter();
   const [card, setCard] = useState<{ name: string; email: string; password: string; screens: string[] } | null>(null);
   const [dialog, setDialog] = useState<{ ok: boolean; message: string } | null>(null);
   const [error, setError] = useState("");
   const [password, setPassword] = useState("");
-  const [selected, setSelected] = useState<number[]>([]);
+  const [selected, setSelected] = useState<Screen[]>([]);
 
-  function toggle(id: number) {
-    setSelected((current) => current.includes(id) ? current.filter((item) => item !== id) : [...current, id]);
+  function toggle(screen: Screen) {
+    setSelected((current) => current.some((item) => item.id === screen.id) ? current.filter((item) => item.id !== screen.id) : [...current, screen]);
   }
 
   async function onCreate(formData: FormData) {
@@ -107,20 +115,20 @@ export function UsersPanel({ screens, users, query }: { screens: Screen[]; users
           <button className="light" type="button" onClick={() => setPassword(makePassword())}>סיסמה אוטומטית</button>
         </div>
         <p>מחפשים מסך ומשייכים אותו למשתמש הזה.</p>
-        {selected.map((id) => <input key={id} type="hidden" name="screenId" value={id} />)}
-        <ScreenSearch screens={screens} selected={selected} onToggle={toggle} />
+        {selected.map((screen) => <input key={screen.id} type="hidden" name="screenId" value={screen.id} />)}
+        <ScreenSearch selected={selected} onToggle={toggle} />
         {error ? <p className="error">{error}</p> : null}
         <div className="row">
           <button type="submit" name="intent" value="save">שמירה</button>
           <button type="submit" name="intent" value="send">שמירה ושליחה</button>
         </div>
       </form>
-      <UserLookup screens={screens} initial={users} />
+      <UserLookup initial={users} />
     </div>
   );
 }
 
-function UserLookup({ screens, initial }: { screens: Screen[]; initial: UserRow[] }) {
+function UserLookup({ initial }: { initial: UserRow[] }) {
   const [text, setText] = useState("");
   const [options, setOptions] = useState<UserRow[]>([]);
   const [chosen, setChosen] = useState<UserRow | null>(initial[0] || null);
@@ -161,16 +169,23 @@ function UserLookup({ screens, initial }: { screens: Screen[]; initial: UserRow[
         ) : null}
         {empty ? <p>לא נמצא משתמש.</p> : null}
       </section>
-      {chosen ? <UserAssign key={chosen.id} user={chosen} screens={screens} /> : null}
+      {chosen ? <UserAssign key={chosen.id} user={chosen} /> : null}
     </>
   );
 }
 
-function UserAssign({ user, screens }: { user: UserRow; screens: Screen[] }) {
-  const [selected, setSelected] = useState(user.screenIds);
+function UserAssign({ user }: { user: UserRow }) {
+  const [selected, setSelected] = useState<Screen[]>([]);
   const [dialog, setDialog] = useState<{ ok: boolean; message: string } | null>(null);
-  function toggle(id: number) {
-    setSelected((current) => current.includes(id) ? current.filter((item) => item !== id) : [...current, id]);
+  useEffect(() => {
+    if (!user.screenIds.length) return;
+    fetch(`/api/admin/screens?ids=${user.screenIds.join(",")}`)
+      .then((response) => response.json())
+      .then((data) => setSelected(data.screens || []))
+      .catch(() => setSelected([]));
+  }, [user]);
+  function toggle(screen: Screen) {
+    setSelected((current) => current.some((item) => item.id === screen.id) ? current.filter((item) => item.id !== screen.id) : [...current, screen]);
   }
   async function onSaveSend(formData: FormData) {
     const result = await saveAndSendUser(formData);
@@ -188,8 +203,8 @@ function UserAssign({ user, screens }: { user: UserRow; screens: Screen[] }) {
       <p>{user.email}</p>
       <input type="hidden" name="userId" value={user.id} />
       <input type="hidden" name="q" value={user.email} />
-      {selected.map((id) => <input key={id} type="hidden" name="screenId" value={id} />)}
-      <ScreenSearch screens={screens} selected={selected} onToggle={toggle} />
+      {selected.map((screen) => <input key={screen.id} type="hidden" name="screenId" value={screen.id} />)}
+      <ScreenSearch selected={selected} onToggle={toggle} />
       <div className="row">
         <button type="submit">שמירת שיוך</button>
         <button type="submit" formAction={onSaveSend}>שמירה ושליחה</button>

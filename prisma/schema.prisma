@@ -15,6 +15,8 @@ model User {
   role         String   @default("client")
   screens      Screen[]
   createdAt    DateTime @default(now())
+
+  @@index([role, name])
 }
 
 model Building {
@@ -64,6 +66,11 @@ model Screen {
   slides     Slide[]
   notices    Notice[]
   createdAt  DateTime     @default(now())
+
+  @@index([groupId])
+  @@index([lastPing])
+  @@index([street])
+  @@index([city])
 }
 
 model Slide {

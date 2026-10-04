@@ -12,10 +12,8 @@ export default async function UsersPage({ searchParams }: { searchParams: Promis
   if (!isSystemAdmin(session)) redirect("/admin");
   const { q = "" } = await searchParams;
   const query = q.trim();
-  const [screens, users] = await Promise.all([
-    prisma.screen.findMany({ orderBy: { id: "asc" }, include: { group: true } }),
-    query
-      ? prisma.user.findMany({
+  const users = query
+    ? await prisma.user.findMany({
           where: {
             role: "client",
             OR: [
@@ -27,8 +25,7 @@ export default async function UsersPage({ searchParams }: { searchParams: Promis
           take: 8,
           include: { screens: { select: { id: true } } },
         })
-      : Promise.resolve([]),
-  ]);
+    : [];
 
   return (
     <main className="admin">
@@ -37,13 +34,6 @@ export default async function UsersPage({ searchParams }: { searchParams: Promis
       <p>יוצרים לקוח, או מחפשים משתמש קיים לפי שם או אימייל.</p>
       <UsersPanel
         query={query}
-        screens={screens.map((screen) => ({
-          id: screen.id,
-          street: screen.street || screen.group?.street || "",
-          number: screen.number || screen.group?.number || "",
-          city: screen.city || screen.group?.city || "",
-          name: screen.name,
-        }))}
         users={users.map((user) => ({
           id: user.id,
           name: user.name,

@@ -21,18 +21,21 @@ export default async function ControlPage({ searchParams }: { searchParams: Prom
   const { status } = await searchParams;
   const filter = status || "all";
   const now = Date.now();
-  const screens = await prisma.screen.findMany({
-    where: await screenWhere(session),
-    orderBy: { id: "asc" },
-    include: { group: { include: { building: true } } },
-  });
+  const where = await screenWhere(session);
+  const cutoff = new Date(now - ONLINE_MS);
+  const [total, inactive, online, screens] = await Promise.all([
+    prisma.screen.count({ where }),
+    prisma.screen.count({ where: { AND: [where, { active: false }] } }),
+    prisma.screen.count({ where: { AND: [where, { active: true, lastPing: { gte: cutoff } }] } }),
+    prisma.screen.findMany({
+      where,
+      orderBy: { lastPing: "desc" },
+      take: 40,
+      include: { group: { include: { building: true } } },
+    }),
+  ]);
   const rows = screens.map((screen) => ({ screen, state: stateOf(screen, now) }));
-  const counts = {
-    total: screens.length,
-    inactive: rows.filter((row) => row.state === "inactive").length,
-    online: rows.filter((row) => row.state === "online").length,
-    offline: rows.filter((row) => row.state === "offline").length,
-  };
+  const counts = { total, inactive, online, offline: Math.max(0, total - inactive - online) };
   const visible = filter === "all" ? rows : rows.filter((row) => row.state === filter);
 
   return (
