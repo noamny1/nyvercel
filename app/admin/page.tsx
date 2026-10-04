@@ -12,6 +12,7 @@ export default async function AdminHome() {
   const session = await requireSession();
   if (!session) redirect("/admin/login");
   const owner = isSystemAdmin(session);
+  if (!owner) redirect("/admin/buildings");
   const groups = await prisma.screenGroup.findMany({
     where: await groupWhere(session),
     orderBy: { id: "asc" },

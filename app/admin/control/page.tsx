@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { AdminNav } from "@/components/admin/AdminNav";
 import { prisma } from "@/lib/prisma";
 import { screenWhere } from "@/lib/access";
-import { requireSession } from "@/lib/session";
+import { isSystemAdmin, requireSession } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 
@@ -18,6 +18,7 @@ function stateOf(screen: { active: boolean; lastPing: Date | null }, now: number
 export default async function ControlPage({ searchParams }: { searchParams: Promise<{ status?: string }> }) {
   const session = await requireSession();
   if (!session) redirect("/admin/login");
+  if (!isSystemAdmin(session)) redirect("/admin/buildings");
   const { status } = await searchParams;
   const filter = status || "all";
   const now = Date.now();

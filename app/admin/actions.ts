@@ -373,7 +373,7 @@ export async function saveUpdate(formData: FormData) {
   const links = screenIds.map((screenId) => ({ id: screenId }));
   if (id) await prisma.update.update({ where: { id }, data: { text, screens: { set: links } } });
   else await prisma.update.create({ data: { text, active: true, screens: { connect: links } } });
-  redirect(`/admin/screens/${returnId}/updates`);
+  redirect(`/admin/screens/${returnId}`);
 }
 
 export async function deleteUpdate(formData: FormData) {
@@ -384,5 +384,5 @@ export async function deleteUpdate(formData: FormData) {
   const allowedIds = new Set(allowed.map((screen) => screen.id));
   const update = id ? await prisma.update.findUnique({ where: { id }, include: { screens: { select: { id: true } } } }) : null;
   if (update && update.screens.every((screen) => allowedIds.has(screen.id))) await prisma.update.delete({ where: { id } });
-  redirect(`/admin/screens/${returnId}/updates`);
+  redirect(`/admin/screens/${returnId}`);
 }

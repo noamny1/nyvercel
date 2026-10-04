@@ -5,9 +5,7 @@ import { signOut, useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
 
 const CLIENT_LINKS = [
-  ["/admin", "קבוצות"],
   ["/admin/buildings", "בניינים"],
-  ["/admin/control", "לוח בקרה"],
 ];
 
 const OWNER_LINKS = [
@@ -28,7 +26,7 @@ export function AdminNav() {
   return (
     <header className="admin-bar">
       <div className="admin-bar-inner">
-        <Link className="admin-brand" href="/admin" aria-label="בית">
+        <Link className="admin-brand" href={owner ? "/admin" : "/admin/buildings"} aria-label="בית">
           <strong>NYmedia</strong>
           <span>בית</span>
         </Link>
