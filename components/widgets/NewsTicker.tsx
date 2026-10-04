@@ -13,7 +13,9 @@ export function NewsTicker({ titles, seconds = 12, source = "" }: { titles: stri
   return (
     <div className="ticker">
       {source ? <span className="ticker-source">{source}</span> : null}
-      <span className="ticker-title">{title}</span>
+      <span className="ticker-window">
+        <span key={index} className="ticker-title">{title}</span>
+      </span>
     </div>
   );
 }
