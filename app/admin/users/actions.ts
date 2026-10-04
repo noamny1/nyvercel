@@ -1,6 +1,7 @@
 "use server";
 
 import bcrypt from "bcryptjs";
+import { randomBytes } from "crypto";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { isSystemAdmin, requireSession } from "@/lib/session";
@@ -43,6 +44,29 @@ export async function createClientUser(formData: FormData) {
   };
   const send = formData.get("intent") === "send";
   if (!send) return { ok: true as const, card, sent: false as const };
+  const mail = await sendClientMail(card);
+  return { ok: true as const, card, sent: mail.ok, mailError: mail.ok ? "" : mail.error };
+}
+
+export async function saveAndSendUser(formData: FormData) {
+  await ownerGate();
+  const userId = Number(formData.get("userId"));
+  const ids = formData.getAll("screenId").map(Number).filter(Boolean);
+  const password = randomBytes(6).toString("base64url");
+  const user = await prisma.user.update({
+    where: { id: userId },
+    data: {
+      passwordHash: await bcrypt.hash(password, 10),
+      screens: { set: ids.map((id) => ({ id })) },
+    },
+    include: { screens: true },
+  });
+  const card = {
+    name: user.name,
+    email: user.email,
+    password,
+    screens: user.screens.map(line),
+  };
   const mail = await sendClientMail(card);
   return { ok: true as const, card, sent: mail.ok, mailError: mail.ok ? "" : mail.error };
 }

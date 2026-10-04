@@ -120,7 +120,8 @@ body:has(.admin) { background: #F4F1ED; overflow-x: hidden; }
 .admin .offline .dot { background: #5A1F2B; }
 .admin .login-page { min-height: 100vh; display: grid; place-items: center; padding: 32px 18px; }
 .admin .login-card .mark { margin: 0 0 8px; letter-spacing: 0.16em; font-size: 13px; color: #5A1F2B; }
-.admin .client-card { width: min(420px, 100%); height: auto; border-radius: 12px; margin: 8px 0 12px; }
+.admin .modal { position: fixed; inset: 0; background: rgba(37, 37, 37, 0.45); display: grid; place-items: center; padding: 18px; z-index: 20; }
+.admin .modal .card { width: min(460px, 100%); }
 .admin .picks { border: 0; margin: 14px 0; padding: 0; display: grid; gap: 8px; }
 .admin .picks legend { color: #252525; margin-bottom: 6px; }
 .admin .pick { display: flex; align-items: center; gap: 8px; }

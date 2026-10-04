@@ -39,7 +39,7 @@ function escapeHtml(value: string) {
 
 export async function sendClientMail(card: MailCard) {
   const key = process.env.RESEND_API_KEY;
-  if (!key) return { ok: false as const, error: "שליחת המייל מהמערכת עדיין לא מחוברת." };
+  if (!key) return { ok: false as const, error: "מפתח המייל לא מוגדר בשרת. צריך להוסיף RESEND_API_KEY ולפרוס מחדש." };
   const response = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {
@@ -54,6 +54,10 @@ export async function sendClientMail(card: MailCard) {
       html: mailHtml(card),
     }),
   });
-  if (!response.ok) return { ok: false as const, error: "המשתמש נשמר, אבל המייל לא יצא מהמערכת." };
+  if (!response.ok) {
+    const body = await response.json().catch(() => ({}));
+    const reason = typeof body?.message === "string" ? body.message : `שגיאה ${response.status}`;
+    return { ok: false as const, error: `המייל לא נשלח. ${reason}` };
+  }
   return { ok: true as const };
 }

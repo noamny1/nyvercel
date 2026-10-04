@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
-import { assignScreens, createClientUser, deleteClientUser } from "@/app/admin/users/actions";
+import { assignScreens, createClientUser, deleteClientUser, saveAndSendUser } from "@/app/admin/users/actions";
 import { ClientCard } from "@/components/admin/ClientCard";
 
 type Screen = { id: number; street: string; number: string; city: string; name: string };
@@ -66,7 +66,7 @@ function ScreenSearch({
 export function UsersPanel({ screens, users }: { screens: Screen[]; users: UserRow[] }) {
   const router = useRouter();
   const [card, setCard] = useState<{ name: string; email: string; password: string; screens: string[] } | null>(null);
-  const [notice, setNotice] = useState("");
+  const [dialog, setDialog] = useState<{ ok: boolean; message: string } | null>(null);
   const [error, setError] = useState("");
   const [password, setPassword] = useState("");
   const [selected, setSelected] = useState<number[]>([]);
@@ -77,7 +77,7 @@ export function UsersPanel({ screens, users }: { screens: Screen[]; users: UserR
 
   async function onCreate(formData: FormData) {
     setError("");
-    setNotice("");
+    setDialog(null);
     const result = await createClientUser(formData);
     if (!result.ok) {
       setError(result.error);
@@ -87,14 +87,17 @@ export function UsersPanel({ screens, users }: { screens: Screen[]; users: UserR
     setPassword("");
     setSelected([]);
     if (formData.get("intent") === "send") {
-      setNotice(result.sent ? "המשתמש נשמר והמייל נשלח ללקוח מהמערכת." : result.mailError || "המשתמש נשמר, אבל המייל לא נשלח.");
+      setDialog({
+        ok: result.sent,
+        message: result.sent ? `המייל נשלח אל ${result.card.email}` : result.mailError || "המייל לא נשלח.",
+      });
     }
     router.refresh();
   }
 
   return (
     <div>
-      {card ? <ClientCard {...card} /> : null}
+      {dialog ? <ResultDialog dialog={dialog} onClose={() => setDialog(null)} /> : null}
       <form className="card" action={onCreate}>
         <h2>משתמש חדש</h2>
         <div className="row">
@@ -107,7 +110,6 @@ export function UsersPanel({ screens, users }: { screens: Screen[]; users: UserR
         {selected.map((id) => <input key={id} type="hidden" name="screenId" value={id} />)}
         <ScreenSearch screens={screens} selected={selected} onToggle={toggle} />
         {error ? <p className="error">{error}</p> : null}
-        {notice ? <p>{notice}</p> : null}
         <div className="row">
           <button type="submit" name="intent" value="save">שמירה</button>
           <button type="submit" name="intent" value="send">שמירה ושליחה</button>
@@ -122,11 +124,22 @@ export function UsersPanel({ screens, users }: { screens: Screen[]; users: UserR
 
 function UserAssign({ user, screens }: { user: UserRow; screens: Screen[] }) {
   const [selected, setSelected] = useState(user.screenIds);
+  const [dialog, setDialog] = useState<{ ok: boolean; message: string } | null>(null);
   function toggle(id: number) {
     setSelected((current) => current.includes(id) ? current.filter((item) => item !== id) : [...current, id]);
   }
+  async function onSaveSend(formData: FormData) {
+    const result = await saveAndSendUser(formData);
+    setDialog({
+      ok: result.sent,
+      message: result.sent
+        ? `המייל נשלח אל ${result.card.email}. הסיסמה החדשה: ${result.card.password}`
+        : result.mailError || "המייל לא נשלח.",
+    });
+  }
   return (
     <form className="card" action={assignScreens}>
+      {dialog ? <ResultDialog dialog={dialog} onClose={() => setDialog(null)} /> : null}
       <h2>{user.name || user.email}</h2>
       <p>{user.email}</p>
       <input type="hidden" name="userId" value={user.id} />
@@ -134,8 +147,21 @@ function UserAssign({ user, screens }: { user: UserRow; screens: Screen[] }) {
       <ScreenSearch screens={screens} selected={selected} onToggle={toggle} />
       <div className="row">
         <button type="submit">שמירת שיוך</button>
+        <button type="submit" formAction={onSaveSend}>שמירה ושליחה</button>
         <button className="light" formAction={deleteClientUser} type="submit">מחיקת משתמש</button>
       </div>
     </form>
+  );
+}
+
+function ResultDialog({ dialog, onClose }: { dialog: { ok: boolean; message: string }; onClose: () => void }) {
+  return (
+    <div className="modal" role="dialog" aria-modal="true">
+      <div className="card">
+        <h2>{dialog.ok ? "השליחה הצליחה" : "השליחה לא הצליחה"}</h2>
+        <p>{dialog.message}</p>
+        <button type="button" onClick={onClose}>סגירה</button>
+      </div>
+    </div>
   );
 }
