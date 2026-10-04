@@ -121,7 +121,48 @@ body:has(.admin) { background: #F4F1ED; overflow-x: hidden; }
 .admin .login-page { min-height: 100vh; display: grid; place-items: center; padding: 32px 18px; }
 .admin .login-card { width: min(420px, 100%); margin: 0; display: grid; gap: 12px; }
 .admin .login-card .mark { margin: 0 0 8px; letter-spacing: 0.16em; font-size: 13px; color: #5A1F2B; }
+.admin .screen-table { display: grid; gap: 8px; margin-top: 18px; }
+.admin .screen-head, .admin .screen-row {
+  display: grid;
+  grid-template-columns: 72px 1.3fr 80px 1fr 110px auto;
+  gap: 12px;
+  align-items: center;
+}
+.admin .screen-head { color: #5c5854; font-size: 13px; padding: 0 14px; }
+.admin .screen-row {
+  background: #fff;
+  border: 1px solid rgba(37, 37, 37, 0.1);
+  border-radius: 12px;
+  padding: 12px 14px;
+  color: #252525;
+}
+.admin .status { display: inline-flex; align-items: center; gap: 8px; }
+.admin .status i { width: 8px; height: 8px; border-radius: 50%; background: #8a847c; }
+.admin .status.online i { background: #2f6b45; }
+.admin .status.offline i { background: #5A1F2B; }
+.admin .acts { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+.admin .icon-btn, .admin .acts button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(37, 37, 37, 0.18);
+  background: #fff;
+  color: #252525;
+  text-decoration: none;
+}
+.admin .acts button { background: transparent; }
 @media (max-width: 800px) {
+  .admin .screen-head { display: none; }
+  .admin .screen-row { grid-template-columns: 1fr; gap: 8px; }
+  .admin .screen-row > span { display: flex; justify-content: space-between; gap: 12px; }
+  .admin .screen-row > span::before { content: attr(data-label); color: #5c5854; }
+  .admin .acts { justify-content: stretch; }
+  .admin .acts::before { content: none; }
+  .admin .icon-btn, .admin .acts button, .admin .acts form { flex: 1; }
+  .admin .acts form button { width: 100%; }
   .admin-bar-inner { flex-direction: column; align-items: flex-start; }
   .admin .stats { grid-template-columns: 1fr 1fr; }
   .admin .screens a, .admin .screens > div { flex-direction: column; }

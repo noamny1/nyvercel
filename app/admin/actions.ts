@@ -237,20 +237,27 @@ export async function deleteGroupNotice(formData: FormData) {
   redirect(`/admin/groups/${groupId}`);
 }
 
-export async function createBuilding(formData: FormData) {
+export async function createListedScreen(formData: FormData) {
   await gate();
   const street = String(formData.get("street") || "").trim();
   const number = String(formData.get("number") || "").trim();
   const city = String(formData.get("city") || "").trim();
   const place = [street, number].filter(Boolean).join(" ");
-  await prisma.building.create({
+  await prisma.screen.create({
     data: {
-      name: [place, city].filter(Boolean).join(", ") || "בניין",
+      name: [place, city].filter(Boolean).join(", ") || "מסך",
       street,
       number,
       city,
     },
   });
+  redirect("/admin/buildings");
+}
+
+export async function deleteListedScreen(formData: FormData) {
+  await ownerGate();
+  const id = Number(formData.get("id"));
+  if (id) await prisma.screen.delete({ where: { id } });
   redirect("/admin/buildings");
 }
 
