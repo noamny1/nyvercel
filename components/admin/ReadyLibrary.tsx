@@ -166,7 +166,7 @@ export function ReadyLibrary({ onAdd }: { onAdd: (draft: SlideDraft) => Promise<
         <div className="slide-modal" role="dialog" aria-modal="true" onClick={() => setMode("")}>
           <div className="slide-modal-card" onClick={(event) => event.stopPropagation()}>
             <h3>סרטוני יוטיוב</h3>
-            <p>מדביקים קישור אחד או כמה, כל קישור בשורה.</p>
+            <p>מדביקים קישור אחד או כמה, כל קישור בשורה. אם יוטיוב חוסם ניגון באתרים אחרים, נכנסים לשקף שנשמר ומעלים קובץ MP4. המסך ינגן את הקובץ.</p>
             <textarea rows={5} value={links} onChange={(event) => setLinks(event.target.value)} placeholder={"https://www.youtube.com/watch?v=...\nhttps://youtu.be/..."} />
             <button type="button" disabled={busy} onClick={() => void saveYoutube()}>{busy ? "שומר..." : "הוספה למסך"}</button>
             <button type="button" className="light" onClick={() => setMode("")}>סגירה</button>
@@ -206,7 +206,23 @@ export function SavedSlideEditor({
           ) : null}
           {kind === "template" && template?.from ? <label>משעה<input type="time" value={meta.from || ""} onChange={(event) => setMeta({ ...meta, from: event.target.value })} /></label> : null}
           {kind === "template" && template?.to ? <label>עד שעה<input type="time" value={meta.to || ""} onChange={(event) => setMeta({ ...meta, to: event.target.value })} /></label> : null}
-          {kind === "youtube" ? <label>קישור<input value={url} onChange={(event) => setUrl(event.target.value)} /></label> : null}
+          {kind === "youtube" ? (
+            <>
+              <label>קישור<input value={url} onChange={(event) => setUrl(event.target.value)} /></label>
+              <p>אם מופיע Video unavailable, מעלים כאן את קובץ הווידאו. המסך ינגן אותו במקום יוטיוב.</p>
+              <label className="replace-file">קובץ וידאו MP4
+                <input type="file" accept="video/mp4,video/webm,video/quicktime,.mp4,.webm,.mov" onChange={(event) => {
+                  const file = event.target.files?.[0];
+                  if (!file) return;
+                  void import("@vercel/blob/client").then(async ({ upload }) => {
+                    const blob = await upload(file.name, file, { access: "public", handleUploadUrl: "/api/upload/client" });
+                    onChange({ detail: blob.url });
+                  });
+                }} />
+              </label>
+              {slide.detail ? <p>קובץ חלופי שמור</p> : null}
+            </>
+          ) : null}
           {kind === "image" ? (
             <label className="replace-file">החלפת התמונה
               <input type="file" accept="image/*,.gif,.pdf,application/pdf" onChange={(event) => {
