@@ -24,22 +24,11 @@ export default async function AdminHome() {
       <h1>ניהול קבוצות מסכים</h1>
       <p>קבוצה היא שם בלבד. את הכתובות יוצרים בלשונית בניינים ומשייכים משם.</p>
       <div className="screens">
-        {groups.map((group) => {
-          const own = group.screens
-            .map((screen) => {
-              const place = [screen.street, screen.number].filter(Boolean).join(" ");
-              return [place, screen.city].filter(Boolean).join(", ");
-            })
-            .filter(Boolean);
-          const place = [group.street, group.number].filter(Boolean).join(" ");
-          const groupAddress = [place, group.city].filter(Boolean).join(", ");
-          const lines = groupAddress && !own.includes(groupAddress) ? [groupAddress, ...own] : own;
-          return (
+        {groups.map((group) => (
             <div key={group.id}>
               <span className="screen-title">
                 <Link href={`/admin/groups/${group.id}`}>{group.name}</Link>
-                <small>{group.screens.length} מסכים</small>
-                {lines.map((line, index) => <small key={`${line}-${index}`}>{line}</small>)}
+                <small>{group._count.screens} מסכים</small>
               </span>
               {owner ? (
                 <span className="screen-actions">
@@ -55,8 +44,7 @@ export default async function AdminHome() {
                 </span>
               ) : null}
             </div>
-          );
-        })}
+        ))}
       </div>
       {owner ? (
         <form className="card" action={createGroup}>
