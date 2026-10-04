@@ -130,7 +130,11 @@ body:has(.admin) { background: #F4F1ED; overflow-x: hidden; }
 .admin .login-card .mark { margin: 0 0 8px; letter-spacing: 0.16em; font-size: 13px; color: #5A1F2B; }
 .admin .modal { position: fixed; inset: 0; background: rgba(37, 37, 37, 0.45); display: grid; place-items: center; padding: 18px; z-index: 20; }
 .admin .modal .card { width: min(460px, 100%); }
-.admin .notice-add { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.admin .media-box { display: grid; gap: 8px; }
+.admin .thumb-row, .admin .slide-card { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.admin .thumb-row img, .admin .slide-card img, .admin .pdf-mark { width: 120px; height: 68px; object-fit: contain; background: #111; border-radius: 8px; }
+.admin .pdf-mark { display: grid; place-items: center; color: #F4F1ED; }
+.admin .slide-grid { display: grid; gap: 10px; margin-top: 12px; }
 .admin .notice-add textarea { flex: 1 1 220px; min-height: 72px; resize: vertical; }
 .admin .notices { display: grid; gap: 8px; margin-top: 12px; }
 .admin .notice-item { display: flex; justify-content: space-between; gap: 12px; align-items: center; background: #fff; border: 1px solid rgba(37, 37, 37, 0.1); border-radius: 12px; padding: 12px; }

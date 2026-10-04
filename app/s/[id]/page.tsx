@@ -72,7 +72,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
       <Music url={screen.group?.musicUrl || ""} />
       <Ping id={screen.id} />
       <section className="slide">
-        {indexTheme ? (
+        {indexTheme && visible.length === 0 ? (
           <div className="index-board">
             <div className="index-title">מדריך משרדים</div>
             <Directory floors={floors} />
@@ -83,7 +83,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
       </section>
       <aside className="rail">
         <div className="address">{address(street, number, city)}</div>
-        {source.logoUrl ? <img className="logo" src={source.logoUrl} alt="" /> : null}
+        {(screen.logoUrl || source.logoUrl) ? <img className="logo" src={screen.logoUrl || source.logoUrl} alt="" /> : null}
         <Clock />
         <Weather temp={weather?.temp ?? null} label={weather?.label || ""} />
         <Shabbat candles={shabbat?.candles || ""} parsha={shabbat?.parsha || ""} />

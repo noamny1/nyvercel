@@ -1,5 +1,7 @@
 .layout-yuval.stage { grid-template-columns: 320px 1fr; }
 .layout-yuval .slide { grid-column: 2; }
+.stage .logo, .stage .notice, .stage .slide { display: block; }
+.stage .slide { min-height: 0; }
 .layout-yuval .rail { grid-column: 1; background: linear-gradient(#1f4b3a, #143528); color: #F5F3EF; }
 .layout-yuval .ticker { grid-column: 2; background: #143528; color: #F5F3EF; }
 .layout-yuval .clock { font-size: 64px; }

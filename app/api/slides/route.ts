@@ -28,11 +28,14 @@ export async function POST(request: Request) {
 export async function PATCH(request: Request) {
   const session = await requireSession();
   if (!session) return NextResponse.json({ error: "נדרשת כניסה" }, { status: 401 });
-  const body = (await request.json()) as { id?: number; duration?: number; direction?: "up" | "down"; weekdays?: string };
+  const body = (await request.json()) as { id?: number; duration?: number; direction?: "up" | "down"; weekdays?: string; imageUrl?: string };
   if (!body.id) return NextResponse.json({ error: "חסר מזהה" }, { status: 400 });
   const slide = await prisma.slide.findUnique({ where: { id: body.id } });
   if (!slide) return NextResponse.json({ error: "לא נמצא" }, { status: 404 });
 
+  if (body.imageUrl) {
+    await prisma.slide.update({ where: { id: slide.id }, data: { imageUrl: body.imageUrl } });
+  }
   if (body.duration) {
     await prisma.slide.update({
       where: { id: slide.id },

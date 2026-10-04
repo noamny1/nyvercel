@@ -47,6 +47,7 @@ export function ScreenEditor({
   const [logoUrl, setLogoUrl] = useState(screen.logoUrl);
   const [message, setMessage] = useState("");
   const [editing, setEditing] = useState<number | null>(null);
+  const [pendingSlide, setPendingSlide] = useState<File | null>(null);
 
   async function upload(file: File, kind: "image" | "slide") {
     const body = new FormData();
@@ -83,7 +84,7 @@ export function ScreenEditor({
     }
   }
 
-  async function changeSlide(id: number, payload: { duration?: number; direction?: "up" | "down"; weekdays?: string }) {
+  async function changeSlide(id: number, payload: { duration?: number; direction?: "up" | "down"; weekdays?: string; imageUrl?: string }) {
     await fetch("/api/slides", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -138,49 +139,55 @@ export function ScreenEditor({
             </>
           ) : null}
         </div>
-        <div className="row" style={{ marginTop: 12 }}>
+        <div className="media-box">
           <label>לוגו הבניין
             <input type="file" accept="image/*,.gif" onChange={(event) => {
               const file = event.target.files?.[0];
               if (file) void onLogo(file);
             }} />
           </label>
-          {logoUrl ? <img src={logoUrl} alt="" style={{ height: 48 }} /> : null}
+          {logoUrl ? (
+            <div className="thumb-row">
+              <img src={logoUrl} alt="" />
+              <button className="light" type="button" onClick={() => setLogoUrl("")}>מחיקה</button>
+            </div>
+          ) : null}
           <button type="submit">שמירה</button>
         </div>
       </form>
 
       <section className="card">
         <h2>שקפים</h2>
-        <label>תמונה חדשה
-          <input type="file" accept="image/*,.pdf,application/pdf" onChange={(event) => {
-            const file = event.target.files?.[0];
-            if (file) void onSlide(file, 8);
-            event.currentTarget.value = "";
-          }} />
-        </label>
-        {slides.map((slide) => (
-          <div className="row" key={slide.id} style={{ marginTop: 10 }}>
-            {slide.imageUrl.toLowerCase().includes(".pdf") ? (
-              <span className="pdf-mark">PDF</span>
-            ) : (
-              <img src={slide.imageUrl} alt="" style={{ width: 96, height: 54, objectFit: "cover" }} />
-            )}
-            <label>שניות
-              <input type="number" min={3} defaultValue={slide.duration} onBlur={(event) => {
-                void changeSlide(slide.id, { duration: Number(event.target.value) });
-              }} />
-            </label>
-            <label>ימים
-              <input defaultValue={slide.weekdays || "0123456"} title="0 ראשון עד 6 שבת" onBlur={(event) => {
-                void changeSlide(slide.id, { weekdays: event.target.value });
-              }} />
-            </label>
-            <button className="light" type="button" onClick={() => changeSlide(slide.id, { direction: "up" })}>למעלה</button>
-            <button className="light" type="button" onClick={() => changeSlide(slide.id, { direction: "down" })}>למטה</button>
-            <button className="light" type="button" onClick={() => removeSlide(slide.id)}>מחיקה</button>
-          </div>
-        ))}
+        <p>אפשר כמה שקפים. הם יופיעו אחד אחרי השני וחוזר חלילה.</p>
+        <div className="media-box">
+          <label>תמונה או PDF
+            <input type="file" accept="image/*,.pdf,application/pdf" onChange={(event) => setPendingSlide(event.target.files?.[0] || null)} />
+          </label>
+          <button type="button" onClick={() => { if (pendingSlide) void onSlide(pendingSlide, 8).then(() => setPendingSlide(null)); }}>שמירה</button>
+        </div>
+        <div className="slide-grid">
+          {slides.map((slide) => (
+            <article className="slide-card" key={slide.id}>
+              {slide.imageUrl.toLowerCase().includes(".pdf") ? (
+                <span className="pdf-mark">PDF</span>
+              ) : (
+                <img src={slide.imageUrl} alt="" />
+              )}
+              <label>שניות
+                <input type="number" min={3} defaultValue={slide.duration} onBlur={(event) => {
+                  void changeSlide(slide.id, { duration: Number(event.target.value) });
+                }} />
+              </label>
+              <label>החלפה
+                <input type="file" accept="image/*,.pdf,application/pdf" onChange={(event) => {
+                  const file = event.target.files?.[0];
+                  if (file) void upload(file, "slide").then((imageUrl) => changeSlide(slide.id, { imageUrl }));
+                }} />
+              </label>
+              <button className="light" type="button" onClick={() => removeSlide(slide.id)}>מחיקה</button>
+            </article>
+          ))}
+        </div>
       </section>
 
       <section className="card">
