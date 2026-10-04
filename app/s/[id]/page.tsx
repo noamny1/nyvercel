@@ -47,12 +47,15 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
   });
   if (!screen || Number.isNaN(Number(id))) notFound();
   const source = screen.group ?? screen;
+  const street = screen.street || source.street;
+  const number = screen.number || source.number;
+  const city = screen.city || source.city;
   const slides = source.slides.filter((slide) => slideIsOn(slide));
   const visible = slides.length > 0 ? slides : source.slides;
 
   const [weather, shabbat, headlines, rates] = await Promise.all([
-    weatherFor(source.city).catch(() => null),
-    shabbatFor(source.city).catch(() => null),
+    weatherFor(city).catch(() => null),
+    shabbatFor(city).catch(() => null),
     newsFor(source.newsSource).catch(() => []),
     markets().catch(() => []),
   ]);
@@ -76,7 +79,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
         )}
       </section>
       <aside className="rail">
-        <div className="address">{address(source.street, source.number, source.city)}</div>
+        <div className="address">{address(street, number, city)}</div>
         {source.logoUrl ? <img className="logo" src={source.logoUrl} alt="" /> : null}
         <Clock />
         <Weather temp={weather?.temp ?? null} label={weather?.label || ""} />

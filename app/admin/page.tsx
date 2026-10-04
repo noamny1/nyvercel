@@ -12,7 +12,7 @@ export default async function AdminHome() {
   if (!session) redirect("/admin/login");
   const groups = await prisma.screenGroup.findMany({
     orderBy: { id: "asc" },
-    include: { screens: { select: { id: true } } },
+    include: { screens: { select: { street: true, number: true, city: true } } },
   });
   const loose = await prisma.screen.findMany({
     where: { groupId: null },
@@ -23,18 +23,24 @@ export default async function AdminHome() {
     <main className="admin">
       <AdminNav />
       <h1>ניהול קבוצות מסכים</h1>
-      <p>קבוצה אחת משמשת כמה מסכים באותו בניין. שינוי בקבוצה מתעדכן בכולם.</p>
+      <p>כל קבוצה היא שם. הכתובות שלה נמצאות בתוכה.</p>
       <div className="screens">
         {groups.map((group) => {
+          const own = group.screens
+            .map((screen) => {
+              const place = [screen.street, screen.number].filter(Boolean).join(" ");
+              return [place, screen.city].filter(Boolean).join(", ");
+            })
+            .filter(Boolean);
           const place = [group.street, group.number].filter(Boolean).join(" ");
-          const address = [place, group.city].filter(Boolean).join(", ");
+          const groupAddress = [place, group.city].filter(Boolean).join(", ");
+          const lines = groupAddress && !own.includes(groupAddress) ? [groupAddress, ...own] : own;
           return (
             <Link key={group.id} href={`/admin/groups/${group.id}`}>
               <span className="screen-title">
                 {group.name}
-                <small>{address || "אין כתובת"}</small>
+                {lines.map((line, index) => <small key={`${line}-${index}`}>{line}</small>)}
               </span>
-              <span>{group.screens.length} מסכים</span>
             </Link>
           );
         })}
@@ -42,10 +48,7 @@ export default async function AdminHome() {
       <form className="card" action={createGroup}>
         <h2>קבוצה חדשה</h2>
         <div className="row">
-          <label>שם<input name="name" required placeholder="מגדלי האור" /></label>
-          <label>רחוב<input name="street" required /></label>
-          <label>מספר<input name="number" required /></label>
-          <label>עיר<input name="city" required /></label>
+          <label>שם הקבוצה<input name="name" required placeholder="דיין אחזקות" /></label>
           <button type="submit">יצירה</button>
         </div>
       </form>

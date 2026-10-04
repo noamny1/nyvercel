@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { ScreenEditor } from "@/components/admin/ScreenEditor";
 import { AdminNav } from "@/components/admin/AdminNav";
-import { addScreenToGroup, moveScreen, removeScreen } from "@/app/admin/actions";
+import { addAddress, clearGroupAddress, moveScreen, removeScreen } from "@/app/admin/actions";
 import { prisma } from "@/lib/prisma";
 import { isSystemAdmin, requireSession } from "@/lib/session";
 
@@ -13,11 +13,18 @@ function addressOf(street: string, number: string, city: string) {
   return [place, city].filter(Boolean).join(", ");
 }
 
-export default async function GroupPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function GroupPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ edit?: string }>;
+}) {
   const session = await requireSession();
   if (!session) redirect("/admin/login");
   const owner = isSystemAdmin(session);
   const { id } = await params;
+  const { edit } = await searchParams;
   const [group, buildings, feeds, groups] = await Promise.all([
     prisma.screenGroup.findUnique({
       where: { id: Number(id) },
@@ -33,31 +40,34 @@ export default async function GroupPage({ params }: { params: Promise<{ id: stri
   ]);
   if (!group) notFound();
   const others = groups.filter((item) => item.id !== group.id);
+  const rows: { key: string; label: string; screenId: number | null }[] = [];
+  for (const screen of group.screens) {
+    const own = addressOf(screen.street, screen.number, screen.city);
+    if (own) rows.push({ key: `s-${screen.id}`, label: own, screenId: screen.id });
+  }
+  const groupLabel = addressOf(group.street, group.number, group.city);
+  if (groupLabel && !rows.some((row) => row.label === groupLabel)) {
+    const blank = group.screens.find((screen) => !addressOf(screen.street, screen.number, screen.city));
+    rows.unshift({ key: blank ? `s-${blank.id}` : "group", label: groupLabel, screenId: blank?.id ?? null });
+  }
 
   return (
     <main className="admin">
       <AdminNav />
       <p><Link href="/admin">כל הקבוצות</Link></p>
       <h1>{group.name}</h1>
-      <p>{addressOf(group.street, group.number, group.city) || "אין כתובת לקבוצה"}</p>
       <section className="card">
-        <h2>מסכים בקבוצה</h2>
-        <p>המסכים האלה משויכים לכתובת של {group.name}.</p>
-        {group.screens.length === 0 ? <p>אין עדיין מסכים בקבוצה.</p> : null}
+        <h2>כתובות</h2>
+        {rows.length === 0 ? <p>אין עדיין כתובות בקבוצה.</p> : null}
         <div className="screens">
-          {group.screens.map((screen) => {
-            const address = addressOf(screen.street, screen.number, screen.city) || addressOf(group.street, group.number, group.city);
-            return (
-              <div key={screen.id}>
-                <span className="screen-title">
-                  {screen.name}
-                  <small>{address || "אין כתובת"}</small>
-                </span>
+          {rows.map((row) => (
+            <div key={row.key}>
+              <span>{row.label}</span>
+              {owner ? (
                 <span className="screen-actions">
-                  <a href={`/s/${screen.id}`} target="_blank">/s/{screen.id}</a>
-                  {owner && others.length > 0 ? (
+                  {others.length > 0 && row.screenId ? (
                     <form action={moveScreen}>
-                      <input type="hidden" name="id" value={screen.id} />
+                      <input type="hidden" name="id" value={row.screenId} />
                       <input type="hidden" name="groupId" value={group.id} />
                       <select name="targetGroupId" defaultValue={others[0]?.id || ""} aria-label="קבוצה אחרת">
                         {others.map((item) => (
@@ -67,25 +77,33 @@ export default async function GroupPage({ params }: { params: Promise<{ id: stri
                       <button className="light" type="submit">העברה</button>
                     </form>
                   ) : null}
-                  {owner ? (
+                  {row.screenId ? (
                     <form action={removeScreen}>
-                      <input type="hidden" name="id" value={screen.id} />
+                      <input type="hidden" name="id" value={row.screenId} />
                       <input type="hidden" name="groupId" value={group.id} />
                       <button className="light" type="submit">מחיקה</button>
                     </form>
-                  ) : null}
+                  ) : (
+                    <form action={clearGroupAddress}>
+                      <input type="hidden" name="groupId" value={group.id} />
+                      <button className="light" type="submit">מחיקה</button>
+                    </form>
+                  )}
                 </span>
-              </div>
-            );
-          })}
+              ) : null}
+            </div>
+          ))}
         </div>
-        <form className="row" action={addScreenToGroup} style={{ marginTop: 12 }}>
+        <form className="row" action={addAddress} style={{ marginTop: 12 }}>
           <input type="hidden" name="groupId" value={group.id} />
-          <label>מסך חדש<input name="name" required placeholder="לובי" /></label>
-          <button type="submit">הוספה</button>
+          <label>רחוב<input name="street" required /></label>
+          <label>מספר<input name="number" required /></label>
+          <label>עיר<input name="city" required /></label>
+          <button type="submit">הוספת כתובת</button>
         </form>
       </section>
-      <ScreenEditor screen={group} slides={group.slides} notices={group.notices} scope="group" buildings={buildings} feeds={feeds} />
+      <p><Link href={edit ? `/admin/groups/${group.id}` : `/admin/groups/${group.id}?edit=1`}>{edit ? "סגירת עריכת התוכן" : "עריכת תוכן הקבוצה"}</Link></p>
+      {edit ? <ScreenEditor screen={group} slides={group.slides} notices={group.notices} scope="group" buildings={buildings} feeds={feeds} /> : null}
     </main>
   );
 }
