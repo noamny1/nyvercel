@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { assignScreens, createClientUser, deleteClientUser, saveAndSendUser } from "@/app/admin/users/actions";
 import { ClientCard } from "@/components/admin/ClientCard";
 
@@ -115,18 +115,54 @@ export function UsersPanel({ screens, users, query }: { screens: Screen[]; users
           <button type="submit" name="intent" value="send">שמירה ושליחה</button>
         </div>
       </form>
-      <form className="card" action="/admin/users">
-        <h2>חיפוש משתמש</h2>
-        <div className="row">
-          <label>שם או אימייל<input name="q" defaultValue={query} placeholder="שם או אימייל" /></label>
-          <button type="submit">חיפוש</button>
-        </div>
-        {query && users.length === 0 ? <p>לא נמצא משתמש.</p> : null}
-      </form>
-      {users.map((user) => (
-        <UserAssign key={user.id} user={user} screens={screens} />
-      ))}
+      <UserLookup screens={screens} initial={users} />
     </div>
+  );
+}
+
+function UserLookup({ screens, initial }: { screens: Screen[]; initial: UserRow[] }) {
+  const [text, setText] = useState("");
+  const [options, setOptions] = useState<UserRow[]>([]);
+  const [chosen, setChosen] = useState<UserRow | null>(initial[0] || null);
+  const [empty, setEmpty] = useState(false);
+
+  useEffect(() => {
+    const query = text.trim();
+    if (!query) {
+      setOptions([]);
+      setEmpty(false);
+      return;
+    }
+    const handle = setTimeout(async () => {
+      const response = await fetch(`/api/admin/users?q=${encodeURIComponent(query)}`);
+      const data = await response.json();
+      const users = data.users || [];
+      setOptions(users);
+      setEmpty(users.length === 0);
+    }, 180);
+    return () => clearTimeout(handle);
+  }, [text]);
+
+  return (
+    <>
+      <section className="card">
+        <h2>חיפוש משתמש</h2>
+        <label>שם או אימייל
+          <input value={text} onChange={(event) => setText(event.target.value)} placeholder="התחילו להקליד" autoComplete="off" />
+        </label>
+        {options.length > 0 ? (
+          <div className="suggest">
+            {options.map((user) => (
+              <button type="button" key={user.id} onClick={() => { setChosen(user); setOptions([]); setText(""); }}>
+                {user.name || user.email} · {user.email}
+              </button>
+            ))}
+          </div>
+        ) : null}
+        {empty ? <p>לא נמצא משתמש.</p> : null}
+      </section>
+      {chosen ? <UserAssign key={chosen.id} user={chosen} screens={screens} /> : null}
+    </>
   );
 }
 
