@@ -38,16 +38,16 @@ export default async function ControlPage({ searchParams }: { searchParams: Prom
       <AdminNav />
       <h1>לוח בקרה</h1>
       <p>מסך תקין אם שלח אות ב-8 הדקות האחרונות. מסך שפתוח על הטלוויזיה שולח אות כל 4 דקות.</p>
-      <div className="row">
-        <Link className="card" href="/admin/control">סה״כ {counts.total}</Link>
-        <Link className="card" href="/admin/control?status=online">תקין {counts.online}</Link>
-        <Link className="card" href="/admin/control?status=offline">לא תקין {counts.offline}</Link>
-        <Link className="card" href="/admin/control?status=inactive">כבוי {counts.inactive}</Link>
+      <div className="stats">
+        <Link className={filter === "all" ? "stat on" : "stat"} href="/admin/control"><span>סה״כ</span><b>{counts.total}</b></Link>
+        <Link className={filter === "online" ? "stat on" : "stat"} href="/admin/control?status=online"><span>תקין</span><b>{counts.online}</b></Link>
+        <Link className={filter === "offline" ? "stat on" : "stat"} href="/admin/control?status=offline"><span>לא תקין</span><b>{counts.offline}</b></Link>
+        <Link className={filter === "inactive" ? "stat on" : "stat"} href="/admin/control?status=inactive"><span>כבוי</span><b>{counts.inactive}</b></Link>
       </div>
       <div className="screens">
         {visible.map(({ screen, state }) => (
-          <div key={screen.id}>
-            <span>{state === "online" ? "תקין" : state === "offline" ? "לא תקין" : "כבוי"} · {screen.name}</span>
+          <div key={screen.id} className={state}>
+            <span><i className="dot" />{state === "online" ? "תקין" : state === "offline" ? "לא תקין" : "כבוי"} · {screen.name}</span>
             <span>
               {screen.group?.building?.name || screen.group?.name || "בלי קבוצה"}
               {" · "}

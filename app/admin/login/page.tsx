@@ -56,16 +56,16 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="admin">
+    <main className="admin login-page">
       <form
-        className="card"
-        style={{ display: "grid", gap: 12, maxWidth: 420 }}
+        className="card login-card"
         onSubmit={(event) => {
           event.preventDefault();
           void onSubmit(new FormData(event.currentTarget));
         }}
       >
-        <h1>כניסה לניהול</h1>
+        <p className="mark">NYMEDIA</p>
+        <h1>ניהול מסכים</h1>
         <label>אימייל<input name="email" type="email" required autoComplete="username" value={email} onChange={(event) => setEmail(event.target.value)} /></label>
         <label>סיסמה<input name="password" type="password" required autoComplete="current-password" /></label>
         <label className="row">
