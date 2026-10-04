@@ -1,4 +1,36 @@
 .theme-modern .slide { border: 0; }
-.theme-modern .rail { background: #141414; color: #F5F3EF; }
-.theme-modern .ticker { background: #1d1d1d; color: #F5F3EF; }
-.theme-modern .widget h3 { color: #F5F3EF; }
+.theme-modern .slide-image { object-fit: cover; background: #111; }
+.theme-modern .rail {
+  background: #e5e5e5;
+  color: #1a1a1a;
+  padding: 22px 18px 16px;
+}
+.theme-modern .ticker {
+  background: #111318;
+  color: #f4f1ed;
+  font-size: 22px;
+  padding-inline: 18px;
+}
+.theme-modern .modern-rail { display: grid; gap: 16px; text-align: center; }
+.theme-modern .modern-address { display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 22px; font-weight: 700; }
+.theme-modern .modern-address img,
+.theme-modern .modern-address svg { width: 54px; height: 54px; object-fit: contain; }
+.theme-modern .modern-clock { display: grid; justify-items: center; gap: 4px; padding-bottom: 12px; border-bottom: 1px solid rgba(0, 0, 0, 0.18); }
+.theme-modern .modern-clock svg { width: 28px; height: 28px; }
+.theme-modern .modern-clock strong { font-size: 64px; line-height: 1; font-weight: 700; letter-spacing: 1px; }
+.theme-modern .modern-clock small { font-size: 16px; }
+.theme-modern .modern-split,
+.theme-modern .modern-markets { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: center; }
+.theme-modern .modern-split { padding-bottom: 12px; border-bottom: 1px solid rgba(0, 0, 0, 0.18); }
+.theme-modern .modern-split div,
+.theme-modern .modern-markets span { display: grid; justify-items: center; gap: 2px; }
+.theme-modern .modern-split svg { width: 42px; height: 42px; }
+.theme-modern .modern-split strong,
+.theme-modern .modern-markets strong { font-size: 32px; line-height: 1; }
+.theme-modern .modern-split small,
+.theme-modern .modern-markets small,
+.theme-modern .modern-split b { font-size: 15px; font-weight: 600; }
+.theme-modern .modern-markets { padding-bottom: 12px; border-bottom: 1px solid rgba(0, 0, 0, 0.18); }
+.theme-modern .modern-notices b { display: block; margin-bottom: 8px; font-size: 16px; }
+.theme-modern .modern-notices p { margin: 8px 0; font-size: 22px; font-weight: 700; line-height: 1.35; white-space: pre-wrap; }
+

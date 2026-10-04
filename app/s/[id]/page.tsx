@@ -9,6 +9,7 @@ import { NewsTicker } from "@/components/widgets/NewsTicker";
 import { Notices } from "@/components/widgets/Notices";
 import { Shabbat } from "@/components/widgets/Shabbat";
 import { Weather } from "@/components/widgets/Weather";
+import { ModernRail } from "@/components/themes/ModernRail";
 import { markets } from "@/lib/markets";
 import { newsFor } from "@/lib/news";
 import { prisma } from "@/lib/prisma";
@@ -62,13 +63,16 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
     newsFor(screen.newsSource || source.newsSource, screen.newsCount || 8).catch(() => []),
     markets().catch(() => []),
   ]);
-  const ticker = screen.updates.map((item) => item.text);
+  const theme = screen.theme || source.theme || "modern";
+  const newsSource = screen.newsSource || source.newsSource || "ynet";
+  const newsName = newsSource === "channel14" ? "חדשות 14" : newsSource === "walla" ? "וואלה" : newsSource === "ynet" ? "ynet" : newsSource;
+  const modern = theme === "modern";
 
-  const indexTheme = source.theme.startsWith("index");
+  const indexTheme = theme.startsWith("index");
   const floors = screen.group?.floors ?? [];
 
   return (
-    <main className={`stage theme-${source.theme}${source.theme === "yuval" ? " layout-yuval" : ""}${indexTheme ? " layout-index" : ""}`}>
+    <main className={`stage theme-${theme}${theme === "yuval" ? " layout-yuval" : ""}${indexTheme ? " layout-index" : ""}`}>
       <Music url={screen.group?.musicUrl || ""} />
       <Ping id={screen.id} />
       <section className="slide">
@@ -82,16 +86,31 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
         )}
       </section>
       <aside className="rail">
-        <div className="address">{address(street, number, city)}</div>
-        {(screen.logoUrl || source.logoUrl) ? <img className="logo" src={screen.logoUrl || source.logoUrl} alt="" /> : null}
-        <Clock />
-        <Weather temp={weather?.temp ?? null} label={weather?.label || ""} />
-        <Shabbat candles={shabbat?.candles || ""} parsha={shabbat?.parsha || ""} />
-        <Notices items={notices.map((notice) => notice.text)} />
-        <Directory floors={indexTheme ? [] : floors} />
-        <Markets rows={rates} />
+        {modern ? (
+          <ModernRail
+            address={address(street, number, city)}
+            logoUrl={screen.logoUrl || source.logoUrl}
+            temp={weather?.temp ?? null}
+            weatherLabel={weather?.label || ""}
+            candles={shabbat?.candles || ""}
+            parsha={shabbat?.parsha || ""}
+            rates={rates}
+            notices={notices.map((notice) => notice.text)}
+          />
+        ) : (
+          <>
+            <div className="address">{address(street, number, city)}</div>
+            {(screen.logoUrl || source.logoUrl) ? <img className="logo" src={screen.logoUrl || source.logoUrl} alt="" /> : null}
+            <Clock />
+            <Weather temp={weather?.temp ?? null} label={weather?.label || ""} />
+            <Shabbat candles={shabbat?.candles || ""} parsha={shabbat?.parsha || ""} />
+            <Notices items={notices.map((notice) => notice.text)} />
+            <Directory floors={indexTheme ? [] : floors} />
+            <Markets rows={rates} />
+          </>
+        )}
       </aside>
-      <NewsTicker titles={[...ticker, ...headlines.map((item) => item.title)]} seconds={screen.tickerSeconds || 12} />
+      <NewsTicker titles={headlines.map((item) => item.title)} seconds={screen.tickerSeconds || 12} source={newsName} />
     </main>
   );
 }
