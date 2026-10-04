@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 export const NEWS_SOURCES = [
   { id: "ynet", name: "ynet", url: "https://www.ynet.co.il/Integration/StoryRss2.xml" },
   { id: "walla", name: "וואלה", url: "https://rss.walla.co.il/feed/1?type=main" },
-  { id: "channel14", name: "חדשות 14", url: "https://www.c14.co.il/feed/" },
+  { id: "channel14", name: "חדשות 14", url: "https://news.google.com/rss/search?q=site:c14.co.il+when:2d&hl=he&gl=IL&ceid=IL:he" },
 ] as const;
 
 function clean(value: string) {
@@ -92,6 +92,11 @@ export async function liveHeadlines(sourceId: string, take = 8) {
   try {
     const text = await download(source.url);
     let items = text.includes("<item") ? parseRss(text) : [];
+    if (source.id === "channel14") {
+      items = items
+        .map((item) => ({ ...item, title: item.title.replace(/\s+-\s+C14\s*$/i, "").trim() }))
+        .filter((item) => item.title && !item.title.startsWith("site:"));
+    }
     if (source.id === "channel14" && items.length === 0) {
       try {
         items = parseC14(await download("https://www.c14.co.il/"));
