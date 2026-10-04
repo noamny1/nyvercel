@@ -114,7 +114,7 @@ export function UsersPanel({ screens, users }: { screens: Screen[]; users: UserR
         {error ? <p className="error">{error}</p> : null}
         {notice ? <p>{notice}</p> : null}
         <div className="row">
-          <button type="submit" name="intent" value="save">יצירה והצגת כרטיס</button>
+          <button type="submit" name="intent" value="save">שמירה</button>
           <button type="submit" name="intent" value="send">שמירה ושליחה</button>
         </div>
       </form>

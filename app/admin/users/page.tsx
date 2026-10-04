@@ -23,7 +23,7 @@ export default async function UsersPage() {
     <main className="admin">
       <AdminNav />
       <h1>משתמשים</h1>
-      <p>יוצרים לקוח, משייכים לו מסכים, ומורידים תמונה עם פרטי הכניסה.</p>
+      <p>יוצרים לקוח, משייכים לו מסכים, ומעתיקים לו קישור כניסה עם האימייל והסיסמה.</p>
       <UsersPanel
         screens={screens.map((screen) => ({
           id: screen.id,

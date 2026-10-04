@@ -4,8 +4,8 @@ export function mailText(card: MailCard) {
   return [
     `שלום ${card.name || ""}`,
     "",
-    "אלה פרטי הכניסה למסכים שבאחריותך:",
-    "כניסה: https://nytv.app/admin/login",
+    "לחצו על הקישור והיכנסו:",
+    "https://nytv.app/admin/login",
     `אימייל: ${card.email}`,
     `סיסמה: ${card.password}`,
     "",
