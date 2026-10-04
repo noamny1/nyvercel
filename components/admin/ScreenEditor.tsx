@@ -2,8 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { ReadyLibrary } from "@/components/admin/ReadyLibrary";
 import { NEWS_SOURCES } from "@/lib/news-sources";
-import { READY_SLIDES } from "@/lib/ready-slides";
 import { THEMES } from "@/lib/themes";
 import { addGroupNotice, addNotice, deleteGroupNotice, deleteNotice, toggleGroupNotice, toggleNotice, updateGroup, updateGroupNotice, updateNotice, updateScreen } from "@/app/admin/actions";
 
@@ -53,10 +53,6 @@ export function ScreenEditor({
   const [clearLogo, setClearLogo] = useState(false);
   const [message, setMessage] = useState("");
   const [editing, setEditing] = useState<number | null>(null);
-  const [pendingSlide, setPendingSlide] = useState<File | null>(null);
-  const [slidePreview, setSlidePreview] = useState("");
-  const [saving, setSaving] = useState(false);
-  const [openReady, setOpenReady] = useState<(typeof READY_SLIDES)[number] | null>(null);
   const [openSlide, setOpenSlide] = useState<number | null>(null);
 
   async function upload(file: File, kind: "image" | "slide") {
@@ -87,7 +83,6 @@ export function ScreenEditor({
 
   async function onSlide(file: File, duration: number) {
     setMessage("");
-    setSaving(true);
     try {
       const imageUrl = await upload(file, "slide");
       const response = await fetch("/api/slides", {
@@ -96,33 +91,10 @@ export function ScreenEditor({
         body: JSON.stringify({ [ownerField]: screen.id, imageUrl, duration }),
       });
       if (!response.ok) throw new Error("שמירת השקף נכשלה");
-      setPendingSlide(null);
-      setSlidePreview("");
-      setOpenReady(null);
       router.refresh();
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "ההעלאה נכשלה");
-    } finally {
-      setSaving(false);
-    }
-  }
-
-  async function addReady(imageUrl: string) {
-    setMessage("");
-    setSaving(true);
-    try {
-      const response = await fetch("/api/slides", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ [ownerField]: screen.id, imageUrl, duration: 8 }),
-      });
-      if (!response.ok) throw new Error("שמירת השקף נכשלה");
-      setOpenReady(null);
-      router.refresh();
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : "ההעלאה נכשלה");
-    } finally {
-      setSaving(false);
+      throw error;
     }
   }
 
@@ -204,77 +176,43 @@ export function ScreenEditor({
 
       <section className="card">
         <h2>שקפים</h2>
-        <p>בוחרים שקף מוכן מהתמונות הקטנות. בתוך השקף אפשר לעדכן אותו בתמונה גדולה.</p>
-        {Array.from(new Set(READY_SLIDES.map((item) => item.category))).map((category) => (
-          <div key={category}>
-            <h3 className="ready-cat">{category}</h3>
-            <div className="ready-grid">
-              {READY_SLIDES.filter((item) => item.category === category).map((item) => (
-                <button className="ready-thumb" type="button" key={item.id} onClick={() => { setOpenReady(item); setOpenSlide(null); }}>
-                  <img src={item.src} alt={item.title} />
-                  <span>{item.title}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-        ))}
-        {openReady ? (
-          <div className="ready-large">
-            <img src={slidePreview || openReady.src} alt={openReady.title} />
-            <div>
-              <strong>{openReady.category}</strong>
-              <p>{openReady.title}</p>
-              <label>עדכון בתמונה או PDF
-                <input type="file" accept="image/*,.pdf,application/pdf" onChange={(event) => {
-                  const file = event.target.files?.[0] || null;
-                  setPendingSlide(file);
-                  setSlidePreview(file && !file.name.toLowerCase().endsWith(".pdf") ? URL.createObjectURL(file) : "");
-                }} />
-              </label>
-              <button type="button" disabled={saving} onClick={() => void (pendingSlide ? onSlide(pendingSlide, 8).then(() => setOpenReady(null)) : addReady(openReady.src))}>{saving ? "שומר..." : "הוספה למסך"}</button>
-              <button className="light" type="button" onClick={() => { setOpenReady(null); setPendingSlide(null); setSlidePreview(""); }}>סגירה</button>
-            </div>
-          </div>
-        ) : null}
+        <p>בוחרים קטגוריה, ואז שקף קטן. השקף נפתח בגדול ואפשר להוסיף אותו למסך או להחליף את התמונה.</p>
+        <ReadyLibrary onUse={(file) => onSlide(file, 8)} />
+        <h3 className="ready-cat">השקפים של המסך</h3>
         <div className="slide-grid">
           {slides.map((slide) => (
-            <article className={`slide-card${openSlide === slide.id ? " open" : ""}`} key={slide.id}>
-              <button className="ready-thumb" type="button" onClick={() => { setOpenSlide(slide.id); setOpenReady(null); }}>
-                {slide.imageUrl.toLowerCase().includes(".pdf") ? (
-                  <span className="pdf-mark">PDF</span>
-                ) : (
-                  <img src={slide.imageUrl} alt="" />
-                )}
-              </button>
-              {openSlide === slide.id ? (
-                <div className="ready-large">
-                  {slide.imageUrl.toLowerCase().includes(".pdf") ? <span className="pdf-mark">PDF</span> : <img src={slide.imageUrl} alt="" />}
-                  <div>
-                    <label>שניות
-                      <input type="number" min={3} defaultValue={slide.duration} onBlur={(event) => {
-                        void changeSlide(slide.id, { duration: Number(event.target.value) });
-                      }} />
-                    </label>
-                    <label>עדכון בתמונה גדולה
-                      <input type="file" accept="image/*,.pdf,application/pdf" onChange={(event) => {
-                        const file = event.target.files?.[0];
-                        if (file) void upload(file, "slide").then((imageUrl) => changeSlide(slide.id, { imageUrl }));
-                      }} />
-                    </label>
-                    <button className="light" type="button" onClick={() => removeSlide(slide.id)}>מחיקה</button>
-                    <button className="light" type="button" onClick={() => setOpenSlide(null)}>סגירה</button>
-                  </div>
-                </div>
-              ) : (
-                <label>שניות
-                  <input type="number" min={3} defaultValue={slide.duration} onBlur={(event) => {
-                    void changeSlide(slide.id, { duration: Number(event.target.value) });
-                  }} />
-                </label>
-              )}
-            </article>
+            <button className="ready-card" type="button" key={slide.id} onClick={() => setOpenSlide(slide.id)}>
+              {slide.imageUrl.toLowerCase().includes(".pdf") ? <span className="pdf-mark">PDF</span> : <img src={slide.imageUrl} alt="" />}
+              <span>{slide.duration} שניות</span>
+            </button>
           ))}
         </div>
+        {openSlide ? (() => {
+          const slide = slides.find((item) => item.id === openSlide);
+          if (!slide) return null;
+          return (
+            <div className="slide-modal" role="dialog" aria-modal="true" onClick={() => setOpenSlide(null)}>
+              <div className="slide-modal-card" onClick={(event) => event.stopPropagation()}>
+                {slide.imageUrl.toLowerCase().includes(".pdf") ? <span className="pdf-mark large">PDF</span> : <img className="slide-modal-image" src={slide.imageUrl} alt="" />}
+                <div className="slide-modal-actions">
+                  <label>שניות
+                    <input type="number" min={3} defaultValue={slide.duration} onBlur={(event) => {
+                      void changeSlide(slide.id, { duration: Number(event.target.value) });
+                    }} />
+                  </label>
+                  <label className="replace-file">החלפת התמונה
+                    <input type="file" accept="image/*,.gif,.pdf,application/pdf" onChange={(event) => {
+                      const file = event.target.files?.[0];
+                      if (file) void upload(file, "slide").then((imageUrl) => changeSlide(slide.id, { imageUrl }));
+                    }} />
+                  </label>
+                  <button className="light" type="button" onClick={() => removeSlide(slide.id)}>מחיקה</button>
+                  <button className="light" type="button" onClick={() => setOpenSlide(null)}>סגירה</button>
+                </div>
+              </div>
+            </div>
+          );
+        })() : null}
       </section>
 
       <section className="card">
