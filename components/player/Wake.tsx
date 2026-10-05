@@ -11,7 +11,9 @@ function start() {
   const legacy = document as Document & { webkitFullscreenElement?: Element };
   if (!document.fullscreenElement && !legacy.webkitFullscreenElement) {
     if (root.requestFullscreen) void root.requestFullscreen().catch(() => undefined);
-    else root.webkitRequestFullscreen?.() || root.mozRequestFullScreen?.() || root.msRequestFullscreen?.();
+    else if (root.webkitRequestFullscreen) root.webkitRequestFullscreen();
+    else if (root.mozRequestFullScreen) root.mozRequestFullScreen();
+    else root.msRequestFullscreen?.();
   }
   const audio = document.getElementById("lobby-music") as HTMLAudioElement | null;
   if (audio) {
