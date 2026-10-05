@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 
 import { ParashaSlide } from "@/components/player/ParashaSlide";
+import { KnowledgeSlide } from "@/components/player/KnowledgeSlide";
+import { isDeckId } from "@/lib/decks";
 
 export type PlaySlide = {
   imageUrl: string;
@@ -109,6 +111,9 @@ export function Player({ slides }: { slides: PlaySlide[] }) {
   if (pdf) return <iframe className="slide-image" src={`${current.imageUrl}#toolbar=0&navpanes=0`} title="שקף" />;
   if (current.templateId === "weekly-parasha") {
     return <ParashaSlide name={current.title || ""} candles={current.candles || ""} havdalah={current.havdalah || ""} city={current.city || ""} verses={current.verses || []} seconds={current.duration} still={current.still} />;
+  }
+  if (isDeckId(current.templateId)) {
+    return <KnowledgeSlide deck={current.templateId} />;
   }
   if (current.kind === "template") {
     return (

@@ -3,7 +3,9 @@
 import { useEffect, useState } from "react";
 import { SlideAgent } from "@/components/admin/SlideAgent";
 import { ParashaSlide } from "@/components/player/ParashaSlide";
-import { fillLine, FIXED_VIDEOS, READY_SLIDES, WEEKDAYS, readMeta, type ReadySlide, type SlideMeta } from "@/lib/ready-slides";
+import { KnowledgeSlide } from "@/components/player/KnowledgeSlide";
+import { isDeckId, type DeckId } from "@/lib/decks";
+import { fillLine, FIXED_VIDEOS, READY_SLIDES, WEEKDAYS, readMeta, templateSeconds, type ReadySlide, type SlideMeta } from "@/lib/ready-slides";
 import "@/components/player/player.css";
 
 export type SlideDraft = {
@@ -63,6 +65,18 @@ function Photo({ slide, meta }: { slide: ReadySlide; meta: SlideMeta }) {
   );
 }
 
+function DeckPreview({ id }: { id: DeckId }) {
+  const [offset, setOffset] = useState(0);
+  return (
+    <div className="deck-wrap">
+      <div className="deck-preview">
+        <KnowledgeSlide deck={id} offset={offset} />
+      </div>
+      <button type="button" className="light" onClick={() => setOffset((value) => value + 1)}>נושא אחר מהמאגר</button>
+    </div>
+  );
+}
+
 function LiveParasha({ city, still = false }: { city: string; still?: boolean }) {
   const [reading, setReading] = useState<{ parsha: string; candles: string; havdalah?: string; city: string; verses: string[] } | null>(null);
   useEffect(() => {
@@ -107,7 +121,7 @@ export function ReadyLibrary({ onAdd, city = "" }: { onAdd: (draft: SlideDraft) 
         title: open.title,
         detail: fillLine(open.line, meta),
         meta: JSON.stringify(open.id === "weekly-parasha" ? { ...meta, flow: meta.flow || "scroll" } : meta),
-        duration: open.id === "weekly-parasha" ? 180 : 10,
+        duration: templateSeconds(open.id),
       });
       setOpen(null);
     } catch (reason) {
@@ -192,7 +206,7 @@ export function ReadyLibrary({ onAdd, city = "" }: { onAdd: (draft: SlideDraft) 
       {open ? (
         <div className="slide-modal" role="dialog" aria-modal="true" onClick={() => setOpen(null)}>
           <div className="slide-modal-card" onClick={(event) => event.stopPropagation()}>
-            {open.id === "weekly-parasha" ? <LiveParasha city={city} still={meta.flow === "static"} /> : <Photo slide={open} meta={meta} />}
+            {open.id === "weekly-parasha" ? <LiveParasha city={city} still={meta.flow === "static"} /> : isDeckId(open.id) ? <DeckPreview id={open.id} /> : <Photo slide={open} meta={meta} />}
             <div className="slide-modal-actions">
               {open.id === "weekly-parasha" ? (
                 <FlowPick flow={meta.flow} onPick={(flow) => setMeta({ ...meta, flow })} />
@@ -297,7 +311,7 @@ export function SavedSlideEditor({
   return (
     <div className="slide-modal" role="dialog" aria-modal="true" onClick={onClose}>
       <div className="slide-modal-card" onClick={(event) => event.stopPropagation()}>
-        {slide.templateId === "weekly-parasha" ? <LiveParasha city={city} still={meta.flow === "static"} /> : <SlidePeek url={official?.url || picture} title={official?.title || slide.title} />}
+        {slide.templateId === "weekly-parasha" ? <LiveParasha city={city} still={meta.flow === "static"} /> : isDeckId(slide.templateId) ? <DeckPreview id={slide.templateId} /> : <SlidePeek url={official?.url || picture} title={official?.title || slide.title} />}
         <div className="slide-modal-actions">
           {slide.templateId === "weekly-parasha" ? <FlowPick flow={meta.flow} onPick={(flow) => setMeta({ ...meta, flow })} /> : null}
           <fieldset className="day-picks">

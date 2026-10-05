@@ -20,6 +20,7 @@ export const READY_CATEGORIES = [
   "מועדים וחגים",
   "הודעות יומיות",
   "זכויות מדייר",
+  "תוכן לדרך",
 ] as const;
 
 export const READY_SLIDES: ReadySlide[] = [
@@ -48,6 +49,9 @@ export const READY_SLIDES: ReadySlide[] = [
   { id: "rights-shared", category: "זכויות מדייר", title: "רכוש משותף", line: "הלובי והחצר שייכים לכל הדיירים", image: "/ready-slides/rights-shared.jpg", defaults: {} },
   { id: "rights-pets", category: "זכויות מדייר", title: "חיות מחמד", line: "יש לשמור על ניקיון השטחים המשותפים", image: "/ready-slides/rights-pets.jpg", defaults: {} },
   { id: "rights-reno", category: "זכויות מדייר", title: "שיפוץ", line: "עבודות רועשות בין {from} ל־{to}", image: "/ready-slides/rights-reno.jpg", from: true, to: true, defaults: { from: "08:00", to: "17:00" } },
+  { id: "daily-health", category: "תוכן לדרך", title: "טיפ בריאות יומי", line: "כל יום טיפ אחר, עם כמה משפטים קצרים", image: "/decks/water.jpg", defaults: {} },
+  { id: "did-you-know", category: "תוכן לדרך", title: "הידעת", line: "כל יום נושא אחר לעוברים בלובי", image: "/decks/city.jpg", defaults: {} },
+  { id: "street-people", category: "תוכן לדרך", title: "אנשים", line: "כל יום אדם שעל שמו יש רחוב בישראל", image: "/decks/stone.jpg", defaults: {} },
 ];
 
 export function defaultWeekdays(templateId = "", title = "") {
@@ -56,6 +60,12 @@ export function defaultWeekdays(templateId = "", title = "") {
 
 export function fillLine(line: string, meta: SlideMeta) {
   return line.replaceAll("{day}", meta.day || "").replaceAll("{from}", meta.from || "").replaceAll("{to}", meta.to || "");
+}
+
+export function templateSeconds(id: string) {
+  if (id === "weekly-parasha") return 180;
+  if (id === "daily-health" || id === "did-you-know" || id === "street-people") return 32;
+  return 10;
 }
 
 export function readMeta(value: string, fallback: SlideMeta): SlideMeta {
