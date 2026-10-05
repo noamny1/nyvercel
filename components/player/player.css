@@ -100,8 +100,12 @@
   font-size: clamp(20px, 1.7vw, 28px);
   line-height: 1.45;
 }
-.parasha-body.is-still p { animation: none; height: 100%; column-gap: 1.5vw; }
-.parasha-body.is-still span { margin-bottom: 0.05em; line-height: 1.22; font-size: inherit; break-inside: avoid; }
+.parasha-slide.is-still { gap: 1.2vh; padding-top: 2.4vh; }
+.parasha-slide.is-still header strong { font-size: clamp(32px, 3.4vw, 60px); }
+.parasha-slide.is-still header em { font-size: clamp(18px, 1.6vw, 28px); }
+.parasha-slide.is-still header em img { width: 68px; height: 54px; }
+.parasha-body.is-still p { animation: none; height: 100%; column-gap: 1.2vw; font-size: 22px; }
+.parasha-body.is-still span { margin-bottom: 0.02em; line-height: 1.18; font-size: inherit; break-inside: avoid; }
 @keyframes parasha-rise {
   from { transform: translateY(0); }
   to { transform: translateY(calc(-100% + 52vh)); }
