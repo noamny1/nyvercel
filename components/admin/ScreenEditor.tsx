@@ -56,7 +56,6 @@ export function ScreenEditor({
   const [editing, setEditing] = useState<number | null>(null);
   const [openSlide, setOpenSlide] = useState<number | null>(null);
   const [tab, setTab] = useState<"details" | "slides" | "notices">("slides");
-  const [library, setLibrary] = useState(true);
 
   async function upload(file: File, kind: "image" | "slide") {
     const body = new FormData();
@@ -206,8 +205,7 @@ export function ScreenEditor({
           ))}
         </div>
         {slides.length === 0 ? <p>עדיין אין שקפים במסך.</p> : null}
-        <button type="button" onClick={() => setLibrary((value) => !value)}>{library ? "סגירת כל השקפים" : "כל השקפים"}</button>
-        {library ? <ReadyLibrary onAdd={onSlide} /> : null}
+        <ReadyLibrary onAdd={onSlide} />
         {openSlide ? (() => {
           const slide = slides.find((item) => item.id === openSlide);
           if (!slide) return null;

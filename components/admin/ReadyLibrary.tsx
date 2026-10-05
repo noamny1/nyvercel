@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { SlideAgent } from "@/components/admin/SlideAgent";
-import { fillLine, FIXED_VIDEOS, READY_CATEGORIES, READY_SLIDES, WEEKDAYS, readMeta, type ReadySlide, type SlideMeta } from "@/lib/ready-slides";
+import { fillLine, FIXED_VIDEOS, READY_SLIDES, WEEKDAYS, readMeta, type ReadySlide, type SlideMeta } from "@/lib/ready-slides";
 
 export type SlideDraft = {
   kind: "image" | "template" | "youtube";
@@ -41,15 +41,12 @@ function Photo({ slide, meta }: { slide: ReadySlide; meta: SlideMeta }) {
 }
 
 export function ReadyLibrary({ onAdd }: { onAdd: (draft: SlideDraft) => Promise<void> }) {
-  const [category, setCategory] = useState<string>("הכל");
   const [preview, setPreview] = useState<(typeof FIXED_VIDEOS)[number] | null>(null);
   const [open, setOpen] = useState<ReadySlide | null>(null);
   const [meta, setMeta] = useState<SlideMeta>({});
   const [mode, setMode] = useState<"" | "image" | "youtube">("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  const slides = category === "הכל" ? READY_SLIDES : READY_SLIDES.filter((slide) => slide.category === category);
-  const videos = category === "הכל" || category === "סרטונים" ? FIXED_VIDEOS : [];
 
   function choose(slide: ReadySlide) {
     setError("");
@@ -102,29 +99,11 @@ export function ReadyLibrary({ onAdd }: { onAdd: (draft: SlideDraft) => Promise<
   return (
     <div className="ready-library">
       <div className="special-slides">
-        <button type="button" onClick={() => { setOpen(null); setMode("image"); setError(""); }}>שקף תמונה</button>
-        <button type="button" onClick={() => { setOpen(null); setMode("youtube"); setError(""); }}>סרטון יוטיוב</button>
+        <button type="button" onClick={() => { setOpen(null); setMode("image"); setError(""); }}>שקף תמונה חדש</button>
+        <button type="button" onClick={() => { setOpen(null); setMode("youtube"); setError(""); }}>סרטון יוטיוב חדש</button>
       </div>
-      <p className="ready-note">כל השקפים. לוחצים על תמונה כדי להוסיף למסך.</p>
-      <div className="ready-cats ready-cats-row">
-        <button type="button" className={category === "הכל" ? "is-on" : ""} onClick={() => setCategory("הכל")}>
-          הכל
-          <small>{READY_SLIDES.length + FIXED_VIDEOS.length}</small>
-        </button>
-        <button type="button" className={category === "סרטונים" ? "is-on" : ""} onClick={() => setCategory("סרטונים")}>
-          סרטונים
-          <small>{FIXED_VIDEOS.length}</small>
-        </button>
-        {READY_CATEGORIES.map((name) => (
-          <button key={name} type="button" className={name === category ? "is-on" : ""} onClick={() => setCategory(name)}>
-            {name}
-            <small>{READY_SLIDES.filter((slide) => slide.category === name).length}</small>
-          </button>
-        ))}
-      </div>
-      {videos.length ? (
-        <div className="ready-grid">
-          {videos.map((video) => (
+      <div className="ready-grid">
+        {FIXED_VIDEOS.map((video) => (
             <button key={video.id} type="button" className="ready-card" disabled={busy} onClick={() => { setOpen(null); setPreview(video); }}>
               <div className="photo-slide">
                 <img src={video.poster} alt="" />
@@ -136,10 +115,9 @@ export function ReadyLibrary({ onAdd }: { onAdd: (draft: SlideDraft) => Promise<
               </div>
             </button>
           ))}
-        </div>
-      ) : null}
+      </div>
       <div className="ready-grid">
-        {slides.map((slide) => (
+        {READY_SLIDES.map((slide) => (
           <button key={slide.id} type="button" className="ready-card" onClick={() => choose(slide)}>
             <Photo slide={slide} meta={slide.defaults} />
           </button>
@@ -190,7 +168,7 @@ export function ReadyLibrary({ onAdd }: { onAdd: (draft: SlideDraft) => Promise<
       {mode === "image" ? (
         <div className="slide-modal" role="dialog" aria-modal="true" onClick={() => setMode("")}>
           <div className="slide-modal-card" onClick={(event) => event.stopPropagation()}>
-            <h3>שקף תמונה</h3>
+            <h3>שקף תמונה חדש</h3>
             <p>מעלים תמונה, GIF או PDF.</p>
             <label>קובץ
               <input type="file" accept="image/*,.gif,.pdf,application/pdf" onChange={(event) => {
