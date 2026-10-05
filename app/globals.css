@@ -218,8 +218,15 @@ body:has(.admin) { background: #F4F1ED; overflow-x: hidden; }
 .admin .agent-lines .user { background: #252525; color: #F4F1ED; }
 .admin .agent-ask { display: flex; gap: 8px; }
 .admin .agent-ask input { flex: 1; }
-.admin .special-slides { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
-.admin .special-slides button { width: 100%; background: #252525; }
+.admin .ready-card.mine-slide { border: 3px solid transparent; padding: 6px; background: #fff; border-radius: 14px; }
+.admin .ready-card.mine-slide.on { border-color: #2f6b45; }
+.admin .ready-card.mine-slide.off { border-color: #c4384a; }
+.admin .status-mark { inset-inline-start: auto; inset-inline-end: 8px; }
+.admin .status-mark.on { background: rgba(47, 107, 69, 0.9); border-color: transparent; }
+.admin .status-mark.off { background: rgba(196, 56, 74, 0.9); border-color: transparent; }
+.admin .slide-catalog { background: #F4F1ED; }
+.admin .add-thumb { display: grid; place-items: center; background: #252525; color: #F4F1ED; }
+.admin .add-thumb strong { position: relative; z-index: 1; font-weight: 400; font-size: 16px; line-height: 1.35; text-align: center; padding: 28px 12px 0; }
 .admin .yt-preview { margin: 0; padding: 48px 16px; background: #111; color: #F4F1ED; border-radius: 12px; text-align: center; }
 .admin .slide-modal {
   position: fixed;

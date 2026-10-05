@@ -138,11 +138,21 @@ export function ReadyLibrary({ onAdd, city = "" }: { onAdd: (draft: SlideDraft) 
 
   return (
     <div className="ready-library">
-      <div className="special-slides">
-        <button type="button" onClick={() => { setOpen(null); setMode("image"); setError(""); }}>שקף תמונה חדש</button>
-        <button type="button" onClick={() => { setOpen(null); setMode("youtube"); setError(""); }}>סרטון יוטיוב חדש</button>
-      </div>
       <div className="ready-grid">
+        <button type="button" className="ready-card add-card" onClick={() => { setOpen(null); setMode("image"); setError(""); }}>
+          <span className="thumb add-thumb">
+            <KindMark />
+            <strong>שקף תמונה חדש</strong>
+          </span>
+          <span>העלאת תמונה או PDF</span>
+        </button>
+        <button type="button" className="ready-card add-card" onClick={() => { setOpen(null); setMode("youtube"); setError(""); }}>
+          <span className="thumb add-thumb">
+            <KindMark video />
+            <strong>סרטון יוטיוב חדש</strong>
+          </span>
+          <span>הדבקת קישור לסרטון</span>
+        </button>
         {FIXED_VIDEOS.map((video) => (
             <button key={video.id} type="button" className="ready-card" disabled={busy} onClick={() => { setOpen(null); setPreview(video); }}>
               <div className="photo-slide">

@@ -38,6 +38,19 @@ export function slideIsOn(
   return true;
 }
 
+export function slideStatus(
+  slide: { active?: boolean; weekdays?: string | null; startsOn?: string | null; endsOn?: string | null },
+  now = new Date(),
+) {
+  const { day, ymd } = jerusalem(now);
+  const days = slide.weekdays ?? "01234";
+  if (slide.active === false) return { on: false, label: "כבוי" };
+  if (slide.endsOn && ymd > slide.endsOn) return { on: false, label: "פג תוקף" };
+  if (slide.startsOn && ymd < slide.startsOn) return { on: false, label: "טרם התחיל" };
+  if (!days.includes(String(day))) return { on: false, label: "לא היום" };
+  return { on: true, label: "מוצג עכשיו" };
+}
+
 const SHORT = ["א׳", "ב׳", "ג׳", "ד׳", "ה׳", "ו׳", "ש׳"];
 
 export function scheduleLabel(weekdays: string, startsOn = "", endsOn = "") {

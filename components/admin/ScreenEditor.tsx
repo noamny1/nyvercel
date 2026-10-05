@@ -6,7 +6,7 @@ import { KindMark, ReadyLibrary, SavedSlideEditor, type SlideDraft } from "@/com
 import { NEWS_SOURCES } from "@/lib/news-sources";
 import { THEMES } from "@/lib/themes";
 import { PLAYLISTS } from "@/lib/music-catalog";
-import { scheduleLabel } from "@/lib/schedule";
+import { scheduleLabel, slideStatus } from "@/lib/schedule";
 import { addGroupNotice, addNotice, deleteGroupNotice, deleteNotice, toggleGroupNotice, toggleNotice, updateGroup, updateGroupNotice, updateNotice, updateScreen } from "@/app/admin/actions";
 
 type Slide = { id: number; imageUrl: string; duration: number; sort: number; weekdays?: string; startsOn?: string; endsOn?: string; active?: boolean; kind?: string; templateId?: string; title?: string; detail?: string; meta?: string };
@@ -230,25 +230,29 @@ export function ScreenEditor({
       ) : null}
 
       {tab === "slides" ? (
-      <section className="card">
-        <h2>השקפים במסך</h2>
-        <p>כל שקף מופיע כתמונה קטנה. לחיצה פותחת את התזמון: ימים בשבוע, ומתאריך עד תאריך.</p>
+      <>
+      <section className="card screen-slides">
+        <h2>השקפים שמוצגים במסך</h2>
+        <p>מסגרת ירוקה: השקף על המסך עכשיו. מסגרת אדומה: הימים או התאריכים לא מתאימים, והשקף לא מופיע.</p>
         <div className="slide-grid">
-          {slides.map((slide) => (
-            <button className="ready-card mine-slide" type="button" key={slide.id} onClick={() => setOpenSlide(slide.id)}>
-              <span className="thumb">
-                {slide.kind === "youtube" ? <img src={slide.imageUrl.endsWith(".mp4") ? slide.imageUrl.replace(/\.mp4$/, ".jpg") : `https://i.ytimg.com/vi/${slide.imageUrl.slice(-11)}/hqdefault.jpg`} alt="" /> : slide.imageUrl.toLowerCase().includes(".pdf") ? <span className="pdf-mark">PDF</span> : <img src={slide.imageUrl} alt="" />}
-                <KindMark video={slide.kind === "youtube"} />
-              </span>
-              <span>
-                <strong>{slide.title || (slide.kind === "youtube" ? "סרטון" : "שקף")}</strong>
-                <small>{scheduleLabel(slide.weekdays ?? "01234", slide.startsOn || "", slide.endsOn || "")}</small>
-              </span>
-            </button>
-          ))}
+          {slides.map((slide) => {
+            const status = slideStatus(slide);
+            return (
+              <button className={`ready-card mine-slide ${status.on ? "on" : "off"}`} type="button" key={slide.id} onClick={() => setOpenSlide(slide.id)}>
+                <span className="thumb">
+                  {slide.kind === "youtube" ? <img src={slide.imageUrl.endsWith(".mp4") ? slide.imageUrl.replace(/\.mp4$/, ".jpg") : `https://i.ytimg.com/vi/${slide.imageUrl.slice(-11)}/hqdefault.jpg`} alt="" /> : slide.imageUrl.toLowerCase().includes(".pdf") ? <span className="pdf-mark">PDF</span> : <img src={slide.imageUrl} alt="" />}
+                  <KindMark video={slide.kind === "youtube"} />
+                  <em className={`kind-mark status-mark ${status.on ? "on" : "off"}`}>{status.label}</em>
+                </span>
+                <span>
+                  <strong>{slide.title || (slide.kind === "youtube" ? "סרטון" : "שקף")}</strong>
+                  <small>{scheduleLabel(slide.weekdays ?? "01234", slide.startsOn || "", slide.endsOn || "")}</small>
+                </span>
+              </button>
+            );
+          })}
         </div>
         {slides.length === 0 ? <p>עדיין אין שקפים במסך.</p> : null}
-        <ReadyLibrary city={screen.city} onAdd={onSlide} />
         {openSlide ? (() => {
           const slide = slides.find((item) => item.id === openSlide);
           if (!slide) return null;
@@ -263,6 +267,12 @@ export function ScreenEditor({
           );
         })() : null}
       </section>
+      <section className="card slide-catalog">
+        <h2>שקפים להוספה</h2>
+        <p>השקפים כאן עדיין לא במסך. לחיצה עליהם מוסיפה אותם.</p>
+        <ReadyLibrary city={screen.city} onAdd={onSlide} />
+      </section>
+      </>
       ) : null}
 
       {tab === "notices" ? (
