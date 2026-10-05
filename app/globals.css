@@ -255,6 +255,8 @@ body:has(.admin) { background: #F4F1ED; overflow-x: hidden; }
 .admin .mine-slide strong { font-size: 14px; font-weight: 400; }
 .admin .mine-slide small { color: #5c5854; font-size: 12px; line-height: 1.35; }
 .admin .day-picks { border: 0; margin: 0; padding: 0; }
+.admin .music-picks { margin: 16px 0; }
+.admin .music-picks label { display: inline-flex; align-items: center; gap: 8px; min-height: 36px; }
 .admin .day-picks legend { margin-bottom: 6px; }
 .admin .day-picks div { display: flex; flex-wrap: wrap; gap: 6px; }
 .admin .day-picks button { min-height: 40px; padding: 8px 10px; }

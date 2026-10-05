@@ -27,6 +27,11 @@ export default async function ScreenPage({ params }: { params: Promise<{ id: str
     },
   });
   if (!screen) notFound();
+  const musicPeers = await prisma.screen.count({
+    where: isSystemAdmin(session)
+      ? { users: { some: { screens: { some: { id: screen.id } } } } }
+      : where,
+  });
 
   return (
     <main className="admin">
@@ -34,7 +39,7 @@ export default async function ScreenPage({ params }: { params: Promise<{ id: str
       <p><Link href="/admin/buildings">כל הבניינים</Link></p>
       <h1>{line(screen)}</h1>
       <p>כתובת למכשיר: nytv.app/s/{screen.code || screen.id}</p>
-      <ScreenEditor screen={screen} slides={screen.slides} notices={screen.notices} lockAddress={!isSystemAdmin(session)} />
+      <ScreenEditor screen={screen} slides={screen.slides} notices={screen.notices} lockAddress={!isSystemAdmin(session)} musicPeers={musicPeers} />
     </main>
   );
 }

@@ -5,6 +5,7 @@ export const PLAYLISTS = [
   { id: "country", name: "קאנטרי", text: "גיטרה, בנג'ו וכינור, בלי שירה." },
   { id: "jazz", name: "ג'אז רך", text: "ג'אז אינסטרומנטלי לרקע." },
   { id: "classical", name: "קלאסי", text: "יצירות קלאסיות בנגינה בלי מילים." },
+  { id: "lounge", name: "טרקלין", text: "ג'אז רך, בוסה ומוזיקת רקע לטרקלין." },
 ] as const;
 
 export type PlaylistId = (typeof PLAYLISTS)[number]["id"];
@@ -212,9 +213,80 @@ const tracks: Record<PlaylistId, Track[]> = {
     { title: "Wagner Bridal Chorus - piano", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Wagner%20Bridal%20Chorus%20-%20piano.mp3" },
     { title: "Waltz (Tschikovsky Op. 40)", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Waltz%20-%20Tschikovsky%20Op.%2040.mp3" },
   ],
+  lounge: [
+    { title: "Lobby Time", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Lobby%20Time.mp3" },
+    { title: "Smooth Lovin", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Smooth%20Lovin.mp3" },
+    { title: "Easy Lemon", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Easy%20Lemon.mp3" },
+    { title: "Bossa Antigua", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Bossa%20Antigua.mp3" },
+    { title: "George Street Shuffle", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/George%20Street%20Shuffle.mp3" },
+    { title: "Local Forecast", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Local%20Forecast.mp3" },
+    { title: "Wallpaper", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Wallpaper.mp3" },
+    { title: "Backed Vibes Clean", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Backed%20Vibes%20Clean.mp3" },
+    { title: "Backed Vibes", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Backed%20Vibes.mp3" },
+    { title: "Sidewalk Shade", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Sidewalk%20Shade.mp3" },
+    { title: "Smooth Move", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Smooth%20Move.mp3" },
+    { title: "Jazz Brunch", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Jazz%20Brunch.mp3" },
+    { title: "On Hold for You", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/On%20Hold%20for%20You.mp3" },
+    { title: "Samba Isobel", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Samba%20Isobel.mp3" },
+    { title: "Suave Standpipe", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Suave%20Standpipe.mp3" },
+    { title: "Take a Chance", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Take%20a%20Chance.mp3" },
+    { title: "Two Finger Johnny", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Two%20Finger%20Johnny.mp3" },
+    { title: "Walking Along", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Walking%20Along.mp3" },
+    { title: "I Knew a Guy", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/I%20Knew%20a%20Guy.mp3" },
+    { title: "Jarvic 8", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Jarvic%208.mp3" },
+    { title: "Latin Industries", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Latin%20Industries.mp3" },
+    { title: "Night on the Docks", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Night%20on%20the%20Docks.mp3" },
+    { title: "Rollin at 5", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Rollin%20at%205.mp3" },
+    { title: "Fuzzball Parade", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Fuzzball%20Parade.mp3" },
+    { title: "Easy Jam", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Easy%20Jam.mp3" },
+    { title: "Hot Swing", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Hot%20Swing.mp3" },
+    { title: "Midnight Tale", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Midnight%20Tale.mp3" },
+    { title: "Shades of Spring", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Shades%20of%20Spring.mp3" },
+    { title: "Ice Flow", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Ice%20Flow.mp3" },
+    { title: "Parisian", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Parisian.mp3" },
+    { title: "Off to Osaka", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Off%20to%20Osaka.mp3" },
+    { title: "Wholesome", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Wholesome.mp3" },
+    { title: "OctoBlues", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/OctoBlues.mp3" },
+    { title: "Backbay Lounge", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Backbay%20Lounge.mp3" },
+    { title: "Slow Burn", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Slow%20Burn.mp3" },
+    { title: "Local Forecast - Elevator", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Local%20Forecast%20-%20Elevator.mp3" },
+    { title: "AcidJazz", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/AcidJazz.mp3" },
+    { title: "Chill Wave", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Chill%20Wave.mp3" },
+    { title: "Late Night Radio", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Late%20Night%20Radio.mp3" },
+    { title: "Blue Feather", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Blue%20Feather.mp3" },
+    { title: "Evening", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Evening.mp3" },
+    { title: "Modern Jazz Samba", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Modern%20Jazz%20Samba.mp3" },
+    { title: "Moonlight Hall", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Moonlight%20Hall.mp3" },
+    { title: "Night in Venice", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Night%20in%20Venice.mp3" },
+    { title: "Radio Martini", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Radio%20Martini.mp3" },
+    { title: "Too Cool", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Too%20Cool.mp3" },
+    { title: "Vibe Ace", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Vibe%20Ace.mp3" },
+    { title: "Five Card Shuffle", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Five%20Card%20Shuffle.mp3" },
+    { title: "Dances and Dames", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Dances%20and%20Dames.mp3" },
+    { title: "That Zen Moment", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/That%20Zen%20Moment.mp3" },
+    { title: "Water Lily", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Water%20Lily.mp3" },
+  ],
 };
 
-export function tracksFor(id: string) {
-  if (id in tracks) return tracks[id as PlaylistId];
-  return [];
+const PLAYLIST_IDS = new Set<string>(PLAYLISTS.map((playlist) => playlist.id));
+
+export function tracksFor(playlist: string) {
+  if (!playlist || playlist === "off") return [];
+  const seen = new Set<string>();
+  const list: Track[] = [];
+  for (const id of playlist.split(",")) {
+    const key = id.trim();
+    if (!(key in tracks)) continue;
+    for (const track of tracks[key as PlaylistId]) {
+      if (seen.has(track.url)) continue;
+      seen.add(track.url);
+      list.push(track);
+    }
+  }
+  return list;
+}
+
+export function normalizePlaylists(values: string[]) {
+  const ids = [...new Set(values.filter((value) => PLAYLIST_IDS.has(value)))];
+  return ids.length ? ids.join(",") : "off";
 }

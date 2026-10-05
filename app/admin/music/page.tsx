@@ -4,7 +4,7 @@ import { setMusic } from "@/app/admin/actions";
 import { PLAYLISTS, tracksFor } from "@/lib/music-catalog";
 import { prisma } from "@/lib/prisma";
 import { screenWhere } from "@/lib/access";
-import { requireSession } from "@/lib/session";
+import { isSystemAdmin, requireSession } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 
@@ -16,6 +16,7 @@ function place(screen: { street: string; number: string; city: string; name: str
 export default async function MusicPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
   const session = await requireSession();
   if (!session) redirect("/admin/login");
+  if (!isSystemAdmin(session)) redirect("/admin/buildings");
   const { q } = await searchParams;
   const query = (q || "").trim();
   const code = Number(query);
@@ -45,7 +46,7 @@ export default async function MusicPage({ searchParams }: { searchParams: Promis
     <main className="admin">
       <AdminNav />
       <h1>מוזיקה</h1>
-      <p>ארבע רשימות נגינה בלי מילים. מותר להשמיע אותן במסך, והקרדיט ליוצר נשאר על המסך תמיד. מוזיקה חסידית מסחרית לא נכללת, כי היא מוגנת בזכויות יוצרים.</p>
+      <p>חמש רשימות נגינה בלי מילים, כולל טרקלין. מותר להשמיע אותן במסך, והקרדיט ליוצר נשמר. מוזיקה מסחרית לא נכללת.</p>
       <div className="stats">
         {PLAYLISTS.map((playlist) => (
           <div className="stat" key={playlist.id}>

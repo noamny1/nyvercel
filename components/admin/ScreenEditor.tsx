@@ -5,6 +5,7 @@ import { useState } from "react";
 import { KindMark, ReadyLibrary, SavedSlideEditor, type SlideDraft } from "@/components/admin/ReadyLibrary";
 import { NEWS_SOURCES } from "@/lib/news-sources";
 import { THEMES } from "@/lib/themes";
+import { PLAYLISTS } from "@/lib/music-catalog";
 import { scheduleLabel } from "@/lib/schedule";
 import { addGroupNotice, addNotice, deleteGroupNotice, deleteNotice, toggleGroupNotice, toggleNotice, updateGroup, updateGroupNotice, updateNotice, updateScreen } from "@/app/admin/actions";
 
@@ -19,6 +20,7 @@ export function ScreenEditor({
   buildings = [],
   feeds,
   lockAddress = false,
+  musicPeers = 1,
 }: {
   screen: {
     id: number;
@@ -32,6 +34,7 @@ export function ScreenEditor({
     newsCount?: number;
     tickerSeconds?: number;
     newsTicker?: string;
+    musicPlaylist?: string;
     musicUrl?: string;
     buildingId?: number | null;
   };
@@ -41,6 +44,7 @@ export function ScreenEditor({
   buildings?: { id: number; name: string }[];
   feeds?: { id: string; name: string }[];
   lockAddress?: boolean;
+  musicPeers?: number;
 }) {
   const router = useRouter();
   const save = scope === "group" ? updateGroup : updateScreen;
@@ -180,6 +184,22 @@ export function ScreenEditor({
             </>
           ) : null}
         </div>
+        {scope === "screen" ? (
+          <fieldset className="day-picks music-picks">
+            <legend>מוזיקה</legend>
+            <p>אפשר לבחור כמה רשימות. הן יתנגנו בסדר אקראי, בלי מילים ובלי זכויות יוצרים מסחריות. אם לא בוחרים כלום, המוזיקה כבויה.</p>
+            <input type="hidden" name="musicForm" value="1" />
+            <div>
+              {PLAYLISTS.map((playlist) => (
+                <label key={playlist.id}>
+                  <input type="checkbox" name="music" value={playlist.id} defaultChecked={(screen.musicPlaylist || "").split(",").includes(playlist.id)} />
+                  {playlist.name}
+                </label>
+              ))}
+            </div>
+            {musicPeers > 1 ? <label><input type="checkbox" name="applyMusic" value="1" /> החל על כל המסכים שלי</label> : null}
+          </fieldset>
+        ) : null}
         <div className="media-box">
           <label>לוגו הבניין
             <input type="file" accept="image/*,.gif" onChange={(event) => {

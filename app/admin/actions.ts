@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { screenWhere } from "@/lib/access";
 import { requireSession, isSystemAdmin } from "@/lib/session";
 import { nextCode, touchGroup, touchScreen } from "@/lib/publish";
+import { normalizePlaylists } from "@/lib/music-catalog";
 
 async function gate() {
   const session = await requireSession();
@@ -35,10 +36,11 @@ export async function createScreen(formData: FormData) {
 export async function updateScreen(formData: FormData) {
   const session = await gate();
   const id = Number(formData.get("id"));
-  const current = await prisma.screen.findUnique({ where: { id } });
+  const current = await prisma.screen.findFirst({ where: { id, ...(await screenWhere(session)) } });
   if (!current) redirect("/admin/buildings");
   const owner = isSystemAdmin(session);
   const incomingLogo = String(formData.get("logoUrl") || "");
+  const music = formData.get("musicForm") ? normalizePlaylists(formData.getAll("music").map(String)) : current.musicPlaylist;
   await prisma.screen.update({
     where: { id },
     data: {
@@ -51,9 +53,23 @@ export async function updateScreen(formData: FormData) {
       newsCount: Math.min(20, Math.max(1, Number(formData.get("newsCount")) || current.newsCount || 8)),
       tickerSeconds: Math.min(40, Math.max(6, Number(formData.get("tickerSeconds")) || current.tickerSeconds || 12)),
       newsTicker: ["on", "weekend", "off"].includes(String(formData.get("newsTicker"))) ? String(formData.get("newsTicker")) : "on",
+      musicPlaylist: music,
       logoUrl: String(formData.get("clearLogo") || "") === "1" ? "" : incomingLogo.startsWith("http") ? incomingLogo : current.logoUrl,
     },
   });
+  if (String(formData.get("applyMusic") || "") === "1") {
+    const peers = await prisma.screen.findMany({
+      where: owner
+        ? { users: { some: { screens: { some: { id } } } } }
+        : await screenWhere(session),
+      select: { id: true },
+    });
+    const ids = peers.map((screen) => screen.id).filter((peer) => peer !== id);
+    if (ids.length) {
+      await prisma.screen.updateMany({ where: { id: { in: ids } }, data: { musicPlaylist: music } });
+      for (const peer of ids) await touchScreen(peer);
+    }
+  }
   await touchScreen(id);
   redirect(`/admin/screens/${id}`);
 }
@@ -364,8 +380,9 @@ export async function deleteTicker(formData: FormData) {
 export async function setMusic(formData: FormData) {
   const session = await gate();
   const playlist = String(formData.get("playlist") || "");
-  const allowed = new Set(["", "off", "spa", "country", "jazz", "classical"]);
-  if (!allowed.has(playlist) || !playlist) redirect("/admin/music");
+  const allowed = new Set(["off", "spa", "country", "jazz", "classical", "lounge"]);
+  const parts = playlist.split(",").map((part) => part.trim()).filter(Boolean);
+  if (!parts.length || parts.some((part) => !allowed.has(part))) redirect("/admin/music");
   const where = await screenWhere(session);
   const ids = formData.getAll("screenId").map(Number).filter((id) => id > 0);
   const screens = await prisma.screen.findMany({
@@ -375,7 +392,7 @@ export async function setMusic(formData: FormData) {
   if (screens.length) {
     await prisma.screen.updateMany({
       where: { id: { in: screens.map((screen) => screen.id) } },
-      data: { musicPlaylist: playlist },
+      data: { musicPlaylist: parts.join(",") },
     });
     for (const screen of screens) await touchScreen(screen.id);
   }
