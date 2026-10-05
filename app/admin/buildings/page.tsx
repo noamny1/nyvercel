@@ -69,12 +69,14 @@ export default async function BuildingsPage({ searchParams }: { searchParams: Pr
     <main className="admin">
       <AdminNav />
       <h1>{owner ? "בניינים" : "המסכים שלי"}</h1>
+      {owner ? (
       <form className="card search-slim" action="/admin/buildings">
         <div className="row">
           <label>חיפוש<input name="q" defaultValue={query} placeholder="רחוב, עיר או מספר מסך" /></label>
           <button type="submit">חיפוש</button>
         </div>
       </form>
+      ) : null}
       {owner ? (
       <div className="table-wrap">
         <table className="screen-table">
