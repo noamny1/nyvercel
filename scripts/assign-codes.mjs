@@ -1,4 +1,7 @@
-import { PrismaClient } from "@prisma/client";
+import { createRequire } from "node:module";
+
+const require = createRequire(import.meta.url);
+const { PrismaClient } = require("@prisma/client");
 
 const url = process.env.DATABASE_URL_UNPOOLED || process.env.DATABASE_URL;
 if (!url) {
