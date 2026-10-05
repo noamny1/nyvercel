@@ -361,13 +361,23 @@ export async function deleteTicker(formData: FormData) {
 }
 
 export async function setMusic(formData: FormData) {
-  await gate();
-  const id = Number(formData.get("id"));
-  await prisma.screenGroup.update({
-    where: { id },
-    data: { musicUrl: String(formData.get("musicUrl") || "") },
+  const session = await gate();
+  const playlist = String(formData.get("playlist") || "");
+  const allowed = new Set(["", "off", "spa", "country", "jazz", "classical"]);
+  if (!allowed.has(playlist) || !playlist) redirect("/admin/music");
+  const where = await screenWhere(session);
+  const ids = formData.getAll("screenId").map(Number).filter((id) => id > 0);
+  const screens = await prisma.screen.findMany({
+    where: { AND: [where, { id: { in: ids } }] },
+    select: { id: true },
   });
-  await touchGroup(id);
+  if (screens.length) {
+    await prisma.screen.updateMany({
+      where: { id: { in: screens.map((screen) => screen.id) } },
+      data: { musicPlaylist: playlist },
+    });
+    for (const screen of screens) await touchScreen(screen.id);
+  }
   redirect("/admin/music");
 }
 

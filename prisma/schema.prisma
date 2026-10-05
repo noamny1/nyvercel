@@ -66,6 +66,7 @@ model Screen {
   lastPing   DateTime?
   code       Int?         @unique
   revision   Int          @default(1)
+  musicPlaylist String    @default("")
   heartbeat  Heartbeat?
   users      User[]
   slides     Slide[]

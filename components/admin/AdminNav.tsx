@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 
 const CLIENT_LINKS = [
   ["/admin/buildings", "בניינים"],
+  ["/admin/music", "מוזיקה"],
 ];
 
 const OWNER_LINKS = [

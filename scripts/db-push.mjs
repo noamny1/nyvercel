@@ -29,6 +29,7 @@ const statements = [
     WHEN duplicate_object THEN NULL;
   END $$`,
   `CREATE INDEX IF NOT EXISTS "Heartbeat_at_idx" ON "Heartbeat"("at")`,
+  `ALTER TABLE "Screen" ADD COLUMN IF NOT EXISTS "musicPlaylist" TEXT NOT NULL DEFAULT ''`,
 ];
 
 try {

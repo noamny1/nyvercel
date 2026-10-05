@@ -1,4 +1,5 @@
 .stage {
+  position: relative;
   height: 100vh;
   display: grid;
   grid-template-columns: 1fr 340px;
@@ -100,3 +101,18 @@
 .ticker-track { display: inline-block; white-space: nowrap; animation: marquee 36s linear infinite; }
 @keyframes marquee { from { transform: translateX(-100%); } to { transform: translateX(100%); } }
 body:has(.stage) { overflow: hidden; background: #000; }
+.music-credit {
+  position: absolute;
+  z-index: 5;
+  left: 12px;
+  bottom: 72px;
+  margin: 0;
+  max-width: min(640px, 70%);
+  font-size: 13px;
+  line-height: 1.35;
+  color: #f4f1ed;
+  background: rgba(20, 20, 20, 0.78);
+  padding: 4px 8px;
+  border-radius: 4px;
+  pointer-events: none;
+}

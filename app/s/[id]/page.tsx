@@ -74,7 +74,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
 
   return (
     <main className={`stage theme-${theme}${theme === "yuval" ? " layout-yuval" : ""}${indexTheme ? " layout-index" : ""}`}>
-      <Music url={screen.group?.musicUrl || ""} />
+      <Music playlist={screen.musicPlaylist || ""} url={screen.group?.musicUrl || ""} start={screen.id} />
       <Ping code={screen.code || screen.id} revision={screen.revision} />
       <section className="slide">
         {indexTheme && visible.length === 0 ? (
