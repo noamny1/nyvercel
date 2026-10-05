@@ -103,7 +103,9 @@ model Slide {
   sort      Int          @default(0)
   duration  Int          @default(8)
   active    Boolean      @default(true)
-  weekdays  String       @default("0123456")
+  weekdays  String       @default("01234")
+  startsOn  String       @default("")
+  endsOn    String       @default("")
   createdAt DateTime     @default(now())
 }
 

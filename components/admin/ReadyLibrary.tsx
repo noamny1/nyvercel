@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { SlideAgent } from "@/components/admin/SlideAgent";
-import { fillLine, FIXED_VIDEOS, READY_CATEGORIES, READY_SLIDES, readMeta, WEEKDAYS, type ReadySlide, type SlideMeta } from "@/lib/ready-slides";
+import { fillLine, FIXED_VIDEOS, READY_CATEGORIES, READY_SLIDES, WEEKDAYS, readMeta, type ReadySlide, type SlideMeta } from "@/lib/ready-slides";
 
 export type SlideDraft = {
   kind: "image" | "template" | "youtube";
@@ -177,8 +177,8 @@ export function SavedSlideEditor({
   onRemove,
   onClose,
 }: {
-  slide: { id: number; imageUrl: string; duration: number; kind?: string; templateId?: string; title?: string; detail?: string; meta?: string };
-  onChange: (payload: { duration?: number; imageUrl?: string; title?: string; detail?: string; meta?: string }) => void;
+  slide: { id: number; imageUrl: string; duration: number; kind?: string; templateId?: string; title?: string; detail?: string; meta?: string; weekdays?: string; startsOn?: string; endsOn?: string };
+  onChange: (payload: { duration?: number; imageUrl?: string; title?: string; detail?: string; meta?: string; weekdays?: string; startsOn?: string; endsOn?: string }) => void;
   onRemove: () => void;
   onClose: () => void;
 }) {
@@ -186,7 +186,14 @@ export function SavedSlideEditor({
   const template = READY_SLIDES.find((item) => item.id === slide.templateId);
   const [meta, setMeta] = useState<SlideMeta>(readMeta(slide.meta || "", template?.defaults || {}));
   const [url, setUrl] = useState(slide.imageUrl);
+  const [days, setDays] = useState(slide.weekdays ?? "01234");
+  const [startsOn, setStartsOn] = useState(slide.startsOn || "");
+  const [endsOn, setEndsOn] = useState(slide.endsOn || "");
   const kind = slide.kind || "image";
+  function toggleDay(index: number) {
+    const mark = String(index);
+    setDays(days.includes(mark) ? days.replace(mark, "") : `${days}${mark}`);
+  }
   return (
     <div className="slide-modal" role="dialog" aria-modal="true" onClick={onClose}>
       <div className="slide-modal-card" onClick={(event) => event.stopPropagation()}>
@@ -234,6 +241,19 @@ export function SavedSlideEditor({
           ) : null}
           {kind === "youtube" && fixed ? <p>סרטון קבוע. אפשר למחוק אותו מהמסך, אבל אי אפשר להחליף את הקישור.</p> : null}
           <label>שניות<input type="number" min={3} defaultValue={slide.duration} onBlur={(event) => onChange({ duration: Number(event.target.value) })} /></label>
+          <fieldset className="day-picks">
+            <legend>ימים בשבוע</legend>
+            <div>
+              {WEEKDAYS.map((name, index) => (
+                <button type="button" key={name} className={days.includes(String(index)) ? "is-on" : "light"} onClick={() => toggleDay(index)}>{name}</button>
+              ))}
+            </div>
+          </fieldset>
+          <div className="row">
+            <label>מתאריך<input type="date" value={startsOn} onChange={(event) => setStartsOn(event.target.value)} /></label>
+            <label>עד תאריך<input type="date" value={endsOn} onChange={(event) => setEndsOn(event.target.value)} /></label>
+          </div>
+          <button type="button" onClick={() => onChange({ weekdays: days, startsOn, endsOn })}>שמירת התזמון</button>
           {kind === "template" && template ? <button type="button" onClick={() => onChange({ title: template.title, detail: fillLine(template.line, meta), meta: JSON.stringify(meta) })}>שמירת היום והשעות</button> : null}
           {kind === "youtube" && !fixed ? <button type="button" onClick={() => onChange({ imageUrl: url })}>שמירת הקישור</button> : null}
           <button className="light" type="button" onClick={onRemove}>מחיקה</button>

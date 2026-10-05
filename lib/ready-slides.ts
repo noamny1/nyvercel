@@ -32,6 +32,7 @@ export const READY_SLIDES: ReadySlide[] = [
   { id: "general-hours", category: "הודעות כלליות", title: "קבלת קהל", line: "הוועד זמין בימים {day} עד {from}", image: "/ready-slides/general-hours.jpg", day: "text", from: true, defaults: { day: "א׳–ה׳", from: "19:00" } },
   { id: "general-cameras", category: "הודעות כלליות", title: "אבטחה", line: "הלובי והחניה מצולמים", image: "/ready-slides/general-cameras.jpg", defaults: {} },
   { id: "greet-shabbat", category: "ברכות", title: "שבת שלום", line: "מאחלים לכל הדיירים שבת שקטה", image: "/ready-slides/greet-shabbat.jpg", defaults: {} },
+  { id: "weekly-parasha", category: "ברכות", title: "פרשת השבוע", line: "השם מתעדכן לבד בכל שבוע", image: "/ready-slides/greet-shabbat.jpg", defaults: {} },
   { id: "greet-mazal", category: "ברכות", title: "מזל טוב", line: "ברכות למשפחה החדשה בבניין", image: "/ready-slides/greet-mazal.jpg", defaults: {} },
   { id: "greet-welcome", category: "ברכות", title: "ברוכים הבאים", line: "שמחים לארח אתכם בלובי", image: "/ready-slides/greet-welcome.jpg", defaults: {} },
   { id: "greet-holiday", category: "ברכות", title: "חג שמח", line: "הבניין מאחל חג שמח", image: "/ready-slides/greet-holiday.jpg", defaults: {} },
@@ -48,6 +49,10 @@ export const READY_SLIDES: ReadySlide[] = [
   { id: "rights-pets", category: "זכויות מדייר", title: "חיות מחמד", line: "יש לשמור על ניקיון השטחים המשותפים", image: "/ready-slides/rights-pets.jpg", defaults: {} },
   { id: "rights-reno", category: "זכויות מדייר", title: "שיפוץ", line: "עבודות רועשות בין {from} ל־{to}", image: "/ready-slides/rights-reno.jpg", from: true, to: true, defaults: { from: "08:00", to: "17:00" } },
 ];
+
+export function defaultWeekdays(templateId = "", title = "") {
+  return templateId === "greet-shabbat" || templateId === "weekly-parasha" || /שבת|פרש/.test(title) ? "56" : "01234";
+}
 
 export function fillLine(line: string, meta: SlideMeta) {
   return line.replaceAll("{day}", meta.day || "").replaceAll("{from}", meta.from || "").replaceAll("{to}", meta.to || "");

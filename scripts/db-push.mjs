@@ -30,6 +30,16 @@ const statements = [
   END $$`,
   `CREATE INDEX IF NOT EXISTS "Heartbeat_at_idx" ON "Heartbeat"("at")`,
   `ALTER TABLE "Screen" ADD COLUMN IF NOT EXISTS "musicPlaylist" TEXT NOT NULL DEFAULT ''`,
+  `ALTER TABLE "Slide" ADD COLUMN IF NOT EXISTS "startsOn" TEXT NOT NULL DEFAULT ''`,
+  `ALTER TABLE "Slide" ADD COLUMN IF NOT EXISTS "endsOn" TEXT NOT NULL DEFAULT ''`,
+  `CREATE TABLE IF NOT EXISTS "SchemaNote" ("id" TEXT PRIMARY KEY)`,
+  `DO $$ BEGIN
+    IF NOT EXISTS (SELECT 1 FROM "SchemaNote" WHERE "id" = 'slide-weekdays-v1') THEN
+      UPDATE "Slide" SET "weekdays" = '56' WHERE "weekdays" = '0123456' AND ("templateId" IN ('greet-shabbat', 'weekly-parasha') OR "title" LIKE '%שבת%' OR "title" LIKE '%פרש%');
+      UPDATE "Slide" SET "weekdays" = '01234' WHERE "weekdays" = '0123456' AND COALESCE("templateId", '') NOT IN ('greet-shabbat', 'weekly-parasha') AND "title" NOT LIKE '%שבת%' AND "title" NOT LIKE '%פרש%';
+      INSERT INTO "SchemaNote" ("id") VALUES ('slide-weekdays-v1');
+    END IF;
+  END $$`,
 ];
 
 try {

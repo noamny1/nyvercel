@@ -2,6 +2,12 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/session";
 import { touchOwner } from "@/lib/publish";
+import { defaultWeekdays } from "@/lib/ready-slides";
+
+function dateOrEmpty(value: unknown) {
+  const text = String(value || "");
+  return /^\d{4}-\d{2}-\d{2}$/.test(text) ? text : "";
+}
 
 export async function POST(request: Request) {
   const session = await requireSession();
@@ -28,6 +34,7 @@ export async function POST(request: Request) {
       title: body.title || "",
       detail: body.detail || "",
       meta: body.meta || "",
+      weekdays: defaultWeekdays(body.templateId || "", body.title || ""),
       sort: (last?.sort ?? 0) + 1,
     },
   });
@@ -38,7 +45,7 @@ export async function POST(request: Request) {
 export async function PATCH(request: Request) {
   const session = await requireSession();
   if (!session) return NextResponse.json({ error: "נדרשת כניסה" }, { status: 401 });
-  const body = (await request.json()) as { id?: number; duration?: number; direction?: "up" | "down"; weekdays?: string; imageUrl?: string; title?: string; detail?: string; meta?: string };
+  const body = (await request.json()) as { id?: number; duration?: number; direction?: "up" | "down"; weekdays?: string; startsOn?: string; endsOn?: string; imageUrl?: string; title?: string; detail?: string; meta?: string };
   if (!body.id) return NextResponse.json({ error: "חסר מזהה" }, { status: 400 });
   const slide = await prisma.slide.findUnique({ where: { id: body.id } });
   if (!slide) return NextResponse.json({ error: "לא נמצא" }, { status: 404 });
@@ -62,11 +69,15 @@ export async function PATCH(request: Request) {
       data: { duration: Math.max(3, Number(body.duration) || slide.duration) },
     });
   }
-  if (body.weekdays !== undefined) {
-    const days = body.weekdays.replace(/[^0-6]/g, "");
+  if (body.weekdays !== undefined || body.startsOn !== undefined || body.endsOn !== undefined) {
+    const days = (body.weekdays ?? slide.weekdays).replace(/[^0-6]/g, "");
     await prisma.slide.update({
       where: { id: slide.id },
-      data: { weekdays: days || "0123456" },
+      data: {
+        weekdays: days,
+        ...(body.startsOn !== undefined ? { startsOn: dateOrEmpty(body.startsOn) } : {}),
+        ...(body.endsOn !== undefined ? { endsOn: dateOrEmpty(body.endsOn) } : {}),
+      },
     });
   }
   if (body.direction) {

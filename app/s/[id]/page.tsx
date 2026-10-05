@@ -53,9 +53,8 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
   const street = screen.street || source.street;
   const number = screen.number || source.number;
   const city = screen.city || source.city;
-  const ownSlides = screen.slides.filter((slide) => slideIsOn(slide));
-  const groupSlides = source.slides.filter((slide) => slideIsOn(slide));
-  const visible = ownSlides.length > 0 ? ownSlides : groupSlides.length > 0 ? groupSlides : screen.slides.length > 0 ? screen.slides : source.slides;
+  const pool = screen.slides.length > 0 ? screen.slides : source.slides;
+  const visible = pool.filter((slide) => slideIsOn(slide));
   const notices = screen.notices.length > 0 ? screen.notices : source.notices;
 
   const [weather, shabbat, headlines, rates] = await Promise.all([
@@ -83,7 +82,13 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
             <Directory floors={floors} />
           </div>
         ) : (
-          <Player slides={visible.map((slide) => ({ imageUrl: slide.imageUrl, duration: slide.duration, kind: slide.kind, title: slide.title, detail: slide.detail }))} />
+          <Player slides={visible.map((slide) => ({
+            imageUrl: slide.imageUrl,
+            duration: slide.duration,
+            kind: slide.kind,
+            title: slide.title,
+            detail: slide.templateId === "weekly-parasha" && shabbat?.parsha ? `פרשת ${shabbat.parsha}` : slide.detail,
+          }))} />
         )}
       </section>
       <aside className="rail">
