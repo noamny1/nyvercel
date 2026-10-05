@@ -34,6 +34,6 @@ const SHORT = ["א׳", "ב׳", "ג׳", "ד׳", "ה׳", "ו׳", "ש׳"];
 export function scheduleLabel(weekdays: string, startsOn = "", endsOn = "") {
   const days = SHORT.filter((_, index) => weekdays.includes(String(index)));
   const when = days.length === 7 ? "כל השבוע" : days.length === 0 ? "אף יום" : days.join(" ");
-  const range = startsOn || endsOn ? `${startsOn || "—"} עד ${endsOn || "—"}` : "בלי הגבלת תאריך";
+  const range = !startsOn && !endsOn ? "לעד" : `${startsOn || "—"} עד ${endsOn || "לעד"}`;
   return `${when} · ${range}`;
 }

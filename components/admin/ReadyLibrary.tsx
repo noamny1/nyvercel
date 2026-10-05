@@ -17,6 +17,22 @@ export type SlideDraft = {
   duration?: number;
 };
 
+function todayInIsrael() {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Jerusalem" }).format(new Date());
+}
+
+function FlowPick({ flow, onPick }: { flow?: string; onPick: (flow: "scroll" | "static") => void }) {
+  return (
+    <fieldset className="day-picks">
+      <legend>תצוגת הפרשה</legend>
+      <div>
+        <button type="button" className={flow !== "static" ? "is-on" : "light"} onClick={() => onPick("scroll")}>גלילה איטית</button>
+        <button type="button" className={flow === "static" ? "is-on" : "light"} onClick={() => onPick("static")}>קבוע בדף אחד</button>
+      </div>
+    </fieldset>
+  );
+}
+
 export function KindMark({ video }: { video?: boolean }) {
   return <em className="kind-mark">{video ? "סרטון" : "שקף רגיל"}</em>;
 }
@@ -169,12 +185,7 @@ export function ReadyLibrary({ onAdd, city = "" }: { onAdd: (draft: SlideDraft) 
             {open.id === "weekly-parasha" ? <LiveParasha city={city} still={meta.flow === "static"} /> : <Photo slide={open} meta={meta} />}
             <div className="slide-modal-actions">
               {open.id === "weekly-parasha" ? (
-                <label>תצוגת הפרשה
-                  <select value={meta.flow || "scroll"} onChange={(event) => setMeta({ ...meta, flow: event.target.value === "static" ? "static" : "scroll" })}>
-                    <option value="scroll">גלילה איטית</option>
-                    <option value="static">קבוע בדף אחד</option>
-                  </select>
-                </label>
+                <FlowPick flow={meta.flow} onPick={(flow) => setMeta({ ...meta, flow })} />
               ) : null}
               {open.day || open.from || open.to ? <p>אפשר לעדכן את היום ואת השעות לפני ההוספה.</p> : null}
               {open.day === "weekday" ? (
@@ -238,11 +249,28 @@ export function SavedSlideEditor({
   const [meta, setMeta] = useState<SlideMeta>(readMeta(slide.meta || "", template?.defaults || {}));
   const [url, setUrl] = useState(slide.imageUrl);
   const [days, setDays] = useState(slide.weekdays ?? "01234");
-  const [startsOn, setStartsOn] = useState(slide.startsOn || "");
+  const [startsOn, setStartsOn] = useState(slide.startsOn || todayInIsrael());
   const [endsOn, setEndsOn] = useState(slide.endsOn || "");
+  const [picture, setPicture] = useState(slide.imageUrl);
+  const [fallback, setFallback] = useState(slide.detail || "");
   const official = FIXED_VIDEOS.find((item) => item.id === slide.templateId);
   const [seconds, setSeconds] = useState(slide.templateId === "weekly-parasha" ? Math.max(180, slide.duration) : official?.duration || slide.duration);
   const kind = slide.kind || "image";
+  function saveAll() {
+    onChange({
+      weekdays: days,
+      startsOn: startsOn || todayInIsrael(),
+      endsOn,
+      ...(!official ? { duration: slide.templateId === "weekly-parasha" ? Math.max(180, seconds) : Math.max(3, seconds) } : {}),
+      ...(kind === "template" && template ? {
+        title: template.title,
+        detail: fillLine(template.line, meta),
+        meta: JSON.stringify(slide.templateId === "weekly-parasha" ? { ...meta, flow: meta.flow || "scroll" } : meta),
+      } : {}),
+      ...(kind === "youtube" && !fixed ? { imageUrl: url, detail: fallback } : {}),
+      ...(kind === "image" && picture !== slide.imageUrl ? { imageUrl: picture } : {}),
+    });
+  }
   function toggleDay(index: number) {
     const mark = String(index);
     setDays(days.includes(mark) ? days.replace(mark, "") : `${days}${mark}`);
@@ -250,16 +278,9 @@ export function SavedSlideEditor({
   return (
     <div className="slide-modal" role="dialog" aria-modal="true" onClick={onClose}>
       <div className="slide-modal-card" onClick={(event) => event.stopPropagation()}>
-        {slide.templateId === "weekly-parasha" ? <LiveParasha city={city} still={meta.flow === "static"} /> : <SlidePeek url={official?.url || slide.imageUrl} title={official?.title || slide.title} />}
+        {slide.templateId === "weekly-parasha" ? <LiveParasha city={city} still={meta.flow === "static"} /> : <SlidePeek url={official?.url || picture} title={official?.title || slide.title} />}
         <div className="slide-modal-actions">
-          {slide.templateId === "weekly-parasha" ? (
-            <label>תצוגת הפרשה
-              <select value={meta.flow || "scroll"} onChange={(event) => setMeta({ ...meta, flow: event.target.value === "static" ? "static" : "scroll" })}>
-                <option value="scroll">גלילה איטית</option>
-                <option value="static">קבוע בדף אחד</option>
-              </select>
-            </label>
-          ) : null}
+          {slide.templateId === "weekly-parasha" ? <FlowPick flow={meta.flow} onPick={(flow) => setMeta({ ...meta, flow })} /> : null}
           {kind === "template" && template?.day === "weekday" ? (
             <label>יום<select value={meta.day || ""} onChange={(event) => setMeta({ ...meta, day: event.target.value })}>{WEEKDAYS.map((day) => <option key={day}>{day}</option>)}</select></label>
           ) : null}
@@ -278,11 +299,11 @@ export function SavedSlideEditor({
                   if (!file) return;
                   void import("@vercel/blob/client").then(async ({ upload }) => {
                     const blob = await upload(file.name, file, { access: "public", handleUploadUrl: "/api/upload/client" });
-                    onChange({ detail: blob.url });
+                    setFallback(blob.url);
                   });
                 }} />
               </label>
-              {slide.detail ? <p>קובץ חלופי שמור</p> : null}
+              {fallback ? <p>הקובץ החלופי יישמר עם שמירה</p> : null}
             </>
           ) : null}
           {kind === "image" ? (
@@ -295,13 +316,13 @@ export function SavedSlideEditor({
                 body.set("kind", "slide");
                 void fetch("/api/upload", { method: "POST", body }).then(async (response) => {
                   const data = (await response.json()) as { url?: string };
-                  if (data.url) onChange({ imageUrl: data.url });
+                  if (data.url) setPicture(data.url);
                 });
               }} />
             </label>
           ) : null}
           {kind === "youtube" && fixed ? <p>סרטון קבוע. אפשר למחוק אותו מהמסך, אבל אי אפשר להחליף את הקישור.</p> : null}
-          <label>שניות<input type="number" min={3} value={seconds} readOnly={Boolean(official)} onChange={(event) => setSeconds(Number(event.target.value))} onBlur={() => { if (!official) onChange({ duration: seconds }); }} /></label>
+          <label>שניות<input type="number" min={3} value={seconds} readOnly={Boolean(official)} onChange={(event) => setSeconds(Number(event.target.value))} /></label>
           {official ? <p>האורך נקבע לפי הסרטון: {official.duration} שניות.</p> : null}
           <fieldset className="day-picks">
             <legend>ימים בשבוע</legend>
@@ -315,9 +336,8 @@ export function SavedSlideEditor({
             <label>מתאריך<input type="date" value={startsOn} onChange={(event) => setStartsOn(event.target.value)} /></label>
             <label>עד תאריך<input type="date" value={endsOn} onChange={(event) => setEndsOn(event.target.value)} /></label>
           </div>
-          <button type="button" onClick={() => onChange({ weekdays: days, startsOn, endsOn })}>שמירת התזמון</button>
-          {kind === "template" && template ? <button type="button" onClick={() => onChange({ title: template.title, detail: fillLine(template.line, meta), meta: JSON.stringify(slide.templateId === "weekly-parasha" ? { ...meta, flow: meta.flow || "scroll" } : meta), duration: slide.templateId === "weekly-parasha" ? Math.max(180, seconds) : undefined })}>{slide.templateId === "weekly-parasha" ? "שמירת התצוגה" : "שמירת היום והשעות"}</button> : null}
-          {kind === "youtube" && !fixed ? <button type="button" onClick={() => onChange({ imageUrl: url })}>שמירת הקישור</button> : null}
+          <p>אם לא בוחרים תאריך סיום, השקף נשאר לעד.</p>
+          <button type="button" onClick={saveAll}>שמירה</button>
           <button className="light" type="button" onClick={onRemove}>מחיקה</button>
           <button className="light" type="button" onClick={onClose}>סגירה</button>
         </div>

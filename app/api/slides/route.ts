@@ -4,6 +4,10 @@ import { requireSession } from "@/lib/session";
 import { touchOwner } from "@/lib/publish";
 import { defaultWeekdays } from "@/lib/ready-slides";
 
+function todayInIsrael() {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Jerusalem" }).format(new Date());
+}
+
 function dateOrEmpty(value: unknown) {
   const text = String(value || "");
   return /^\d{4}-\d{2}-\d{2}$/.test(text) ? text : "";
@@ -14,7 +18,7 @@ export async function POST(request: Request) {
   if (!session) return NextResponse.json({ error: "נדרשת כניסה" }, { status: 401 });
   const body = (await request.json()) as {
     screenId?: number; groupId?: number; imageUrl?: string; duration?: number;
-    kind?: string; templateId?: string; title?: string; detail?: string; meta?: string;
+    kind?: string; templateId?: string; title?: string; detail?: string; meta?: string; startsOn?: string;
   };
   const owner = body.groupId ? { groupId: body.groupId } : body.screenId ? { screenId: body.screenId } : null;
   if (!owner || !body.imageUrl) {
@@ -35,6 +39,7 @@ export async function POST(request: Request) {
       detail: body.detail || "",
       meta: body.meta || "",
       weekdays: defaultWeekdays(body.templateId || "", body.title || ""),
+      startsOn: dateOrEmpty(body.startsOn) || todayInIsrael(),
       sort: (last?.sort ?? 0) + 1,
     },
   });
