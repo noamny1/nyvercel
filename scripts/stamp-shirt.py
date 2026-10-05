@@ -1,11 +1,11 @@
-"""Put the site logo on the character shirt.
+"""Print the site logo on the character's red shirt.
 
-The mark is the nytv.app header logo: public/logo-nymedia.png, turned white
-the same way the site does (brightness 0 + invert), with the Hebrew line
-"מסכי שילוט דיגיטלי" cropped off.
+The mark is the white nytv.app header logo (icon + NYMEDIA, no slogan).
+It is a still print on the chest, clipped to the red fabric. When the shirt
+is turned away, covered, or not in frame, the logo is not drawn.
 
 Reads clean clips from assets/safety-raw and writes public/safety.
-Re-run this after adding a new character video there.
+Re-run after adding a new character video: python3 scripts/stamp-shirt.py
 """
 
 import subprocess
@@ -73,12 +73,14 @@ def site_logo():
 
 
 def shirt_box(im):
-    small = im.convert("RGB").resize((160, 90))
+    """Front-facing red shirt only. Narrow, bent, or covered chests return None."""
+    small = im.convert("RGB").resize((320, 180))
     px = small.load()
-    seen = [[False] * 160 for _ in range(90)]
+    seen = [[False] * 320 for _ in range(180)]
     best = None
-    for y in range(int(90 * 0.34), 90):
-        for x in range(160):
+    y_cut = int(180 * 0.34)
+    for y in range(y_cut, 180):
+        for x in range(320):
             if seen[y][x]:
                 continue
             r, g, b = px[x, y]
@@ -91,9 +93,7 @@ def shirt_box(im):
                 cx, cy = stack.pop()
                 cells.append((cx, cy))
                 for nx, ny in ((cx + 1, cy), (cx - 1, cy), (cx, cy + 1), (cx, cy - 1)):
-                    if nx < 0 or ny < 0 or nx >= 160 or ny >= 90 or seen[ny][nx]:
-                        continue
-                    if ny < int(90 * 0.34):
+                    if nx < 0 or ny < y_cut or nx >= 320 or ny >= 180 or seen[ny][nx]:
                         continue
                     rr, gg, bb = px[nx, ny]
                     if is_shirt(rr, gg, bb):
@@ -101,38 +101,71 @@ def shirt_box(im):
                         stack.append((nx, ny))
             if best is None or len(cells) > len(best):
                 best = cells
-    if not best or len(best) < 24:
+    if not best or len(best) < 80:
         return None
     xs = [c[0] for c in best]
     ys = [c[1] for c in best]
-    sx = im.width / 160
-    sy = im.height / 90
-    return (min(xs) * sx, min(ys) * sy, (max(xs) + 1) * sx, (max(ys) + 1) * sy)
+    sx = im.width / 320
+    sy = im.height / 180
+    box = (min(xs) * sx, min(ys) * sy, (max(xs) + 1) * sx, (max(ys) + 1) * sy)
+    if not front_shirt(box):
+        return None
+    return box
 
 
-def stamp(im, logo):
-    box = shirt_box(im)
-    if not box:
-        return im
+def front_shirt(box):
     x0, y0, x1, y1 = box
     bw, bh = x1 - x0, y1 - y0
-    if bw < 36:
-        return im
-    lw = min(bw * 0.74, 250)
+    if bw < 270 or bh < 150:
+        return False
+    return 1.15 <= bw / bh <= 2.05
+
+
+def stamp(im, logo, box="auto"):
+    if box == "auto":
+        box = shirt_box(im)
+    if not box or not front_shirt(box):
+        return im.convert("RGB")
+    x0, y0, x1, y1 = box
+    bw, bh = x1 - x0, y1 - y0
+    # One print size. It does not grow or slide around on its own.
+    lw = min(bw * 0.50, 168)
     scale = lw / logo.width
     lh = logo.height * scale
-    if lh > bh * 0.62:
-        lh = bh * 0.62
-        scale = lh / logo.height
-        lw = logo.width * scale
     mark = logo.resize((max(1, int(lw)), max(1, int(lh))), Image.Resampling.LANCZOS)
     px = int(x0 + (bw - mark.width) / 2)
-    py = int(y0 + bh * 0.40 - mark.height / 2)
-    px = max(int(x0), min(px, int(x1 - mark.width)))
-    py = max(int(y0), min(py, int(y1 - mark.height)))
-    frame = im.convert("RGBA")
-    frame.paste(mark, (px, py), mark)
-    return frame.convert("RGB")
+    py = int(y0 + bh * 0.54 - mark.height / 2)
+    base = im.convert("RGBA")
+    src = mark.load()
+    dst = base.load()
+    for y in range(mark.height):
+        for x in range(mark.width):
+            a = src[x, y][3]
+            if a < 16:
+                continue
+            dx, dy = px + x, py + y
+            if dx < 0 or dy < 0 or dx >= base.width or dy >= base.height:
+                continue
+            br, bg, bb, _ = dst[dx, dy]
+            if not is_shirt(br, bg, bb):
+                continue
+            dst[dx, dy] = (255, 255, 255, 255)
+    return base.convert("RGB")
+
+
+def smooth_boxes(boxes):
+    """Keep the print still. A turned-away frame stays blank."""
+    out = []
+    for i, box in enumerate(boxes):
+        if not box:
+            out.append(None)
+            continue
+        window = [boxes[j] for j in range(max(0, i - 2), min(len(boxes), i + 3)) if boxes[j]]
+        if len(window) < 2:
+            out.append(box)
+            continue
+        out.append(tuple(sum(b[k] for b in window) / len(window) for k in range(4)))
+    return out
 
 
 def frames_of(src, folder):
@@ -177,8 +210,9 @@ def main():
         folder = work / name
         frames_of(video, folder)
         files = sorted(folder.glob("f*.jpg"))
-        for frame in files:
-            stamp(Image.open(frame), logo).save(frame, quality=92)
+        boxes = smooth_boxes([shirt_box(Image.open(frame)) for frame in files])
+        for frame, box in zip(files, boxes):
+            stamp(Image.open(frame), logo, box).save(frame, quality=92)
         encode(folder, OUT / f"{name}.mp4")
         print("video", name, len(files))
     print("done", ", ".join(names))
