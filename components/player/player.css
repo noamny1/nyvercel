@@ -10,6 +10,16 @@
 }
 .stage.no-ticker { grid-template-rows: 1fr; }
 .stage.no-ticker .rail { grid-row: 1; }
+.brand-bar { display: none; background: #111; align-items: center; justify-content: center; }
+.brand-bar img { height: 68px; width: auto; max-width: 280px; object-fit: contain; }
+.stage.slide-full,
+.stage.slide-full.no-ticker { grid-template-columns: 1fr; grid-template-rows: 1fr 86px; }
+.stage.slide-full .slide { grid-column: 1; grid-row: 1; }
+.stage.slide-full .rail,
+.stage.slide-full .ticker { display: none; }
+.stage.slide-full .brand-bar { display: flex; grid-column: 1; grid-row: 2; }
+.stage.slide-full .slide-image,
+.stage.slide-full .slide-video { object-fit: cover; }
 .stage {
   position: relative;
   height: 100vh;

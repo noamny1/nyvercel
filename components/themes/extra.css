@@ -4,6 +4,8 @@
 .stage .slide { min-height: 0; }
 .layout-yuval .rail { grid-column: 1; background: linear-gradient(#1f4b3a, #143528); color: #F5F3EF; }
 .layout-yuval .ticker { grid-column: 2; background: #143528; color: #F5F3EF; }
+.layout-yuval.stage.slide-full { grid-template-columns: 1fr; grid-template-rows: 1fr 86px; }
+.layout-yuval.stage.slide-full .slide { grid-column: 1; grid-row: 1; }
 .layout-yuval .clock { font-size: 64px; }
 
 .theme-responsive .rail { background: #f7f7f5; color: #252525; }

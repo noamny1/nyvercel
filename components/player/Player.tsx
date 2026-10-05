@@ -15,6 +15,7 @@ export type PlaySlide = {
   city?: string;
   verses?: string[];
   still?: boolean;
+  full?: boolean;
 };
 
 function youtubeId(url: string) {
@@ -84,6 +85,12 @@ function YoutubeSlide({ url, fallback }: { url: string; fallback?: string }) {
 export function Player({ slides }: { slides: PlaySlide[] }) {
   const [index, setIndex] = useState(0);
   const current = slides[index];
+
+  useEffect(() => {
+    const stage = document.querySelector(".stage");
+    stage?.classList.toggle("slide-full", Boolean(current?.full));
+    return () => stage?.classList.remove("slide-full");
+  }, [current?.full]);
 
   useEffect(() => {
     if (!current) return;

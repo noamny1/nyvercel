@@ -253,19 +253,27 @@ export function SavedSlideEditor({
   const [endsOn, setEndsOn] = useState(slide.endsOn || "");
   const [picture, setPicture] = useState(slide.imageUrl);
   const [fallback, setFallback] = useState(slide.detail || "");
+  const [full, setFull] = useState(() => {
+    try { return JSON.parse(slide.meta || "{}").full === true; } catch { return false; }
+  });
   const official = FIXED_VIDEOS.find((item) => item.id === slide.templateId);
   const [seconds, setSeconds] = useState(slide.templateId === "weekly-parasha" ? Math.max(180, slide.duration) : official?.duration || slide.duration);
   const kind = slide.kind || "image";
   async function saveAll() {
+    let base: Record<string, unknown> = {};
+    try { base = JSON.parse(slide.meta || "{}"); } catch { base = {}; }
+    if (kind === "template") Object.assign(base, meta);
+    if (slide.templateId === "weekly-parasha" && !base.flow) base.flow = "scroll";
+    base.full = full;
     await onChange({
       weekdays: days,
       startsOn: startsOn || todayInIsrael(),
       endsOn,
+      meta: JSON.stringify(base),
       ...(!official ? { duration: slide.templateId === "weekly-parasha" ? Math.max(180, seconds) : Math.max(3, seconds) } : {}),
       ...(kind === "template" && template ? {
         title: template.title,
         detail: fillLine(template.line, meta),
-        meta: JSON.stringify(slide.templateId === "weekly-parasha" ? { ...meta, flow: meta.flow || "scroll" } : meta),
       } : {}),
       ...(kind === "youtube" && !fixed ? { imageUrl: url, detail: fallback } : {}),
       ...(kind === "image" && picture !== slide.imageUrl ? { imageUrl: picture } : {}),
@@ -282,6 +290,13 @@ export function SavedSlideEditor({
         {slide.templateId === "weekly-parasha" ? <LiveParasha city={city} still={meta.flow === "static"} /> : <SlidePeek url={official?.url || picture} title={official?.title || slide.title} />}
         <div className="slide-modal-actions">
           {slide.templateId === "weekly-parasha" ? <FlowPick flow={meta.flow} onPick={(flow) => setMeta({ ...meta, flow })} /> : null}
+          <fieldset className="day-picks">
+            <legend>גודל התצוגה</legend>
+            <div>
+              <button type="button" className={full ? "light" : "is-on"} onClick={() => setFull(false)}>רגיל</button>
+              <button type="button" className={full ? "is-on" : "light"} onClick={() => setFull(true)}>כל המסך</button>
+            </div>
+          </fieldset>
           {kind === "template" && template?.day === "weekday" ? (
             <label>יום<select value={meta.day || ""} onChange={(event) => setMeta({ ...meta, day: event.target.value })}>{WEEKDAYS.map((day) => <option key={day}>{day}</option>)}</select></label>
           ) : null}

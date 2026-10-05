@@ -90,7 +90,12 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
             const official = FIXED_VIDEOS.find((item) => item.id === slide.templateId);
             const parasha = slide.templateId === "weekly-parasha";
             let flow = "";
-            try { flow = JSON.parse(slide.meta || "{}").flow || ""; } catch { flow = ""; }
+            let full = false;
+            try {
+              const stored = JSON.parse(slide.meta || "{}");
+              flow = stored.flow || "";
+              full = stored.full === true;
+            } catch { flow = ""; }
             const slow = parasha ? Math.max(180, slide.duration || 0, flow === "static" ? 180 : Math.round((shabbat?.verses.length || 40) * 2.2)) : 0;
             return {
             imageUrl: official?.url || slide.imageUrl,
@@ -103,6 +108,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
             city: parasha ? shabbat?.city || city : "",
             verses: parasha ? shabbat?.verses || [] : [],
             still: parasha && flow === "static",
+            full,
             };
           })} />
         )}
@@ -133,6 +139,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
         )}
       </aside>
       {tickerOn ? <NewsTicker titles={headlines.map((item) => item.title)} seconds={screen.tickerSeconds || 12} source={newsName} /> : null}
+      <footer className="brand-bar"><img src="/nymedia-logo.png" alt="NYmedia" /></footer>
     </main>
   );
 }
