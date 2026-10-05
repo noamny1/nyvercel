@@ -68,6 +68,9 @@ export function readMeta(value: string, fallback: SlideMeta): SlideMeta {
   }
 }
 
+// Character clips live in assets/safety-raw. public/safety is the same
+// clips with the white site logo on the shirt (no slogan). Refresh them
+// with: python3 scripts/stamp-shirt.py
 export const FIXED_VIDEOS = [
   { id: "fixed-alarm", title: "אזעקה", line: "נכנסים למרחב המוגן וסוגרים את הדלת", url: "/safety/alarm.mp4", poster: "/safety/alarm.jpg", duration: 10 },
   { id: "fixed-fire-own", title: "שריפה", line: "לא במעלית. יורדים במדרגות ומתקשרים 102", url: "/safety/fire.mp4", poster: "/safety/fire.jpg", duration: 10 },
