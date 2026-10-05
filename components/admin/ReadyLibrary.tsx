@@ -91,12 +91,12 @@ export function ReadyLibrary({ onAdd }: { onAdd: (draft: SlideDraft) => Promise<
         <button type="button" onClick={() => { setOpen(null); setMode("image"); setError(""); }}>שקף תמונה</button>
         <button type="button" onClick={() => { setOpen(null); setMode("youtube"); setError(""); }}>סרטון יוטיוב</button>
       </div>
-      <p className="ready-note">סרטונים קבועים. אפשר להוסיף כל אחד למסך, או לא.</p>
+      <p className="ready-note">סרטונים שלנו, בלי קול. לוחצים על כרטיס כדי להוסיף אותו למסך.</p>
       <div className="ready-grid">
         {FIXED_VIDEOS.map((video) => (
           <button key={video.id} type="button" className="ready-card" disabled={busy} onClick={() => void addFixed(video)}>
             <div className="photo-slide">
-              <img src={`https://i.ytimg.com/vi/${video.url.slice(-11)}/hqdefault.jpg`} alt="" />
+              <img src={video.poster} alt="" />
               <div>
                 <small>סרטון קבוע</small>
                 <strong>{video.title}</strong>
