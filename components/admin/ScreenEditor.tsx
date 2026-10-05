@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { ReadyLibrary, SavedSlideEditor, type SlideDraft } from "@/components/admin/ReadyLibrary";
+import { KindMark, ReadyLibrary, SavedSlideEditor, type SlideDraft } from "@/components/admin/ReadyLibrary";
 import { NEWS_SOURCES } from "@/lib/news-sources";
 import { THEMES } from "@/lib/themes";
 import { scheduleLabel } from "@/lib/schedule";
@@ -196,7 +196,10 @@ export function ScreenEditor({
         <div className="slide-grid">
           {slides.map((slide) => (
             <button className="ready-card mine-slide" type="button" key={slide.id} onClick={() => setOpenSlide(slide.id)}>
-              {slide.kind === "youtube" ? <img src={slide.imageUrl.endsWith(".mp4") ? slide.imageUrl.replace(/\.mp4$/, ".jpg") : `https://i.ytimg.com/vi/${slide.imageUrl.slice(-11)}/hqdefault.jpg`} alt="" /> : slide.imageUrl.toLowerCase().includes(".pdf") ? <span className="pdf-mark">PDF</span> : <img src={slide.imageUrl} alt="" />}
+              <span className="thumb">
+                {slide.kind === "youtube" ? <img src={slide.imageUrl.endsWith(".mp4") ? slide.imageUrl.replace(/\.mp4$/, ".jpg") : `https://i.ytimg.com/vi/${slide.imageUrl.slice(-11)}/hqdefault.jpg`} alt="" /> : slide.imageUrl.toLowerCase().includes(".pdf") ? <span className="pdf-mark">PDF</span> : <img src={slide.imageUrl} alt="" />}
+                <KindMark video={slide.kind === "youtube"} />
+              </span>
               <span>
                 <strong>{slide.title || (slide.kind === "youtube" ? "סרטון" : "שקף")}</strong>
                 <small>{scheduleLabel(slide.weekdays ?? "01234", slide.startsOn || "", slide.endsOn || "")}</small>

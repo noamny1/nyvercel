@@ -15,6 +15,10 @@ export type SlideDraft = {
   duration?: number;
 };
 
+export function KindMark({ video }: { video?: boolean }) {
+  return <em className="kind-mark">{video ? "סרטון" : "שקף רגיל"}</em>;
+}
+
 function youtubeId(url: string) {
   const match = url.match(/(?:v=|youtu\.be\/|embed\/)([A-Za-z0-9_-]{11})/);
   return match?.[1] || "";
@@ -31,6 +35,7 @@ function Photo({ slide, meta }: { slide: ReadySlide; meta: SlideMeta }) {
   return (
     <div className="photo-slide">
       <img src={slide.image} alt="" />
+      <KindMark />
       <div>
         <small>{slide.category}</small>
         <strong>{slide.title}</strong>
@@ -107,6 +112,7 @@ export function ReadyLibrary({ onAdd }: { onAdd: (draft: SlideDraft) => Promise<
             <button key={video.id} type="button" className="ready-card" disabled={busy} onClick={() => { setOpen(null); setPreview(video); }}>
               <div className="photo-slide">
                 <img src={video.poster} alt="" />
+                <KindMark video />
                 <div>
                   <small>סרטון</small>
                   <strong>{video.title}</strong>
