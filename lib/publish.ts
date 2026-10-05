@@ -17,7 +17,10 @@ export async function touchScreen(id: number) {
     data: { revision: { increment: 1 } },
     select: { code: true },
   }).catch(() => null);
-  if (screen?.code) revalidatePath(`/s/${screen.code}`);
+  if (screen?.code) {
+    revalidatePath(`/s/${screen.code}`);
+    revalidatePath(`/s/${screen.code}`, "page");
+  }
 }
 
 export async function touchGroup(groupId: number) {
@@ -25,7 +28,11 @@ export async function touchGroup(groupId: number) {
   const screens = await prisma.screen.findMany({ where: { groupId }, select: { code: true } });
   if (!screens.length) return;
   await prisma.screen.updateMany({ where: { groupId }, data: { revision: { increment: 1 } } });
-  for (const screen of screens) if (screen.code) revalidatePath(`/s/${screen.code}`);
+  for (const screen of screens) {
+    if (!screen.code) continue;
+    revalidatePath(`/s/${screen.code}`);
+    revalidatePath(`/s/${screen.code}`, "page");
+  }
 }
 
 export async function touchOwner(owner: { screenId?: number | null; groupId?: number | null }) {

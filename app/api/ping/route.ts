@@ -10,11 +10,15 @@ export async function POST(request: Request) {
   const screen = await prisma.screen.findUnique({ where: { code: key }, select: { id: true, active: true, revision: true } })
     ?? (key < 100000 ? await prisma.screen.findUnique({ where: { id: key }, select: { id: true, active: true, revision: true } }) : null);
   if (!screen?.active) return NextResponse.json({ status: "error" }, { status: 404 });
-  const at = new Date();
-  await prisma.heartbeat.upsert({
-    where: { screenId: screen.id },
-    update: { at },
-    create: { screenId: screen.id, at },
+  if (params.get("beat") === "1") {
+    const at = new Date();
+    await prisma.heartbeat.upsert({
+      where: { screenId: screen.id },
+      update: { at },
+      create: { screenId: screen.id, at },
+    });
+  }
+  return NextResponse.json({ status: "success", r: screen.revision }, {
+    headers: { "Cache-Control": "no-store" },
   });
-  return NextResponse.json({ status: "success", r: screen.revision });
 }

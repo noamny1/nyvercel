@@ -24,7 +24,7 @@ import "@/components/themes/yuval.css";
 import "@/components/themes/residential.css";
 import "@/components/themes/extra.css";
 
-export const revalidate = 300;
+export const dynamic = "force-dynamic";
 
 function address(street: string, number: string, city: string) {
   const line = [street, number].filter(Boolean).join(" ");
