@@ -56,7 +56,7 @@ export function ScreenEditor({
   const [editing, setEditing] = useState<number | null>(null);
   const [openSlide, setOpenSlide] = useState<number | null>(null);
   const [tab, setTab] = useState<"details" | "slides" | "notices">("slides");
-  const [library, setLibrary] = useState(false);
+  const [library, setLibrary] = useState(true);
 
   async function upload(file: File, kind: "image" | "slide") {
     const body = new FormData();
@@ -206,13 +206,8 @@ export function ScreenEditor({
           ))}
         </div>
         {slides.length === 0 ? <p>עדיין אין שקפים במסך.</p> : null}
-        <button type="button" onClick={() => setLibrary((value) => !value)}>{library ? "סגירת ההוספה" : "הוספת שקף"}</button>
-        {library ? (
-          <>
-            <p>בוחרים קטגוריה, ואז שקף. התזמון נקבע אוטומטית, ואפשר לשנות אותו אחר כך.</p>
-            <ReadyLibrary onAdd={onSlide} />
-          </>
-        ) : null}
+        <button type="button" onClick={() => setLibrary((value) => !value)}>{library ? "סגירת כל השקפים" : "כל השקפים"}</button>
+        {library ? <ReadyLibrary onAdd={onSlide} /> : null}
         {openSlide ? (() => {
           const slide = slides.find((item) => item.id === openSlide);
           if (!slide) return null;

@@ -29,13 +29,14 @@ function Photo({ slide, meta }: { slide: ReadySlide; meta: SlideMeta }) {
 }
 
 export function ReadyLibrary({ onAdd }: { onAdd: (draft: SlideDraft) => Promise<void> }) {
-  const [category, setCategory] = useState<string>(READY_CATEGORIES[0]);
+  const [category, setCategory] = useState<string>("הכל");
   const [open, setOpen] = useState<ReadySlide | null>(null);
   const [meta, setMeta] = useState<SlideMeta>({});
   const [mode, setMode] = useState<"" | "image" | "youtube">("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  const slides = READY_SLIDES.filter((slide) => slide.category === category);
+  const slides = category === "הכל" ? READY_SLIDES : READY_SLIDES.filter((slide) => slide.category === category);
+  const videos = category === "הכל" || category === "סרטונים" ? FIXED_VIDEOS : [];
 
   function choose(slide: ReadySlide) {
     setError("");
@@ -91,23 +92,16 @@ export function ReadyLibrary({ onAdd }: { onAdd: (draft: SlideDraft) => Promise<
         <button type="button" onClick={() => { setOpen(null); setMode("image"); setError(""); }}>שקף תמונה</button>
         <button type="button" onClick={() => { setOpen(null); setMode("youtube"); setError(""); }}>סרטון יוטיוב</button>
       </div>
-      <p className="ready-note">סרטונים שלנו, בלי קול. לוחצים על כרטיס כדי להוסיף אותו למסך.</p>
-      <div className="ready-grid">
-        {FIXED_VIDEOS.map((video) => (
-          <button key={video.id} type="button" className="ready-card" disabled={busy} onClick={() => void addFixed(video)}>
-            <div className="photo-slide">
-              <img src={video.poster} alt="" />
-              <div>
-                <small>סרטון קבוע</small>
-                <strong>{video.title}</strong>
-                <span>{video.line}</span>
-              </div>
-            </div>
-          </button>
-        ))}
-      </div>
-      {error && !open && mode === "" ? <p className="error">{error}</p> : null}
-      <div className="ready-cats">
+      <p className="ready-note">כל השקפים. לוחצים על תמונה כדי להוסיף למסך.</p>
+      <div className="ready-cats ready-cats-row">
+        <button type="button" className={category === "הכל" ? "is-on" : ""} onClick={() => setCategory("הכל")}>
+          הכל
+          <small>{READY_SLIDES.length + FIXED_VIDEOS.length}</small>
+        </button>
+        <button type="button" className={category === "סרטונים" ? "is-on" : ""} onClick={() => setCategory("סרטונים")}>
+          סרטונים
+          <small>{FIXED_VIDEOS.length}</small>
+        </button>
         {READY_CATEGORIES.map((name) => (
           <button key={name} type="button" className={name === category ? "is-on" : ""} onClick={() => setCategory(name)}>
             {name}
@@ -115,6 +109,21 @@ export function ReadyLibrary({ onAdd }: { onAdd: (draft: SlideDraft) => Promise<
           </button>
         ))}
       </div>
+      {videos.length ? (
+        <div className="ready-grid">
+          {videos.map((video) => (
+            <button key={video.id} type="button" className="ready-card" disabled={busy} onClick={() => void addFixed(video)}>
+              <div className="photo-slide">
+                <img src={video.poster} alt="" />
+                <div>
+                  <small>סרטון</small>
+                  <strong>{video.title}</strong>
+                </div>
+              </div>
+            </button>
+          ))}
+        </div>
+      ) : null}
       <div className="ready-grid">
         {slides.map((slide) => (
           <button key={slide.id} type="button" className="ready-card" onClick={() => choose(slide)}>
