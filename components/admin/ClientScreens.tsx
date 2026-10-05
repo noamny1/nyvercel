@@ -24,12 +24,6 @@ type Row = {
   notices: { id: number; text: string; active: boolean }[];
 };
 
-const PANELS: { id: Panel; label: string }[] = [
-  { id: "slides", label: "שקפים" },
-  { id: "details", label: "פרטים" },
-  { id: "notices", label: "הודעות" },
-];
-
 export function ClientScreens({ rows, musicPeers, returnTo }: { rows: Row[]; musicPeers: number; returnTo: string }) {
   const [open, setOpen] = useState<{ id: number; tab: Panel } | null>(null);
 
@@ -48,17 +42,15 @@ export function ClientScreens({ rows, musicPeers, returnTo }: { rows: Row[]; mus
         return (
           <article className={tab ? "client-card is-open" : "client-card"} key={screen.id}>
             <header>
-              <div>
-                <strong>{address}</strong>
-                <small>מסך {screen.code || screen.id}</small>
-              </div>
-              {screen.people.length ? <span>{screen.people.join(" · ")}</span> : null}
+              <strong>{address}</strong>
+              <small>משתמשים מורשים</small>
+              <span>{screen.people.length ? screen.people.join(" · ") : "—"}</span>
             </header>
             <div className="client-actions">
-              <a href={`/s/${screen.code || screen.id}`} target="_blank">פתיחה</a>
-              {PANELS.map((panel) => (
-                <button type="button" key={panel.id} className={tab === panel.id ? "is-on" : ""} onClick={() => pick(screen.id, panel.id)}>{panel.label}</button>
-              ))}
+              <button type="button" className={tab === "details" ? "is-on" : ""} onClick={() => pick(screen.id, "details")}>הגדרות</button>
+              <button type="button" className={tab === "slides" ? "is-on" : ""} onClick={() => pick(screen.id, "slides")}>שקפים</button>
+              <button type="button" className={tab === "notices" ? "is-on" : ""} onClick={() => pick(screen.id, "notices")}>הודעות</button>
+              <a href={`/s/${screen.code || screen.id}`} target="_blank">הצגת המסך</a>
             </div>
             {tab ? (
               <div className="client-panel">

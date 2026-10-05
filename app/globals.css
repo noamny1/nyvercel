@@ -260,15 +260,15 @@ body:has(.admin) { background: #F4F1ED; overflow-x: hidden; }
   overflow: hidden;
 }
 .client-card header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  gap: 16px;
+  display: grid;
+  justify-items: center;
+  gap: 4px;
   padding: 22px 22px 4px;
+  text-align: center;
 }
-.client-card header div { display: grid; gap: 4px; min-width: 0; }
 .client-card strong { font-size: 26px; font-weight: 400; color: #252525; line-height: 1.3; }
-.client-card small, .client-card header > span { color: #6d6862; font-size: 14px; }
+.client-card small { color: #6d6862; font-size: 13px; }
+.client-card header > span { color: #252525; font-size: 16px; }
 .client-actions {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -303,7 +303,6 @@ body:has(.admin) { background: #F4F1ED; overflow-x: hidden; }
 .client-panel .row { min-width: 0; }
 .client-panel .row > label { min-width: 0; flex: 1 1 180px; }
 @media (max-width: 700px) {
-  .client-card header { flex-direction: column; align-items: flex-start; }
   .client-card strong { font-size: 22px; }
   .client-actions { grid-template-columns: 1fr 1fr; }
 }
