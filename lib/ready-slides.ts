@@ -75,7 +75,8 @@ export const FIXED_VIDEOS = [
   { id: "fixed-quake", title: "רעידת אדמה", line: "שטח פתוח, מרחב מוגן או מדרגות. לא מעלית", url: "/safety/quake.mp4", poster: "/safety/quake.jpg", duration: 10 },
   { id: "fixed-tidy", title: "ניקיון וסדר", line: "בלי שקיות, קרטונים ועגלות בלובי", url: "/safety/tidy.mp4", poster: "/safety/tidy.jpg", duration: 10 },
   { id: "fixed-clear", title: "מעבר פנוי", line: "המדרגות והמסדרון נשארים פתוחים", url: "/safety/clear.mp4", poster: "/safety/clear.jpg", duration: 10 },
-  { id: "fixed-oref", title: "פיקוד העורף", line: "נכנסים למרחב המוגן וסוגרים את הדלת", url: "/safety/alarm.mp4", poster: "/safety/alarm.jpg", duration: 10 },
-  { id: "fixed-fire", title: "כיבוי אש", line: "לא במעלית. יורדים במדרגות ומתקשרים 102", url: "/safety/fire.mp4", poster: "/safety/fire.jpg", duration: 10 },
-  { id: "fixed-clean", title: "ניקיון וסדר", line: "בלי שקיות, קרטונים ועגלות בלובי", url: "/safety/tidy.mp4", poster: "/safety/tidy.jpg", duration: 10 },
+  { id: "fixed-mda", title: "מד״א", line: "עזרה ראשונה רשמית: אדם שהתמוטט. חייגו 101", url: "https://www.youtube.com/watch?v=R8h0SwzNW2I", poster: "https://i.ytimg.com/vi/R8h0SwzNW2I/hqdefault.jpg", duration: 45 },
+  { id: "fixed-oref", title: "פיקוד העורף", line: "הנחיות רשמיות, בלי כיתוב שלנו", url: "https://www.youtube.com/watch?v=5ad9OJxVSd0", poster: "https://i.ytimg.com/vi/5ad9OJxVSd0/hqdefault.jpg", duration: 94 },
+  { id: "fixed-oref-room", title: "מרחב מוגן", line: "איך בוחרים מרחב מוגן. סרטון פיקוד העורף", url: "https://www.youtube.com/watch?v=Vd7hpbQatvY", poster: "https://i.ytimg.com/vi/Vd7hpbQatvY/hqdefault.jpg", duration: 151 },
+  { id: "fixed-fire", title: "כיבוי אש", line: "בטיחות אש ברבי קומות. הסרטון הרשמי", url: "https://www.youtube.com/watch?v=sgnYcSj5qok", poster: "https://i.ytimg.com/vi/sgnYcSj5qok/hqdefault.jpg", duration: 102 },
 ] as const;

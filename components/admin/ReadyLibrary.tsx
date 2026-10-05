@@ -15,6 +15,18 @@ export type SlideDraft = {
   duration?: number;
 };
 
+function youtubeId(url: string) {
+  const match = url.match(/(?:v=|youtu\.be\/|embed\/)([A-Za-z0-9_-]{11})/);
+  return match?.[1] || "";
+}
+
+function SlidePeek({ url, title }: { url: string; title?: string }) {
+  const id = youtubeId(url);
+  if (/\.(mp4|webm|mov)(\?|$)/i.test(url)) return <video className="mini-preview" src={url} controls muted playsInline />;
+  if (id) return <iframe className="mini-preview" src={`https://www.youtube.com/embed/${id}?rel=0`} title={title || "תצוגה מקדימה"} allow="encrypted-media; picture-in-picture" />;
+  if (url.toLowerCase().includes(".pdf")) return <span className="pdf-mark large">PDF</span>;
+  return <img className="mini-preview" src={url} alt="" />;
+}
 function Photo({ slide, meta }: { slide: ReadySlide; meta: SlideMeta }) {
   return (
     <div className="photo-slide">
@@ -30,6 +42,7 @@ function Photo({ slide, meta }: { slide: ReadySlide; meta: SlideMeta }) {
 
 export function ReadyLibrary({ onAdd }: { onAdd: (draft: SlideDraft) => Promise<void> }) {
   const [category, setCategory] = useState<string>("הכל");
+  const [preview, setPreview] = useState<(typeof FIXED_VIDEOS)[number] | null>(null);
   const [open, setOpen] = useState<ReadySlide | null>(null);
   const [meta, setMeta] = useState<SlideMeta>({});
   const [mode, setMode] = useState<"" | "image" | "youtube">("");
@@ -112,12 +125,13 @@ export function ReadyLibrary({ onAdd }: { onAdd: (draft: SlideDraft) => Promise<
       {videos.length ? (
         <div className="ready-grid">
           {videos.map((video) => (
-            <button key={video.id} type="button" className="ready-card" disabled={busy} onClick={() => void addFixed(video)}>
+            <button key={video.id} type="button" className="ready-card" disabled={busy} onClick={() => { setOpen(null); setPreview(video); }}>
               <div className="photo-slide">
                 <img src={video.poster} alt="" />
                 <div>
                   <small>סרטון</small>
                   <strong>{video.title}</strong>
+                  <span>{video.duration} שנ׳</span>
                 </div>
               </div>
             </button>
@@ -131,6 +145,21 @@ export function ReadyLibrary({ onAdd }: { onAdd: (draft: SlideDraft) => Promise<
           </button>
         ))}
       </div>
+      {preview ? (
+        <div className="slide-modal" role="dialog" aria-modal="true" onClick={() => setPreview(null)}>
+          <div className="slide-modal-card" onClick={(event) => event.stopPropagation()}>
+            <SlidePeek url={preview.url} title={preview.title} />
+            <div className="slide-modal-actions">
+              <strong>{preview.title}</strong>
+              <p>{preview.line}</p>
+              <p>{preview.duration} שניות, לפי אורך הסרטון.</p>
+              <button type="button" disabled={busy} onClick={() => void addFixed(preview).then(() => setPreview(null))}>{busy ? "שומר..." : "הוספה למסך"}</button>
+              <button type="button" className="light" onClick={() => setPreview(null)}>סגירה</button>
+              {error ? <p className="error">{error}</p> : null}
+            </div>
+          </div>
+        </div>
+      ) : null}
       {open ? (
         <div className="slide-modal" role="dialog" aria-modal="true" onClick={() => setOpen(null)}>
           <div className="slide-modal-card" onClick={(event) => event.stopPropagation()}>
@@ -198,6 +227,8 @@ export function SavedSlideEditor({
   const [days, setDays] = useState(slide.weekdays ?? "01234");
   const [startsOn, setStartsOn] = useState(slide.startsOn || "");
   const [endsOn, setEndsOn] = useState(slide.endsOn || "");
+  const official = FIXED_VIDEOS.find((item) => item.id === slide.templateId);
+  const [seconds, setSeconds] = useState(official?.duration || slide.duration);
   const kind = slide.kind || "image";
   function toggleDay(index: number) {
     const mark = String(index);
@@ -206,7 +237,7 @@ export function SavedSlideEditor({
   return (
     <div className="slide-modal" role="dialog" aria-modal="true" onClick={onClose}>
       <div className="slide-modal-card" onClick={(event) => event.stopPropagation()}>
-        {kind === "template" && template ? <Photo slide={template} meta={meta} /> : kind === "youtube" ? <p className="yt-preview">{slide.title || "סרטון יוטיוב"}</p> : slide.imageUrl.toLowerCase().includes(".pdf") ? <span className="pdf-mark large">PDF</span> : <img className="slide-modal-image" src={slide.imageUrl} alt="" />}
+        <SlidePeek url={official?.url || slide.imageUrl} title={official?.title || slide.title} />
         <div className="slide-modal-actions">
           {kind === "template" && template?.day === "weekday" ? (
             <label>יום<select value={meta.day || ""} onChange={(event) => setMeta({ ...meta, day: event.target.value })}>{WEEKDAYS.map((day) => <option key={day}>{day}</option>)}</select></label>
@@ -249,7 +280,8 @@ export function SavedSlideEditor({
             </label>
           ) : null}
           {kind === "youtube" && fixed ? <p>סרטון קבוע. אפשר למחוק אותו מהמסך, אבל אי אפשר להחליף את הקישור.</p> : null}
-          <label>שניות<input type="number" min={3} defaultValue={slide.duration} onBlur={(event) => onChange({ duration: Number(event.target.value) })} /></label>
+          <label>שניות<input type="number" min={3} value={seconds} readOnly={Boolean(official)} onChange={(event) => setSeconds(Number(event.target.value))} onBlur={() => { if (!official) onChange({ duration: seconds }); }} /></label>
+          {official ? <p>האורך נקבע לפי הסרטון: {official.duration} שניות.</p> : null}
           <fieldset className="day-picks">
             <legend>ימים בשבוע</legend>
             <div>

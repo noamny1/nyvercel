@@ -13,6 +13,7 @@ import { ModernRail } from "@/components/themes/ModernRail";
 import { markets } from "@/lib/markets";
 import { liveHeadlines } from "@/lib/news";
 import { prisma } from "@/lib/prisma";
+import { FIXED_VIDEOS } from "@/lib/ready-slides";
 import { slideIsOn } from "@/lib/schedule";
 import { shabbatFor } from "@/lib/shabbat";
 import { weatherFor } from "@/lib/weather";
@@ -82,13 +83,16 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
             <Directory floors={floors} />
           </div>
         ) : (
-          <Player slides={visible.map((slide) => ({
-            imageUrl: slide.imageUrl,
-            duration: slide.duration,
+          <Player slides={visible.map((slide) => {
+            const official = FIXED_VIDEOS.find((item) => item.id === slide.templateId);
+            return {
+            imageUrl: official?.url || slide.imageUrl,
+            duration: official?.duration || slide.duration,
             kind: slide.kind,
             title: slide.title,
             detail: slide.templateId === "weekly-parasha" && shabbat?.parsha ? `פרשת ${shabbat.parsha}` : slide.detail,
-          }))} />
+            };
+          })} />
         )}
       </section>
       <aside className="rail">
