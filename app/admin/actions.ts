@@ -13,6 +13,11 @@ async function gate() {
   return session;
 }
 
+function safeReturn(formData: FormData, fallback: string) {
+  const back = String(formData.get("returnTo") || "");
+  return back.startsWith("/admin/buildings") ? back : fallback;
+}
+
 async function ownerGate() {
   const session = await gate();
   if (!isSystemAdmin(session)) redirect("/admin");
@@ -71,7 +76,7 @@ export async function updateScreen(formData: FormData) {
     }
   }
   await touchScreen(id);
-  redirect(`/admin/screens/${id}`);
+  redirect(safeReturn(formData, `/admin/screens/${id}`));
 }
 
 export async function addNotice(formData: FormData) {
@@ -80,7 +85,7 @@ export async function addNotice(formData: FormData) {
   const text = String(formData.get("text") || "").trim().slice(0, 120);
   if (text) await prisma.notice.create({ data: { screenId, text, active: true } });
   await touchScreen(screenId);
-  redirect(`/admin/screens/${screenId}`);
+  redirect(safeReturn(formData, `/admin/screens/${screenId}`));
 }
 
 export async function toggleNotice(formData: FormData) {
@@ -90,7 +95,7 @@ export async function toggleNotice(formData: FormData) {
   const notice = await prisma.notice.findUnique({ where: { id } });
   if (notice) await prisma.notice.update({ where: { id }, data: { active: !notice.active } });
   await touchScreen(screenId);
-  redirect(`/admin/screens/${screenId}`);
+  redirect(safeReturn(formData, `/admin/screens/${screenId}`));
 }
 
 export async function deleteNotice(formData: FormData) {
@@ -99,7 +104,7 @@ export async function deleteNotice(formData: FormData) {
   const screenId = Number(formData.get("screenId"));
   await prisma.notice.delete({ where: { id } });
   await touchScreen(screenId);
-  redirect(`/admin/screens/${screenId}`);
+  redirect(safeReturn(formData, `/admin/screens/${screenId}`));
 }
 
 export async function updateNotice(formData: FormData) {
@@ -109,7 +114,7 @@ export async function updateNotice(formData: FormData) {
   const text = String(formData.get("text") || "").trim().slice(0, 120);
   if (text) await prisma.notice.update({ where: { id }, data: { text } });
   await touchScreen(screenId);
-  redirect(`/admin/screens/${screenId}`);
+  redirect(safeReturn(formData, `/admin/screens/${screenId}`));
 }
 
 export async function createGroup(formData: FormData) {

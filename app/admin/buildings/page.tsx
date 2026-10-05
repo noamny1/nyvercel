@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AdminNav } from "@/components/admin/AdminNav";
+import { ClientScreens } from "@/components/admin/ClientScreens";
 import { GroupMove } from "@/components/admin/GroupMove";
 import { createListedScreen, deleteListedScreen } from "@/app/admin/actions";
 import { prisma } from "@/lib/prisma";
@@ -53,7 +54,13 @@ export default async function BuildingsPage({ searchParams }: { searchParams: Pr
       },
       orderBy: { id: "asc" },
       take: 30,
-      include: { group: true, heartbeat: true, users: { select: { name: true, email: true, role: true }, orderBy: { email: "asc" } } },
+      include: {
+        group: true,
+        heartbeat: true,
+        users: { select: { name: true, email: true, role: true }, orderBy: { email: "asc" } },
+        slides: { orderBy: { sort: "asc" } },
+        notices: { orderBy: { id: "desc" } },
+      },
     }),
     prisma.screenGroup.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
   ]);
@@ -61,14 +68,14 @@ export default async function BuildingsPage({ searchParams }: { searchParams: Pr
   return (
     <main className="admin">
       <AdminNav />
-      <h1>בניינים</h1>
-      <p>מוצגים עד 30 מסכים. לחיפוש מדויק מקלידים רחוב, עיר או מספר מסך.</p>
-      <form className="card" action="/admin/buildings">
+      <h1>{owner ? "בניינים" : "המסכים שלי"}</h1>
+      <form className="card search-slim" action="/admin/buildings">
         <div className="row">
-          <label>חיפוש בניין<input name="q" defaultValue={query} placeholder="רחוב, עיר או מספר מסך" /></label>
+          <label>חיפוש<input name="q" defaultValue={query} placeholder="רחוב, עיר או מספר מסך" /></label>
           <button type="submit">חיפוש</button>
         </div>
       </form>
+      {owner ? (
       <div className="table-wrap">
         <table className="screen-table">
           <thead>
@@ -123,6 +130,30 @@ export default async function BuildingsPage({ searchParams }: { searchParams: Pr
           </tbody>
         </table>
       </div>
+      ) : (
+        <ClientScreens
+          musicPeers={screens.length}
+          returnTo={query ? `/admin/buildings?q=${encodeURIComponent(query)}` : "/admin/buildings"}
+          rows={screens.map((screen) => ({
+            id: screen.id,
+            code: screen.code,
+            name: screen.name,
+            street: screen.street || screen.group?.street || "",
+            number: screen.number || screen.group?.number || "",
+            city: screen.city || screen.group?.city || "",
+            theme: screen.theme,
+            logoUrl: screen.logoUrl,
+            newsSource: screen.newsSource,
+            newsCount: screen.newsCount,
+            tickerSeconds: screen.tickerSeconds,
+            newsTicker: screen.newsTicker,
+            musicPlaylist: screen.musicPlaylist,
+            people: assignedUsers(screen.users).map((user) => user.name || user.email),
+            slides: screen.slides,
+            notices: screen.notices,
+          }))}
+        />
+      )}
       {owner ? (
         <form className="card" action={createListedScreen}>
           <h2>מסך חדש</h2>

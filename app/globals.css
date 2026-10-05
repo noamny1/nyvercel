@@ -249,7 +249,19 @@ body:has(.admin) { background: #F4F1ED; overflow-x: hidden; }
 .admin .replace-file input { margin-top: 6px; }
 .admin .slide-grid img, .admin .slide-grid .pdf-mark { width: 100%; height: 92px; object-fit: cover; border-radius: 10px; background: #252525; }
 .admin .slide-grid .thumb img { height: 100%; border-radius: 0; }
-.admin .editor-tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 18px; }
+.admin .search-slim { max-width: 460px; padding: 12px 14px; }
+.admin .search-slim .row { align-items: end; }
+.admin .search-slim input { max-width: 260px; min-height: 36px; }
+.admin table.screen-table tr.inline-editor td,
+.admin table.screen-table tr.inline-editor td:first-child,
+.admin table.screen-table tr.inline-editor td:last-child {
+  display: block;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  padding: 0 0 16px;
+}
+.admin table.screen-table tr.inline-editor td::before { content: none; }
 .admin .editor-tabs button { width: 100%; min-height: 44px; }
 .admin .mine-slide span { display: grid; gap: 2px; text-align: right; }
 .admin .mine-slide strong { font-size: 14px; font-weight: 400; }
@@ -325,6 +337,7 @@ body:has(.admin) { background: #F4F1ED; overflow-x: hidden; }
   text-decoration: none;
 }
 .admin .acts button { background: transparent; }
+.admin .acts button.is-on { background: #5A1F2B; color: #F4F1ED; border-color: #5A1F2B; }
 @media (max-width: 800px) {
   .admin .screen-head { display: none; }
   .admin table.screen-table, .admin table.screen-table tbody, .admin table.screen-table tr, .admin table.screen-table td { display: block; width: 100%; }

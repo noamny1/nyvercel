@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { KindMark, ReadyLibrary, SavedSlideEditor, type SlideDraft } from "@/components/admin/ReadyLibrary";
 import { NEWS_SOURCES } from "@/lib/news-sources";
 import { THEMES } from "@/lib/themes";
@@ -21,6 +21,8 @@ export function ScreenEditor({
   feeds,
   lockAddress = false,
   musicPeers = 1,
+  panel,
+  returnTo,
 }: {
   screen: {
     id: number;
@@ -45,6 +47,8 @@ export function ScreenEditor({
   feeds?: { id: string; name: string }[];
   lockAddress?: boolean;
   musicPeers?: number;
+  panel?: "details" | "slides" | "notices";
+  returnTo?: string;
 }) {
   const router = useRouter();
   const save = scope === "group" ? updateGroup : updateScreen;
@@ -60,7 +64,10 @@ export function ScreenEditor({
   const [message, setMessage] = useState("");
   const [editing, setEditing] = useState<number | null>(null);
   const [openSlide, setOpenSlide] = useState<number | null>(null);
-  const [tab, setTab] = useState<"details" | "slides" | "notices">("slides");
+  const [tab, setTab] = useState<"details" | "slides" | "notices">(panel || "slides");
+  useEffect(() => {
+    if (panel) setTab(panel);
+  }, [panel]);
 
   async function upload(file: File, kind: "image" | "slide") {
     const body = new FormData();
@@ -130,15 +137,18 @@ export function ScreenEditor({
 
   return (
     <div>
+      {panel ? null : (
       <div className="editor-tabs" role="tablist">
         <button type="button" className={tab === "slides" ? "is-on" : "light"} onClick={() => setTab("slides")}>שקפים</button>
         <button type="button" className={tab === "details" ? "is-on" : "light"} onClick={() => setTab("details")}>פרטים</button>
         <button type="button" className={tab === "notices" ? "is-on" : "light"} onClick={() => setTab("notices")}>הודעות</button>
       </div>
+      )}
 
       {tab === "details" ? (
       <form className="card" action={save}>
         <input type="hidden" name="id" value={screen.id} />
+        {returnTo ? <input type="hidden" name="returnTo" value={returnTo} /> : null}
         <input type="hidden" name="logoUrl" value={logoUrl.startsWith("http") ? logoUrl : screen.logoUrl} />
         <input type="hidden" name="clearLogo" value={clearLogo ? "1" : ""} />
         <div className="row">
@@ -260,6 +270,7 @@ export function ScreenEditor({
         <h2>הודעות בניין</h2>
         <form className="notice-add" action={createNotice}>
           <input type="hidden" name={ownerField} value={screen.id} />
+          {returnTo ? <input type="hidden" name="returnTo" value={returnTo} /> : null}
           <textarea name="text" placeholder="הודעה חדשה" maxLength={120} rows={3} required />
           <button type="submit">הוספה</button>
         </form>
@@ -270,6 +281,7 @@ export function ScreenEditor({
                 <form className="notice-add" action={editNotice}>
                   <input type="hidden" name="id" value={notice.id} />
                   <input type="hidden" name={ownerField} value={screen.id} />
+                  {returnTo ? <input type="hidden" name="returnTo" value={returnTo} /> : null}
                   <textarea name="text" defaultValue={notice.text} maxLength={120} rows={3} required />
                   <button type="submit">שמירה</button>
                   <button className="light" type="button" onClick={() => setEditing(null)}>ביטול</button>
@@ -281,12 +293,14 @@ export function ScreenEditor({
                     <form action={flipNotice}>
                       <input type="hidden" name="id" value={notice.id} />
                       <input type="hidden" name={ownerField} value={screen.id} />
+                      {returnTo ? <input type="hidden" name="returnTo" value={returnTo} /> : null}
                       <button className={`light state-dot ${notice.active ? "on" : "off"}`} type="submit">{notice.active ? "פעיל" : "כבוי"}</button>
                     </form>
                     <button className="light" type="button" onClick={() => setEditing(notice.id)}>עריכה</button>
                     <form action={dropNotice}>
                       <input type="hidden" name="id" value={notice.id} />
                       <input type="hidden" name={ownerField} value={screen.id} />
+                      {returnTo ? <input type="hidden" name="returnTo" value={returnTo} /> : null}
                       <button className="light" type="submit">מחיקה</button>
                     </form>
                   </div>

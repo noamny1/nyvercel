@@ -4,9 +4,7 @@ import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
 
-const CLIENT_LINKS = [
-  ["/admin/buildings", "בניינים"],
-];
+const CLIENT_LINKS: string[][] = [];
 
 const OWNER_LINKS = [
   ["/admin", "קבוצות"],
