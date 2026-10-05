@@ -62,3 +62,27 @@ export function readMeta(value: string, fallback: SlideMeta): SlideMeta {
     return fallback;
   }
 }
+
+export const FIXED_VIDEOS = [
+  {
+    id: "fixed-oref",
+    title: "פיקוד העורף",
+    line: "הנחיות רשמיות למצב חירום",
+    url: "https://www.youtube.com/watch?v=5ad9OJxVSd0",
+    duration: 94,
+  },
+  {
+    id: "fixed-fire",
+    title: "כיבוי אש",
+    line: "בטיחות אש בבניין, בשגרה ובחירום",
+    url: "https://www.youtube.com/watch?v=sgnYcSj5qok",
+    duration: 102,
+  },
+  {
+    id: "fixed-clean",
+    title: "ניקיון וסדר",
+    line: "שומרים על סביבה נקייה ומסודרת",
+    url: "https://www.youtube.com/watch?v=zhecUdpM9fY",
+    duration: 90,
+  },
+] as const;

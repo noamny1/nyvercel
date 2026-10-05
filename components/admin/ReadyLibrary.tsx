@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { SlideAgent } from "@/components/admin/SlideAgent";
-import { fillLine, READY_CATEGORIES, READY_SLIDES, readMeta, WEEKDAYS, type ReadySlide, type SlideMeta } from "@/lib/ready-slides";
+import { fillLine, FIXED_VIDEOS, READY_CATEGORIES, READY_SLIDES, readMeta, WEEKDAYS, type ReadySlide, type SlideMeta } from "@/lib/ready-slides";
 
 export type SlideDraft = {
   kind: "image" | "template" | "youtube";
@@ -66,12 +66,47 @@ export function ReadyLibrary({ onAdd }: { onAdd: (draft: SlideDraft) => Promise<
     }
   }
 
+  async function addFixed(video: (typeof FIXED_VIDEOS)[number]) {
+    setBusy(true);
+    setError("");
+    try {
+      await onAdd({
+        kind: "youtube",
+        imageUrl: video.url,
+        templateId: video.id,
+        title: video.title,
+        detail: video.line,
+        duration: video.duration,
+      });
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "השמירה נכשלה");
+    } finally {
+      setBusy(false);
+    }
+  }
+
   return (
     <div className="ready-library">
       <div className="special-slides">
         <button type="button" onClick={() => { setOpen(null); setMode("image"); setError(""); }}>שקף תמונה</button>
         <button type="button" onClick={() => { setOpen(null); setMode("youtube"); setError(""); }}>סרטון יוטיוב</button>
       </div>
+      <p className="ready-note">סרטונים קבועים. אפשר להוסיף כל אחד למסך, או לא.</p>
+      <div className="ready-grid">
+        {FIXED_VIDEOS.map((video) => (
+          <button key={video.id} type="button" className="ready-card" disabled={busy} onClick={() => void addFixed(video)}>
+            <div className="photo-slide">
+              <img src={`https://i.ytimg.com/vi/${video.url.slice(-11)}/hqdefault.jpg`} alt="" />
+              <div>
+                <small>סרטון קבוע</small>
+                <strong>{video.title}</strong>
+                <span>{video.line}</span>
+              </div>
+            </div>
+          </button>
+        ))}
+      </div>
+      {error && !open && mode === "" ? <p className="error">{error}</p> : null}
       <div className="ready-cats">
         {READY_CATEGORIES.map((name) => (
           <button key={name} type="button" className={name === category ? "is-on" : ""} onClick={() => setCategory(name)}>
@@ -147,6 +182,7 @@ export function SavedSlideEditor({
   onRemove: () => void;
   onClose: () => void;
 }) {
+  const fixed = Boolean(slide.templateId?.startsWith("fixed-"));
   const template = READY_SLIDES.find((item) => item.id === slide.templateId);
   const [meta, setMeta] = useState<SlideMeta>(readMeta(slide.meta || "", template?.defaults || {}));
   const [url, setUrl] = useState(slide.imageUrl);
@@ -154,7 +190,7 @@ export function SavedSlideEditor({
   return (
     <div className="slide-modal" role="dialog" aria-modal="true" onClick={onClose}>
       <div className="slide-modal-card" onClick={(event) => event.stopPropagation()}>
-        {kind === "template" && template ? <Photo slide={template} meta={meta} /> : kind === "youtube" ? <p className="yt-preview">סרטון יוטיוב</p> : slide.imageUrl.toLowerCase().includes(".pdf") ? <span className="pdf-mark large">PDF</span> : <img className="slide-modal-image" src={slide.imageUrl} alt="" />}
+        {kind === "template" && template ? <Photo slide={template} meta={meta} /> : kind === "youtube" ? <p className="yt-preview">{slide.title || "סרטון יוטיוב"}</p> : slide.imageUrl.toLowerCase().includes(".pdf") ? <span className="pdf-mark large">PDF</span> : <img className="slide-modal-image" src={slide.imageUrl} alt="" />}
         <div className="slide-modal-actions">
           {kind === "template" && template?.day === "weekday" ? (
             <label>יום<select value={meta.day || ""} onChange={(event) => setMeta({ ...meta, day: event.target.value })}>{WEEKDAYS.map((day) => <option key={day}>{day}</option>)}</select></label>
@@ -164,7 +200,7 @@ export function SavedSlideEditor({
           ) : null}
           {kind === "template" && template?.from ? <label>משעה<input type="time" value={meta.from || ""} onChange={(event) => setMeta({ ...meta, from: event.target.value })} /></label> : null}
           {kind === "template" && template?.to ? <label>עד שעה<input type="time" value={meta.to || ""} onChange={(event) => setMeta({ ...meta, to: event.target.value })} /></label> : null}
-          {kind === "youtube" ? (
+          {kind === "youtube" && !fixed ? (
             <>
               <label>קישור<input value={url} onChange={(event) => setUrl(event.target.value)} /></label>
               <p>אם מופיע Video unavailable, מעלים כאן את קובץ הווידאו. המסך ינגן אותו במקום יוטיוב.</p>
@@ -196,9 +232,10 @@ export function SavedSlideEditor({
               }} />
             </label>
           ) : null}
+          {kind === "youtube" && fixed ? <p>סרטון קבוע. אפשר למחוק אותו מהמסך, אבל אי אפשר להחליף את הקישור.</p> : null}
           <label>שניות<input type="number" min={3} defaultValue={slide.duration} onBlur={(event) => onChange({ duration: Number(event.target.value) })} /></label>
           {kind === "template" && template ? <button type="button" onClick={() => onChange({ title: template.title, detail: fillLine(template.line, meta), meta: JSON.stringify(meta) })}>שמירת היום והשעות</button> : null}
-          {kind === "youtube" ? <button type="button" onClick={() => onChange({ imageUrl: url })}>שמירת הקישור</button> : null}
+          {kind === "youtube" && !fixed ? <button type="button" onClick={() => onChange({ imageUrl: url })}>שמירת הקישור</button> : null}
           <button className="light" type="button" onClick={onRemove}>מחיקה</button>
           <button className="light" type="button" onClick={onClose}>סגירה</button>
         </div>
