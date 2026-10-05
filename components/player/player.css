@@ -18,8 +18,8 @@
 .stage.slide-full .rail,
 .stage.slide-full .ticker { display: none; }
 .stage.slide-full .brand-bar { display: flex; grid-column: 1; grid-row: 2; }
-.stage.slide-full .slide-image,
-.stage.slide-full .slide-video { object-fit: cover; }
+.stage.slide-full .slide-image { object-fit: cover; }
+.stage.slide-full .slide-video { object-fit: contain; background: #000; }
 .stage {
   position: relative;
   height: 100vh;
@@ -37,7 +37,7 @@
   min-height: 0;
   background: #000;
 }
-.slide-video { width: 100%; height: 100%; object-fit: cover; background: #000; }
+.slide-video { width: 100%; height: 100%; object-fit: contain; background: #000; }
 .slide-frame .slide-image { object-fit: cover; }
 .slide-copy {
   position: absolute;
