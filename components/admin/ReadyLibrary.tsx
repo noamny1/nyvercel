@@ -240,7 +240,7 @@ export function SavedSlideEditor({
 }: {
   slide: { id: number; imageUrl: string; duration: number; kind?: string; templateId?: string; title?: string; detail?: string; meta?: string; weekdays?: string; startsOn?: string; endsOn?: string };
   city?: string;
-  onChange: (payload: { duration?: number; imageUrl?: string; title?: string; detail?: string; meta?: string; weekdays?: string; startsOn?: string; endsOn?: string }) => void;
+  onChange: (payload: { duration?: number; imageUrl?: string; title?: string; detail?: string; meta?: string; weekdays?: string; startsOn?: string; endsOn?: string }) => void | Promise<void>;
   onRemove: () => void;
   onClose: () => void;
 }) {
@@ -256,8 +256,8 @@ export function SavedSlideEditor({
   const official = FIXED_VIDEOS.find((item) => item.id === slide.templateId);
   const [seconds, setSeconds] = useState(slide.templateId === "weekly-parasha" ? Math.max(180, slide.duration) : official?.duration || slide.duration);
   const kind = slide.kind || "image";
-  function saveAll() {
-    onChange({
+  async function saveAll() {
+    await onChange({
       weekdays: days,
       startsOn: startsOn || todayInIsrael(),
       endsOn,
@@ -270,6 +270,7 @@ export function SavedSlideEditor({
       ...(kind === "youtube" && !fixed ? { imageUrl: url, detail: fallback } : {}),
       ...(kind === "image" && picture !== slide.imageUrl ? { imageUrl: picture } : {}),
     });
+    onClose();
   }
   function toggleDay(index: number) {
     const mark = String(index);
@@ -337,7 +338,7 @@ export function SavedSlideEditor({
             <label>עד תאריך<input type="date" value={endsOn} onChange={(event) => setEndsOn(event.target.value)} /></label>
           </div>
           <p>אם לא בוחרים תאריך סיום, השקף נשאר לעד.</p>
-          <button type="button" onClick={saveAll}>שמירה</button>
+          <button type="button" onClick={() => void saveAll()}>שמירה</button>
           <button className="light" type="button" onClick={onRemove}>מחיקה</button>
           <button className="light" type="button" onClick={onClose}>סגירה</button>
         </div>
