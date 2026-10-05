@@ -59,12 +59,16 @@
   line-height: 1.15;
 }
 .parasha-slide header em {
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
   margin-top: 1vh;
   font-style: normal;
   color: #e6d3ae;
   font-size: clamp(20px, 2.1vw, 34px);
 }
+.parasha-slide header em img { width: 92px; height: 74px; object-fit: contain; border-radius: 18px; }
 .parasha-slide header::after {
   content: "";
   display: block;
@@ -73,17 +77,19 @@
   margin: 2vh auto 0;
   background: rgba(230, 211, 174, 0.7);
 }
-.parasha-body { overflow: hidden; min-height: 0; }
+.parasha-body { overflow: hidden; min-height: 0; container-type: size; }
 .parasha-body p {
   margin: 0;
   animation: parasha-rise linear forwards;
 }
 .parasha-body span {
   display: block;
-  margin-bottom: 0.7em;
-  font-size: clamp(22px, 2vw, 34px);
-  line-height: 1.9;
+  margin-bottom: 0.22em;
+  font-size: clamp(20px, 1.7vw, 28px);
+  line-height: 1.45;
 }
+.parasha-body.is-still p { animation: none; height: 100%; column-gap: 1.5vw; }
+.parasha-body.is-still span { margin-bottom: 0.05em; line-height: 1.22; font-size: inherit; break-inside: avoid; }
 @keyframes parasha-rise {
   from { transform: translateY(0); }
   to { transform: translateY(calc(-100% + 52vh)); }
@@ -92,6 +98,7 @@
 .parasha-preview .parasha-slide { height: 280px; padding: 16px; }
 .parasha-preview .parasha-slide header strong { font-size: 28px; }
 .parasha-preview .parasha-slide header em, .parasha-preview .parasha-body span { font-size: 14px; }
+.parasha-preview .parasha-slide header em img { width: 46px; height: 36px; border-radius: 8px; }
 
 .slide-copy strong { font-size: clamp(36px, 4vw, 72px); line-height: 1.25; display: block; }
 .slide-copy span { font-size: clamp(20px, 2vw, 36px); line-height: 1.4; display: block; }

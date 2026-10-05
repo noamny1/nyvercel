@@ -1,4 +1,4 @@
-export type SlideMeta = { day?: string; from?: string; to?: string };
+export type SlideMeta = { day?: string; from?: string; to?: string; flow?: "scroll" | "static" };
 export type ReadySlide = {
   id: string;
   category: string;

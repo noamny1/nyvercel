@@ -88,10 +88,12 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
           <Player slides={visible.map((slide) => {
             const official = FIXED_VIDEOS.find((item) => item.id === slide.templateId);
             const parasha = slide.templateId === "weekly-parasha";
-            const reading = parasha ? Math.max(45, shabbat?.verses.length || 45) : 0;
+            let flow = "";
+            try { flow = JSON.parse(slide.meta || "{}").flow || ""; } catch { flow = ""; }
+            const slow = parasha ? Math.max(180, slide.duration || 0, flow === "static" ? 180 : Math.round((shabbat?.verses.length || 40) * 2.2)) : 0;
             return {
             imageUrl: official?.url || slide.imageUrl,
-            duration: official?.duration || reading || slide.duration,
+            duration: official?.duration || slow || slide.duration,
             kind: slide.kind,
             templateId: slide.templateId,
             title: parasha ? (shabbat?.parsha || "") : slide.title,
@@ -99,6 +101,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
             candles: parasha ? shabbat?.candles || "" : "",
             city: parasha ? shabbat?.city || city : "",
             verses: parasha ? shabbat?.verses || [] : [],
+            still: parasha && flow === "static",
             };
           })} />
         )}

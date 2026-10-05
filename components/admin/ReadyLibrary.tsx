@@ -47,7 +47,7 @@ function Photo({ slide, meta }: { slide: ReadySlide; meta: SlideMeta }) {
   );
 }
 
-function LiveParasha({ city }: { city: string }) {
+function LiveParasha({ city, still = false }: { city: string; still?: boolean }) {
   const [reading, setReading] = useState<{ parsha: string; candles: string; city: string; verses: string[] } | null>(null);
   useEffect(() => {
     let stop = false;
@@ -59,7 +59,7 @@ function LiveParasha({ city }: { city: string }) {
   }, [city]);
   return (
     <div className="parasha-preview">
-      <ParashaSlide name={reading?.parsha || ""} candles={reading?.candles || ""} city={reading?.city || city} verses={reading?.verses || []} seconds={90} />
+      <ParashaSlide name={reading?.parsha || ""} candles={reading?.candles || ""} city={reading?.city || city} verses={reading?.verses || []} seconds={180} still={still} />
     </div>
   );
 }
@@ -90,8 +90,8 @@ export function ReadyLibrary({ onAdd, city = "" }: { onAdd: (draft: SlideDraft) 
         templateId: open.id,
         title: open.title,
         detail: fillLine(open.line, meta),
-        meta: JSON.stringify(meta),
-        duration: 10,
+        meta: JSON.stringify(open.id === "weekly-parasha" ? { ...meta, flow: meta.flow || "scroll" } : meta),
+        duration: open.id === "weekly-parasha" ? 180 : 10,
       });
       setOpen(null);
     } catch (reason) {
@@ -166,8 +166,16 @@ export function ReadyLibrary({ onAdd, city = "" }: { onAdd: (draft: SlideDraft) 
       {open ? (
         <div className="slide-modal" role="dialog" aria-modal="true" onClick={() => setOpen(null)}>
           <div className="slide-modal-card" onClick={(event) => event.stopPropagation()}>
-            {open.id === "weekly-parasha" ? <LiveParasha city={city} /> : <Photo slide={open} meta={meta} />}
+            {open.id === "weekly-parasha" ? <LiveParasha city={city} still={meta.flow === "static"} /> : <Photo slide={open} meta={meta} />}
             <div className="slide-modal-actions">
+              {open.id === "weekly-parasha" ? (
+                <label>תצוגת הפרשה
+                  <select value={meta.flow || "scroll"} onChange={(event) => setMeta({ ...meta, flow: event.target.value === "static" ? "static" : "scroll" })}>
+                    <option value="scroll">גלילה איטית</option>
+                    <option value="static">קבוע בדף אחד</option>
+                  </select>
+                </label>
+              ) : null}
               {open.day || open.from || open.to ? <p>אפשר לעדכן את היום ואת השעות לפני ההוספה.</p> : null}
               {open.day === "weekday" ? (
                 <label>יום
@@ -233,7 +241,7 @@ export function SavedSlideEditor({
   const [startsOn, setStartsOn] = useState(slide.startsOn || "");
   const [endsOn, setEndsOn] = useState(slide.endsOn || "");
   const official = FIXED_VIDEOS.find((item) => item.id === slide.templateId);
-  const [seconds, setSeconds] = useState(official?.duration || slide.duration);
+  const [seconds, setSeconds] = useState(slide.templateId === "weekly-parasha" ? Math.max(180, slide.duration) : official?.duration || slide.duration);
   const kind = slide.kind || "image";
   function toggleDay(index: number) {
     const mark = String(index);
@@ -242,8 +250,16 @@ export function SavedSlideEditor({
   return (
     <div className="slide-modal" role="dialog" aria-modal="true" onClick={onClose}>
       <div className="slide-modal-card" onClick={(event) => event.stopPropagation()}>
-        {slide.templateId === "weekly-parasha" ? <LiveParasha city={city} /> : <SlidePeek url={official?.url || slide.imageUrl} title={official?.title || slide.title} />}
+        {slide.templateId === "weekly-parasha" ? <LiveParasha city={city} still={meta.flow === "static"} /> : <SlidePeek url={official?.url || slide.imageUrl} title={official?.title || slide.title} />}
         <div className="slide-modal-actions">
+          {slide.templateId === "weekly-parasha" ? (
+            <label>תצוגת הפרשה
+              <select value={meta.flow || "scroll"} onChange={(event) => setMeta({ ...meta, flow: event.target.value === "static" ? "static" : "scroll" })}>
+                <option value="scroll">גלילה איטית</option>
+                <option value="static">קבוע בדף אחד</option>
+              </select>
+            </label>
+          ) : null}
           {kind === "template" && template?.day === "weekday" ? (
             <label>יום<select value={meta.day || ""} onChange={(event) => setMeta({ ...meta, day: event.target.value })}>{WEEKDAYS.map((day) => <option key={day}>{day}</option>)}</select></label>
           ) : null}
@@ -300,7 +316,7 @@ export function SavedSlideEditor({
             <label>עד תאריך<input type="date" value={endsOn} onChange={(event) => setEndsOn(event.target.value)} /></label>
           </div>
           <button type="button" onClick={() => onChange({ weekdays: days, startsOn, endsOn })}>שמירת התזמון</button>
-          {kind === "template" && template ? <button type="button" onClick={() => onChange({ title: template.title, detail: fillLine(template.line, meta), meta: JSON.stringify(meta) })}>שמירת היום והשעות</button> : null}
+          {kind === "template" && template ? <button type="button" onClick={() => onChange({ title: template.title, detail: fillLine(template.line, meta), meta: JSON.stringify(slide.templateId === "weekly-parasha" ? { ...meta, flow: meta.flow || "scroll" } : meta), duration: slide.templateId === "weekly-parasha" ? Math.max(180, seconds) : undefined })}>{slide.templateId === "weekly-parasha" ? "שמירת התצוגה" : "שמירת היום והשעות"}</button> : null}
           {kind === "youtube" && !fixed ? <button type="button" onClick={() => onChange({ imageUrl: url })}>שמירת הקישור</button> : null}
           <button className="light" type="button" onClick={onRemove}>מחיקה</button>
           <button className="light" type="button" onClick={onClose}>סגירה</button>
