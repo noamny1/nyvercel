@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/session";
+import { touchOwner } from "@/lib/publish";
 
 export async function POST(request: Request) {
   const session = await requireSession();
@@ -30,6 +31,7 @@ export async function POST(request: Request) {
       sort: (last?.sort ?? 0) + 1,
     },
   });
+  await touchOwner(owner);
   return NextResponse.json(slide);
 }
 
@@ -82,6 +84,7 @@ export async function PATCH(request: Request) {
       ]);
     }
   }
+  await touchOwner(slide);
   return NextResponse.json({ ok: true });
 }
 
@@ -90,6 +93,9 @@ export async function DELETE(request: Request) {
   if (!session) return NextResponse.json({ error: "נדרשת כניסה" }, { status: 401 });
   const body = (await request.json()) as { id?: number };
   if (!body.id) return NextResponse.json({ error: "חסר מזהה" }, { status: 400 });
+  const slide = await prisma.slide.findUnique({ where: { id: body.id } });
+  if (!slide) return NextResponse.json({ error: "לא נמצא" }, { status: 404 });
   await prisma.slide.delete({ where: { id: body.id } });
+  await touchOwner(slide);
   return NextResponse.json({ ok: true });
 }

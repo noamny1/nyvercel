@@ -48,7 +48,7 @@ async function download(url: string) {
       "User-Agent": "Mozilla/5.0",
       Accept: "application/rss+xml, application/xml, text/html",
     },
-    cache: "no-store",
+    next: { revalidate: 900 },
   });
   if (!response.ok) throw new Error(String(response.status));
   return response.text();

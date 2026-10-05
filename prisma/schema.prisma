@@ -64,6 +64,9 @@ model Screen {
   group      ScreenGroup? @relation(fields: [groupId], references: [id], onDelete: SetNull)
   active     Boolean      @default(true)
   lastPing   DateTime?
+  code       Int?         @unique
+  revision   Int          @default(1)
+  heartbeat  Heartbeat?
   users      User[]
   slides     Slide[]
   notices    Notice[]
@@ -74,6 +77,14 @@ model Screen {
   @@index([lastPing])
   @@index([street])
   @@index([city])
+}
+
+model Heartbeat {
+  screenId Int      @id
+  screen   Screen   @relation(fields: [screenId], references: [id], onDelete: Cascade)
+  at       DateTime @default(now())
+
+  @@index([at])
 }
 
 model Slide {

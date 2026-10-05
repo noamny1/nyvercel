@@ -12,9 +12,9 @@ async function ownerGate() {
   if (!session || !isSystemAdmin(session)) redirect("/admin");
 }
 
-function line(screen: { id: number; street: string; number: string; city: string; name: string }) {
+function line(screen: { id: number; code: number | null; street: string; number: string; city: string; name: string }) {
   const place = [screen.street, screen.number].filter(Boolean).join(" ");
-  return `מסך ${screen.id} · ${[place, screen.city].filter(Boolean).join(", ") || screen.name}`;
+  return `מסך ${screen.code || screen.id} · ${[place, screen.city].filter(Boolean).join(", ") || screen.name}`;
 }
 
 export async function createClientUser(formData: FormData) {

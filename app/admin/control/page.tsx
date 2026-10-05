@@ -9,9 +9,9 @@ export const dynamic = "force-dynamic";
 
 const ONLINE_MS = 8 * 60 * 1000;
 
-function stateOf(screen: { active: boolean; lastPing: Date | null }, now: number) {
+function stateOf(screen: { active: boolean; heartbeat: { at: Date } | null }, now: number) {
   if (!screen.active) return "inactive";
-  if (screen.lastPing && now - screen.lastPing.getTime() <= ONLINE_MS) return "online";
+  if (screen.heartbeat && now - screen.heartbeat.at.getTime() <= ONLINE_MS) return "online";
   return "offline";
 }
 
@@ -27,12 +27,12 @@ export default async function ControlPage({ searchParams }: { searchParams: Prom
   const [total, inactive, online, screens] = await Promise.all([
     prisma.screen.count({ where }),
     prisma.screen.count({ where: { AND: [where, { active: false }] } }),
-    prisma.screen.count({ where: { AND: [where, { active: true, lastPing: { gte: cutoff } }] } }),
+    prisma.screen.count({ where: { AND: [where, { active: true, heartbeat: { is: { at: { gte: cutoff } } } }] } }),
     prisma.screen.findMany({
       where,
-      orderBy: { lastPing: "desc" },
+      orderBy: { id: "desc" },
       take: 40,
-      include: { group: { include: { building: true } } },
+      include: { heartbeat: true, group: { include: { building: true } } },
     }),
   ]);
   const rows = screens.map((screen) => ({ screen, state: stateOf(screen, now) }));
@@ -43,7 +43,7 @@ export default async function ControlPage({ searchParams }: { searchParams: Prom
     <main className="admin">
       <AdminNav />
       <h1>לוח בקרה</h1>
-      <p>מסך תקין אם שלח אות ב-8 הדקות האחרונות. מסך שפתוח על הטלוויזיה שולח אות כל 4 דקות.</p>
+      <p>מסך תקין אם שלח אות ב-8 הדקות האחרונות. המסך שואל כל 3 דקות אם משהו השתנה, ורק אז נטען מחדש.</p>
       <div className="stats">
         <Link className={filter === "all" ? "stat on" : "stat"} href="/admin/control"><span>סה״כ</span><b>{counts.total}</b></Link>
         <Link className={filter === "online" ? "stat on" : "stat"} href="/admin/control?status=online"><span>תקין</span><b>{counts.online}</b></Link>
@@ -57,9 +57,9 @@ export default async function ControlPage({ searchParams }: { searchParams: Prom
             <span>
               {screen.group?.building?.name || screen.group?.name || "בלי קבוצה"}
               {" · "}
-              {screen.lastPing ? screen.lastPing.toLocaleString("he-IL", { timeZone: "Asia/Jerusalem" }) : "אין אות"}
+              {screen.heartbeat ? screen.heartbeat.at.toLocaleString("he-IL", { timeZone: "Asia/Jerusalem" }) : "אין אות"}
               {" · "}
-              <a href={`/s/${screen.id}`} target="_blank">/s/{screen.id}</a>
+              <a href={`/s/${screen.code || screen.id}`} target="_blank">/s/{screen.code || screen.id}</a>
             </span>
           </div>
         ))}

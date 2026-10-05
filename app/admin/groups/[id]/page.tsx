@@ -62,11 +62,11 @@ export default async function GroupPage({
             return (
               <div key={screen.id}>
                 <span className="screen-title">
-                  מסך {screen.id}
+                  מסך {screen.code || screen.id}
                   <small>{label}</small>
                 </span>
                 <span className="screen-actions">
-                  <a href={`/s/${screen.id}`} target="_blank">פתיחה</a>
+                  <a href={`/s/${screen.code || screen.id}`} target="_blank">פתיחה</a>
                   {owner && others.length > 0 ? (
                     <form action={moveAddress}>
                       <input type="hidden" name="screenId" value={screen.id} />

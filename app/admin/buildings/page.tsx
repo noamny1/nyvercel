@@ -19,9 +19,9 @@ function assignedUsers(users: { name: string; email: string; role: string }[]) {
   });
 }
 
-function stateOf(screen: { active: boolean; lastPing: Date | null }, now: number) {
+function stateOf(screen: { active: boolean; heartbeat: { at: Date } | null }, now: number) {
   if (!screen.active) return "inactive";
-  if (screen.lastPing && now - screen.lastPing.getTime() <= ONLINE_MS) return "online";
+  if (screen.heartbeat && now - screen.heartbeat.at.getTime() <= ONLINE_MS) return "online";
   return "offline";
 }
 
@@ -41,7 +41,7 @@ export default async function BuildingsPage({ searchParams }: { searchParams: Pr
           query
             ? {
                 OR: [
-                  ...(Number.isInteger(id) && id > 0 ? [{ id }] : []),
+                  ...(Number.isInteger(id) && id > 0 ? [{ id }, { code: id }] : []),
                   { street: { contains: query, mode: "insensitive" } },
                   { number: { contains: query, mode: "insensitive" } },
                   { city: { contains: query, mode: "insensitive" } },
@@ -53,7 +53,7 @@ export default async function BuildingsPage({ searchParams }: { searchParams: Pr
       },
       orderBy: { id: "asc" },
       take: 30,
-      include: { group: true, users: { select: { name: true, email: true, role: true }, orderBy: { email: "asc" } } },
+      include: { group: true, heartbeat: true, users: { select: { name: true, email: true, role: true }, orderBy: { email: "asc" } } },
     }),
     prisma.screenGroup.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
   ]);
@@ -94,7 +94,7 @@ export default async function BuildingsPage({ searchParams }: { searchParams: Pr
               const people = assignedUsers(screen.users);
               return (
                 <tr key={screen.id}>
-                  <td data-label="מסך">{screen.id}</td>
+                  <td data-label="מסך">{screen.code || screen.id}</td>
                   <td data-label="רחוב"><Link href={editHref}>{street || "—"}</Link></td>
                   <td data-label="מספר">{number || "—"}</td>
                   <td data-label="עיר">{city || "—"}</td>
@@ -108,7 +108,7 @@ export default async function BuildingsPage({ searchParams }: { searchParams: Pr
                     {people.length ? people.map((user) => <span key={user.email} className="assigned-user">{user.name || user.email}</span>) : "—"}
                   </td>
                   <td data-label="פעולות" className="acts">
-                    <a className="icon-btn" href={`/s/${screen.id}`} target="_blank">פתיחה</a>
+                    <a className="icon-btn" href={`/s/${screen.code || screen.id}`} target="_blank">פתיחה</a>
                     <Link className="icon-btn" href={editHref}>עריכה</Link>
                     {owner ? (
                       <form action={deleteListedScreen}>

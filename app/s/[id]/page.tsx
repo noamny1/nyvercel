@@ -22,7 +22,7 @@ import "@/components/themes/yuval.css";
 import "@/components/themes/residential.css";
 import "@/components/themes/extra.css";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 function address(street: string, number: string, city: string) {
   const line = [street, number].filter(Boolean).join(" ");
@@ -31,22 +31,23 @@ function address(street: string, number: string, city: string) {
 
 export default async function ScreenView({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const screen = await prisma.screen.findUnique({
-    where: { id: Number(id) },
-    include: {
-      slides: { orderBy: { sort: "asc" } },
-      notices: { where: { active: true }, orderBy: { id: "desc" }, take: 4 },
-      updates: { where: { active: true }, orderBy: { id: "desc" } },
-      group: {
-        include: {
-          slides: { orderBy: { sort: "asc" } },
-          notices: { where: { active: true }, orderBy: { id: "desc" }, take: 4 },
-          tickers: { where: { active: true }, orderBy: { id: "desc" } },
-          floors: { include: { rooms: true }, orderBy: { id: "asc" } },
-        },
+  const key = Number(id);
+  if (!Number.isInteger(key) || key <= 0) notFound();
+  const include = {
+    slides: { orderBy: { sort: "asc" as const } },
+    notices: { where: { active: true }, orderBy: { id: "desc" as const }, take: 4 },
+    updates: { where: { active: true }, orderBy: { id: "desc" as const } },
+    group: {
+      include: {
+        slides: { orderBy: { sort: "asc" as const } },
+        notices: { where: { active: true }, orderBy: { id: "desc" as const }, take: 4 },
+        tickers: { where: { active: true }, orderBy: { id: "desc" as const } },
+        floors: { include: { rooms: true }, orderBy: { id: "asc" as const } },
       },
     },
-  });
+  };
+  const screen = await prisma.screen.findUnique({ where: { code: key }, include })
+    ?? (key > 0 && key < 100000 ? await prisma.screen.findUnique({ where: { id: key }, include }) : null);
   if (!screen || Number.isNaN(Number(id))) notFound();
   const source = screen.group ?? screen;
   const street = screen.street || source.street;
@@ -74,7 +75,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
   return (
     <main className={`stage theme-${theme}${theme === "yuval" ? " layout-yuval" : ""}${indexTheme ? " layout-index" : ""}`}>
       <Music url={screen.group?.musicUrl || ""} />
-      <Ping id={screen.id} />
+      <Ping code={screen.code || screen.id} revision={screen.revision} />
       <section className="slide">
         {indexTheme && visible.length === 0 ? (
           <div className="index-board">

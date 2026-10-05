@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { screenWhere } from "@/lib/access";
 import { requireSession, isSystemAdmin } from "@/lib/session";
+import { nextCode, touchGroup, touchScreen } from "@/lib/publish";
 
 async function gate() {
   const session = await requireSession();
@@ -25,6 +26,7 @@ export async function createScreen(formData: FormData) {
       street: String(formData.get("street") || ""),
       number: String(formData.get("number") || ""),
       city: String(formData.get("city") || ""),
+      code: await nextCode(),
     },
   });
   redirect(`/admin/screens/${screen.id}`);
@@ -51,6 +53,7 @@ export async function updateScreen(formData: FormData) {
       logoUrl: String(formData.get("clearLogo") || "") === "1" ? "" : incomingLogo.startsWith("http") ? incomingLogo : current.logoUrl,
     },
   });
+  await touchScreen(id);
   redirect(`/admin/screens/${id}`);
 }
 
@@ -59,6 +62,7 @@ export async function addNotice(formData: FormData) {
   const screenId = Number(formData.get("screenId"));
   const text = String(formData.get("text") || "").trim().slice(0, 120);
   if (text) await prisma.notice.create({ data: { screenId, text, active: true } });
+  await touchScreen(screenId);
   redirect(`/admin/screens/${screenId}`);
 }
 
@@ -68,6 +72,7 @@ export async function toggleNotice(formData: FormData) {
   const screenId = Number(formData.get("screenId"));
   const notice = await prisma.notice.findUnique({ where: { id } });
   if (notice) await prisma.notice.update({ where: { id }, data: { active: !notice.active } });
+  await touchScreen(screenId);
   redirect(`/admin/screens/${screenId}`);
 }
 
@@ -76,6 +81,7 @@ export async function deleteNotice(formData: FormData) {
   const id = Number(formData.get("id"));
   const screenId = Number(formData.get("screenId"));
   await prisma.notice.delete({ where: { id } });
+  await touchScreen(screenId);
   redirect(`/admin/screens/${screenId}`);
 }
 
@@ -85,6 +91,7 @@ export async function updateNotice(formData: FormData) {
   const screenId = Number(formData.get("screenId"));
   const text = String(formData.get("text") || "").trim().slice(0, 120);
   if (text) await prisma.notice.update({ where: { id }, data: { text } });
+  await touchScreen(screenId);
   redirect(`/admin/screens/${screenId}`);
 }
 
@@ -136,6 +143,7 @@ export async function updateGroup(formData: FormData) {
       buildingId: Number(formData.get("buildingId")) || null,
     },
   });
+  await touchGroup(id);
   redirect(`/admin/groups/${id}`);
 }
 
@@ -149,7 +157,7 @@ export async function addAddress(formData: FormData) {
   const place = [street, number].filter(Boolean).join(" ");
   const name = [place, city].filter(Boolean).join(", ");
   await prisma.screen.create({
-    data: { name, groupId, street, number, city },
+    data: { name, groupId, street, number, city, code: await nextCode() },
   });
   redirect(`/admin/groups/${groupId}`);
 }
@@ -201,9 +209,10 @@ export async function moveAddress(formData: FormData) {
       where: { id: screenId },
       data: { groupId: to, street, number, city, name: label || street },
     });
+    await touchScreen(screenId);
   } else {
     await prisma.screen.create({
-      data: { groupId: to, street, number, city, name: label || "כתובת" },
+      data: { groupId: to, street, number, city, name: label || "כתובת", code: await nextCode() },
     });
   }
   if (label && label === writtenAddress(fromGroup.street, fromGroup.number, fromGroup.city)) {
@@ -243,6 +252,7 @@ export async function moveScreen(formData: FormData) {
       city: screen.city || fromGroup.city,
     },
   });
+  await touchScreen(id);
   redirect(`/admin/groups/${from}`);
 }
 
@@ -250,7 +260,10 @@ export async function addGroupNotice(formData: FormData) {
   await gate();
   const groupId = Number(formData.get("groupId"));
   const text = String(formData.get("text") || "").trim().slice(0, 120);
-  if (text) await prisma.notice.create({ data: { groupId, text, active: true } });
+  if (text) {
+    await prisma.notice.create({ data: { groupId, text, active: true } });
+    await touchGroup(groupId);
+  }
   redirect(`/admin/groups/${groupId}`);
 }
 
@@ -260,6 +273,7 @@ export async function toggleGroupNotice(formData: FormData) {
   const groupId = Number(formData.get("groupId"));
   const notice = await prisma.notice.findUnique({ where: { id } });
   if (notice) await prisma.notice.update({ where: { id }, data: { active: !notice.active } });
+  await touchGroup(groupId);
   redirect(`/admin/groups/${groupId}`);
 }
 
@@ -268,6 +282,7 @@ export async function deleteGroupNotice(formData: FormData) {
   const id = Number(formData.get("id"));
   const groupId = Number(formData.get("groupId"));
   await prisma.notice.delete({ where: { id } });
+  await touchGroup(groupId);
   redirect(`/admin/groups/${groupId}`);
 }
 
@@ -277,6 +292,7 @@ export async function updateGroupNotice(formData: FormData) {
   const groupId = Number(formData.get("groupId"));
   const text = String(formData.get("text") || "").trim().slice(0, 120);
   if (text) await prisma.notice.update({ where: { id }, data: { text } });
+  await touchGroup(groupId);
   redirect(`/admin/groups/${groupId}`);
 }
 
@@ -294,6 +310,7 @@ export async function createListedScreen(formData: FormData) {
       number,
       city,
       groupId,
+      code: await nextCode(),
     },
   });
   redirect("/admin/buildings");
@@ -310,7 +327,10 @@ export async function moveListedScreen(formData: FormData) {
   await ownerGate();
   const id = Number(formData.get("id"));
   const groupId = Number(formData.get("groupId")) || null;
-  if (id) await prisma.screen.update({ where: { id }, data: { groupId } });
+  if (id) {
+    await prisma.screen.update({ where: { id }, data: { groupId } });
+    await touchScreen(id);
+  }
   redirect("/admin/buildings");
 }
 
@@ -324,22 +344,30 @@ export async function addTicker(formData: FormData) {
   await gate();
   const groupId = Number(formData.get("groupId"));
   const text = String(formData.get("text") || "").trim();
-  if (text) await prisma.ticker.create({ data: { groupId, text, active: true } });
+  if (text) {
+    await prisma.ticker.create({ data: { groupId, text, active: true } });
+    await touchGroup(groupId);
+  }
   redirect("/admin/tickers");
 }
 
 export async function deleteTicker(formData: FormData) {
   await gate();
-  await prisma.ticker.delete({ where: { id: Number(formData.get("id")) } });
+  const id = Number(formData.get("id"));
+  const ticker = await prisma.ticker.findUnique({ where: { id }, select: { groupId: true } });
+  await prisma.ticker.delete({ where: { id } });
+  if (ticker) await touchGroup(ticker.groupId);
   redirect("/admin/tickers");
 }
 
 export async function setMusic(formData: FormData) {
   await gate();
+  const id = Number(formData.get("id"));
   await prisma.screenGroup.update({
-    where: { id: Number(formData.get("id")) },
+    where: { id },
     data: { musicUrl: String(formData.get("musicUrl") || "") },
   });
+  await touchGroup(id);
   redirect("/admin/music");
 }
 
@@ -360,27 +388,35 @@ export async function deleteFeed(formData: FormData) {
 
 export async function addFloor(formData: FormData) {
   await gate();
+  const groupId = Number(formData.get("groupId"));
   await prisma.floor.create({
-    data: { groupId: Number(formData.get("groupId")), name: String(formData.get("name") || "קומה") },
+    data: { groupId, name: String(formData.get("name") || "קומה") },
   });
+  await touchGroup(groupId);
   redirect("/admin/directory");
 }
 
 export async function addRoom(formData: FormData) {
   await gate();
+  const floorId = Number(formData.get("floorId"));
   await prisma.room.create({
     data: {
-      floorId: Number(formData.get("floorId")),
+      floorId,
       name: String(formData.get("name") || "חדר"),
       detail: String(formData.get("detail") || ""),
     },
   });
+  const floor = await prisma.floor.findUnique({ where: { id: floorId }, select: { groupId: true } });
+  if (floor) await touchGroup(floor.groupId);
   redirect("/admin/directory");
 }
 
 export async function deleteFloor(formData: FormData) {
   await gate();
-  await prisma.floor.delete({ where: { id: Number(formData.get("id")) } });
+  const id = Number(formData.get("id"));
+  const floor = await prisma.floor.findUnique({ where: { id }, select: { groupId: true } });
+  await prisma.floor.delete({ where: { id } });
+  if (floor) await touchGroup(floor.groupId);
   redirect("/admin/directory");
 }
 
@@ -397,6 +433,7 @@ export async function saveUpdate(formData: FormData) {
   const links = screenIds.map((screenId) => ({ id: screenId }));
   if (id) await prisma.update.update({ where: { id }, data: { text, screens: { set: links } } });
   else await prisma.update.create({ data: { text, active: true, screens: { connect: links } } });
+  for (const screenId of screenIds) await touchScreen(screenId);
   redirect(`/admin/screens/${returnId}`);
 }
 
@@ -407,6 +444,9 @@ export async function deleteUpdate(formData: FormData) {
   const allowed = await prisma.screen.findMany({ where: await screenWhere(session), select: { id: true } });
   const allowedIds = new Set(allowed.map((screen) => screen.id));
   const update = id ? await prisma.update.findUnique({ where: { id }, include: { screens: { select: { id: true } } } }) : null;
-  if (update && update.screens.every((screen) => allowedIds.has(screen.id))) await prisma.update.delete({ where: { id } });
+  if (update && update.screens.every((screen) => allowedIds.has(screen.id))) {
+    await prisma.update.delete({ where: { id } });
+    for (const screen of update.screens) await touchScreen(screen.id);
+  }
   redirect(`/admin/screens/${returnId}`);
 }

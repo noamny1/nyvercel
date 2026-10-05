@@ -2,7 +2,7 @@
   "name": "nytv",
   "private": true,
   "scripts": {
-    "build": "prisma generate && node scripts/db-push.mjs && next build",
+    "build": "prisma generate && node scripts/db-push.mjs && node scripts/assign-codes.mjs && next build",
     "dev": "next dev",
     "start": "next start"
   },
