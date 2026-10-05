@@ -75,7 +75,7 @@ export const FIXED_VIDEOS = [
   { id: "fixed-quake", title: "רעידת אדמה", line: "שטח פתוח, מרחב מוגן או מדרגות. לא מעלית", url: "/safety/quake.mp4", poster: "/safety/quake.jpg", duration: 10 },
   { id: "fixed-tidy", title: "ניקיון וסדר", line: "בלי שקיות, קרטונים ועגלות בלובי", url: "/safety/tidy.mp4", poster: "/safety/tidy.jpg", duration: 10 },
   { id: "fixed-clear", title: "מעבר פנוי", line: "המדרגות והמסדרון נשארים פתוחים", url: "/safety/clear.mp4", poster: "/safety/clear.jpg", duration: 10 },
-  { id: "fixed-oref", title: "פיקוד העורף", line: "הנחיות רשמיות למצב חירום", url: "https://www.youtube.com/watch?v=5ad9OJxVSd0", poster: "https://i.ytimg.com/vi/5ad9OJxVSd0/hqdefault.jpg", duration: 94 },
-  { id: "fixed-fire", title: "כיבוי אש", line: "בטיחות אש בבניין, בשגרה ובחירום", url: "https://www.youtube.com/watch?v=sgnYcSj5qok", poster: "https://i.ytimg.com/vi/sgnYcSj5qok/hqdefault.jpg", duration: 102 },
-  { id: "fixed-clean", title: "ניקיון וסדר", line: "שומרים על סביבה נקייה ומסודרת", url: "https://www.youtube.com/watch?v=zhecUdpM9fY", poster: "https://i.ytimg.com/vi/zhecUdpM9fY/hqdefault.jpg", duration: 90 },
+  { id: "fixed-oref", title: "פיקוד העורף", line: "נכנסים למרחב המוגן וסוגרים את הדלת", url: "/safety/alarm.mp4", poster: "/safety/alarm.jpg", duration: 10 },
+  { id: "fixed-fire", title: "כיבוי אש", line: "לא במעלית. יורדים במדרגות ומתקשרים 102", url: "/safety/fire.mp4", poster: "/safety/fire.jpg", duration: 10 },
+  { id: "fixed-clean", title: "ניקיון וסדר", line: "בלי שקיות, קרטונים ועגלות בלובי", url: "/safety/tidy.mp4", poster: "/safety/tidy.jpg", duration: 10 },
 ] as const;

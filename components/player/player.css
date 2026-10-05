@@ -28,8 +28,9 @@
   text-align: right;
   direction: rtl;
 }
-.slide-copy strong { font-size: clamp(36px, 4vw, 72px); line-height: 1.1; }
-.slide-copy span { font-size: clamp(20px, 2vw, 36px); }
+.slide-frame { position: relative; width: 100%; height: 100%; overflow: hidden; }
+.slide-copy strong { font-size: clamp(36px, 4vw, 72px); line-height: 1.25; display: block; }
+.slide-copy span { font-size: clamp(20px, 2vw, 36px); line-height: 1.4; display: block; }
 .slide-image, .empty {
   width: 100%;
   height: 100%;

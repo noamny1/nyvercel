@@ -26,6 +26,12 @@ function youtubeId(url: string) {
   return "";
 }
 
+const localInstead: Record<string, string> = {
+  "5ad9OJxVSd0": "/safety/alarm.mp4",
+  sgnYcSj5qok: "/safety/fire.mp4",
+  zhecUdpM9fY: "/safety/tidy.mp4",
+};
+
 function isVideoFile(url: string) {
   return /\.(mp4|webm|mov)(\?|$)/i.test(url);
 }
@@ -46,6 +52,8 @@ function YoutubeSlide({ url, fallback }: { url: string; fallback?: string }) {
   }, []);
 
   if (!id) return <div className="empty">קישור יוטיוב לא תקין</div>;
+  const local = localInstead[id];
+  if (local) return <video className="slide-video" src={local} autoPlay muted loop playsInline />;
   if (blocked && fallback && isVideoFile(fallback)) {
     return <video className="slide-video" src={fallback} autoPlay muted loop playsInline />;
   }
@@ -65,7 +73,7 @@ function YoutubeSlide({ url, fallback }: { url: string; fallback?: string }) {
     <iframe
       ref={frame}
       className="slide-image"
-      src={`https://www.youtube.com/embed/${id}?autoplay=1&mute=1&playsinline=1&rel=0&enablejsapi=1&origin=${encodeURIComponent(origin)}`}
+      src={`https://www.youtube.com/embed/${id}?autoplay=1&mute=1&playsinline=1&rel=0&controls=0&modestbranding=1&iv_load_policy=3&cc_load_policy=0&enablejsapi=1&origin=${encodeURIComponent(origin)}`}
       title="סרטון"
       allow="autoplay; encrypted-media; picture-in-picture"
       referrerPolicy="origin"

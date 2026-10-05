@@ -171,8 +171,9 @@ body:has(.admin) { background: #F4F1ED; overflow-x: hidden; }
 .admin .photo-slide { position: relative; aspect-ratio: 16 / 9; border-radius: 10px; overflow: hidden; background: #111; }
 .admin .photo-slide img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .admin .photo-slide div {
-  position: absolute; inset: auto 0 0 0; display: grid; gap: 2px; padding: 16px 12px 10px;
+  position: absolute; inset: auto 0 0 0; display: grid; gap: 6px; padding: 16px 12px 10px;
   background: linear-gradient(transparent, rgba(12,10,10,.78)); color: #F4F1ED; text-align: right;
+  direction: rtl;
 }
 .admin .photo-slide small { font-size: 11px; opacity: .85; }
 .admin .photo-slide strong { font-size: 16px; line-height: 1.15; }
