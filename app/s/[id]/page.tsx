@@ -87,12 +87,18 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
         ) : (
           <Player slides={visible.map((slide) => {
             const official = FIXED_VIDEOS.find((item) => item.id === slide.templateId);
+            const parasha = slide.templateId === "weekly-parasha";
+            const reading = parasha ? Math.max(45, shabbat?.verses.length || 45) : 0;
             return {
             imageUrl: official?.url || slide.imageUrl,
-            duration: official?.duration || slide.duration,
+            duration: official?.duration || reading || slide.duration,
             kind: slide.kind,
-            title: slide.title,
-            detail: slide.templateId === "weekly-parasha" && shabbat?.parsha ? `פרשת ${shabbat.parsha}` : slide.detail,
+            templateId: slide.templateId,
+            title: parasha ? (shabbat?.parsha || "") : slide.title,
+            detail: slide.detail,
+            candles: parasha ? shabbat?.candles || "" : "",
+            city: parasha ? shabbat?.city || city : "",
+            verses: parasha ? shabbat?.verses || [] : [],
             };
           })} />
         )}

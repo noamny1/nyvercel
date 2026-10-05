@@ -2,12 +2,18 @@
 
 import { useEffect, useRef, useState } from "react";
 
+import { ParashaSlide } from "@/components/player/ParashaSlide";
+
 export type PlaySlide = {
   imageUrl: string;
   duration: number;
   kind?: string;
   title?: string;
   detail?: string;
+  templateId?: string;
+  candles?: string;
+  city?: string;
+  verses?: string[];
 };
 
 function youtubeId(url: string) {
@@ -92,6 +98,9 @@ export function Player({ slides }: { slides: PlaySlide[] }) {
   }
   const pdf = current.imageUrl.toLowerCase().includes(".pdf");
   if (pdf) return <iframe className="slide-image" src={`${current.imageUrl}#toolbar=0&navpanes=0`} title="שקף" />;
+  if (current.templateId === "weekly-parasha") {
+    return <ParashaSlide name={current.title || ""} candles={current.candles || ""} city={current.city || ""} verses={current.verses || []} seconds={current.duration} />;
+  }
   if (current.kind === "template") {
     return (
       <div className="slide-frame">

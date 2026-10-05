@@ -208,13 +208,14 @@ export function ScreenEditor({
           ))}
         </div>
         {slides.length === 0 ? <p>עדיין אין שקפים במסך.</p> : null}
-        <ReadyLibrary onAdd={onSlide} />
+        <ReadyLibrary city={screen.city} onAdd={onSlide} />
         {openSlide ? (() => {
           const slide = slides.find((item) => item.id === openSlide);
           if (!slide) return null;
           return (
             <SavedSlideEditor
               slide={slide}
+              city={screen.city}
               onChange={(payload) => changeSlide(slide.id, payload)}
               onRemove={() => { void removeSlide(slide.id); setOpenSlide(null); }}
               onClose={() => setOpenSlide(null)}

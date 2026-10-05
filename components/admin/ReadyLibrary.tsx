@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { SlideAgent } from "@/components/admin/SlideAgent";
+import { ParashaSlide } from "@/components/player/ParashaSlide";
 import { fillLine, FIXED_VIDEOS, READY_SLIDES, WEEKDAYS, readMeta, type ReadySlide, type SlideMeta } from "@/lib/ready-slides";
+import "@/components/player/player.css";
 
 export type SlideDraft = {
   kind: "image" | "template" | "youtube";
@@ -45,7 +47,24 @@ function Photo({ slide, meta }: { slide: ReadySlide; meta: SlideMeta }) {
   );
 }
 
-export function ReadyLibrary({ onAdd }: { onAdd: (draft: SlideDraft) => Promise<void> }) {
+function LiveParasha({ city }: { city: string }) {
+  const [reading, setReading] = useState<{ parsha: string; candles: string; city: string; verses: string[] } | null>(null);
+  useEffect(() => {
+    let stop = false;
+    fetch(`/api/reading?city=${encodeURIComponent(city)}`)
+      .then((response) => response.json())
+      .then((data) => { if (!stop) setReading(data); })
+      .catch(() => undefined);
+    return () => { stop = true; };
+  }, [city]);
+  return (
+    <div className="parasha-preview">
+      <ParashaSlide name={reading?.parsha || ""} candles={reading?.candles || ""} city={reading?.city || city} verses={reading?.verses || []} seconds={90} />
+    </div>
+  );
+}
+
+export function ReadyLibrary({ onAdd, city = "" }: { onAdd: (draft: SlideDraft) => Promise<void>; city?: string }) {
   const [preview, setPreview] = useState<(typeof FIXED_VIDEOS)[number] | null>(null);
   const [open, setOpen] = useState<ReadySlide | null>(null);
   const [meta, setMeta] = useState<SlideMeta>({});
@@ -147,7 +166,7 @@ export function ReadyLibrary({ onAdd }: { onAdd: (draft: SlideDraft) => Promise<
       {open ? (
         <div className="slide-modal" role="dialog" aria-modal="true" onClick={() => setOpen(null)}>
           <div className="slide-modal-card" onClick={(event) => event.stopPropagation()}>
-            <Photo slide={open} meta={meta} />
+            {open.id === "weekly-parasha" ? <LiveParasha city={city} /> : <Photo slide={open} meta={meta} />}
             <div className="slide-modal-actions">
               {open.day || open.from || open.to ? <p>אפשר לעדכן את היום ואת השעות לפני ההוספה.</p> : null}
               {open.day === "weekday" ? (
@@ -195,11 +214,13 @@ export function ReadyLibrary({ onAdd }: { onAdd: (draft: SlideDraft) => Promise<
 
 export function SavedSlideEditor({
   slide,
+  city = "",
   onChange,
   onRemove,
   onClose,
 }: {
   slide: { id: number; imageUrl: string; duration: number; kind?: string; templateId?: string; title?: string; detail?: string; meta?: string; weekdays?: string; startsOn?: string; endsOn?: string };
+  city?: string;
   onChange: (payload: { duration?: number; imageUrl?: string; title?: string; detail?: string; meta?: string; weekdays?: string; startsOn?: string; endsOn?: string }) => void;
   onRemove: () => void;
   onClose: () => void;
@@ -221,7 +242,7 @@ export function SavedSlideEditor({
   return (
     <div className="slide-modal" role="dialog" aria-modal="true" onClick={onClose}>
       <div className="slide-modal-card" onClick={(event) => event.stopPropagation()}>
-        <SlidePeek url={official?.url || slide.imageUrl} title={official?.title || slide.title} />
+        {slide.templateId === "weekly-parasha" ? <LiveParasha city={city} /> : <SlidePeek url={official?.url || slide.imageUrl} title={official?.title || slide.title} />}
         <div className="slide-modal-actions">
           {kind === "template" && template?.day === "weekday" ? (
             <label>יום<select value={meta.day || ""} onChange={(event) => setMeta({ ...meta, day: event.target.value })}>{WEEKDAYS.map((day) => <option key={day}>{day}</option>)}</select></label>
