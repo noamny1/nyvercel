@@ -50,6 +50,7 @@ export async function updateScreen(formData: FormData) {
       newsSource: String(formData.get("newsSource") || "ynet"),
       newsCount: Math.min(20, Math.max(1, Number(formData.get("newsCount")) || current.newsCount || 8)),
       tickerSeconds: Math.min(40, Math.max(6, Number(formData.get("tickerSeconds")) || current.tickerSeconds || 12)),
+      newsTicker: ["on", "weekend", "off"].includes(String(formData.get("newsTicker"))) ? String(formData.get("newsTicker")) : "on",
       logoUrl: String(formData.get("clearLogo") || "") === "1" ? "" : incomingLogo.startsWith("http") ? incomingLogo : current.logoUrl,
     },
   });

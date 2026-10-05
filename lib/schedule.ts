@@ -16,6 +16,15 @@ function jerusalem(now: Date) {
   };
 }
 
+export function newsTickerOn(mode: string, now = new Date()) {
+  if (mode === "off") return false;
+  if (mode === "weekend") {
+    const { day } = jerusalem(now);
+    return day !== 5 && day !== 6;
+  }
+  return true;
+}
+
 export function slideIsOn(
   slide: { active: boolean; weekdays: string; startsOn?: string | null; endsOn?: string | null },
   now = new Date(),

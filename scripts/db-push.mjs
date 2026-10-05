@@ -29,7 +29,7 @@ const statements = [
     WHEN duplicate_object THEN NULL;
   END $$`,
   `CREATE INDEX IF NOT EXISTS "Heartbeat_at_idx" ON "Heartbeat"("at")`,
-  `ALTER TABLE "Screen" ADD COLUMN IF NOT EXISTS "musicPlaylist" TEXT NOT NULL DEFAULT ''`,
+  `ALTER TABLE "Screen" ADD COLUMN IF NOT EXISTS "newsTicker" TEXT NOT NULL DEFAULT 'on'`,
   `ALTER TABLE "Slide" ADD COLUMN IF NOT EXISTS "startsOn" TEXT NOT NULL DEFAULT ''`,
   `ALTER TABLE "Slide" ADD COLUMN IF NOT EXISTS "endsOn" TEXT NOT NULL DEFAULT ''`,
   `CREATE TABLE IF NOT EXISTS "SchemaNote" ("id" TEXT PRIMARY KEY)`,

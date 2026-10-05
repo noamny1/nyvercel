@@ -31,6 +31,7 @@ export function ScreenEditor({
     newsSource: string;
     newsCount?: number;
     tickerSeconds?: number;
+    newsTicker?: string;
     musicUrl?: string;
     buildingId?: number | null;
   };
@@ -156,6 +157,15 @@ export function ScreenEditor({
           </label>
           <label>כמות כתבות<input name="newsCount" type="number" min={1} max={20} defaultValue={screen.newsCount ?? 8} /></label>
           <label>שניות לכתבה<input name="tickerSeconds" type="number" min={6} max={40} defaultValue={screen.tickerSeconds ?? 12} /></label>
+          {scope === "screen" ? (
+            <label>פס חדשות
+              <select name="newsTicker" defaultValue={screen.newsTicker || "on"}>
+                <option value="on">פעיל</option>
+                <option value="weekend">כבוי בשישי ושבת</option>
+                <option value="off">כבוי</option>
+              </select>
+            </label>
+          ) : null}
           {scope === "group" ? (
             <>
               <label>מוזיקה<input name="musicUrl" defaultValue={screen.musicUrl || ""} placeholder="קישור לקובץ שמע" /></label>

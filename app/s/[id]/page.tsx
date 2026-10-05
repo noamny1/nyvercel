@@ -15,7 +15,7 @@ import { markets } from "@/lib/markets";
 import { liveHeadlines } from "@/lib/news";
 import { prisma } from "@/lib/prisma";
 import { FIXED_VIDEOS } from "@/lib/ready-slides";
-import { slideIsOn } from "@/lib/schedule";
+import { newsTickerOn, slideIsOn } from "@/lib/schedule";
 import { shabbatFor } from "@/lib/shabbat";
 import { weatherFor } from "@/lib/weather";
 import "@/components/player/player.css";
@@ -68,13 +68,14 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
   const theme = screen.theme || source.theme || "modern";
   const newsSource = screen.newsSource || source.newsSource || "ynet";
   const newsName = newsSource === "channel14" ? "חדשות 14" : newsSource === "walla" ? "וואלה" : newsSource === "ynet" ? "ynet" : newsSource;
+  const tickerOn = newsTickerOn(screen.newsTicker || "on");
   const modern = theme === "modern";
 
   const indexTheme = theme.startsWith("index");
   const floors = screen.group?.floors ?? [];
 
   return (
-    <main className={`stage theme-${theme}${theme === "yuval" ? " layout-yuval" : ""}${indexTheme ? " layout-index" : ""}`}>
+    <main className={`stage theme-${theme}${theme === "yuval" ? " layout-yuval" : ""}${indexTheme ? " layout-index" : ""}${tickerOn ? "" : " no-ticker"}`}>
       <Music playlist={screen.musicPlaylist || ""} url={screen.group?.musicUrl || ""} start={screen.id} />
       <Wake />
       <Ping code={screen.code || screen.id} revision={screen.revision} />
@@ -131,7 +132,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
           </>
         )}
       </aside>
-      <NewsTicker titles={headlines.map((item) => item.title)} seconds={screen.tickerSeconds || 12} source={newsName} />
+      {tickerOn ? <NewsTicker titles={headlines.map((item) => item.title)} seconds={screen.tickerSeconds || 12} source={newsName} /> : null}
     </main>
   );
 }

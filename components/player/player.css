@@ -8,6 +8,8 @@
   background: transparent;
   cursor: default;
 }
+.stage.no-ticker { grid-template-rows: 1fr; }
+.stage.no-ticker .rail { grid-row: 1; }
 .stage {
   position: relative;
   height: 100vh;
