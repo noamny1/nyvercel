@@ -12,6 +12,7 @@ export type PlaySlide = {
   detail?: string;
   templateId?: string;
   candles?: string;
+  havdalah?: string;
   city?: string;
   verses?: string[];
   still?: boolean;
@@ -107,7 +108,7 @@ export function Player({ slides }: { slides: PlaySlide[] }) {
   const pdf = current.imageUrl.toLowerCase().includes(".pdf");
   if (pdf) return <iframe className="slide-image" src={`${current.imageUrl}#toolbar=0&navpanes=0`} title="שקף" />;
   if (current.templateId === "weekly-parasha") {
-    return <ParashaSlide name={current.title || ""} candles={current.candles || ""} city={current.city || ""} verses={current.verses || []} seconds={current.duration} still={current.still} />;
+    return <ParashaSlide name={current.title || ""} candles={current.candles || ""} havdalah={current.havdalah || ""} city={current.city || ""} verses={current.verses || []} seconds={current.duration} still={current.still} />;
   }
   if (current.kind === "template") {
     return (

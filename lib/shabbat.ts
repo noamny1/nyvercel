@@ -2,6 +2,7 @@ import { locate } from "@/lib/place";
 
 export type ShabbatReading = {
   candles: string;
+  havdalah: string;
   parsha: string;
   city: string;
   verses: string[];
@@ -71,6 +72,7 @@ export async function shabbatFor(city: string): Promise<ShabbatReading | null> {
     items?: { category: string; title: string; hebrew?: string }[];
   };
   const candles = times.items?.find((item) => item.category === "candles");
+  const havdalah = times.items?.find((item) => item.category === "havdalah");
   const parsha = times.items?.find((item) => item.category === "parashat");
   const reading = readingResponse.ok
     ? ((await readingResponse.json()) as { items?: { summary?: string; name?: { he?: string } }[] })
@@ -88,6 +90,7 @@ export async function shabbatFor(city: string): Promise<ShabbatReading | null> {
   }
   return {
     candles: candles?.title.match(/(\d{1,2}:\d{2})/)?.[1] || "",
+    havdalah: havdalah?.title.match(/(\d{1,2}:\d{2})/)?.[1] || "",
     parsha: (parsha?.hebrew || reading?.items?.[0]?.name?.he || parsha?.title || "").replace(/^פרשת\s*/, "").replace(/[֑-֯]/g, ""),
     city: name,
     verses,

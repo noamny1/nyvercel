@@ -74,12 +74,15 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 14px;
+  flex-wrap: wrap;
+  gap: 8px 22px;
   margin-top: 1vh;
   font-style: normal;
   color: #e6d3ae;
   font-size: clamp(20px, 2.1vw, 34px);
 }
+.parasha-times span { display: inline-flex; align-items: center; gap: 10px; }
+.parasha-city { color: #F4F1ED; }
 .parasha-slide header em img { width: 92px; height: 74px; object-fit: contain; border-radius: 18px; }
 .parasha-slide header::after {
   content: "";

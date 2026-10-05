@@ -64,7 +64,7 @@ function Photo({ slide, meta }: { slide: ReadySlide; meta: SlideMeta }) {
 }
 
 function LiveParasha({ city, still = false }: { city: string; still?: boolean }) {
-  const [reading, setReading] = useState<{ parsha: string; candles: string; city: string; verses: string[] } | null>(null);
+  const [reading, setReading] = useState<{ parsha: string; candles: string; havdalah?: string; city: string; verses: string[] } | null>(null);
   useEffect(() => {
     let stop = false;
     fetch(`/api/reading?city=${encodeURIComponent(city)}`)
@@ -75,7 +75,7 @@ function LiveParasha({ city, still = false }: { city: string; still?: boolean })
   }, [city]);
   return (
     <div className="parasha-preview">
-      <ParashaSlide name={reading?.parsha || ""} candles={reading?.candles || ""} city={reading?.city || city} verses={reading?.verses || []} seconds={180} still={still} />
+      <ParashaSlide name={reading?.parsha || ""} candles={reading?.candles || ""} havdalah={reading?.havdalah || ""} city={reading?.city || city} verses={reading?.verses || []} seconds={180} still={still} />
     </div>
   );
 }

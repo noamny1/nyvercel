@@ -105,6 +105,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
             title: parasha ? (shabbat?.parsha || "") : slide.title,
             detail: slide.detail,
             candles: parasha ? shabbat?.candles || "" : "",
+            havdalah: parasha ? shabbat?.havdalah || "" : "",
             city: parasha ? shabbat?.city || city : "",
             verses: parasha ? shabbat?.verses || [] : [],
             still: parasha && flow === "static",

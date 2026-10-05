@@ -5,6 +5,7 @@ import { useLayoutEffect, useRef } from "react";
 export function ParashaSlide({
   name,
   candles,
+  havdalah,
   city,
   verses,
   seconds,
@@ -12,6 +13,7 @@ export function ParashaSlide({
 }: {
   name: string;
   candles: string;
+  havdalah?: string;
   city: string;
   verses: string[];
   seconds?: number;
@@ -38,9 +40,16 @@ export function ParashaSlide({
     <div className={still ? "parasha-slide is-still" : "parasha-slide"}>
       <header>
         <strong>{name ? `פרשת ${name}` : "פרשת השבוע"}</strong>
-        <em>
-          <img src="/candles.gif" alt="" />
-          {candles ? `הדלקת נרות ${candles}` : "הדלקת נרות"}{city ? ` · ${city}` : ""}
+        <em className="parasha-times">
+          <span>
+            <img src="/candles.gif" alt="" />
+            {candles ? `כניסת שבת ${candles}` : "כניסת שבת"}
+          </span>
+          <span>
+            <img src="/torah.gif" alt="" />
+            {havdalah ? `יציאת שבת ${havdalah}` : "יציאת שבת"}
+          </span>
+          {city ? <span className="parasha-city">{city}</span> : null}
         </em>
       </header>
       <div className={still ? "parasha-body is-still" : "parasha-body"} ref={body}>
