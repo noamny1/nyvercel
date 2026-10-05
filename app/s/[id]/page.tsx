@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { Player } from "@/components/player/Player";
 import { Music } from "@/components/player/Music";
+import { Wake } from "@/components/player/Wake";
 import { Ping } from "@/components/player/Ping";
 import { Clock } from "@/components/widgets/Clock";
 import { Directory } from "@/components/widgets/Directory";
@@ -75,6 +76,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
   return (
     <main className={`stage theme-${theme}${theme === "yuval" ? " layout-yuval" : ""}${indexTheme ? " layout-index" : ""}`}>
       <Music playlist={screen.musicPlaylist || ""} url={screen.group?.musicUrl || ""} start={screen.id} />
+      <Wake />
       <Ping code={screen.code || screen.id} revision={screen.revision} />
       <section className="slide">
         {indexTheme && visible.length === 0 ? (
