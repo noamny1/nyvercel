@@ -216,7 +216,7 @@ body:has(.admin) { background: #F4F1ED; overflow-x: hidden; }
 .admin .ready-cats button.is-on { background: #5A1F2B; }
 .admin .ready-cats small { font-size: 13px; opacity: 0.85; }
 .admin .ready-grid, .admin .slide-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 10px; margin-top: 12px; }
-.admin .slide-grid { grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); }
+.admin .slide-grid { grid-template-columns: repeat(auto-fill, minmax(68px, 1fr)); gap: 6px; }
 .admin .ready-card {
   display: grid;
   gap: 6px;
@@ -419,13 +419,15 @@ body:has(.admin) { background: #F4F1ED; overflow-x: hidden; }
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
   overflow: hidden;
-  min-height: 2.4em;
-  max-height: 2.5em;
-  font-size: 12px;
+  font-size: 11px;
+  line-height: 1.15;
+  min-height: 2.3em;
+  max-height: 2.4em;
 }
 .admin .ready-card.mine-slide { width: 100%; min-width: 0; max-width: 100%; overflow: hidden; border: 3px solid transparent; padding: 4px; background: #fff; border-radius: 12px; }
 .admin .mine-slide strong { font-size: 14px; font-weight: 400; }
-.admin .mine-slide small { color: #5c5854; font-size: 12px; line-height: 1.35; }
+.admin .mine-slide small { color: #5c5854; font-size: 9px; line-height: 1.2; }
+.admin .mine-slide .kind-mark { font-size: 8px; line-height: 1.2; padding: 1px 4px; top: 4px; }
 .admin .day-picks { border: 0; margin: 0; padding: 0; }
 .admin .music-picks { margin: 16px 0; }
 .admin .music-picks label { display: inline-flex; align-items: center; gap: 8px; min-height: 36px; }
