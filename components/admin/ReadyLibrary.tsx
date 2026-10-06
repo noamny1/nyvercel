@@ -51,7 +51,13 @@ function SlidePeek({ url, title }: { url: string; title?: string }) {
   if (url.toLowerCase().includes(".pdf")) return <span className="pdf-mark large">PDF</span>;
   return <img className="mini-preview" src={url} alt="" />;
 }
-function Photo({ slide, meta, overlay = true }: { slide: ReadySlide; meta: SlideMeta; overlay?: boolean }) {
+function showsCopy(kind?: string, templateId?: string) {
+  if (kind === "youtube" || templateId?.startsWith("fixed-")) return false;
+  if (templateId === "weekly-parasha" || isDeckId(templateId)) return false;
+  return kind === "template" || kind === "image";
+}
+
+function Photo({ slide, meta, overlay = true, title, line }: { slide: ReadySlide; meta: SlideMeta; overlay?: boolean; title?: string; line?: string }) {
   return (
     <div className="photo-slide">
       <img src={slide.image} alt="" />
@@ -59,8 +65,8 @@ function Photo({ slide, meta, overlay = true }: { slide: ReadySlide; meta: Slide
       {overlay ? (
       <div>
         <small>{slide.category}</small>
-        <strong>{slide.title}</strong>
-        <span>{fillLine(slide.line, meta)}</span>
+        <strong>{fillLine(title ?? slide.title, meta)}</strong>
+        <span>{fillLine(line ?? slide.line, meta)}</span>
       </div>
       ) : null}
     </div>
@@ -100,6 +106,8 @@ export function ReadyLibrary({ onAdd, city = "" }: { onAdd: (draft: SlideDraft) 
   const [preview, setPreview] = useState<(typeof FIXED_VIDEOS)[number] | null>(null);
   const [open, setOpen] = useState<ReadySlide | null>(null);
   const [meta, setMeta] = useState<SlideMeta>({});
+  const [heading, setHeading] = useState("");
+  const [body, setBody] = useState("");
   const [mode, setMode] = useState<"" | "image" | "youtube">("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -109,6 +117,8 @@ export function ReadyLibrary({ onAdd, city = "" }: { onAdd: (draft: SlideDraft) 
     setMode("");
     setOpen(slide);
     setMeta(readMeta("", slide.defaults));
+    setHeading(slide.title);
+    setBody(slide.line);
   }
 
   async function saveTemplate() {
@@ -120,8 +130,8 @@ export function ReadyLibrary({ onAdd, city = "" }: { onAdd: (draft: SlideDraft) 
         kind: "template",
         imageUrl: open.image,
         templateId: open.id,
-        title: open.title,
-        detail: fillLine(open.line, meta),
+        title: fillLine(heading, meta),
+        detail: fillLine(body, meta),
         meta: JSON.stringify(open.id === "weekly-parasha" ? { ...meta, flow: meta.flow || "scroll" } : meta),
         duration: templateSeconds(open.id),
       });
@@ -203,12 +213,23 @@ export function ReadyLibrary({ onAdd, city = "" }: { onAdd: (draft: SlideDraft) 
       {open ? (
         <div className="slide-modal" role="dialog" aria-modal="true" onClick={() => setOpen(null)}>
           <div className="slide-modal-card" onClick={(event) => event.stopPropagation()}>
-            {open.id === "weekly-parasha" ? <LiveParasha city={city} still={meta.flow === "static"} /> : isDeckId(open.id) ? <DeckPreview id={open.id} /> : <Photo slide={open} meta={meta} />}
+            {open.id === "weekly-parasha" ? <LiveParasha city={city} still={meta.flow === "static"} /> : isDeckId(open.id) ? <DeckPreview id={open.id} /> : <Photo slide={open} meta={meta} title={heading} line={body} />}
             <div className="slide-modal-actions">
               {open.id === "weekly-parasha" ? (
                 <FlowPick flow={meta.flow} onPick={(flow) => setMeta({ ...meta, flow })} />
               ) : null}
-              {open.day || open.from || open.to ? <p>אפשר לעדכן את היום ואת השעות לפני ההוספה.</p> : null}
+              {open.id !== "weekly-parasha" && !isDeckId(open.id) ? (
+                <>
+                  <label>כותרת על המסך
+                    <input value={heading} onChange={(event) => setHeading(event.target.value)} />
+                  </label>
+                  <label>מלל על המסך
+                    <textarea rows={5} value={body} onChange={(event) => setBody(event.target.value)} />
+                  </label>
+                  <p>אפשר לנסח מחדש את המלל. מה שכתוב כאן הוא מה שיופיע במסך.</p>
+                </>
+              ) : null}
+              {open.day || open.from || open.to ? <p>אפשר גם לעדכן את היום, השעה או השם לפני ההוספה.</p> : null}
               {open.day === "weekday" ? (
                 <label>יום
                   <select value={meta.day || ""} onChange={(event) => setMeta({ ...meta, day: event.target.value })}>
@@ -217,7 +238,7 @@ export function ReadyLibrary({ onAdd, city = "" }: { onAdd: (draft: SlideDraft) 
                 </label>
               ) : null}
               {open.day === "text" ? (
-                <label>יום או תאריך
+                <label>{open.prompt || "יום או תאריך"}
                   <input value={meta.day || ""} onChange={(event) => setMeta({ ...meta, day: event.target.value })} />
                 </label>
               ) : null}
@@ -274,12 +295,15 @@ export function SavedSlideEditor({
   const [endsOn, setEndsOn] = useState(slide.endsOn || "");
   const [picture, setPicture] = useState(slide.imageUrl);
   const [fallback, setFallback] = useState(slide.detail || "");
+  const [heading, setHeading] = useState(slide.title || "");
+  const [body, setBody] = useState(slide.detail || "");
   const [full, setFull] = useState(() => {
     try { return JSON.parse(slide.meta || "{}").full === true; } catch { return false; }
   });
   const official = FIXED_VIDEOS.find((item) => item.id === slide.templateId);
   const [seconds, setSeconds] = useState(slide.templateId === "weekly-parasha" ? Math.max(180, slide.duration) : official?.duration || slide.duration);
   const kind = slide.kind || "image";
+  const editable = showsCopy(kind, slide.templateId) && !slide.imageUrl.toLowerCase().includes(".pdf");
   async function saveAll() {
     let base: Record<string, unknown> = {};
     try { base = JSON.parse(slide.meta || "{}"); } catch { base = {}; }
@@ -292,10 +316,7 @@ export function SavedSlideEditor({
       endsOn,
       meta: JSON.stringify(base),
       ...(!official ? { duration: slide.templateId === "weekly-parasha" ? Math.max(180, seconds) : Math.max(3, seconds) } : {}),
-      ...(kind === "template" && template ? {
-        title: template.title,
-        detail: fillLine(template.line, meta),
-      } : {}),
+      ...(editable ? { title: fillLine(heading, meta), detail: fillLine(body, meta) } : {}),
       ...(kind === "youtube" && !fixed ? { imageUrl: url, detail: fallback } : {}),
       ...(kind === "image" && picture !== slide.imageUrl ? { imageUrl: picture } : {}),
     });
@@ -308,9 +329,28 @@ export function SavedSlideEditor({
   return (
     <div className="slide-modal" role="dialog" aria-modal="true" onClick={onClose}>
       <div className="slide-modal-card" onClick={(event) => event.stopPropagation()}>
-        {slide.templateId === "weekly-parasha" ? <LiveParasha city={city} still={meta.flow === "static"} /> : isDeckId(slide.templateId) ? <DeckPreview id={slide.templateId} /> : <SlidePeek url={official?.url || picture} title={official?.title || slide.title} />}
+        {slide.templateId === "weekly-parasha" ? <LiveParasha city={city} still={meta.flow === "static"} /> : isDeckId(slide.templateId) ? <DeckPreview id={slide.templateId} /> : editable ? (
+          <div className="photo-slide">
+            <img src={picture} alt="" />
+            <div>
+              <strong>{fillLine(heading, meta) || "כותרת"}</strong>
+              <span>{fillLine(body, meta)}</span>
+            </div>
+          </div>
+        ) : <SlidePeek url={official?.url || picture} title={official?.title || slide.title} />}
         <div className="slide-modal-actions">
           {slide.templateId === "weekly-parasha" ? <FlowPick flow={meta.flow} onPick={(flow) => setMeta({ ...meta, flow })} /> : null}
+          {editable ? (
+            <>
+              <label>כותרת על המסך
+                <input value={heading} onChange={(event) => setHeading(event.target.value)} />
+              </label>
+              <label>מלל על המסך
+                <textarea rows={6} value={body} onChange={(event) => setBody(event.target.value)} />
+              </label>
+              <p>אפשר לשנות את המלל בכל שקף. מה שכתוב כאן הוא מה שיופיע במסך.</p>
+            </>
+          ) : null}
           <fieldset className="day-picks">
             <legend>גודל התצוגה</legend>
             <div>
@@ -322,7 +362,7 @@ export function SavedSlideEditor({
             <label>יום<select value={meta.day || ""} onChange={(event) => setMeta({ ...meta, day: event.target.value })}>{WEEKDAYS.map((day) => <option key={day}>{day}</option>)}</select></label>
           ) : null}
           {kind === "template" && template?.day === "text" ? (
-            <label>יום או תאריך<input value={meta.day || ""} onChange={(event) => setMeta({ ...meta, day: event.target.value })} /></label>
+            <label>{template?.prompt || "יום או תאריך"}<input value={meta.day || ""} onChange={(event) => setMeta({ ...meta, day: event.target.value })} /></label>
           ) : null}
           {kind === "template" && template?.from ? <label>משעה<input type="time" value={meta.from || ""} onChange={(event) => setMeta({ ...meta, from: event.target.value })} /></label> : null}
           {kind === "template" && template?.to ? <label>עד שעה<input type="time" value={meta.to || ""} onChange={(event) => setMeta({ ...meta, to: event.target.value })} /></label> : null}

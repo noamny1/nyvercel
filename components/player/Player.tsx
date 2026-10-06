@@ -115,7 +115,7 @@ export function Player({ slides }: { slides: PlaySlide[] }) {
   if (isDeckId(current.templateId)) {
     return <KnowledgeSlide deck={current.templateId} />;
   }
-  if (current.kind === "template") {
+  if (current.kind === "template" || (current.kind === "image" && (current.title || current.detail))) {
     return (
       <div className="slide-frame">
         <img className="slide-image" src={current.imageUrl} alt="" />

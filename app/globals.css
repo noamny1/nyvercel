@@ -272,7 +272,7 @@ body:has(.admin) { background: #F4F1ED; overflow-x: hidden; }
 }
 .admin .photo-slide small { font-size: 11px; opacity: .85; }
 .admin .photo-slide strong { font-size: 16px; line-height: 1.15; }
-.admin .photo-slide span { font-size: 12px; }
+.admin .photo-slide span { font-size: 12px; white-space: pre-line; }
 .admin .mini-preview {
   width: min(100%, 320px);
   aspect-ratio: 16 / 9;
@@ -286,7 +286,8 @@ body:has(.admin) { background: #F4F1ED; overflow-x: hidden; }
 }
 .admin .slide-modal .photo-slide { width: min(100%, 320px); min-height: 0; margin-inline: auto; }
 .admin .slide-modal .photo-slide strong { font-size: 18px; }
-.admin .slide-modal .photo-slide span { font-size: 14px; }
+.admin .slide-modal .photo-slide span { font-size: 14px; white-space: pre-line; }
+.admin .slide-modal textarea { width: 100%; min-height: 120px; resize: vertical; }
 .admin .agent-card { display: grid; gap: 12px; }
 .admin .agent-lines { display: grid; gap: 8px; }
 .admin .agent-lines p { margin: 0; padding: 10px 12px; border-radius: 10px; line-height: 1.45; }

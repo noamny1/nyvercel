@@ -172,7 +172,7 @@
 .deck-preview .know { height: 460px; }
 
 .slide-copy strong { font-size: clamp(36px, 4vw, 72px); line-height: 1.25; display: block; }
-.slide-copy span { font-size: clamp(20px, 2vw, 36px); line-height: 1.4; display: block; }
+.slide-copy span { font-size: clamp(18px, 1.7vw, 32px); line-height: 1.45; display: block; white-space: pre-line; }
 .slide-image, .empty {
   width: 100%;
   height: 100%;
