@@ -14,7 +14,7 @@ import { Weather } from "@/components/widgets/Weather";
 import { ModernRail } from "@/components/themes/ModernRail";
 import { LuxuryRail } from "@/components/themes/LuxuryRail";
 import { markets } from "@/lib/markets";
-import { liveHeadlines } from "@/lib/news";
+import { liveHeadlines, NEWS_SOURCES } from "@/lib/news";
 import { prisma } from "@/lib/prisma";
 import { musicSilenced, screenTakeover } from "@/lib/flags";
 import { FIXED_VIDEOS, clientSetsDuration, fillLine } from "@/lib/ready-slides";
@@ -82,7 +82,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
   const greet = welcome(street, number, city);
   const feedMode = screen.feedMode === "news" || screen.feedMode === "notices" ? screen.feedMode : "both";
   const newsSource = screen.newsSource || source.newsSource || "ynet";
-  const newsName = newsSource === "channel14" ? "חדשות 14" : newsSource === "walla" ? "וואלה" : newsSource === "ynet" ? "ynet" : newsSource;
+  const newsName = NEWS_SOURCES.find((item) => item.id === newsSource)?.name || newsSource;
   const tickerOn = newsTickerOn(screen.newsTicker || "on");
   const modern = theme === "modern";
 

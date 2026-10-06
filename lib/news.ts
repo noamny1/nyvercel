@@ -4,6 +4,9 @@ export const NEWS_SOURCES = [
   { id: "ynet", name: "ynet", url: "https://www.ynet.co.il/Integration/StoryRss2.xml" },
   { id: "walla", name: "וואלה", url: "https://rss.walla.co.il/feed/1?type=main" },
   { id: "channel14", name: "חדשות 14", url: "https://news.google.com/rss/search?q=site:c14.co.il+when:2d&hl=he&gl=IL&ceid=IL:he" },
+  { id: "0404", name: "חדשות 0404", url: "https://news.google.com/rss/search?q=site:0404.co.il+when:2d&hl=he&gl=IL&ceid=IL:he" },
+  { id: "one", name: "ספורט ONE", url: "https://www.one.co.il/rss" },
+  { id: "globes", name: "כלכלה גלובס", url: "https://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iID=2" },
 ] as const;
 
 function clean(value: string) {
@@ -31,6 +34,18 @@ function parseRss(xml: string) {
   return items;
 }
 
+function tidy(id: string, items: { title: string; link: string }[]) {
+  if (id !== "channel14" && id !== "0404") return items;
+  return items
+    .map((item) => ({
+      ...item,
+      title: id === "0404"
+        ? item.title.replace(/^חדשות 04\s*[-–]\s*/, "").replace(/\s*[-–]\s*חדשות 04\s*$/, "").trim()
+        : item.title.replace(/\s+-\s+C14\s*$/i, "").trim(),
+    }))
+    .filter((item) => item.title && !item.title.startsWith("site:") && item.title !== "חדשות Google");
+}
+
 function parseC14(html: string) {
   const items: { title: string; link: string }[] = [];
   const re = /<a[^>]+href="(https:\/\/www\.c14\.co\.il\/[^"]+)"[^>]*>([\s\S]*?)<\/a>/gi;
@@ -56,8 +71,10 @@ async function download(url: string) {
 
 async function sourcesFor(sourceId?: string) {
   const saved = await prisma.feed.findMany().catch(() => []);
-  const base = saved.length > 0 ? saved : NEWS_SOURCES.map((source) => ({ ...source }));
-  return base.filter((source) => !sourceId || source.id === sourceId);
+  const byId = new Map<string, { id: string; name: string; url: string }>();
+  for (const source of NEWS_SOURCES) byId.set(source.id, { id: source.id, name: source.name, url: source.url });
+  for (const source of saved) byId.set(source.id, source);
+  return [...byId.values()].filter((source) => !sourceId || source.id === sourceId);
 }
 
 export async function refreshNews(sourceId?: string) {
@@ -77,6 +94,7 @@ export async function refreshNews(sourceId?: string) {
         items = [];
       }
     }
+    items = tidy(source.id, items);
     if (items.length === 0) continue;
     await prisma.newsItem.deleteMany({ where: { source: source.id } });
     await prisma.newsItem.createMany({
@@ -91,12 +109,7 @@ export async function liveHeadlines(sourceId: string, take = 8) {
   const limit = Math.min(20, Math.max(1, take));
   try {
     const text = await download(source.url);
-    let items = text.includes("<item") ? parseRss(text) : [];
-    if (source.id === "channel14") {
-      items = items
-        .map((item) => ({ ...item, title: item.title.replace(/\s+-\s+C14\s*$/i, "").trim() }))
-        .filter((item) => item.title && !item.title.startsWith("site:"));
-    }
+    let items = tidy(source.id, text.includes("<item") ? parseRss(text) : []);
     if (source.id === "channel14" && items.length === 0) {
       try {
         items = parseC14(await download("https://www.c14.co.il/"));
