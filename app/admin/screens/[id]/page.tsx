@@ -39,7 +39,7 @@ export default async function ScreenPage({ params }: { params: Promise<{ id: str
       <p><Link href="/admin/buildings">כל הבניינים</Link></p>
       <h1>{line(screen)}</h1>
       <p>כתובת למכשיר: nytv.app/s/{screen.code || screen.id}</p>
-      <ScreenEditor screen={screen} slides={screen.slides} notices={screen.notices} lockAddress={!isSystemAdmin(session)} musicPeers={musicPeers} />
+      <ScreenEditor screen={screen} slides={screen.slides} notices={screen.notices} lockAddress={!isSystemAdmin(session)} musicPeers={musicPeers} newsTuning={isSystemAdmin(session)} />
     </main>
   );
 }

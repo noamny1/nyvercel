@@ -133,6 +133,64 @@ body:has(.admin) { background: #F4F1ED; overflow-x: hidden; }
 .admin .modal { position: fixed; inset: 0; background: rgba(37, 37, 37, 0.45); display: grid; place-items: center; padding: 18px; z-index: 20; }
 .admin .modal .card { width: min(460px, 100%); }
 .admin .media-box { display: grid; gap: 8px; }
+.admin .logo-panel {
+  display: grid;
+  grid-template-columns: 132px 1fr;
+  gap: 16px;
+  align-items: center;
+  margin-top: 16px;
+  padding: 14px;
+  border: 1px solid rgba(37, 37, 37, 0.1);
+  border-inline-start: 3px solid #5A1F2B;
+  border-radius: 14px;
+  background: #F4F1ED;
+}
+.admin .logo-well {
+  width: 132px;
+  height: 88px;
+  border-radius: 12px;
+  background: #fff;
+  border: 1px solid rgba(37, 37, 37, 0.12);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+.admin .logo-well img { width: 100%; height: 100%; object-fit: contain; background: #fff; display: block; }
+.admin .logo-well span { color: #6d6862; font-size: 13px; }
+.admin .logo-copy { display: grid; gap: 6px; min-width: 0; }
+.admin .logo-copy strong { font-weight: 400; font-size: 16px; color: #252525; }
+.admin .logo-copy p { margin: 0; color: #5c5854; font-size: 14px; line-height: 1.4; }
+.admin .logo-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.admin .file-pill {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  min-height: 40px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  background: #252525;
+  color: #F4F1ED;
+  cursor: pointer;
+  gap: 0;
+}
+.admin .file-pill input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+.admin .logo-actions button { width: auto; min-height: 40px; background: #fff; }
+.admin .save-bar { width: 100%; margin-top: 14px; min-height: 46px; }
+@media (max-width: 560px) {
+  .admin .logo-panel { grid-template-columns: 1fr; }
+}
 .admin .ready-cat { margin: 18px 0 8px; font-size: 16px; font-weight: 400; }
 .admin .ready-cats { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
 .admin .ready-cats button { width: auto; white-space: nowrap; flex: 0 0 auto; font-size: 15px; min-height: 42px; }
@@ -287,11 +345,15 @@ body:has(.admin) { background: #F4F1ED; overflow-x: hidden; }
   align-items: center;
   justify-content: center;
   min-height: 48px;
+  padding: 8px 8px;
   border-radius: 12px;
   border: 1px solid rgba(37, 37, 37, 0.14);
   background: #F4F1ED;
   color: #252525;
   text-decoration: none;
+  font-size: 15px;
+  line-height: 1.25;
+  text-align: center;
 }
 .client-actions a:hover, .client-actions button:hover { border-color: #5A1F2B; }
 .client-actions button.is-on {

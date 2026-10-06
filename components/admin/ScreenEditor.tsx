@@ -23,6 +23,7 @@ export function ScreenEditor({
   musicPeers = 1,
   panel,
   returnTo,
+  newsTuning = false,
 }: {
   screen: {
     id: number;
@@ -49,6 +50,7 @@ export function ScreenEditor({
   musicPeers?: number;
   panel?: "details" | "slides" | "notices";
   returnTo?: string;
+  newsTuning?: boolean;
 }) {
   const router = useRouter();
   const save = scope === "group" ? updateGroup : updateScreen;
@@ -169,8 +171,12 @@ export function ScreenEditor({
               ))}
             </select>
           </label>
-          <label>כמות כתבות<input name="newsCount" type="number" min={1} max={20} defaultValue={screen.newsCount ?? 8} /></label>
-          <label>שניות לכתבה<input name="tickerSeconds" type="number" min={6} max={40} defaultValue={screen.tickerSeconds ?? 12} /></label>
+          {newsTuning ? (
+            <>
+              <label>כמות כתבות<input name="newsCount" type="number" min={1} max={20} defaultValue={screen.newsCount ?? 8} /></label>
+              <label>שניות לכתבה<input name="tickerSeconds" type="number" min={6} max={40} defaultValue={screen.tickerSeconds ?? 12} /></label>
+            </>
+          ) : null}
           {scope === "screen" ? (
             <label>פס חדשות
               <select name="newsTicker" defaultValue={screen.newsTicker || "on"}>
@@ -210,22 +216,35 @@ export function ScreenEditor({
             {musicPeers > 1 ? <label><input type="checkbox" name="applyMusic" value="1" /> החל על כל המסכים שלי</label> : null}
           </fieldset>
         ) : null}
-        <div className="media-box">
-          <label>לוגו הבניין
-            <input type="file" accept="image/*,.gif" onChange={(event) => {
-              const file = event.target.files?.[0];
-              if (file) void onLogo(file);
-            }} />
-          </label>
-          {logoPreview ? (
-            <div className="thumb-row">
-              <img src={logoPreview} alt="" />
-              <button className="light" type="button" onClick={() => { setLogoUrl(""); setLogoPreview(""); setClearLogo(true); }}>מחיקה</button>
+        <div className="logo-panel">
+          <div className="logo-well">
+            {logoPreview ? <img src={logoPreview} alt="" /> : <span>אין לוגו</span>}
+          </div>
+          <div className="logo-copy">
+            <strong>לוגו הבניין</strong>
+            <p>{uploading ? "מעלה את הלוגו..." : "מוצג במסך. PNG, JPG או GIF."}</p>
+            <div className="logo-actions">
+              <label className="file-pill">
+                <input
+                  type="file"
+                  accept="image/*,.gif"
+                  disabled={uploading}
+                  onChange={(event) => {
+                    const file = event.target.files?.[0];
+                    event.target.value = "";
+                    if (file) void onLogo(file);
+                  }}
+                />
+                {uploading ? "מעלה..." : logoPreview ? "החלפת לוגו" : "העלאת לוגו"}
+              </label>
+              {logoPreview ? (
+                <button className="light" type="button" onClick={() => { setLogoUrl(""); setLogoPreview(""); setClearLogo(true); }}>מחיקה</button>
+              ) : null}
             </div>
-          ) : null}
-          <button type="submit" disabled={uploading}>{uploading ? "מעלה את הלוגו..." : "שמירה"}</button>
-          {message ? <p className="error">{message}</p> : null}
+          </div>
         </div>
+        {message ? <p className="error">{message}</p> : null}
+        <button className="save-bar" type="submit" disabled={uploading}>{uploading ? "מעלה את הלוגו..." : "שמירה"}</button>
       </form>
       ) : null}
 

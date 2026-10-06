@@ -47,7 +47,7 @@ export function ClientScreens({ rows, musicPeers, returnTo }: { rows: Row[]; mus
               <span>{screen.people.length ? screen.people.join(" · ") : "—"}</span>
             </header>
             <div className="client-actions">
-              <button type="button" className={tab === "details" ? "is-on" : ""} onClick={() => pick(screen.id, "details")}>הגדרות</button>
+              <button type="button" className={tab === "details" ? "is-on" : ""} onClick={() => pick(screen.id, "details")}>הגדרות מסך</button>
               <button type="button" className={tab === "slides" ? "is-on" : ""} onClick={() => pick(screen.id, "slides")}>שקפים</button>
               <button type="button" className={tab === "notices" ? "is-on" : ""} onClick={() => pick(screen.id, "notices")}>הודעות</button>
               <a href={`/s/${screen.code || screen.id}`} target="_blank">הצגת המסך</a>
