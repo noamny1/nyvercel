@@ -14,6 +14,7 @@ const OWNER_LINKS = [
   ["/admin/directory", "קומות"],
   ["/admin/control", "לוח בקרה"],
   ["/admin/users", "משתמשים"],
+  ["/admin/manage", "ניהול"],
 ];
 
 export function AdminNav() {

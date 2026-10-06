@@ -35,6 +35,16 @@ export async function touchGroup(groupId: number) {
   }
 }
 
+export async function touchAll() {
+  const screens = await prisma.screen.findMany({ select: { code: true } });
+  await prisma.screen.updateMany({ data: { revision: { increment: 1 } } });
+  for (const screen of screens) {
+    if (!screen.code) continue;
+    revalidatePath(`/s/${screen.code}`);
+    revalidatePath(`/s/${screen.code}`, "page");
+  }
+}
+
 export async function touchOwner(owner: { screenId?: number | null; groupId?: number | null }) {
   if (owner.screenId) await touchScreen(owner.screenId);
   if (owner.groupId) await touchGroup(owner.groupId);

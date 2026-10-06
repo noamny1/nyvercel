@@ -32,7 +32,11 @@ const statements = [
   `ALTER TABLE "Screen" ADD COLUMN IF NOT EXISTS "newsTicker" TEXT NOT NULL DEFAULT 'on'`,
   `ALTER TABLE "Slide" ADD COLUMN IF NOT EXISTS "startsOn" TEXT NOT NULL DEFAULT ''`,
   `ALTER TABLE "Slide" ADD COLUMN IF NOT EXISTS "endsOn" TEXT NOT NULL DEFAULT ''`,
-  `CREATE TABLE IF NOT EXISTS "SchemaNote" ("id" TEXT PRIMARY KEY)`,
+  `CREATE TABLE IF NOT EXISTS "SystemFlag" (
+    "id" TEXT NOT NULL,
+    "value" TEXT NOT NULL DEFAULT '',
+    CONSTRAINT "SystemFlag_pkey" PRIMARY KEY ("id")
+  )`,
   `DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM "SchemaNote" WHERE "id" = 'slide-weekdays-v1') THEN
       UPDATE "Slide" SET "weekdays" = '56' WHERE "weekdays" = '0123456' AND ("templateId" IN ('greet-shabbat', 'weekly-parasha') OR "title" LIKE '%שבת%' OR "title" LIKE '%פרש%');

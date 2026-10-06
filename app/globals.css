@@ -30,23 +30,30 @@ body:has(.admin) { background: #F4F1ED; overflow-x: hidden; }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
 }
 .admin-brand { display: grid; gap: 2px; text-decoration: none; color: #F4F1ED; }
 .admin-brand strong { font-weight: 400; letter-spacing: 0.12em; font-size: 15px; }
 .admin-brand span { font-size: 13px; font-weight: 400; opacity: 0.8; }
-.admin-nav { display: flex; flex-wrap: nowrap; gap: 4px 8px; overflow-x: auto; max-width: 100%; }
+.admin-nav { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; max-width: 100%; }
 .admin-nav a {
-  color: #F4F1ED;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(244, 241, 237, 0.35);
+  background: #F4F1ED;
+  color: #252525;
   text-decoration: none;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 400;
-  padding: 8px 10px;
-  min-height: 40px;
   white-space: nowrap;
-  border-bottom: 1px solid transparent;
 }
-.admin-nav a.is-on { border-bottom-color: #F4F1ED; }
+.admin-nav a:hover { border-color: #F4F1ED; }
+.admin-nav a.is-on { background: #5A1F2B; color: #F4F1ED; border-color: #5A1F2B; }
 .admin-exit {
   border: 1px solid rgba(244, 241, 237, 0.45);
   background: transparent;

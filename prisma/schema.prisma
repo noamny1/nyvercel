@@ -161,6 +161,11 @@ model Floor {
   rooms   Room[]
 }
 
+model SystemFlag {
+  id    String @id
+  value String @default("")
+}
+
 model Room {
   id      Int    @id @default(autoincrement())
   floorId Int
