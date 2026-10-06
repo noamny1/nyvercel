@@ -20,6 +20,19 @@
 .stage.slide-full .brand-bar { display: flex; grid-column: 1; grid-row: 2; }
 .stage.slide-full .slide-image { object-fit: cover; }
 .stage.slide-full .slide-video { object-fit: contain; background: #000; }
+.takeover {
+  position: fixed;
+  inset: 0;
+  margin: 0;
+  background: #000;
+  overflow: hidden;
+}
+.takeover img {
+  width: 100vw;
+  height: 100vh;
+  object-fit: contain;
+  display: block;
+}
 .stage {
   position: relative;
   height: 100vh;

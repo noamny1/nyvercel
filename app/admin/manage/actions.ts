@@ -27,3 +27,24 @@ export async function setGlobalMusic(formData: FormData) {
   await touchAll();
   redirect("/admin/manage?done=music");
 }
+
+export async function setTakeover(formData: FormData) {
+  await ownerGate();
+  const on = String(formData.get("on") || "") === "1";
+  const url = String(formData.get("url") || "");
+  if (on && !url.startsWith("http")) redirect("/admin/manage?done=takeover-need");
+  if (url.startsWith("http")) {
+    await prisma.systemFlag.upsert({
+      where: { id: "takeoverImage" },
+      create: { id: "takeoverImage", value: url },
+      update: { value: url },
+    });
+  }
+  await prisma.systemFlag.upsert({
+    where: { id: "takeover" },
+    create: { id: "takeover", value: on ? "on" : "off" },
+    update: { value: on ? "on" : "off" },
+  });
+  await touchAll();
+  redirect("/admin/manage?done=takeover");
+}

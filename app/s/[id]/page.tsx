@@ -14,7 +14,7 @@ import { ModernRail } from "@/components/themes/ModernRail";
 import { markets } from "@/lib/markets";
 import { liveHeadlines } from "@/lib/news";
 import { prisma } from "@/lib/prisma";
-import { musicSilenced } from "@/lib/flags";
+import { musicSilenced, screenTakeover } from "@/lib/flags";
 import { FIXED_VIDEOS } from "@/lib/ready-slides";
 import { newsTickerOn, slideIsOn } from "@/lib/schedule";
 import { shabbatFor } from "@/lib/shabbat";
@@ -60,12 +60,13 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
   const visible = pool.filter((slide) => slideIsOn(slide));
   const notices = screen.notices.length > 0 ? screen.notices : source.notices;
 
-  const [weather, shabbat, headlines, rates, silenced] = await Promise.all([
+  const [weather, shabbat, headlines, rates, silenced, takeover] = await Promise.all([
     weatherFor(city).catch(() => null),
     shabbatFor(city).catch(() => null),
     liveHeadlines(screen.newsSource || source.newsSource || "ynet", screen.newsCount || 8).catch(() => []),
     markets().catch(() => []),
     musicSilenced(),
+    screenTakeover(),
   ]);
   const theme = screen.theme || source.theme || "modern";
   const newsSource = screen.newsSource || source.newsSource || "ynet";
@@ -75,6 +76,16 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
 
   const indexTheme = theme.startsWith("index");
   const floors = screen.group?.floors ?? [];
+
+  if (takeover.on && takeover.image) {
+    return (
+      <main className="takeover">
+        <Wake />
+        <Ping code={screen.code || screen.id} revision={screen.revision} />
+        <img src={takeover.image} alt="" />
+      </main>
+    );
+  }
 
   return (
     <main className={`stage theme-${theme}${theme === "yuval" ? " layout-yuval" : ""}${indexTheme ? " layout-index" : ""}${tickerOn ? "" : " no-ticker"}`}>
