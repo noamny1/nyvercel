@@ -39,7 +39,7 @@ function address(street: string, number: string, city: string) {
 
 function welcome(street: string, number: string, city: string) {
   const line = [street, number, city].filter(Boolean).join(" ");
-  return line ? `ברוכים הבאים ל${line}` : "ברוכים הבאים";
+  return line ? `ברוכים הבאים: ${line}` : "ברוכים הבאים";
 }
 
 export default async function ScreenView({ params }: { params: Promise<{ id: string }> }) {
