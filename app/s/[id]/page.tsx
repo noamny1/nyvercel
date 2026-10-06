@@ -159,6 +159,8 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
             mode={feedMode}
             headlines={headlines.map((item) => item.title)}
             notices={notices.map((notice) => notice.text)}
+            sourceId={newsSource}
+            newsCount={screen.newsCount || 8}
           />
         ) : modern ? (
           <ModernRail
@@ -201,7 +203,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
           </div>
         </footer>
       ) : null}
-      {tickerOn && !luxury ? <NewsTicker titles={headlines.map((item) => item.title)} seconds={screen.tickerSeconds || 12} source={newsName} /> : null}
+      {tickerOn && !luxury ? <NewsTicker titles={headlines.map((item) => item.title)} seconds={screen.tickerSeconds || 12} source={newsName} sourceId={newsSource} take={screen.newsCount || 8} /> : null}
       <footer className="brand-bar"><img src="/nymedia-logo.png" alt="NYmedia" /></footer>
     </main>
   );

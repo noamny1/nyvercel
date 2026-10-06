@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 
 import { deckCount, pickDeck, type DeckId } from "@/lib/decks";
+import { useTurn } from "@/components/player/useTurn";
 
 const KICKER: Record<DeckId, string> = {
   "daily-health": "טיפ בריאות יומי",
@@ -16,7 +17,8 @@ const NOTE: Partial<Record<DeckId, string>> = {
 };
 
 export function KnowledgeSlide({ deck, offset = 0 }: { deck: DeckId; offset?: number }) {
-  const card = useMemo(() => pickDeck(deck, offset), [deck, offset]);
+  const turn = useTurn();
+  const card = useMemo(() => pickDeck(deck, offset, turn), [deck, offset, turn]);
   const total = deckCount(deck);
   return (
     <article className="know">
@@ -37,7 +39,7 @@ export function KnowledgeSlide({ deck, offset = 0 }: { deck: DeckId; offset?: nu
             </li>
           ))}
         </ul>
-        <p className="know-note">{card.note || NOTE[deck] || "מתחלף בכל יום"} · {total} נושאים במאגר</p>
+        <p className="know-note">{card.note || NOTE[deck] || "מתחלף כל 3 שעות"} · {total} נושאים במאגר</p>
       </div>
     </article>
   );

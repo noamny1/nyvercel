@@ -1,15 +1,21 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useFreshHeadlines } from "@/components/player/useFreshHeadlines";
 
-export function NewsTicker({ titles, seconds = 12, source = "" }: { titles: string[]; seconds?: number; source?: string }) {
+export function NewsTicker({ titles, seconds = 12, source = "", sourceId = "", take = 8 }: { titles: string[]; seconds?: number; source?: string; sourceId?: string; take?: number }) {
+  const fresh = useFreshHeadlines(sourceId || "ynet", take, titles);
+  const shown = sourceId ? fresh : titles;
   const [index, setIndex] = useState(0);
   useEffect(() => {
-    if (titles.length < 2) return;
-    const timer = setInterval(() => setIndex((value) => (value + 1) % titles.length), Math.max(6, seconds) * 1000);
+    setIndex(0);
+  }, [shown]);
+  useEffect(() => {
+    if (shown.length < 2) return;
+    const timer = setInterval(() => setIndex((value) => (value + 1) % shown.length), Math.max(6, seconds) * 1000);
     return () => clearInterval(timer);
-  }, [titles, seconds]);
-  const title = titles[index] || "אין חדשות כרגע";
+  }, [shown, seconds]);
+  const title = shown[index] || "אין חדשות כרגע";
   return (
     <div className="ticker">
       {source ? <span className="ticker-source">{source}</span> : null}

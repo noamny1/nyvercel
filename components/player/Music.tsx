@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { tracksFor, type Track } from "@/lib/music-catalog";
+import { useTurn } from "@/components/player/useTurn";
 
 function mix(list: Track[], seed: number) {
   const copy = [...list];
@@ -17,13 +18,14 @@ function mix(list: Track[], seed: number) {
 }
 
 export function Music({ playlist, url, start }: { playlist: string; url: string; start: number }) {
-  const tracks = useMemo(() => mix(tracksFor(playlist), start || 1), [playlist, start]);
+  const turn = useTurn();
+  const tracks = useMemo(() => mix(tracksFor(playlist), (start || 1) + turn * 97), [playlist, start, turn]);
   const [index, setIndex] = useState(0);
   const track = tracks[index];
 
   useEffect(() => {
     setIndex(0);
-  }, [playlist, start]);
+  }, [playlist, start, turn]);
 
   useEffect(() => {
     const audio = document.getElementById("lobby-music") as HTMLAudioElement | null;

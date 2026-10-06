@@ -1,4 +1,5 @@
 import type { DeckCard, DeckId } from "./types";
+import { currentTurn } from "@/lib/turn";
 import { HEALTH } from "./health";
 import { FACTS } from "./facts";
 import { PEOPLE } from "./people";
@@ -23,22 +24,9 @@ export function deckCount(id: DeckId) {
   return DECKS[id].length;
 }
 
-function israelDayNumber() {
-  const parts = new Intl.DateTimeFormat("en-US", {
-    timeZone: "Asia/Jerusalem",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).formatToParts(new Date());
-  const year = Number(parts.find((part) => part.type === "year")?.value);
-  const month = Number(parts.find((part) => part.type === "month")?.value);
-  const day = Number(parts.find((part) => part.type === "day")?.value);
-  return Math.floor(Date.UTC(year, month - 1, day) / 86400000);
-}
-
-export function pickDeck(id: DeckId, offset = 0): DeckCard {
+export function pickDeck(id: DeckId, offset = 0, turn = currentTurn()): DeckCard {
   const cards = DECKS[id];
-  const index = (israelDayNumber() + SALT[id] + offset) % cards.length;
+  const index = (turn + SALT[id] + offset) % cards.length;
   return cards[(index + cards.length) % cards.length];
 }
 
