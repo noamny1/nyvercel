@@ -503,9 +503,74 @@ body:has(.admin) { background: #F4F1ED; overflow-x: hidden; }
   inset-inline-start: auto;
   inset-inline-end: 3px;
 }
-.admin .day-picks { border: 0; margin: 0; padding: 0; }
+.admin .choice-card {
+  margin: 18px 0;
+  padding: 16px 18px 18px;
+  border: 1px solid rgba(37, 37, 37, 0.14);
+  border-radius: 16px;
+  background: #fff;
+}
+.admin .choice-card legend {
+  padding: 0 8px;
+  color: #252525;
+  font-size: 18px;
+}
+.admin .choice-card > p {
+  margin: 2px 0 12px;
+  color: #5c5854;
+  font-size: 14px;
+}
+.admin .choice-card .choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.admin .choice-card .choices > label {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  min-height: 42px;
+  margin: 0;
+  padding: 8px 14px;
+  border: 1px solid rgba(37, 37, 37, 0.16);
+  border-radius: 999px;
+  background: #F4F1ED;
+  color: #252525;
+  cursor: pointer;
+}
+.admin .choice-card .choices > label:has(input:checked) {
+  background: #5A1F2B;
+  border-color: #5A1F2B;
+  color: #F4F1ED;
+}
+.admin .choice-card .choices > label:has(input:disabled) {
+  opacity: 0.4;
+  cursor: default;
+}
+.admin .choice-card input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: #5A1F2B;
+}
+.admin .choice-card .choices > label:has(input:checked) input {
+  accent-color: #F4F1ED;
+}
+.admin .choice-apply {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(37, 37, 37, 0.08);
+  color: #252525;
+  font-size: 14px;
+}
 .admin .music-picks { margin: 16px 0; }
 .admin .music-picks label { display: inline-flex; align-items: center; gap: 8px; min-height: 36px; }
+.admin .day-picks { border: 0; margin: 0; padding: 0; }
 .admin .day-picks legend { margin-bottom: 6px; }
 .admin .day-picks div { display: flex; flex-wrap: wrap; gap: 6px; }
 .admin .day-picks button { min-height: 40px; padding: 8px 10px; }

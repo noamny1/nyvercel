@@ -234,10 +234,10 @@ export function ScreenEditor({
             </>
           ) : null}
         </div>
-        <fieldset className="day-picks music-picks">
+        <fieldset className="choice-card">
           <legend>חדשות</legend>
-          <p>אפשר לבחור עד 4 מקורות. הם יופיעו לסירוגין על המסך.</p>
-          <div>
+          <p>נבחרו {newsPick.length} מתוך 4. מה שמסומן יופיע לסירוגין על המסך.</p>
+          <div className="choices">
             {newsCatalog.map((source) => {
               const on = newsPick.includes(source.id);
               return (
@@ -266,11 +266,11 @@ export function ScreenEditor({
           </div>
         </fieldset>
         {scope === "screen" ? (
-          <fieldset className="day-picks music-picks">
+          <fieldset className="choice-card">
             <legend>מוזיקה</legend>
-            <p>אפשר לבחור כמה רשימות. הן יתנגנו בסדר אקראי, בלי מילים ובלי זכויות יוצרים מסחריות. אם לא בוחרים כלום, המוזיקה כבויה.</p>
+            <p>כל רשימה מסומנת תתנגן בלובי. בלי בחירה, המוזיקה כבויה.</p>
             <input type="hidden" name="musicForm" value="1" />
-            <div>
+            <div className="choices">
               {PLAYLISTS.map((playlist) => (
                 <label key={playlist.id}>
                   <input type="checkbox" name="music" value={playlist.id} defaultChecked={(screen.musicPlaylist || "").split(",").includes(playlist.id)} />
@@ -278,7 +278,7 @@ export function ScreenEditor({
                 </label>
               ))}
             </div>
-            {musicPeers > 1 ? <label><input type="checkbox" name="applyMusic" value="1" /> החל על כל המסכים שלי</label> : null}
+            {musicPeers > 1 ? <label className="choice-apply"><input type="checkbox" name="applyMusic" value="1" /> החל על כל המסכים שלי</label> : null}
           </fieldset>
         ) : null}
         <div className="logo-panel">
