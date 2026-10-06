@@ -58,6 +58,7 @@ export async function updateScreen(formData: FormData) {
       newsCount: owner ? Math.min(20, Math.max(1, Number(formData.get("newsCount")) || current.newsCount || 8)) : current.newsCount,
       tickerSeconds: owner ? Math.min(40, Math.max(6, Number(formData.get("tickerSeconds")) || current.tickerSeconds || 12)) : current.tickerSeconds,
       newsTicker: ["on", "weekend", "off"].includes(String(formData.get("newsTicker"))) ? String(formData.get("newsTicker")) : "on",
+      ...( ["news", "notices", "both"].includes(String(formData.get("feedMode"))) ? { feedMode: String(formData.get("feedMode")) } : {}),
       musicPlaylist: music,
       logoUrl: String(formData.get("clearLogo") || "") === "1" ? "" : incomingLogo.startsWith("http") ? incomingLogo : current.logoUrl,
     },

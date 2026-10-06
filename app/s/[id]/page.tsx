@@ -1,3 +1,4 @@
+import { Heebo } from "next/font/google";
 import { notFound } from "next/navigation";
 import { Player } from "@/components/player/Player";
 import { Music } from "@/components/player/Music";
@@ -11,6 +12,7 @@ import { Notices } from "@/components/widgets/Notices";
 import { Shabbat } from "@/components/widgets/Shabbat";
 import { Weather } from "@/components/widgets/Weather";
 import { ModernRail } from "@/components/themes/ModernRail";
+import { LuxuryRail } from "@/components/themes/LuxuryRail";
 import { markets } from "@/lib/markets";
 import { liveHeadlines } from "@/lib/news";
 import { prisma } from "@/lib/prisma";
@@ -24,6 +26,9 @@ import "@/components/themes/modern.css";
 import "@/components/themes/yuval.css";
 import "@/components/themes/residential.css";
 import "@/components/themes/extra.css";
+import "@/components/themes/luxury.css";
+
+const heebo = Heebo({ subsets: ["hebrew", "latin"], weight: ["300", "400", "500"], display: "swap" });
 
 export const dynamic = "force-dynamic";
 
@@ -69,6 +74,8 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
     screenTakeover(),
   ]);
   const theme = screen.theme || source.theme || "modern";
+  const luxury = theme === "luxury";
+  const feedMode = screen.feedMode === "news" || screen.feedMode === "notices" ? screen.feedMode : "both";
   const newsSource = screen.newsSource || source.newsSource || "ynet";
   const newsName = newsSource === "channel14" ? "חדשות 14" : newsSource === "walla" ? "וואלה" : newsSource === "ynet" ? "ynet" : newsSource;
   const tickerOn = newsTickerOn(screen.newsTicker || "on");
@@ -88,7 +95,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
   }
 
   return (
-    <main className={`stage theme-${theme}${theme === "yuval" ? " layout-yuval" : ""}${indexTheme ? " layout-index" : ""}${tickerOn ? "" : " no-ticker"}`}>
+    <main className={`stage theme-${theme}${luxury ? ` layout-luxury ${heebo.className}` : ""}${theme === "yuval" ? " layout-yuval" : ""}${indexTheme ? " layout-index" : ""}${tickerOn && !luxury ? "" : " no-ticker"}`}>
       <Music playlist={silenced ? "off" : screen.musicPlaylist || ""} url={silenced ? "" : screen.group?.musicUrl || ""} start={screen.id} />
       <Wake />
       <Ping code={screen.code || screen.id} revision={screen.revision} />
@@ -140,7 +147,15 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
         )}
       </section>
       <aside className="rail">
-        {modern ? (
+        {luxury ? (
+          <LuxuryRail
+            temp={weather?.temp ?? null}
+            weatherLabel={weather?.label || ""}
+            mode={feedMode}
+            headlines={headlines.map((item) => item.title)}
+            notices={notices.map((notice) => notice.text)}
+          />
+        ) : modern ? (
           <ModernRail
             address={address(street, number, city)}
             logoUrl={screen.logoUrl || source.logoUrl}
@@ -164,7 +179,15 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
           </>
         )}
       </aside>
-      {tickerOn ? <NewsTicker titles={headlines.map((item) => item.title)} seconds={screen.tickerSeconds || 12} source={newsName} /> : null}
+      {luxury ? (
+        <footer className="luxury-foot">
+          <div className="lux-address">{address(street, number, city) || "הכתובת"}</div>
+          <div className="lux-logo">
+            {(screen.logoUrl || source.logoUrl) ? <img src={screen.logoUrl || source.logoUrl} alt="" /> : <span>לוגו הלקוח<small>הבניין</small></span>}
+          </div>
+        </footer>
+      ) : null}
+      {tickerOn && !luxury ? <NewsTicker titles={headlines.map((item) => item.title)} seconds={screen.tickerSeconds || 12} source={newsName} /> : null}
       <footer className="brand-bar"><img src="/nymedia-logo.png" alt="NYmedia" /></footer>
     </main>
   );

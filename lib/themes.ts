@@ -1,5 +1,6 @@
 export const THEMES = [
   { id: "modern", name: "מודרני" },
+  { id: "luxury", name: "יוקרתי" },
   { id: "yuval", name: "יובל" },
   { id: "residential", name: "בנייני מגורים" },
   { id: "responsive", name: "רספונסיב" },

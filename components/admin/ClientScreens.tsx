@@ -19,6 +19,7 @@ type Row = {
   newsCount: number;
   tickerSeconds: number;
   newsTicker: string;
+  feedMode?: string;
   musicPlaylist: string;
   people: string[];
   slides: { id: number; imageUrl: string; duration: number; sort: number; weekdays?: string; startsOn?: string; endsOn?: string; active?: boolean; kind?: string; templateId?: string; title?: string; detail?: string; meta?: string }[];

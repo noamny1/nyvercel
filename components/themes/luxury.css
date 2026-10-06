@@ -1,0 +1,151 @@
+.layout-luxury.stage,
+.layout-luxury.stage.no-ticker {
+  grid-template-columns: minmax(300px, 24vw) minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) 124px;
+  gap: 16px;
+  padding: 22px;
+  background: #252525;
+  color: #F4F1ED;
+}
+.layout-luxury .slide {
+  grid-column: 2;
+  grid-row: 1;
+  border-radius: 28px;
+  overflow: hidden;
+}
+.layout-luxury .slide-image { object-fit: cover; background: #252525; }
+.layout-luxury .slide-copy strong { font-weight: 400; }
+.layout-luxury .slide-copy span { color: #e6d3ae; }
+.layout-luxury .ticker { display: none; }
+.layout-luxury .rail,
+.layout-luxury.stage.no-ticker .rail {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin: 0;
+  padding: 28px 28px 22px;
+  overflow: hidden;
+  direction: rtl;
+  text-align: right;
+  color: #F4F1ED;
+  background: #252525;
+  border: 1px solid #5c4e48;
+  border-radius: 28px;
+}
+.layout-luxury .lux-clock {
+  display: block;
+  font-size: clamp(56px, 4.6vw, 88px);
+  font-weight: 500;
+  line-height: 0.95;
+  letter-spacing: 1px;
+  font-variant-numeric: tabular-nums;
+}
+.layout-luxury .lux-civil,
+.layout-luxury .lux-hebrew { margin-top: 6px; font-size: clamp(16px, 1.15vw, 22px); font-weight: 300; }
+.layout-luxury .lux-hebrew { color: #e6d3ae; }
+.layout-luxury .lux-weather {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  margin-top: 18px;
+  font-size: clamp(22px, 1.7vw, 32px);
+  font-weight: 400;
+}
+.layout-luxury .lux-sun { width: 16px; height: 16px; border-radius: 50%; background: #e6d3ae; }
+.layout-luxury .lux-rule { width: 100%; height: 1px; margin: 16px 0 0; border: 0; background: #e6d3ae; }
+.layout-luxury .lux-chips { display: flex; justify-content: flex-start; gap: 8px; margin-top: 14px; }
+.layout-luxury .lux-chips span {
+  border: 1px solid #e6d3ae;
+  border-radius: 999px;
+  padding: 6px 14px;
+  color: #F4F1ED;
+  font-size: 16px;
+  font-weight: 300;
+}
+.layout-luxury .lux-chips .is-on { background: #5A1F2B; border-color: #5A1F2B; }
+.layout-luxury .lux-feed { flex: 1; min-height: 0; overflow: hidden; mask-image: linear-gradient(to bottom, transparent, #000 8%, #000 86%, transparent); }
+.layout-luxury .lux-track { animation: lux-rise linear infinite; }
+.layout-luxury .lux-item { padding: 14px 0; border-bottom: 1px solid #5c4e48; }
+.layout-luxury .lux-item small { display: block; margin-bottom: 4px; color: #e6d3ae; font-size: 14px; }
+.layout-luxury .lux-item p {
+  margin: 0;
+  font-size: clamp(18px, 1.25vw, 24px);
+  font-weight: 400;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.layout-luxury .lux-empty { margin: 24px 0; color: #e6d3ae; font-weight: 300; }
+.layout-luxury .lux-brand { margin-top: auto; }
+.layout-luxury .lux-brand img {
+  display: block;
+  height: 72px;
+  width: auto;
+  max-width: 100%;
+  margin-top: 16px;
+  margin-inline-start: auto;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+}
+.layout-luxury .luxury-foot {
+  grid-column: 2;
+  grid-row: 2;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(180px, 16vw);
+  gap: 16px;
+  min-width: 0;
+}
+.layout-luxury .lux-address {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  min-width: 0;
+  padding: 0 40px;
+  border-radius: 28px;
+  background: #5A1F2B;
+  color: #F4F1ED;
+  direction: rtl;
+  font-size: clamp(26px, 2.2vw, 44px);
+  font-weight: 400;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.layout-luxury .lux-logo {
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  padding: 12px 18px;
+  border: 1px solid #e6d3ae;
+  border-radius: 28px;
+  background: #252525;
+  text-align: center;
+}
+.layout-luxury .lux-logo img { max-width: 100%; max-height: 84px; object-fit: contain; }
+.layout-luxury .lux-logo span,
+.layout-luxury .lux-logo small { display: block; }
+.layout-luxury .lux-logo span { color: #F4F1ED; font-size: 20px; font-weight: 300; }
+.layout-luxury .lux-logo small { color: #e6d3ae; font-size: 15px; }
+.layout-luxury .music-credit { left: auto; right: 36px; bottom: 168px; }
+.layout-luxury.stage.slide-full {
+  gap: 0;
+  padding: 0;
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr 86px;
+}
+.layout-luxury.stage.slide-full .slide { grid-column: 1; grid-row: 1; border-radius: 0; }
+.layout-luxury.stage.slide-full .rail,
+.layout-luxury.stage.slide-full .luxury-foot { display: none; }
+.layout-luxury.stage.slide-full .brand-bar { display: flex; }
+@media (prefers-reduced-motion: reduce) {
+  .layout-luxury .lux-track { animation: none; }
+}
+@keyframes lux-rise {
+  from { transform: translateY(0); }
+  to { transform: translateY(-50%); }
+}

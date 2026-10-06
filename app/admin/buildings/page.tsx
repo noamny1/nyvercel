@@ -149,6 +149,7 @@ export default async function BuildingsPage({ searchParams }: { searchParams: Pr
             newsCount: screen.newsCount,
             tickerSeconds: screen.tickerSeconds,
             newsTicker: screen.newsTicker,
+            feedMode: screen.feedMode,
             musicPlaylist: screen.musicPlaylist,
             people: assignedUsers(screen.users).map((user) => user.name || user.email),
             slides: screen.slides,

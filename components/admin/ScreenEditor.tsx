@@ -37,6 +37,7 @@ export function ScreenEditor({
     newsCount?: number;
     tickerSeconds?: number;
     newsTicker?: string;
+    feedMode?: string;
     musicPlaylist?: string;
     musicUrl?: string;
     buildingId?: number | null;
@@ -71,6 +72,7 @@ export function ScreenEditor({
   const [overId, setOverId] = useState<number | null>(null);
   const dragged = useRef(false);
   const [tab, setTab] = useState<"details" | "slides" | "notices">(panel || "slides");
+  const [themePick, setThemePick] = useState(screen.theme);
   useEffect(() => {
     if (panel) setTab(panel);
   }, [panel]);
@@ -183,7 +185,7 @@ export function ScreenEditor({
           <label>מספר<input name="number" defaultValue={screen.number} readOnly={lockAddress} /></label>
           <label>עיר<input name="city" defaultValue={screen.city} readOnly={lockAddress} /></label>
           <label>תמה
-            <select name="theme" defaultValue={screen.theme}>
+            <select name="theme" defaultValue={screen.theme} onChange={(event) => setThemePick(event.target.value)}>
               {THEMES.map((theme) => (
                 <option key={theme.id} value={theme.id}>{theme.name}</option>
               ))}
@@ -208,6 +210,15 @@ export function ScreenEditor({
                 <option value="on">פעיל</option>
                 <option value="weekend">כבוי בשישי ושבת</option>
                 <option value="off">כבוי</option>
+              </select>
+            </label>
+          ) : null}
+          {scope === "screen" && themePick === "luxury" ? (
+            <label>תוכן העמודה
+              <select name="feedMode" defaultValue={screen.feedMode || "both"}>
+                <option value="news">חדשות</option>
+                <option value="notices">הודעות הבניין</option>
+                <option value="both">חדשות והודעות</option>
               </select>
             </label>
           ) : null}
