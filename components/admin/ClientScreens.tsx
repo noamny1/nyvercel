@@ -63,15 +63,16 @@ export function ClientScreens({ rows, musicPeers, returnTo }: { rows: Row[]; mus
                 className="client-panel advice-form"
                 onSubmit={async (event) => {
                   event.preventDefault();
+                  const form = event.currentTarget;
                   setSending(true);
                   setError("");
-                  const result = await sendAdvice(new FormData(event.currentTarget));
+                  const result = await sendAdvice(new FormData(form));
                   setSending(false);
                   if (!result.ok) {
                     setError(result.error);
                     return;
                   }
-                  event.currentTarget.reset();
+                  form.reset();
                   setOpen(null);
                   setSent(true);
                 }}
@@ -84,7 +85,7 @@ export function ClientScreens({ rows, musicPeers, returnTo }: { rows: Row[]; mus
                 {error ? <p className="error">{error}</p> : null}
                 <button type="submit" disabled={sending}>{sending ? "שולח..." : "שליחה"}</button>
               </form>
-            ) : tab && tab !== "advice" ? (
+            ) : tab ? (
               <div className="client-panel">
                 <ScreenEditor
                   screen={screen}
