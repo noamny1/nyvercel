@@ -295,6 +295,13 @@ body:has(.admin) { background: #F4F1ED; overflow-x: hidden; }
 .admin .status-mark { inset-inline-start: auto; inset-inline-end: 8px; }
 .admin .status-mark.on { background: rgba(47, 107, 69, 0.9); border-color: transparent; }
 .admin .status-mark.off { background: rgba(196, 56, 74, 0.9); border-color: transparent; }
+.admin .ready-library .ready-card {
+  border: 2px solid #252525;
+  padding: 8px;
+  background: #fff;
+  border-radius: 12px;
+  gap: 6px;
+}
 .admin .slide-catalog { background: #F4F1ED; }
 .admin .add-thumb { display: grid; place-items: center; background: #252525; color: #F4F1ED; }
 .admin .add-thumb strong { position: relative; z-index: 1; font-weight: 400; font-size: 16px; line-height: 1.35; text-align: center; padding: 28px 12px 0; }
