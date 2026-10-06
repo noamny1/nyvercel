@@ -215,7 +215,7 @@ body:has(.admin) { background: #F4F1ED; overflow-x: hidden; }
 }
 .admin .ready-cats button.is-on { background: #5A1F2B; }
 .admin .ready-cats small { font-size: 13px; opacity: 0.85; }
-.admin .ready-grid, .admin .slide-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; margin-top: 12px; }
+.admin .ready-grid, .admin .slide-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: 10px; margin-top: 12px; }
 .admin .ready-card {
   display: grid;
   gap: 6px;
@@ -226,6 +226,19 @@ body:has(.admin) { background: #F4F1ED; overflow-x: hidden; }
   border-radius: 10px;
 }
 .admin .ready-card > span { font-size: 13px; padding: 0 2px 4px; }
+.admin .slide-label {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  min-height: 2.4em;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.2;
+  color: #252525;
+  text-align: right;
+}
+.admin .slide-when { color: #5c5854; font-size: 11px; line-height: 1.3; }
 .admin .photo-slide { position: relative; aspect-ratio: 16 / 9; border-radius: 10px; overflow: hidden; background: #111; }
 .admin .thumb { position: relative; display: block; aspect-ratio: 16 / 9; border-radius: 10px; overflow: hidden; background: #111; }
 .admin .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }

@@ -51,16 +51,18 @@ function SlidePeek({ url, title }: { url: string; title?: string }) {
   if (url.toLowerCase().includes(".pdf")) return <span className="pdf-mark large">PDF</span>;
   return <img className="mini-preview" src={url} alt="" />;
 }
-function Photo({ slide, meta }: { slide: ReadySlide; meta: SlideMeta }) {
+function Photo({ slide, meta, overlay = true }: { slide: ReadySlide; meta: SlideMeta; overlay?: boolean }) {
   return (
     <div className="photo-slide">
       <img src={slide.image} alt="" />
       <KindMark />
+      {overlay ? (
       <div>
         <small>{slide.category}</small>
         <strong>{slide.title}</strong>
         <span>{fillLine(slide.line, meta)}</span>
       </div>
+      ) : null}
     </div>
   );
 }
@@ -154,29 +156,23 @@ export function ReadyLibrary({ onAdd, city = "" }: { onAdd: (draft: SlideDraft) 
     <div className="ready-library">
       <div className="ready-grid">
         <button type="button" className="ready-card add-card" onClick={() => { setOpen(null); setMode("image"); setError(""); }}>
+          <span className="slide-label">שקף תמונה חדש</span>
           <span className="thumb add-thumb">
             <KindMark />
-            <strong>שקף תמונה חדש</strong>
           </span>
-          <span>העלאת תמונה או PDF</span>
         </button>
         <button type="button" className="ready-card add-card" onClick={() => { setOpen(null); setMode("youtube"); setError(""); }}>
+          <span className="slide-label">סרטון יוטיוב חדש</span>
           <span className="thumb add-thumb">
             <KindMark video />
-            <strong>סרטון יוטיוב חדש</strong>
           </span>
-          <span>הדבקת קישור לסרטון</span>
         </button>
         {FIXED_VIDEOS.map((video) => (
             <button key={video.id} type="button" className="ready-card" disabled={busy} onClick={() => { setOpen(null); setPreview(video); }}>
+              <span className="slide-label">{video.title}</span>
               <div className="photo-slide">
                 <img src={video.poster} alt="" />
                 <KindMark video />
-                <div>
-                  <small>סרטון</small>
-                  <strong>{video.title}</strong>
-                  <span>{video.duration} שנ׳</span>
-                </div>
               </div>
             </button>
           ))}
@@ -184,7 +180,8 @@ export function ReadyLibrary({ onAdd, city = "" }: { onAdd: (draft: SlideDraft) 
       <div className="ready-grid">
         {READY_SLIDES.map((slide) => (
           <button key={slide.id} type="button" className="ready-card" onClick={() => choose(slide)}>
-            <Photo slide={slide} meta={slide.defaults} />
+            <span className="slide-label">{slide.title}</span>
+            <Photo slide={slide} meta={slide.defaults} overlay={false} />
           </button>
         ))}
       </div>

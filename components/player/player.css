@@ -151,14 +151,15 @@
 .know-kicker { margin: 0; color: #e6d3ae; font-size: clamp(15px, 3cqh, 26px); }
 .know-head { display: flex; align-items: center; gap: 2cqh; }
 .know-portrait {
-  width: 15cqh;
-  height: 15cqh;
-  min-width: 72px;
-  border-radius: 50%;
-  object-fit: cover;
-  object-position: center 18%;
+  width: 13.5cqh;
+  height: 18cqh;
+  min-width: 76px;
+  min-height: 102px;
+  border-radius: 16px;
+  object-fit: contain;
+  object-position: center center;
   border: 3px solid #e6d3ae;
-  background: #252525;
+  background: #f4f1ed;
   flex: none;
 }
 .know h2 { margin: 0; font-size: clamp(26px, 6.4cqh, 64px); font-weight: 500; line-height: 1.12; text-wrap: balance; }
