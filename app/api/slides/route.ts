@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { screenWhere, groupWhere } from "@/lib/access";
+import { requireSession } from "@/lib/session";
 import { touchOwner } from "@/lib/publish";
 import { defaultWeekdays } from "@/lib/ready-slides";
 
