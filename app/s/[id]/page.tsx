@@ -15,6 +15,7 @@ import { markets } from "@/lib/markets";
 import { liveHeadlines } from "@/lib/news";
 import { prisma } from "@/lib/prisma";
 import { musicSilenced } from "@/lib/flags";
+import { FIXED_VIDEOS } from "@/lib/ready-slides";
 import { newsTickerOn, slideIsOn } from "@/lib/schedule";
 import { shabbatFor } from "@/lib/shabbat";
 import { weatherFor } from "@/lib/weather";
