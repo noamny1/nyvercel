@@ -14,7 +14,7 @@ async function gate() {
 }
 
 function chosenNews(formData: FormData) {
-  const ids = [...new Set(formData.getAll("newsSource").map((value) => String(value).trim()).filter(Boolean))].slice(0, 3);
+  const ids = [...new Set(formData.getAll("newsSource").map((value) => String(value).trim()).filter(Boolean))].slice(0, 4);
   return ids.join(",") || "ynet";
 }
 

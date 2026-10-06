@@ -76,7 +76,7 @@ export function ScreenEditor({
   const newsCatalog = feeds && feeds.length > 0 ? feeds : NEWS_SOURCES;
   const [newsPick, setNewsPick] = useState(() => {
     const picked = (screen.newsSource || "ynet").split(",").map((item) => item.trim()).filter(Boolean);
-    return picked.slice(0, 3);
+    return picked.slice(0, 4);
   });
   useEffect(() => {
     if (panel) setTab(panel);
@@ -236,7 +236,7 @@ export function ScreenEditor({
         </div>
         <fieldset className="day-picks music-picks">
           <legend>חדשות</legend>
-          <p>אפשר לבחור עד 3 מקורות. הם יופיעו לסירוגין על המסך.</p>
+          <p>אפשר לבחור עד 4 מקורות. הם יופיעו לסירוגין על המסך.</p>
           <div>
             {newsCatalog.map((source) => {
               const on = newsPick.includes(source.id);
@@ -247,14 +247,14 @@ export function ScreenEditor({
                     name="newsSource"
                     value={source.id}
                     checked={on}
-                    disabled={!on && newsPick.length >= 3}
+                    disabled={!on && newsPick.length >= 4}
                     onChange={() => {
                       setNewsPick((current) => {
                         if (current.includes(source.id)) {
                           const next = current.filter((item) => item !== source.id);
                           return next.length ? next : current;
                         }
-                        if (current.length >= 3) return current;
+                        if (current.length >= 4) return current;
                         return [...current, source.id];
                       });
                     }}

@@ -104,7 +104,7 @@ export async function refreshNews(sourceId?: string) {
 }
 
 function sourceIds(value?: string) {
-  const ids = [...new Set((value || "ynet").split(",").map((item) => item.trim()).filter(Boolean))].slice(0, 3);
+  const ids = [...new Set((value || "ynet").split(",").map((item) => item.trim()).filter(Boolean))].slice(0, 4);
   return ids.length ? ids : ["ynet"];
 }
 
