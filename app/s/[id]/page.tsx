@@ -200,7 +200,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
               </strong>
             ) : null}
           </div>
-          <div className="lux-logo">
+          <div className={`lux-logo${(screen.logoUrl || source.logoUrl) ? " is-photo" : " is-empty"}`}>
             {(screen.logoUrl || source.logoUrl) ? <img src={screen.logoUrl || source.logoUrl} alt="" /> : <span>לוגו הלקוח<small>הבניין</small></span>}
           </div>
         </footer>

@@ -147,17 +147,40 @@
   display: grid;
   place-items: center;
   min-width: 0;
-  padding: 12px 18px;
+  min-height: 0;
+  padding: 0;
+  overflow: hidden;
   border: 1px solid #e6d3ae;
   border-radius: 28px;
   background: #252525;
   text-align: center;
 }
-.layout-luxury .lux-logo img { max-width: 100%; max-height: 84px; object-fit: contain; }
+.layout-luxury .lux-logo.is-photo {
+  position: relative;
+}
+.layout-luxury .lux-logo.is-photo img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.layout-luxury .lux-logo.is-empty {
+  padding: 10px 14px;
+}
 .layout-luxury .lux-logo span,
-.layout-luxury .lux-logo small { display: block; }
-.layout-luxury .lux-logo span { color: #F4F1ED; font-size: 20px; font-weight: 300; }
-.layout-luxury .lux-logo small { color: #e6d3ae; font-size: 15px; }
+.layout-luxury .lux-logo small { display: block; max-width: 100%; }
+.layout-luxury .lux-logo span {
+  color: #F4F1ED;
+  font-size: clamp(22px, 1.7vw, 34px);
+  font-weight: 400;
+  line-height: 1.15;
+}
+.layout-luxury .lux-logo small {
+  margin-top: 4px;
+  color: #e6d3ae;
+  font-size: clamp(15px, 1.15vw, 22px);
+}
 .layout-luxury .music-credit { left: auto; right: 36px; bottom: 168px; }
 .layout-luxury.stage.slide-full {
   gap: 0;

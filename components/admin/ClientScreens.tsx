@@ -56,7 +56,7 @@ export function ClientScreens({ rows, musicPeers, returnTo }: { rows: Row[]; mus
               <button type="button" className={tab === "details" ? "is-on" : ""} onClick={() => pick(screen.id, "details")}>הגדרות מסך</button>
               <button type="button" className={tab === "slides" ? "is-on" : ""} onClick={() => pick(screen.id, "slides")}>שקפים</button>
               <button type="button" className={tab === "notices" ? "is-on" : ""} onClick={() => pick(screen.id, "notices")}>הודעות</button>
-              <button type="button" className={tab === "advice" ? "is-on" : ""} onClick={() => pick(screen.id, "advice")}>המלצות</button>
+              <button type="button" className={tab === "advice" ? "is-on" : ""} onClick={() => pick(screen.id, "advice")}>הצעות לשיפור</button>
               <a href={`/s/${screen.code || screen.id}`} target="_blank">הצגת המסך</a>
             </div>
             {tab === "advice" ? (
@@ -79,8 +79,8 @@ export function ClientScreens({ rows, musicPeers, returnTo }: { rows: Row[]; mus
                 }}
               >
                 <label>
-                  ההמלצה
-                  <textarea name="text" required rows={5} placeholder="כתבו כאן את ההמלצה" />
+                  ההצעה
+                  <textarea name="text" required rows={5} placeholder="כתבו כאן הצעה לשיפור" />
                 </label>
                 <input type="hidden" name="screenId" value={screen.id} />
                 {error ? <p className="error">{error}</p> : null}

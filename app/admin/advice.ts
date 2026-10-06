@@ -18,7 +18,7 @@ export async function sendAdvice(formData: FormData) {
   if (!email) return { ok: false as const, error: "צריך להיכנס מחדש." };
   const text = String(formData.get("text") || "").trim().slice(0, 4000);
   const screenId = Number(formData.get("screenId"));
-  if (!text) return { ok: false as const, error: "נא לכתוב את ההמלצה." };
+  if (!text) return { ok: false as const, error: "נא לכתוב את ההצעה." };
   if (!screenId) return { ok: false as const, error: "המסך לא נמצא." };
 
   const screen = await prisma.screen.findFirst({
@@ -36,26 +36,26 @@ export async function sendAdvice(formData: FormData) {
   const admin = process.env.ADMIN_EMAIL?.trim().toLowerCase();
   const to = [...new Set([admin, "noam6683@gmail.com"].filter((item): item is string => Boolean(item)))];
   const lines = [
-    "המלצה חדשה מלקוח",
+    "הצעה לשיפור מלקוח",
     "",
     `שם: ${name || "—"}`,
     `אימייל: ${email}`,
     `מסך: ${screen.code || screen.id}`,
     `כתובת: ${address}`,
     "",
-    "ההמלצה:",
+    "ההצעה:",
     text,
   ];
   const html = `<div dir="rtl" style="font-family:Calibri,Arial,sans-serif;color:#252525">
-    <p>המלצה חדשה מלקוח</p>
+    <p>הצעה לשיפור מלקוח</p>
     <p>שם: ${escapeHtml(name || "—")}<br>אימייל: ${escapeHtml(email)}<br>מסך: ${screen.code || screen.id}<br>כתובת: ${escapeHtml(address)}</p>
-    <p>ההמלצה:</p>
+    <p>ההצעה:</p>
     <p>${escapeHtml(text).replace(/\n/g, "<br>")}</p>
   </div>`;
   return sendAdviceMail({
     to,
     replyTo: email,
-    subject: `המלצה מ${name || email} · ${address}`,
+    subject: `הצעה לשיפור מ${name || email} · ${address}`,
     text: lines.join("\n"),
     html,
   });
