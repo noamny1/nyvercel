@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { KindMark, ReadyLibrary, SavedSlideEditor, type SlideDraft } from "@/components/admin/ReadyLibrary";
 import { NEWS_SOURCES } from "@/lib/news-sources";
 import { THEMES } from "@/lib/themes";
@@ -66,10 +66,35 @@ export function ScreenEditor({
   const [message, setMessage] = useState("");
   const [editing, setEditing] = useState<number | null>(null);
   const [openSlide, setOpenSlide] = useState<number | null>(null);
+  const [ordered, setOrdered] = useState(slides);
+  const [dragId, setDragId] = useState<number | null>(null);
+  const [overId, setOverId] = useState<number | null>(null);
+  const dragged = useRef(false);
   const [tab, setTab] = useState<"details" | "slides" | "notices">(panel || "slides");
   useEffect(() => {
     if (panel) setTab(panel);
   }, [panel]);
+  useEffect(() => {
+    setOrdered(slides);
+  }, [slides]);
+
+  function moveSlides(targetId: number) {
+    if (dragId == null || dragId === targetId) return;
+    const next = [...ordered];
+    const from = next.findIndex((item) => item.id === dragId);
+    const to = next.findIndex((item) => item.id === targetId);
+    if (from < 0 || to < 0) return;
+    const [item] = next.splice(from, 1);
+    next.splice(to, 0, item);
+    setOrdered(next);
+    setDragId(null);
+    setOverId(null);
+    void fetch("/api/slides", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ order: next.map((slide) => slide.id) }),
+    }).then(() => router.refresh());
+  }
 
   async function upload(file: File, kind: "image" | "slide") {
     const body = new FormData();
@@ -252,12 +277,40 @@ export function ScreenEditor({
       <>
       <section className="card screen-slides">
         <h2>השקפים שמוצגים במסך</h2>
-        <p>מסגרת ירוקה: השקף על המסך עכשיו. מסגרת אדומה: הימים או התאריכים לא מתאימים, והשקף לא מופיע.</p>
+        <p>גררו שקף למקום אחר כדי לקבוע את סדר ההצגה. הראשון ברשימה מוצג ראשון. מסגרת ירוקה: השקף על המסך עכשיו. מסגרת אדומה: הימים או התאריכים לא מתאימים, והשקף לא מופיע.</p>
         <div className="slide-grid">
-          {slides.map((slide) => {
+          {ordered.map((slide) => {
             const status = slideStatus(slide);
             return (
-              <button className={`ready-card mine-slide ${status.on ? "on" : "off"}`} type="button" key={slide.id} onClick={() => setOpenSlide(slide.id)}>
+              <button
+                className={`ready-card mine-slide ${status.on ? "on" : "off"}${dragId === slide.id ? " dragging" : ""}${overId === slide.id ? " drop-target" : ""}`}
+                type="button"
+                key={slide.id}
+                draggable
+                onDragStart={(event) => {
+                  dragged.current = true;
+                  setDragId(slide.id);
+                  event.dataTransfer.effectAllowed = "move";
+                  event.dataTransfer.setData("text/plain", String(slide.id));
+                }}
+                onDragEnd={() => {
+                  setDragId(null);
+                  setOverId(null);
+                  setTimeout(() => { dragged.current = false; }, 0);
+                }}
+                onDragOver={(event) => {
+                  event.preventDefault();
+                  setOverId(slide.id);
+                }}
+                onDrop={(event) => {
+                  event.preventDefault();
+                  moveSlides(slide.id);
+                }}
+                onClick={() => {
+                  if (dragged.current) return;
+                  setOpenSlide(slide.id);
+                }}
+              >
                 <span className="slide-label">{slide.title || (slide.kind === "youtube" ? "סרטון" : "שקף")}</span>
                 <span className="thumb">
                   {slide.kind === "youtube" ? <img src={slide.imageUrl.endsWith(".mp4") ? slide.imageUrl.replace(/\.mp4$/, ".jpg") : `https://i.ytimg.com/vi/${slide.imageUrl.slice(-11)}/hqdefault.jpg`} alt="" /> : slide.imageUrl.toLowerCase().includes(".pdf") ? <span className="pdf-mark">PDF</span> : <img src={slide.imageUrl} alt="" />}

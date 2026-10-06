@@ -471,7 +471,9 @@ body:has(.admin) { background: #F4F1ED; overflow-x: hidden; }
   min-height: 2.4em;
   max-height: 2.5em;
 }
-.admin .ready-card.mine-slide { width: 100%; min-width: 0; max-width: 100%; overflow: hidden; border: 3px solid transparent; padding: 4px; background: #fff; border-radius: 12px; }
+.admin .ready-card.mine-slide { width: 100%; min-width: 0; max-width: 100%; overflow: hidden; border: 3px solid transparent; padding: 4px; background: #fff; border-radius: 12px; cursor: grab; }
+.admin .ready-card.mine-slide.dragging { opacity: 0.45; }
+.admin .ready-card.mine-slide.drop-target { outline: 2px solid #5A1F2B; outline-offset: 2px; }
 .admin .mine-slide strong { font-size: 14px; font-weight: 400; }
 .admin .mine-slide small { color: #5c5854; font-size: 11px; line-height: 1.3; }
 .admin .mine-slide .kind-mark {

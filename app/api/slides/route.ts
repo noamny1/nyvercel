@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireSession } from "@/lib/session";
+import { screenWhere, groupWhere } from "@/lib/access";
 import { touchOwner } from "@/lib/publish";
 import { defaultWeekdays } from "@/lib/ready-slides";
 
@@ -50,7 +50,28 @@ export async function POST(request: Request) {
 export async function PATCH(request: Request) {
   const session = await requireSession();
   if (!session) return NextResponse.json({ error: "נדרשת כניסה" }, { status: 401 });
-  const body = (await request.json()) as { id?: number; duration?: number; direction?: "up" | "down"; weekdays?: string; startsOn?: string; endsOn?: string; imageUrl?: string; title?: string; detail?: string; meta?: string };
+  const body = (await request.json()) as { id?: number; order?: number[]; duration?: number; direction?: "up" | "down"; weekdays?: string; startsOn?: string; endsOn?: string; imageUrl?: string; title?: string; detail?: string; meta?: string };
+  if (Array.isArray(body.order)) {
+    const ids = body.order.map(Number).filter((id) => Number.isInteger(id) && id > 0);
+    const unique = [...new Set(ids)];
+    if (!unique.length) return NextResponse.json({ error: "חסר סדר" }, { status: 400 });
+    const rows = await prisma.slide.findMany({ where: { id: { in: unique } } });
+    if (rows.length !== unique.length) return NextResponse.json({ error: "לא נמצא" }, { status: 404 });
+    const screenId = rows[0].screenId;
+    const groupId = rows[0].groupId;
+    const same = rows.every((row) => row.screenId === screenId && row.groupId === groupId);
+    if (!same) return NextResponse.json({ error: "השקפים לא מאותו מסך" }, { status: 400 });
+    if (screenId) {
+      const allowed = await prisma.screen.findFirst({ where: { id: screenId, ...(await screenWhere(session)) }, select: { id: true } });
+      if (!allowed) return NextResponse.json({ error: "אין הרשאה" }, { status: 403 });
+    } else if (groupId) {
+      const allowed = await prisma.screenGroup.findFirst({ where: { id: groupId, ...(await groupWhere(session)) }, select: { id: true } });
+      if (!allowed) return NextResponse.json({ error: "אין הרשאה" }, { status: 403 });
+    }
+    await prisma.$transaction(unique.map((id, index) => prisma.slide.update({ where: { id }, data: { sort: index + 1 } })));
+    await touchOwner({ screenId, groupId });
+    return NextResponse.json({ ok: true });
+  }
   if (!body.id) return NextResponse.json({ error: "חסר מזהה" }, { status: 400 });
   const slide = await prisma.slide.findUnique({ where: { id: body.id } });
   if (!slide) return NextResponse.json({ error: "לא נמצא" }, { status: 404 });
