@@ -19,6 +19,7 @@ export const READY_CATEGORIES = [
   "הודעות כלליות",
   "ברכות",
   "מועדים וחגים",
+  "ימים לאומיים",
   "הודעות יומיות",
   "זכויות מדייר",
   "תוכן לדרך",
@@ -33,6 +34,11 @@ export const READY_SLIDES: ReadySlide[] = [
   { id: "general-clean", category: "הודעות כלליות", title: "ניקיון", line: "ניקיון הלובי מתבצע בכל בוקר", image: "/ready-slides/general-clean.jpg", defaults: {} },
   { id: "general-hours", category: "הודעות כלליות", title: "קבלת קהל", line: "הוועד זמין בימים {day} עד {from}", image: "/ready-slides/general-hours.jpg", day: "text", from: true, defaults: { day: "א׳–ה׳", from: "19:00" } },
   { id: "general-cameras", category: "הודעות כלליות", title: "אבטחה", line: "הלובי והחניה מצולמים", image: "/ready-slides/general-cameras.jpg", defaults: {} },
+  { id: "rule-smoke", category: "הודעות כלליות", title: "איסור עישון", line: "העישון אסור בלובי, במדרגות ובמעלית.\nתודה ששומרים על אוויר נקי לכל הדיירים.", image: "/ready-slides/rule-smoke.jpg", defaults: {} },
+  { id: "rule-bikes", category: "הודעות כלליות", title: "אופניים וקורקינט", line: "אופניים וקורקינט לא משאירים במעבר.\nהלובי, המדרגות והמסדרון נשארים פנויים.", image: "/ready-slides/rule-bikes.jpg", defaults: {} },
+  { id: "rule-guests", category: "הודעות כלליות", title: "חניות אורחים", line: "חניות האורחים מיועדות לאורחים בלבד.\nדיירים מחנים בחניה השמורה להם.", image: "/ready-slides/rule-guests.jpg", defaults: {} },
+  { id: "rule-packages", category: "הודעות כלליות", title: "איסוף חבילות", line: "חבילה מחכה בלובי? אפשר לאסוף אותה אצל הוועד.\nלא משאירים קרטונים וחבילות במעבר.", image: "/ready-slides/rule-packages.jpg", defaults: {} },
+  { id: "rule-recycle", category: "הודעות כלליות", title: "מחזור", line: "מפרידים פסולת: נייר, אריזות, בקבוקים ופסולת רגילה.\nכך הלובי נשאר נקי, וכולם נהנים.", image: "/ready-slides/rule-recycle.jpg", defaults: {} },
   { id: "greet-shabbat", category: "ברכות", title: "שבת שלום", line: "מאחלים לכל הדיירים שבת שקטה", image: "/ready-slides/greet-shabbat.jpg", defaults: {} },
   { id: "weekly-parasha", category: "ברכות", title: "פרשת השבוע", line: "השם מתעדכן לבד בכל שבוע", image: "/ready-slides/greet-shabbat.jpg", defaults: {} },
   { id: "greet-mazal", category: "ברכות", title: "מזל טוב", line: "מזל טוב.\nשתהיה זו שמחה גדולה, ובריאות לכל המשפחה.", image: "/ready-slides/greet-mazal.jpg", defaults: {} },
@@ -40,6 +46,12 @@ export const READY_SLIDES: ReadySlide[] = [
   { id: "greet-holiday", category: "ברכות", title: "חג שמח", line: "חג שמח לכל דיירי הבניין.\nמאחלים ימים של שמחה, בריאות ושקט בבית.", image: "/ready-slides/greet-holiday.jpg", defaults: {} },
   { id: "greet-building", category: "ברכות", title: "ברכת הבניין", line: "הבית הזה הוא המקום של כולנו.\nכאן אנחנו שכנים, וגם קהילה אחת.\nשומרים זה על זה, על הלובי ועל השקט.\nמאחלים לכל דייר ודיירת בריאות, פרנסה ושכנות טובה.\nשנזכה תמיד לעלות ולרדת בשלום.", image: "/ready-slides/greet-building.jpg", defaults: {} },
   { id: "greet-family", category: "ברכות", title: "משפחה חדשה", line: "ברוכים הבאים למשפחת {day} שהצטרפה לבניין.\nשמחים שהגעתם. מאחלים לכם בית חם ושכנות טובה.", image: "/ready-slides/greet-family.jpg", day: "text", prompt: "שם המשפחה", defaults: { day: "ישראל" } },
+  { id: "greet-birthday", category: "ברכות", title: "יום הולדת", line: "יום הולדת שמח ל{day}.\nמאחלים שנה של בריאות, שמחה והרבה רגעים טובים.", image: "/ready-slides/greet-birthday.jpg", day: "text", prompt: "שם", defaults: { day: "ישראל" } },
+  { id: "greet-birth", category: "ברכות", title: "לידה", line: "מזל טוב למשפחת {day} על הלידה.\nמאחלים בריאות להורים ולתינוק, ושמחה גדולה בבית.", image: "/ready-slides/greet-birth.jpg", day: "text", prompt: "שם המשפחה", defaults: { day: "ישראל" } },
+  { id: "greet-barmitzvah", category: "ברכות", title: "בר או בת מצווה", line: "מזל טוב ל{day} לבר או לבת המצווה.\nמאחלים המשך דרך של שמחה, בריאות וברכה.", image: "/ready-slides/greet-barmitzvah.jpg", day: "text", prompt: "שם", defaults: { day: "ישראל" } },
+  { id: "greet-wedding", category: "ברכות", title: "חתונה", line: "מזל טוב ל{day} לחתונה.\nמאחלים בית של שמחה, בריאות ואהבה.", image: "/ready-slides/greet-wedding.jpg", day: "text", prompt: "שמות", defaults: { day: "הזוג" } },
+  { id: "greet-refua", category: "ברכות", title: "רפואה שלמה", line: "רפואה שלמה ל{day}.\nכל הבניין מאחל החלמה מהירה וחזרה הביתה בשלום.", image: "/ready-slides/greet-refua.jpg", day: "text", prompt: "שם", defaults: { day: "ישראל" } },
+  { id: "greet-condolence", category: "ברכות", title: "השתתפות בצער", line: "הבניין משתתף בצער משפחת {day}.\nיהי זכרם ברוך. מאחלים נחמה וכוח.", image: "/ready-slides/greet-condolence.jpg", day: "text", prompt: "שם המשפחה", defaults: { day: "ישראל" } },
   { id: "custom-text", category: "הודעות כלליות", title: "ההודעה שלכם", line: "כאן כותבים את ההודעה לדיירים.\nאפשר למחוק את המשפט הזה ולכתוב כל מלל שתרצו.", image: "/ready-slides/custom-text.jpg", defaults: {} },
   { id: "holiday-rosh", category: "מועדים וחגים", title: "שנה טובה", line: "שנה טובה ומתוקה לכל דיירי הבניין.\nשתהיה זו שנה של בריאות, שקט וברכה.", image: "/ready-slides/holiday-rosh.jpg", defaults: {} },
   { id: "holiday-gedalia", category: "מועדים וחגים", title: "צום גדליה", line: "צום גדליה.\nצום קל ומועיל, ושתהיה זו שנה של אחדות בבית.", image: "/ready-slides/holiday-fast.jpg", defaults: {} },
@@ -57,6 +69,10 @@ export const READY_SLIDES: ReadySlide[] = [
   { id: "holiday-tamuz", category: "מועדים וחגים", title: "י״ז בתמוז", line: "י״ז בתמוז.\nצום קל לכל דיירי הבניין.", image: "/ready-slides/holiday-fast.jpg", defaults: {} },
   { id: "holiday-av", category: "מועדים וחגים", title: "תשעה באב", line: "תשעה באב, יום של זיכרון.\nשנזכה לנחמה, לאחדות ולבשורות טובות.", image: "/ready-slides/holiday-av.jpg", defaults: {} },
   { id: "holiday-tubav", category: "מועדים וחגים", title: "ט״ו באב", line: "ט״ו באב שמח.\nיום של אהבה, שמחה וברכה לכל הבית.", image: "/ready-slides/holiday-tubav.jpg", defaults: {} },
+  { id: "nation-shoah", category: "ימים לאומיים", title: "יום השואה", line: "יום הזיכרון לשואה ולגבורה.\nזוכרים. מאחלים שהזיכרון יישאר חי בכל בית.", image: "/ready-slides/nation-shoah.jpg", defaults: {} },
+  { id: "nation-zikaron", category: "ימים לאומיים", title: "יום הזיכרון", line: "יום הזיכרון לחללי מערכות ישראל.\nעומדים דום בזיכרון, ומאחלים נחמה למשפחות.", image: "/ready-slides/nation-zikaron.jpg", defaults: {} },
+  { id: "nation-atzmaut", category: "ימים לאומיים", title: "יום העצמאות", line: "יום העצמאות שמח.\nמאחלים לכל דיירי הבניין יום של שמחה, אחדות ושקט.", image: "/ready-slides/nation-atzmaut.jpg", defaults: {} },
+  { id: "nation-yerushalayim", category: "ימים לאומיים", title: "יום ירושלים", line: "יום ירושלים שמח.\nמאחלים לכל הבית ימים של שמחה, אחדות וברכה.", image: "/ready-slides/nation-yerushalayim.jpg", defaults: {} },
   { id: "daily-water", category: "הודעות יומיות", title: "הפסקת מים", line: "היום בין {from} ל־{to}", image: "/ready-slides/daily-water.jpg", from: true, to: true, defaults: { from: "09:00", to: "11:00" } },
   { id: "daily-elevator", category: "הודעות יומיות", title: "מעלית", line: "בדיקה בין {from} ל־{to}", image: "/ready-slides/daily-elevator.jpg", from: true, to: true, defaults: { from: "10:00", to: "12:00" } },
   { id: "daily-power", category: "הודעות יומיות", title: "הפסקת חשמל", line: "היום בין {from} ל־{to}", image: "/ready-slides/daily-power.jpg", from: true, to: true, defaults: { from: "14:00", to: "14:30" } },
@@ -82,8 +98,9 @@ export function templateSeconds(id: string) {
   if (id === "weekly-parasha") return 180;
   if (id === "daily-health" || id === "did-you-know" || id === "street-people") return 32;
   if (id === "greet-building") return 24;
-  if (id === "custom-text" || id === "greet-family") return 18;
+  if (id === "custom-text" || id === "greet-family" || id.startsWith("nation-") || id === "greet-birthday" || id === "greet-birth" || id === "greet-barmitzvah" || id === "greet-wedding" || id === "greet-refua" || id === "greet-condolence") return 18;
   if (id.startsWith("holiday-") || id === "greet-holiday") return 14;
+  if (id.startsWith("rule-")) return 12;
   return 10;
 }
 
