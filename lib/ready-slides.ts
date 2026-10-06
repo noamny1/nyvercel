@@ -121,7 +121,7 @@ export const FIXED_VIDEOS = [
   { id: "fixed-alarm", title: "אזעקה", line: "כשנשמעת אזעקה, נכנסים למרחב המוגן וסוגרים את הדלת. נשארים שם עד להודעה שאפשר לצאת.", url: "/safety/alarm.mp4?v=8", poster: "/safety/alarm.jpg?v=8", duration: 15 },
   { id: "fixed-fire-own", title: "שריפה", line: "בשריפה לא נכנסים למעלית, ויורדים במדרגות. מתקשרים לכיבוי אש במספר 102.", url: "/safety/fire.mp4?v=8", poster: "/safety/fire.jpg?v=8", duration: 15 },
   { id: "fixed-gas", title: "ריח גז", line: "אם מריחים גז, סוגרים את הברז ופותחים חלון. לא מדליקים חשמל, ומתקשרים 103.", url: "/safety/gas.mp4?v=8", poster: "/safety/gas.jpg?v=8", duration: 15 },
-  { id: "fixed-quake", title: "רעידת אדמה", line: "ברעידת אדמה יוצאים לשטח פתוח, או נכנסים למרחב מוגן. לא משתמשים במעלית.", url: "/safety/quake.mp4?v=8", poster: "/safety/quake.jpg?v=8", duration: 15 },
+  { id: "fixed-quake", title: "רעידת אדמה", line: "ברעידת אדמה יוצאים לשטח פתוח, או נכנסים למרחב מוגן. לא משתמשים במעלית.", url: "/safety/quake.mp4?v=9", poster: "/safety/quake.jpg?v=9", duration: 15 },
   { id: "fixed-tidy", title: "ניקיון וסדר", line: "שומרים על לובי נקי לכולם. לא משאירים שקיות, קרטונים ועגלות במעבר.", url: "/safety/tidy.mp4?v=8", poster: "/safety/tidy.jpg?v=8", duration: 15 },
   { id: "fixed-clear", title: "מעבר פנוי", line: "המדרגות והמסדרון נשארים פתוחים תמיד. לא חוסמים אותם בחפצים, גם לא לכמה דקות.", url: "/safety/clear.mp4?v=8", poster: "/safety/clear.jpg?v=8", duration: 15 },
   { id: "fixed-mda", title: "מד״א", line: "עזרה ראשונה רשמית: אדם שהתמוטט. חייגו 101", url: "https://www.youtube.com/watch?v=R8h0SwzNW2I", poster: "https://i.ytimg.com/vi/R8h0SwzNW2I/hqdefault.jpg", duration: 45 },
