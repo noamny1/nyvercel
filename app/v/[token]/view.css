@@ -7,8 +7,10 @@
   background: #f4f1ed;
   color: #241418;
   display: grid;
-  grid-template-rows: auto auto minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  align-content: start;
 }
+.file-view.is-open { grid-template-rows: auto auto minmax(0, 1fr); }
 .file-view header {
   display: flex;
   align-items: center;
@@ -34,16 +36,6 @@
   border-radius: 14px;
   overflow: hidden;
   background: #1a1014;
-}
-.file-wait {
-  margin: 0;
-  height: 100%;
-  display: grid;
-  place-items: center;
-  padding: 24px;
-  text-align: center;
-  color: #e6d3ae;
-  font-size: 16px;
 }
 .file-view img,
 .file-view iframe,
