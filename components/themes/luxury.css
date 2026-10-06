@@ -101,19 +101,47 @@
 }
 .layout-luxury .lux-address {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  text-align: center;
+  gap: 6px;
   min-width: 0;
-  padding: 0 40px;
+  padding: 0 32px;
   border-radius: 28px;
   background: #5A1F2B;
   color: #F4F1ED;
   direction: rtl;
-  font-size: clamp(26px, 2.2vw, 44px);
-  font-weight: 400;
+  text-align: center;
   overflow: hidden;
+}
+.layout-luxury .lux-address small {
+  color: #e6d3ae;
+  font-size: clamp(15px, 1.15vw, 22px);
+  font-weight: 300;
+  letter-spacing: 0.14em;
+}
+.layout-luxury .lux-address strong {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45em;
+  max-width: 100%;
+  font-size: clamp(26px, 2.15vw, 42px);
+  font-weight: 400;
+  line-height: 1.15;
+}
+.layout-luxury .lux-address strong span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
+}
+.layout-luxury .lux-address i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #e6d3ae;
+  flex: none;
 }
 .layout-luxury .lux-logo {
   display: grid;

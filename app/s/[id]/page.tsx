@@ -38,8 +38,7 @@ function address(street: string, number: string, city: string) {
 }
 
 function welcome(street: string, number: string, city: string) {
-  const line = [street, number, city].filter(Boolean).join(" ");
-  return line ? `ברוכים הבאים: ${line}` : "ברוכים הבאים";
+  return { line: [street, number].filter(Boolean).join(" "), city };
 }
 
 export default async function ScreenView({ params }: { params: Promise<{ id: string }> }) {
@@ -187,7 +186,16 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
       </aside>
       {luxury ? (
         <footer className="luxury-foot">
-          <div className="lux-address">{greet}</div>
+          <div className="lux-address">
+            <small>ברוכים הבאים</small>
+            {greet.line || greet.city ? (
+              <strong>
+                {greet.line ? <span>{greet.line}</span> : null}
+                {greet.line && greet.city ? <i /> : null}
+                {greet.city ? <span>{greet.city}</span> : null}
+              </strong>
+            ) : null}
+          </div>
           <div className="lux-logo">
             {(screen.logoUrl || source.logoUrl) ? <img src={screen.logoUrl || source.logoUrl} alt="" /> : <span>לוגו הלקוח<small>הבניין</small></span>}
           </div>
