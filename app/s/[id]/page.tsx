@@ -23,9 +23,6 @@ import { shabbatFor } from "@/lib/shabbat";
 import { weatherFor } from "@/lib/weather";
 import "@/components/player/player.css";
 import "@/components/themes/modern.css";
-import "@/components/themes/yuval.css";
-import "@/components/themes/residential.css";
-import "@/components/themes/extra.css";
 import "@/components/themes/luxury.css";
 
 const heebo = Heebo({ subsets: ["hebrew", "latin"], weight: ["300", "400", "500"], display: "swap" });
@@ -68,7 +65,8 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
   const pool = screen.slides.length > 0 ? screen.slides : source.slides;
   const visible = pool.filter((slide) => slideIsOn(slide));
   const notices = screen.notices.length > 0 ? screen.notices : source.notices;
-  const theme = screen.theme || source.theme || "modern";
+  const chosen = screen.theme || source.theme || "modern";
+  const theme = chosen === "luxury" ? "luxury" : "modern";
   const luxury = theme === "luxury";
   const newsSource = screen.newsSource || source.newsSource || "ynet";
   const sourceCount = newsSource.split(",").map((item) => item.trim()).filter(Boolean).length || 1;
@@ -102,7 +100,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
   }
 
   return (
-    <main className={`stage theme-${theme}${luxury ? ` layout-luxury ${heebo.className}` : ""}${theme === "yuval" ? " layout-yuval" : ""}${indexTheme ? " layout-index" : ""}${tickerOn && !luxury ? "" : " no-ticker"}`}>
+    <main className={`stage theme-${theme}${luxury ? ` layout-luxury ${heebo.className}` : ""}${tickerOn && !luxury ? "" : " no-ticker"}`}>
       <Music playlist={silenced ? "off" : screen.musicPlaylist || ""} url={silenced ? "" : screen.group?.musicUrl || ""} start={screen.id} />
       <Wake />
       <Ping code={screen.code || screen.id} revision={screen.revision} />

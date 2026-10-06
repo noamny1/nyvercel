@@ -72,7 +72,7 @@ export function ScreenEditor({
   const [overId, setOverId] = useState<number | null>(null);
   const dragged = useRef(false);
   const [tab, setTab] = useState<"details" | "slides" | "notices">(panel || "slides");
-  const [themePick, setThemePick] = useState(screen.theme);
+  const [themePick, setThemePick] = useState(screen.theme === "luxury" ? "luxury" : "modern");
   const newsCatalog = feeds && feeds.length > 0 ? feeds : NEWS_SOURCES;
   const [newsPick, setNewsPick] = useState(() => {
     const picked = (screen.newsSource || "ynet").split(",").map((item) => item.trim()).filter(Boolean);
@@ -190,7 +190,7 @@ export function ScreenEditor({
           <label>מספר<input name="number" defaultValue={screen.number} readOnly={lockAddress} /></label>
           <label>עיר<input name="city" defaultValue={screen.city} readOnly={lockAddress} /></label>
           <label>תמה
-            <select name="theme" defaultValue={screen.theme} onChange={(event) => setThemePick(event.target.value)}>
+            <select name="theme" defaultValue={themePick} onChange={(event) => setThemePick(event.target.value)}>
               {THEMES.map((theme) => (
                 <option key={theme.id} value={theme.id}>{theme.name}</option>
               ))}
