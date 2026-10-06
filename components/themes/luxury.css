@@ -81,14 +81,13 @@
   overflow: hidden;
 }
 .layout-luxury .lux-empty { margin: 24px 0; color: #e6d3ae; font-weight: 300; }
-.layout-luxury .lux-brand { margin-top: auto; }
+.layout-luxury .lux-brand { margin-top: auto; display: flex; flex-direction: column; align-items: center; }
 .layout-luxury .lux-brand img {
   display: block;
   height: 72px;
   width: auto;
   max-width: 100%;
   margin-top: 16px;
-  margin-inline-start: auto;
   object-fit: contain;
   filter: brightness(0) invert(1);
 }
@@ -112,9 +111,9 @@
   direction: rtl;
   font-size: clamp(26px, 2.2vw, 44px);
   font-weight: 400;
+  gap: 0.85em;
   overflow: hidden;
   white-space: nowrap;
-  text-overflow: ellipsis;
 }
 .layout-luxury .lux-logo {
   display: grid;

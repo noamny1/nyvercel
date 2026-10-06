@@ -37,6 +37,13 @@ function address(street: string, number: string, city: string) {
   return [line, city].filter(Boolean).join(", ");
 }
 
+function welcome(street: string, number: string, city: string) {
+  const line = [street, number].filter(Boolean).join(" ");
+  if (!line && !city) return { hello: "ברוכים הבאים", city: "" };
+  if (!line) return { hello: `ברוכים הבאים ל${city}`, city: "" };
+  return { hello: `ברוכים הבאים ל${line}`, city };
+}
+
 export default async function ScreenView({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const key = Number(id);
@@ -75,6 +82,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
   ]);
   const theme = screen.theme || source.theme || "modern";
   const luxury = theme === "luxury";
+  const greet = welcome(street, number, city);
   const feedMode = screen.feedMode === "news" || screen.feedMode === "notices" ? screen.feedMode : "both";
   const newsSource = screen.newsSource || source.newsSource || "ynet";
   const newsName = newsSource === "channel14" ? "חדשות 14" : newsSource === "walla" ? "וואלה" : newsSource === "ynet" ? "ynet" : newsSource;
@@ -181,7 +189,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
       </aside>
       {luxury ? (
         <footer className="luxury-foot">
-          <div className="lux-address">{address(street, number, city) || "הכתובת"}</div>
+          <div className="lux-address"><span>{greet.hello}</span>{greet.city ? <span>{greet.city}</span> : null}</div>
           <div className="lux-logo">
             {(screen.logoUrl || source.logoUrl) ? <img src={screen.logoUrl || source.logoUrl} alt="" /> : <span>לוגו הלקוח<small>הבניין</small></span>}
           </div>
