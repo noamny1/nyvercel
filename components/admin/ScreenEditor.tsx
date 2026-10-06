@@ -73,6 +73,11 @@ export function ScreenEditor({
   const dragged = useRef(false);
   const [tab, setTab] = useState<"details" | "slides" | "notices">(panel || "slides");
   const [themePick, setThemePick] = useState(screen.theme);
+  const newsCatalog = feeds && feeds.length > 0 ? feeds : NEWS_SOURCES;
+  const [newsPick, setNewsPick] = useState(() => {
+    const picked = (screen.newsSource || "ynet").split(",").map((item) => item.trim()).filter(Boolean);
+    return picked.slice(0, 3);
+  });
   useEffect(() => {
     if (panel) setTab(panel);
   }, [panel]);
@@ -191,13 +196,6 @@ export function ScreenEditor({
               ))}
             </select>
           </label>
-          <label>חדשות
-            <select name="newsSource" defaultValue={screen.newsSource}>
-              {(feeds && feeds.length > 0 ? feeds : NEWS_SOURCES).map((source) => (
-                <option key={source.id} value={source.id}>{source.name}</option>
-              ))}
-            </select>
-          </label>
           {newsTuning ? (
             <>
               <label>כמות כתבות<input name="newsCount" type="number" min={1} max={20} defaultValue={screen.newsCount ?? 8} /></label>
@@ -236,6 +234,37 @@ export function ScreenEditor({
             </>
           ) : null}
         </div>
+        <fieldset className="day-picks music-picks">
+          <legend>חדשות</legend>
+          <p>אפשר לבחור עד 3 מקורות. הם יופיעו לסירוגין על המסך.</p>
+          <div>
+            {newsCatalog.map((source) => {
+              const on = newsPick.includes(source.id);
+              return (
+                <label key={source.id}>
+                  <input
+                    type="checkbox"
+                    name="newsSource"
+                    value={source.id}
+                    checked={on}
+                    disabled={!on && newsPick.length >= 3}
+                    onChange={() => {
+                      setNewsPick((current) => {
+                        if (current.includes(source.id)) {
+                          const next = current.filter((item) => item !== source.id);
+                          return next.length ? next : current;
+                        }
+                        if (current.length >= 3) return current;
+                        return [...current, source.id];
+                      });
+                    }}
+                  />
+                  {source.name}
+                </label>
+              );
+            })}
+          </div>
+        </fieldset>
         {scope === "screen" ? (
           <fieldset className="day-picks music-picks">
             <legend>מוזיקה</legend>

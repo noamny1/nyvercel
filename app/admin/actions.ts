@@ -13,6 +13,11 @@ async function gate() {
   return session;
 }
 
+function chosenNews(formData: FormData) {
+  const ids = [...new Set(formData.getAll("newsSource").map((value) => String(value).trim()).filter(Boolean))].slice(0, 3);
+  return ids.join(",") || "ynet";
+}
+
 function safeReturn(formData: FormData, fallback: string) {
   const back = String(formData.get("returnTo") || "");
   return back.startsWith("/admin/buildings") ? back : fallback;
@@ -54,7 +59,7 @@ export async function updateScreen(formData: FormData) {
       number: owner ? String(formData.get("number") || "") : current.number,
       city: owner ? String(formData.get("city") || "") : current.city,
       theme: String(formData.get("theme") || "modern"),
-      newsSource: String(formData.get("newsSource") || "ynet"),
+      newsSource: chosenNews(formData),
       newsCount: owner ? Math.min(20, Math.max(1, Number(formData.get("newsCount")) || current.newsCount || 8)) : current.newsCount,
       tickerSeconds: owner ? Math.min(40, Math.max(6, Number(formData.get("tickerSeconds")) || current.tickerSeconds || 12)) : current.tickerSeconds,
       newsTicker: ["on", "weekend", "off"].includes(String(formData.get("newsTicker"))) ? String(formData.get("newsTicker")) : "on",
@@ -160,7 +165,7 @@ export async function updateGroup(formData: FormData) {
       number: String(formData.get("number") || ""),
       city: String(formData.get("city") || ""),
       theme: String(formData.get("theme") || "modern"),
-      newsSource: String(formData.get("newsSource") || "ynet"),
+      newsSource: chosenNews(formData),
       logoUrl: String(formData.get("logoUrl") || ""),
       musicUrl: String(formData.get("musicUrl") || ""),
       buildingId: Number(formData.get("buildingId")) || null,

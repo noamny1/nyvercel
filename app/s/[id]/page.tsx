@@ -14,7 +14,7 @@ import { Weather } from "@/components/widgets/Weather";
 import { ModernRail } from "@/components/themes/ModernRail";
 import { LuxuryRail } from "@/components/themes/LuxuryRail";
 import { markets } from "@/lib/markets";
-import { liveHeadlines, NEWS_SOURCES } from "@/lib/news";
+import { liveHeadlines } from "@/lib/news";
 import { prisma } from "@/lib/prisma";
 import { musicSilenced, screenTakeover } from "@/lib/flags";
 import { FIXED_VIDEOS, clientSetsDuration, fillLine } from "@/lib/ready-slides";
@@ -82,7 +82,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
   const greet = welcome(street, number, city);
   const feedMode = screen.feedMode === "news" || screen.feedMode === "notices" ? screen.feedMode : "both";
   const newsSource = screen.newsSource || source.newsSource || "ynet";
-  const newsName = NEWS_SOURCES.find((item) => item.id === newsSource)?.name || newsSource;
+  const stories = headlines.map((item) => ({ title: item.title, source: item.source || "" }));
   const tickerOn = newsTickerOn(screen.newsTicker || "on");
   const modern = theme === "modern";
 
@@ -157,7 +157,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
             temp={weather?.temp ?? null}
             weatherLabel={weather?.label || ""}
             mode={feedMode}
-            headlines={headlines.map((item) => item.title)}
+            headlines={stories}
             notices={notices.map((notice) => notice.text)}
             sourceId={newsSource}
             newsCount={screen.newsCount || 8}
@@ -203,7 +203,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
           </div>
         </footer>
       ) : null}
-      {tickerOn && !luxury ? <NewsTicker titles={headlines.map((item) => item.title)} seconds={screen.tickerSeconds || 12} source={newsName} sourceId={newsSource} take={screen.newsCount || 8} /> : null}
+      {tickerOn && !luxury ? <NewsTicker titles={stories} seconds={screen.tickerSeconds || 12} sourceId={newsSource} take={screen.newsCount || 8} /> : null}
       <footer className="brand-bar"><img src="/nymedia-logo.png" alt="NYmedia" /></footer>
     </main>
   );

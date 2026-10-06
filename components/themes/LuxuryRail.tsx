@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useFreshHeadlines } from "@/components/player/useFreshHeadlines";
+import { useFreshHeadlines, type Headline } from "@/components/player/useFreshHeadlines";
 
 type Item = { tag: string; text: string };
 
@@ -17,7 +17,7 @@ export function LuxuryRail({
   temp: number | null;
   weatherLabel: string;
   mode: "news" | "notices" | "both";
-  headlines: string[];
+  headlines: Headline[];
   notices: string[];
   sourceId?: string;
   newsCount?: number;
@@ -32,7 +32,7 @@ export function LuxuryRail({
   const civil = now ? now.toLocaleDateString("he-IL", { weekday: "long", day: "numeric", month: "long", year: "numeric" }) : "";
   const hebrew = now ? hebrewDate(now) : "";
   const fresh = useFreshHeadlines(sourceId || "ynet", newsCount, headlines);
-  const news = (sourceId ? fresh : headlines).filter(Boolean).map((text) => ({ tag: "חדשות", text }));
+  const news = (sourceId ? fresh : headlines).filter((item) => item.title).map((item) => ({ tag: item.source || "חדשות", text: item.title }));
   const notes = notices.filter(Boolean).map((text) => ({ tag: "הודעת בניין", text }));
   const base = mode === "news" ? news : mode === "notices" ? notes : weave(notes, news);
   const loop = base.length ? Array.from({ length: Math.max(2, Math.ceil(4 / base.length)) }, () => base).flat() : [];

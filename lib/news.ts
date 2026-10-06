@@ -103,9 +103,15 @@ export async function refreshNews(sourceId?: string) {
   }
 }
 
-export async function liveHeadlines(sourceId: string, take = 8) {
+function sourceIds(value?: string) {
+  const ids = [...new Set((value || "ynet").split(",").map((item) => item.trim()).filter(Boolean))].slice(0, 3);
+  return ids.length ? ids : ["ynet"];
+}
+
+async function oneSource(sourceId: string, take: number) {
   const id = sourceId === "וואלה" ? "walla" : sourceId === "חדשות 14" ? "channel14" : sourceId || "ynet";
   const source = NEWS_SOURCES.find((item) => item.id === id) ?? NEWS_SOURCES[0];
+  const name = source.name;
   const limit = Math.min(20, Math.max(1, take));
   try {
     const text = await download(source.url);
@@ -117,11 +123,31 @@ export async function liveHeadlines(sourceId: string, take = 8) {
         items = [];
       }
     }
-    if (items.length > 0) return items.slice(0, limit);
+    if (items.length > 0) return items.slice(0, limit).map((item) => ({ ...item, source: name }));
   } catch {
     /* fall through to the saved headlines */
   }
-  return newsFor(source.id, limit).catch(() => []);
+  const saved = await newsFor(source.id, limit).catch(() => []);
+  return saved.map((item) => ({ title: item.title, link: item.link, source: name }));
+}
+
+function mixStories<T>(lists: T[][]) {
+  const mixed: T[] = [];
+  const length = Math.max(0, ...lists.map((list) => list.length));
+  for (let index = 0; index < length; index += 1) {
+    for (const list of lists) {
+      if (list[index]) mixed.push(list[index]);
+    }
+  }
+  return mixed;
+}
+
+export async function liveHeadlines(sourceId: string, take = 8) {
+  const ids = sourceIds(sourceId);
+  const limit = Math.min(20, Math.max(1, take));
+  const share = Math.max(1, Math.ceil(limit / ids.length));
+  const lists = await Promise.all(ids.map((id) => oneSource(id, share).catch(() => [])));
+  return mixStories(lists).slice(0, limit);
 }
 
 export async function newsFor(sourceId: string, take = 8) {
