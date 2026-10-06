@@ -39,7 +39,7 @@ export function LuxuryRail({
     chip: item.source || "חדשות",
   }));
   const notes = notices.filter(Boolean).map((text) => ({ tag: "הודעת בניין", text, chip: "הודעות" }));
-  const base = alternate(news, notes);
+  const base = blocks(news, notes);
   const loop = base.length ? Array.from({ length: Math.max(2, Math.ceil(4 / base.length)) }, () => base).flat() : [];
   const chips = [...news.reduce((names, item) => names.add(item.chip), new Set<string>()), ...(notes.length ? ["הודעות"] : [])];
   const running = active || chips[0] || "";
@@ -87,7 +87,7 @@ export function LuxuryRail({
       </div>
       <div className="lux-feed" ref={feedRef}>
         {loop.length === 0 ? <p className="lux-empty">אין עדכונים כרגע</p> : (
-          <div className="lux-track" style={{ animationDuration: `${Math.max(loop.length, 4) * 4.5}s` }}>
+          <div className="lux-track" style={{ animationDuration: `${Math.max(loop.length, 4) * 8}s` }}>
             {[0, 1].map((copy) => (
               <div key={copy}>
                 {loop.map((item, index) => (
@@ -109,14 +109,27 @@ export function LuxuryRail({
   );
 }
 
-function alternate(news: Item[], notes: Item[]) {
-  if (!news.length) return notes;
-  if (!notes.length) return news;
+function blocks(news: Item[], notes: Item[]) {
+  const order: string[] = [];
+  const grouped = new Map<string, Item[]>();
+  for (const item of news) {
+    const list = grouped.get(item.chip);
+    if (list) list.push(item);
+    else {
+      grouped.set(item.chip, [item]);
+      order.push(item.chip);
+    }
+  }
+  if (!order.length) return notes.slice(0, 4);
   const mixed: Item[] = [];
-  news.forEach((item, index) => {
-    mixed.push(item);
-    mixed.push(notes[index % notes.length]);
-  });
+  let noteAt = 0;
+  for (const chip of order) {
+    mixed.push(...(grouped.get(chip) || []).slice(0, 4));
+    if (!notes.length) continue;
+    const count = Math.min(4, notes.length);
+    for (let index = 0; index < count; index += 1) mixed.push(notes[(noteAt + index) % notes.length]);
+    noteAt = (noteAt + count) % notes.length;
+  }
   return mixed;
 }
 

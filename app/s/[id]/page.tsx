@@ -68,20 +68,22 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
   const pool = screen.slides.length > 0 ? screen.slides : source.slides;
   const visible = pool.filter((slide) => slideIsOn(slide));
   const notices = screen.notices.length > 0 ? screen.notices : source.notices;
+  const theme = screen.theme || source.theme || "modern";
+  const luxury = theme === "luxury";
+  const newsSource = screen.newsSource || source.newsSource || "ynet";
+  const sourceCount = newsSource.split(",").map((item) => item.trim()).filter(Boolean).length || 1;
+  const newsTake = luxury ? Math.min(20, Math.max(screen.newsCount || 8, sourceCount * 4)) : (screen.newsCount || 8);
 
   const [weather, shabbat, headlines, rates, silenced, takeover] = await Promise.all([
     weatherFor(city).catch(() => null),
     shabbatFor(city).catch(() => null),
-    liveHeadlines(screen.newsSource || source.newsSource || "ynet", screen.newsCount || 8).catch(() => []),
+    liveHeadlines(newsSource, newsTake).catch(() => []),
     markets().catch(() => []),
     musicSilenced(),
     screenTakeover(),
   ]);
-  const theme = screen.theme || source.theme || "modern";
-  const luxury = theme === "luxury";
   const greet = welcome(street, number, city);
   const feedMode = screen.feedMode === "news" || screen.feedMode === "notices" ? screen.feedMode : "both";
-  const newsSource = screen.newsSource || source.newsSource || "ynet";
   const stories = headlines.map((item) => ({ title: item.title, source: item.source || "" }));
   const tickerOn = newsTickerOn(screen.newsTicker || "on");
   const modern = theme === "modern";
@@ -160,7 +162,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
             headlines={stories}
             notices={notices.map((notice) => notice.text)}
             sourceId={newsSource}
-            newsCount={screen.newsCount || 8}
+            newsCount={newsTake}
           />
         ) : modern ? (
           <ModernRail
