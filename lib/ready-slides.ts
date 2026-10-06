@@ -76,6 +76,8 @@ export const READY_SLIDES: ReadySlide[] = [
   { id: "daily-water", category: "הודעות יומיות", title: "הפסקת מים", line: "היום בין {from} ל־{to}", image: "/ready-slides/daily-water.jpg", from: true, to: true, defaults: { from: "09:00", to: "11:00" } },
   { id: "daily-elevator", category: "הודעות יומיות", title: "מעלית", line: "בדיקה בין {from} ל־{to}", image: "/ready-slides/daily-elevator.jpg", from: true, to: true, defaults: { from: "10:00", to: "12:00" } },
   { id: "daily-power", category: "הודעות יומיות", title: "הפסקת חשמל", line: "היום בין {from} ל־{to}", image: "/ready-slides/daily-power.jpg", from: true, to: true, defaults: { from: "14:00", to: "14:30" } },
+  { id: "fault-water", category: "הודעות יומיות", title: "תקלת מים", line: "ביום {day} בין {from} ל־{to} יש תקלת מים או עבודה יזומה בבניין.\nהמים עלולים להיפסק לזמן קצר. תודה על הסבלנות.", image: "/ready-slides/daily-water.jpg", day: "weekday", from: true, to: true, defaults: { day: "שלישי", from: "09:00", to: "12:00" } },
+  { id: "fault-power", category: "הודעות יומיות", title: "תקלת חשמל", line: "ביום {day} בין {from} ל־{to} יש תקלת חשמל או עבודה יזומה בבניין.\nהחשמל עלול להיפסק לזמן קצר. בזמן ההפסקה לא משתמשים במעלית.", image: "/ready-slides/daily-power.jpg", day: "weekday", from: true, to: true, defaults: { day: "רביעי", from: "10:00", to: "13:00" } },
   { id: "daily-trash", category: "הודעות יומיות", title: "פינוי אשפה", line: "הפינוי בימים {day}", image: "/ready-slides/daily-trash.jpg", day: "text", defaults: { day: "א׳, ג׳ ו־ה׳" } },
   { id: "rights-quiet", category: "זכויות מדייר", title: "שקט", line: "בין {from} ל־{to} ומשעה 23:00", image: "/ready-slides/rights-quiet.jpg", from: true, to: true, defaults: { from: "14:00", to: "16:00" } },
   { id: "rights-shared", category: "זכויות מדייר", title: "רכוש משותף", line: "הלובי והחצר שייכים לכל הדיירים", image: "/ready-slides/rights-shared.jpg", defaults: {} },
@@ -96,12 +98,17 @@ export function fillLine(line: string, meta: SlideMeta) {
 
 export function templateSeconds(id: string) {
   if (id === "weekly-parasha") return 180;
+  if (id === "fault-water" || id === "fault-power") return 16;
   if (id === "daily-health" || id === "did-you-know" || id === "street-people") return 32;
   if (id === "greet-building") return 24;
   if (id === "custom-text" || id === "greet-family" || id.startsWith("nation-") || id === "greet-birthday" || id === "greet-birth" || id === "greet-barmitzvah" || id === "greet-wedding" || id === "greet-refua" || id === "greet-condolence") return 18;
   if (id.startsWith("holiday-") || id === "greet-holiday") return 14;
   if (id.startsWith("rule-")) return 12;
   return 10;
+}
+
+export function clientSetsDuration(templateId?: string) {
+  return templateId === "fixed-pest";
 }
 
 export function readMeta(value: string, fallback: SlideMeta): SlideMeta {
@@ -124,6 +131,7 @@ export const FIXED_VIDEOS = [
   { id: "fixed-quake", title: "רעידת אדמה", line: "ברעידת אדמה יוצאים לשטח פתוח, או נכנסים למרחב מוגן. לא משתמשים במעלית.", url: "/safety/quake.mp4?v=9", poster: "/safety/quake.jpg?v=9", duration: 15 },
   { id: "fixed-tidy", title: "ניקיון וסדר", line: "שומרים על לובי נקי לכולם. לא משאירים שקיות, קרטונים ועגלות במעבר.", url: "/safety/tidy.mp4?v=8", poster: "/safety/tidy.jpg?v=8", duration: 15 },
   { id: "fixed-clear", title: "מעבר פנוי", line: "המדרגות והמסדרון נשארים פתוחים תמיד. לא חוסמים אותם בחפצים, גם לא לכמה דקות.", url: "/safety/clear.mp4?v=8", poster: "/safety/clear.jpg?v=8", duration: 15 },
+  { id: "fixed-pest", title: "הדברה", line: "ביום ובשעה שהלקוח בוחר. סוגרים חלונות בזמן ההדברה.", url: "/safety/pest.mp4?v=1", poster: "/safety/pest.jpg?v=1", duration: 15 },
   { id: "fixed-mda", title: "מד״א", line: "עזרה ראשונה רשמית: אדם שהתמוטט. חייגו 101", url: "https://www.youtube.com/watch?v=R8h0SwzNW2I", poster: "https://i.ytimg.com/vi/R8h0SwzNW2I/hqdefault.jpg", duration: 45 },
   { id: "fixed-oref", title: "פיקוד העורף", line: "הנחיות רשמיות, בלי כיתוב שלנו", url: "https://www.youtube.com/watch?v=5ad9OJxVSd0", poster: "https://i.ytimg.com/vi/5ad9OJxVSd0/hqdefault.jpg", duration: 94 },
   { id: "fixed-oref-room", title: "מרחב מוגן", line: "איך בוחרים מרחב מוגן. סרטון פיקוד העורף", url: "https://www.youtube.com/watch?v=Vd7hpbQatvY", poster: "https://i.ytimg.com/vi/Vd7hpbQatvY/hqdefault.jpg", duration: 151 },

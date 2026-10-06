@@ -15,7 +15,7 @@ import { markets } from "@/lib/markets";
 import { liveHeadlines } from "@/lib/news";
 import { prisma } from "@/lib/prisma";
 import { musicSilenced, screenTakeover } from "@/lib/flags";
-import { FIXED_VIDEOS } from "@/lib/ready-slides";
+import { FIXED_VIDEOS, clientSetsDuration, fillLine } from "@/lib/ready-slides";
 import { newsTickerOn, slideIsOn } from "@/lib/schedule";
 import { shabbatFor } from "@/lib/shabbat";
 import { weatherFor } from "@/lib/weather";
@@ -104,25 +104,37 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
             const parasha = slide.templateId === "weekly-parasha";
             let flow = "";
             let full = false;
+            let day = "";
+            let from = "";
+            let to = "";
+            let token = "";
             try {
-              const stored = JSON.parse(slide.meta || "{}");
+              const stored = JSON.parse(slide.meta || "{}") as { flow?: string; full?: boolean; day?: string; from?: string; to?: string; token?: string };
               flow = stored.flow || "";
               full = stored.full === true;
+              day = stored.day || "";
+              from = stored.from || "";
+              to = stored.to || "";
+              token = stored.token || "";
             } catch { flow = ""; }
             const slow = parasha ? Math.max(180, slide.duration || 0, flow === "static" ? 180 : Math.round((shabbat?.verses.length || 40) * 2.2)) : 0;
+            const meta = { day, from, to };
             return {
             imageUrl: official?.url || slide.imageUrl,
-            duration: official?.duration || slow || slide.duration,
+            duration: clientSetsDuration(slide.templateId) ? slide.duration : official?.duration || slow || slide.duration,
             kind: slide.kind,
             templateId: slide.templateId,
-            title: parasha ? (shabbat?.parsha || "") : slide.title,
-            detail: slide.detail,
+            title: parasha ? (shabbat?.parsha || "") : fillLine(slide.title, meta),
+            detail: fillLine(slide.detail, meta),
             candles: parasha ? shabbat?.candles || "" : "",
             havdalah: parasha ? shabbat?.havdalah || "" : "",
             city: parasha ? shabbat?.city || city : "",
             verses: parasha ? shabbat?.verses || [] : [],
             still: parasha && flow === "static",
             full,
+            day,
+            from,
+            token,
             };
           })} />
         )}

@@ -38,6 +38,14 @@ const statements = [
     "value" TEXT NOT NULL DEFAULT '',
     CONSTRAINT "SystemFlag_pkey" PRIMARY KEY ("id")
   )`,
+  `CREATE TABLE IF NOT EXISTS "FileLink" (
+    "token" TEXT NOT NULL,
+    "url" TEXT NOT NULL,
+    "name" TEXT NOT NULL DEFAULT '',
+    "mime" TEXT NOT NULL DEFAULT '',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "FileLink_pkey" PRIMARY KEY ("token")
+  )`,
   `DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM "SchemaNote" WHERE "id" = 'slide-weekdays-v1') THEN
       UPDATE "Slide" SET "weekdays" = '56' WHERE "weekdays" = '0123456' AND ("templateId" IN ('greet-shabbat', 'weekly-parasha') OR "title" LIKE '%שבת%' OR "title" LIKE '%פרש%');

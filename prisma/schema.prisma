@@ -166,6 +166,14 @@ model SystemFlag {
   value String @default("")
 }
 
+model FileLink {
+  token     String   @id
+  url       String
+  name      String   @default("")
+  mime      String   @default("")
+  createdAt DateTime @default(now())
+}
+
 model Room {
   id      Int    @id @default(autoincrement())
   floorId Int

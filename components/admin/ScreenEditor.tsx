@@ -313,7 +313,7 @@ export function ScreenEditor({
               >
                 <span className="slide-label">{slide.title || (slide.kind === "youtube" ? "סרטון" : "שקף")}</span>
                 <span className="thumb">
-                  {slide.kind === "youtube" ? <img src={slide.imageUrl.endsWith(".mp4") ? slide.imageUrl.replace(/\.mp4$/, ".jpg") : `https://i.ytimg.com/vi/${slide.imageUrl.slice(-11)}/hqdefault.jpg`} alt="" /> : slide.imageUrl.toLowerCase().includes(".pdf") ? <span className="pdf-mark">PDF</span> : <img src={slide.imageUrl} alt="" />}
+                  {slide.kind === "youtube" ? <img src={/\.mp4(\?|$)/i.test(slide.imageUrl) ? slide.imageUrl.replace(/\.mp4(\?|$)/i, ".jpg$1") : `https://i.ytimg.com/vi/${slide.imageUrl.slice(-11)}/hqdefault.jpg`} alt="" /> : slide.imageUrl.toLowerCase().includes(".pdf") ? <span className="pdf-mark">PDF</span> : <img src={slide.imageUrl} alt="" />}
                   <KindMark video={slide.kind === "youtube"} />
                   <em className={`kind-mark status-mark ${status.on ? "on" : "off"}`}>{status.label}</em>
                 </span>

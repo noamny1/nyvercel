@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360">
+  <rect width="640" height="360" fill="#3a1520"/>
+  <rect x="36" y="36" width="250" height="288" rx="28" fill="#f7f4f0"/>
+  <g fill="#5a1f2b">
+    <rect x="62" y="62" width="78" height="78"/>
+    <rect x="74" y="74" width="54" height="54" fill="#f7f4f0"/>
+    <rect x="86" y="86" width="30" height="30"/>
+    <rect x="182" y="62" width="78" height="78"/>
+    <rect x="194" y="74" width="54" height="54" fill="#f7f4f0"/>
+    <rect x="206" y="86" width="30" height="30"/>
+    <rect x="62" y="182" width="78" height="78"/>
+    <rect x="74" y="194" width="54" height="54" fill="#f7f4f0"/>
+    <rect x="86" y="206" width="30" height="30"/>
+    <rect x="158" y="158" width="22" height="22"/>
+    <rect x="188" y="188" width="18" height="18"/>
+    <rect x="214" y="168" width="36" height="14"/>
+    <rect x="168" y="214" width="14" height="36"/>
+    <rect x="196" y="226" width="48" height="22"/>
+    <rect x="230" y="196" width="22" height="22"/>
+  </g>
+  <text x="610" y="156" fill="#f4f1ed" font-family="Arial, sans-serif" font-size="40" text-anchor="end" direction="rtl">ברקוד לקובץ</text>
+  <text x="610" y="204" fill="#e6d3ae" font-family="Arial, sans-serif" font-size="22" text-anchor="end" direction="rtl">צפייה בלבד, בלי הורדה</text>
+</svg>

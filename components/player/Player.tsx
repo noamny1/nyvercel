@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { ParashaSlide } from "@/components/player/ParashaSlide";
 import { KnowledgeSlide } from "@/components/player/KnowledgeSlide";
+import { PestVideo, QrSlide } from "@/components/player/SpecialSlides";
 import { isDeckId } from "@/lib/decks";
 
 export type PlaySlide = {
@@ -19,6 +20,9 @@ export type PlaySlide = {
   verses?: string[];
   still?: boolean;
   full?: boolean;
+  day?: string;
+  from?: string;
+  token?: string;
 };
 
 function youtubeId(url: string) {
@@ -104,10 +108,14 @@ export function Player({ slides }: { slides: PlaySlide[] }) {
   if (!current) return <div className="empty">אין שקפים</div>;
   if (current.kind === "youtube") {
     const file = isVideoFile(current.imageUrl) ? current.imageUrl : isVideoFile(current.detail || "") ? current.detail : "";
+    if (file && current.templateId === "fixed-pest") {
+      return <PestVideo src={file} poster={file.replace(/\.mp4(\?|$)/i, ".jpg$1")} title={current.title} detail={current.detail} day={current.day} from={current.from} />;
+    }
     if (file) return <video className="slide-video" src={file} autoPlay muted loop playsInline />;
     return <YoutubeSlide url={current.imageUrl} fallback={current.detail} />;
   }
   const pdf = current.imageUrl.toLowerCase().includes(".pdf");
+  if (current.templateId === "file-qr") return <QrSlide title={current.title} note={current.detail} token={current.token} />;
   if (pdf) return <iframe className="slide-image" src={`${current.imageUrl}#toolbar=0&navpanes=0`} title="שקף" />;
   if (current.templateId === "weekly-parasha") {
     return <ParashaSlide name={current.title || ""} candles={current.candles || ""} havdalah={current.havdalah || ""} city={current.city || ""} verses={current.verses || []} seconds={current.duration} still={current.still} />;
