@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { ScreenEditor } from "@/components/admin/ScreenEditor";
+import { sendAdvice } from "@/app/admin/advice";
 
-type Panel = "slides" | "details" | "notices";
+type Panel = "slides" | "details" | "notices" | "advice";
 
 type Row = {
   id: number;
@@ -26,8 +27,12 @@ type Row = {
 
 export function ClientScreens({ rows, musicPeers, returnTo }: { rows: Row[]; musicPeers: number; returnTo: string }) {
   const [open, setOpen] = useState<{ id: number; tab: Panel } | null>(null);
+  const [sent, setSent] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState("");
 
   function pick(id: number, tab: Panel) {
+    setError("");
     setOpen((current) => (current?.id === id && current.tab === tab ? null : { id, tab }));
   }
 
@@ -50,9 +55,36 @@ export function ClientScreens({ rows, musicPeers, returnTo }: { rows: Row[]; mus
               <button type="button" className={tab === "details" ? "is-on" : ""} onClick={() => pick(screen.id, "details")}>הגדרות מסך</button>
               <button type="button" className={tab === "slides" ? "is-on" : ""} onClick={() => pick(screen.id, "slides")}>שקפים</button>
               <button type="button" className={tab === "notices" ? "is-on" : ""} onClick={() => pick(screen.id, "notices")}>הודעות</button>
+              <button type="button" className={tab === "advice" ? "is-on" : ""} onClick={() => pick(screen.id, "advice")}>המלצות</button>
               <a href={`/s/${screen.code || screen.id}`} target="_blank">הצגת המסך</a>
             </div>
-            {tab ? (
+            {tab === "advice" ? (
+              <form
+                className="client-panel advice-form"
+                onSubmit={async (event) => {
+                  event.preventDefault();
+                  setSending(true);
+                  setError("");
+                  const result = await sendAdvice(new FormData(event.currentTarget));
+                  setSending(false);
+                  if (!result.ok) {
+                    setError(result.error);
+                    return;
+                  }
+                  event.currentTarget.reset();
+                  setOpen(null);
+                  setSent(true);
+                }}
+              >
+                <label>
+                  ההמלצה
+                  <textarea name="text" required rows={5} placeholder="כתבו כאן את ההמלצה" />
+                </label>
+                <input type="hidden" name="screenId" value={screen.id} />
+                {error ? <p className="error">{error}</p> : null}
+                <button type="submit" disabled={sending}>{sending ? "שולח..." : "שליחה"}</button>
+              </form>
+            ) : tab && tab !== "advice" ? (
               <div className="client-panel">
                 <ScreenEditor
                   screen={screen}
@@ -68,6 +100,14 @@ export function ClientScreens({ rows, musicPeers, returnTo }: { rows: Row[]; mus
           </article>
         );
       })}
+      {sent ? (
+        <div className="advice-pop-back" role="dialog" aria-modal="true">
+          <div className="advice-pop">
+            <p>ההודעה נשלחה למנהל המערכת ותטופל בהקדם.</p>
+            <button type="button" onClick={() => setSent(false)}>סגירה</button>
+          </div>
+        </div>
+      ) : null}
     </section>
   );
 }

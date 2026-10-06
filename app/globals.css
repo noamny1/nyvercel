@@ -389,7 +389,7 @@ body:has(.admin) { background: #F4F1ED; overflow-x: hidden; }
 .client-card header > span { color: #252525; font-size: 16px; }
 .client-actions {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 8px;
   padding: 16px;
 }
@@ -414,6 +414,25 @@ body:has(.admin) { background: #F4F1ED; overflow-x: hidden; }
   color: #F4F1ED;
   border-color: #5A1F2B;
 }
+.advice-form { display: grid; gap: 12px; }
+.advice-form textarea { width: 100%; min-height: 120px; resize: vertical; }
+.advice-pop-back {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  background: rgba(37, 37, 37, 0.45);
+  padding: 22px;
+}
+.advice-pop {
+  width: min(420px, 100%);
+  background: #fff;
+  border-radius: 16px;
+  padding: 28px 24px;
+  text-align: center;
+}
+.advice-pop p { margin: 0 0 16px; font-size: 18px; line-height: 1.5; }
 .client-panel {
   border-top: 1px solid rgba(37, 37, 37, 0.08);
   background: #F4F1ED;

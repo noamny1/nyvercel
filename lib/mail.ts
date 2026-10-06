@@ -37,6 +37,32 @@ function escapeHtml(value: string) {
   return value.replace(/&/g, "&").replace(/</g, "<").replace(/>/g, ">");
 }
 
+export async function sendAdviceMail(input: { to: string[]; replyTo: string; subject: string; text: string; html: string }) {
+  const key = process.env.RESEND_API_KEY;
+  if (!key) return { ok: false as const, error: "מפתח המייל לא מוגדר בשרת." };
+  const response = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${key}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      from: process.env.EMAIL_FROM || "NYmedia <noreply@nytv.app>",
+      to: input.to,
+      reply_to: input.replyTo,
+      subject: input.subject,
+      text: input.text,
+      html: input.html,
+    }),
+  });
+  if (!response.ok) {
+    const body = await response.json().catch(() => ({}));
+    const reason = typeof body?.message === "string" ? body.message : `שגיאה ${response.status}`;
+    return { ok: false as const, error: `המייל לא נשלח. ${reason}` };
+  }
+  return { ok: true as const };
+}
+
 export async function sendClientMail(card: MailCard) {
   const key = process.env.RESEND_API_KEY;
   if (!key) return { ok: false as const, error: "מפתח המייל לא מוגדר בשרת. צריך להוסיף RESEND_API_KEY ולפרוס מחדש." };
