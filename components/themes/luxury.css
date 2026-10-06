@@ -56,13 +56,13 @@
 }
 .layout-luxury .lux-sun { width: 16px; height: 16px; border-radius: 50%; background: #e6d3ae; }
 .layout-luxury .lux-rule { width: 100%; height: 1px; margin: 16px 0 0; border: 0; background: #e6d3ae; }
-.layout-luxury .lux-chips { display: flex; justify-content: flex-start; gap: 8px; margin-top: 14px; }
+.layout-luxury .lux-chips { display: flex; flex-wrap: wrap; justify-content: flex-start; gap: 8px; margin-top: 14px; }
 .layout-luxury .lux-chips span {
   border: 1px solid #e6d3ae;
   border-radius: 999px;
   padding: 6px 14px;
   color: #F4F1ED;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 300;
 }
 .layout-luxury .lux-chips .is-on { background: #5A1F2B; border-color: #5A1F2B; }

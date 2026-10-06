@@ -1,14 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useFreshHeadlines, type Headline } from "@/components/player/useFreshHeadlines";
 
-type Item = { tag: string; text: string };
+type Item = { tag: string; text: string; chip: string };
 
 export function LuxuryRail({
   temp,
   weatherLabel,
-  mode,
   headlines,
   notices,
   sourceId = "",
@@ -16,13 +15,15 @@ export function LuxuryRail({
 }: {
   temp: number | null;
   weatherLabel: string;
-  mode: "news" | "notices" | "both";
+  mode?: "news" | "notices" | "both";
   headlines: Headline[];
   notices: string[];
   sourceId?: string;
   newsCount?: number;
 }) {
   const [now, setNow] = useState<Date | null>(null);
+  const [active, setActive] = useState("");
+  const feedRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     setNow(new Date());
     const timer = setInterval(() => setNow(new Date()), 1000);
@@ -32,15 +33,41 @@ export function LuxuryRail({
   const civil = now ? now.toLocaleDateString("he-IL", { weekday: "long", day: "numeric", month: "long", year: "numeric" }) : "";
   const hebrew = now ? hebrewDate(now) : "";
   const fresh = useFreshHeadlines(sourceId || "ynet", newsCount, headlines);
-  const news = (sourceId ? fresh : headlines).filter((item) => item.title).map((item) => ({ tag: item.source || "חדשות", text: item.title }));
-  const notes = notices.filter(Boolean).map((text) => ({ tag: "הודעת בניין", text }));
-  const base = mode === "news" ? news : mode === "notices" ? notes : weave(notes, news);
+  const news = (sourceId ? fresh : headlines).filter((item) => item.title).map((item) => ({
+    tag: item.source || "חדשות",
+    text: item.title,
+    chip: item.source || "חדשות",
+  }));
+  const notes = notices.filter(Boolean).map((text) => ({ tag: "הודעת בניין", text, chip: "הודעות" }));
+  const base = alternate(news, notes);
   const loop = base.length ? Array.from({ length: Math.max(2, Math.ceil(4 / base.length)) }, () => base).flat() : [];
-  const chips = [
-    { id: "news", label: "חדשות" },
-    { id: "notices", label: "הודעות" },
-    { id: "both", label: "שניהם" },
-  ] as const;
+  const chips = [...news.reduce((names, item) => names.add(item.chip), new Set<string>()), ...(notes.length ? ["הודעות"] : [])];
+  const running = active || chips[0] || "";
+
+  useEffect(() => {
+    const root = feedRef.current;
+    if (!root || loop.length === 0) return;
+    let frame = 0;
+    const tick = () => {
+      const box = root.getBoundingClientRect();
+      const focus = box.top + box.height * 0.22;
+      let best = "";
+      let bestDist = Number.POSITIVE_INFINITY;
+      root.querySelectorAll<HTMLElement>("[data-chip]").forEach((item) => {
+        const rect = item.getBoundingClientRect();
+        if (rect.bottom < box.top || rect.top > box.bottom) return;
+        const dist = Math.abs(rect.top - focus);
+        if (dist < bestDist) {
+          bestDist = dist;
+          best = item.dataset.chip || "";
+        }
+      });
+      if (best) setActive((prev) => (prev === best ? prev : best));
+      frame = requestAnimationFrame(tick);
+    };
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [loop.length, chips.join("|")]);
 
   return (
     <>
@@ -55,16 +82,16 @@ export function LuxuryRail({
         </div>
         <hr className="lux-rule" />
         <div className="lux-chips">
-          {chips.map((chip) => <span key={chip.id} className={chip.id === mode ? "is-on" : ""}>{chip.label}</span>)}
+          {chips.map((chip) => <span key={chip} className={chip === running ? "is-on" : ""}>{chip}</span>)}
         </div>
       </div>
-      <div className="lux-feed">
+      <div className="lux-feed" ref={feedRef}>
         {loop.length === 0 ? <p className="lux-empty">אין עדכונים כרגע</p> : (
           <div className="lux-track" style={{ animationDuration: `${Math.max(loop.length, 4) * 4.5}s` }}>
             {[0, 1].map((copy) => (
               <div key={copy}>
                 {loop.map((item, index) => (
-                  <article className="lux-item" key={`${copy}-${index}`}>
+                  <article className="lux-item" key={`${copy}-${index}`} data-chip={item.chip}>
                     <small>{item.tag}</small>
                     <p>{item.text}</p>
                   </article>
@@ -80,6 +107,17 @@ export function LuxuryRail({
       </div>
     </>
   );
+}
+
+function alternate(news: Item[], notes: Item[]) {
+  if (!news.length) return notes;
+  if (!notes.length) return news;
+  const mixed: Item[] = [];
+  news.forEach((item, index) => {
+    mixed.push(item);
+    mixed.push(notes[index % notes.length]);
+  });
+  return mixed;
 }
 
 function hebrewDate(date: Date) {
@@ -98,14 +136,4 @@ function hebrewNumber(value: number) {
   const letters = `${tens[Math.floor(value / 10)] || ""}${ones[value % 10] || ""}`;
   if (letters.length < 2) return `${letters}׳`;
   return `${letters.slice(0, -1)}״${letters.slice(-1)}`;
-}
-
-function weave(notes: Item[], news: Item[]) {
-  const mixed: Item[] = [];
-  const count = Math.max(notes.length, news.length);
-  for (let index = 0; index < count; index += 1) {
-    if (notes[index]) mixed.push(notes[index]);
-    if (news[index]) mixed.push(news[index]);
-  }
-  return mixed;
 }
