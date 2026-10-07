@@ -66,8 +66,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
   const number = screen.number || source.number;
   const city = screen.city || source.city;
   const pool = screen.slides.length > 0 ? screen.slides : source.slides;
-  const retiredCharacter = new Set(["fixed-alarm", "fixed-fire-own", "fixed-gas", "fixed-quake", "fixed-tidy", "fixed-clear", "fixed-pest"]);
-  const visible = pool.filter((slide) => slideIsOn(slide) && !retiredCharacter.has(slide.templateId));
+  const visible = pool.filter((slide) => slideIsOn(slide));
   const notices = screen.notices.length > 0 ? screen.notices : source.notices;
   const chosen = screen.theme || source.theme || "modern";
   const theme = isThemeId(chosen) ? chosen : "modern";

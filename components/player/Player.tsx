@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { ParashaSlide } from "@/components/player/ParashaSlide";
 import { KnowledgeSlide } from "@/components/player/KnowledgeSlide";
-import { PestVideo, QrSlide } from "@/components/player/SpecialSlides";
+import { CharacterVideo, PestVideo, QrSlide } from "@/components/player/SpecialSlides";
 import { isDeckId } from "@/lib/decks";
 
 export type PlaySlide = {
@@ -110,6 +110,9 @@ export function Player({ slides }: { slides: PlaySlide[] }) {
     const file = isVideoFile(current.imageUrl) ? current.imageUrl : isVideoFile(current.detail || "") ? current.detail : "";
     if (file && current.templateId === "fixed-pest") {
       return <PestVideo src={file} poster={file.replace(/\.mp4(\?|$)/i, ".jpg$1")} title={current.title} detail={current.detail} day={current.day} from={current.from} />;
+    }
+    if (file && current.templateId?.startsWith("fixed-")) {
+      return <CharacterVideo src={file} poster={file.replace(/\.mp4(\?|$)/i, ".jpg$1")} title={current.title} detail={current.detail} />;
     }
     if (file) return <video className="slide-video" src={file} autoPlay muted loop playsInline />;
     return <YoutubeSlide url={current.imageUrl} fallback={current.detail} />;

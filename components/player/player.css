@@ -66,6 +66,22 @@
   max-height: 100%;
 }
 .char-frame video { width: 100%; height: 100%; display: block; object-fit: contain; background: #000; }
+.char-note {
+  position: absolute;
+  right: 3.5%;
+  bottom: 6%;
+  width: 46%;
+  box-sizing: border-box;
+  padding: 2.4% 3.2%;
+  border-radius: 18px;
+  background: rgba(244, 241, 237, 0.94);
+  color: #5A1F2B;
+  direction: rtl;
+  text-align: right;
+  pointer-events: none;
+}
+.char-note strong { display: block; font-size: clamp(16px, 4.2cqh, 42px); font-weight: 700; line-height: 1.1; }
+.char-note span { display: block; margin-top: 4px; font-size: clamp(12px, 2.5cqh, 26px); font-weight: 500; line-height: 1.25; }
 .pest-card {
   position: absolute;
   left: 56.1%;

@@ -7,6 +7,30 @@ export function pestWhen(day?: string, from?: string) {
   return [day ? `יום ${day}` : "", from || ""].filter(Boolean).join(" · ");
 }
 
+export function CharacterVideo({
+  src,
+  title,
+  detail,
+  poster,
+}: {
+  src: string;
+  title?: string;
+  detail?: string;
+  poster?: string;
+}) {
+  return (
+    <div className="char-stage">
+      <div className="char-frame">
+        <video src={src} poster={poster} autoPlay muted loop playsInline />
+        <div className="char-note">
+          <strong>{title}</strong>
+          {detail ? <span>{detail}</span> : null}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function PestVideo({
   src,
   title,
