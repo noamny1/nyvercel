@@ -125,13 +125,13 @@ export function readMeta(value: string, fallback: SlideMeta): SlideMeta {
 // full head, the site logo printed on the shirt, and a message card that slides in.
 // Do not rerun scripts/stamp-shirt.py over them.
 export const FIXED_VIDEOS = [
-  { id: "fixed-alarm", title: "אזעקה", line: "כשנשמעת אזעקה, נכנסים למרחב המוגן וסוגרים את הדלת. נשארים שם עד להודעה שאפשר לצאת.", url: "/safety/alarm.mp4?v=13", poster: "/safety/alarm.jpg?v=13", duration: 15 },
-  { id: "fixed-fire-own", title: "שריפה", line: "בשריפה לא נכנסים למעלית, ויורדים במדרגות. מתקשרים לכיבוי אש במספר 102.", url: "/safety/fire.mp4?v=13", poster: "/safety/fire.jpg?v=13", duration: 15 },
-  { id: "fixed-gas", title: "ריח גז", line: "אם מריחים גז, סוגרים את הברז ופותחים חלון. לא מדליקים חשמל, ומתקשרים 103.", url: "/safety/gas.mp4?v=13", poster: "/safety/gas.jpg?v=13", duration: 15 },
-  { id: "fixed-quake", title: "רעידת אדמה", line: "ברעידת אדמה יוצאים לשטח פתוח, או נכנסים למרחב מוגן. לא משתמשים במעלית.", url: "/safety/quake.mp4?v=13", poster: "/safety/quake.jpg?v=13", duration: 15 },
-  { id: "fixed-tidy", title: "ניקיון וסדר", line: "שומרים על לובי נקי לכולם. לא משאירים שקיות, קרטונים ועגלות במעבר.", url: "/safety/tidy.mp4?v=13", poster: "/safety/tidy.jpg?v=13", duration: 15 },
-  { id: "fixed-clear", title: "מעבר פנוי", line: "המדרגות והמסדרון נשארים פתוחים תמיד. לא חוסמים אותם בחפצים, גם לא לכמה דקות.", url: "/safety/clear.mp4?v=13", poster: "/safety/clear.jpg?v=13", duration: 15 },
-  { id: "fixed-pest", title: "הדברה", line: "ביום ובשעה שהלקוח בוחר. סוגרים חלונות בזמן ההדברה.", url: "/safety/pest.mp4?v=13", poster: "/safety/pest.jpg?v=13", duration: 15 },
+  { id: "fixed-alarm", title: "אזעקה", line: "כשנשמעת אזעקה, נכנסים למרחב המוגן וסוגרים את הדלת. נשארים שם עד להודעה שאפשר לצאת.", url: "/safety/alarm.mp4?v=14", poster: "/safety/alarm.jpg?v=14", duration: 15 },
+  { id: "fixed-fire-own", title: "שריפה", line: "בשריפה לא נכנסים למעלית, ויורדים במדרגות. מתקשרים לכיבוי אש במספר 102.", url: "/safety/fire.mp4?v=14", poster: "/safety/fire.jpg?v=14", duration: 15 },
+  { id: "fixed-gas", title: "ריח גז", line: "אם מריחים גז, סוגרים את הברז ופותחים חלון. לא מדליקים חשמל, ומתקשרים 103.", url: "/safety/gas.mp4?v=14", poster: "/safety/gas.jpg?v=14", duration: 15 },
+  { id: "fixed-quake", title: "רעידת אדמה", line: "ברעידת אדמה יוצאים לשטח פתוח, או נכנסים למרחב מוגן. לא משתמשים במעלית.", url: "/safety/quake.mp4?v=14", poster: "/safety/quake.jpg?v=14", duration: 15 },
+  { id: "fixed-tidy", title: "ניקיון וסדר", line: "שומרים על לובי נקי לכולם. לא משאירים שקיות, קרטונים ועגלות במעבר.", url: "/safety/tidy.mp4?v=14", poster: "/safety/tidy.jpg?v=14", duration: 15 },
+  { id: "fixed-clear", title: "מעבר פנוי", line: "המדרגות והמסדרון נשארים פתוחים תמיד. לא חוסמים אותם בחפצים, גם לא לכמה דקות.", url: "/safety/clear.mp4?v=14", poster: "/safety/clear.jpg?v=14", duration: 15 },
+  { id: "fixed-pest", title: "הדברה", line: "ביום ובשעה שהלקוח בוחר. סוגרים חלונות בזמן ההדברה.", url: "/safety/pest.mp4?v=14", poster: "/safety/pest.jpg?v=14", duration: 15 },
   { id: "fixed-mda", title: "מד״א", line: "עזרה ראשונה רשמית: אדם שהתמוטט. חייגו 101", url: "https://www.youtube.com/watch?v=R8h0SwzNW2I", poster: "https://i.ytimg.com/vi/R8h0SwzNW2I/hqdefault.jpg", duration: 45 },
   { id: "fixed-oref", title: "פיקוד העורף", line: "הנחיות רשמיות, בלי כיתוב שלנו", url: "https://www.youtube.com/watch?v=5ad9OJxVSd0", poster: "https://i.ytimg.com/vi/5ad9OJxVSd0/hqdefault.jpg", duration: 94 },
   { id: "fixed-oref-room", title: "מרחב מוגן", line: "איך בוחרים מרחב מוגן. סרטון פיקוד העורף", url: "https://www.youtube.com/watch?v=Vd7hpbQatvY", poster: "https://i.ytimg.com/vi/Vd7hpbQatvY/hqdefault.jpg", duration: 151 },
