@@ -1,6 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useFreshHeadlines, type Headline } from "@/components/player/useFreshHeadlines";
+import { useNewsOn } from "@/components/player/useNewsOn";
+
+type Stop = { chip: string; tag: string; text: string; note: boolean };
 
 export function ModernRail({
   address,
@@ -11,6 +15,11 @@ export function ModernRail({
   parsha,
   rates,
   notices,
+  headlines,
+  sourceId = "",
+  newsCount = 8,
+  newsMode = "on",
+  seconds = 8,
 }: {
   address: string;
   logoUrl: string;
@@ -20,6 +29,11 @@ export function ModernRail({
   parsha: string;
   rates: { name: string; value: string }[];
   notices: string[];
+  headlines: Headline[];
+  sourceId?: string;
+  newsCount?: number;
+  newsMode?: string;
+  seconds?: number;
 }) {
   const [now, setNow] = useState<Date | null>(null);
   useEffect(() => {
@@ -31,6 +45,12 @@ export function ModernRail({
   const civil = now ? now.toLocaleDateString("he-IL", { weekday: "long", day: "numeric", month: "long" }) : "";
   const hebrew = now ? now.toLocaleDateString("he-IL-u-ca-hebrew", { day: "numeric", month: "long" }) : "";
   const shown = rates.slice(0, 2);
+  const fresh = useFreshHeadlines(sourceId || "ynet", newsCount, headlines);
+  const newsOn = useNewsOn(newsMode);
+  const news = (newsOn ? (sourceId ? fresh : headlines) : []).filter((item) => item.title);
+  const stops = wheelStops(news, notices);
+  const chips = [...new Set(stops.map((item) => item.chip))];
+  const hold = Math.max(6, seconds);
 
   return (
     <div className="modern-rail">
@@ -61,12 +81,99 @@ export function ModernRail({
           <span key={row.name}><strong>{row.value}</strong><small>{row.name}</small></span>
         ))}
       </div>
-      <div className="modern-notices">
-        <b>הודעות בניין</b>
-        {notices.length === 0 ? <p>אין הודעות</p> : notices.map((item) => <p key={item}>{item}</p>)}
-      </div>
+      <Wheel stops={stops} chips={chips} seconds={hold} />
     </div>
   );
+}
+
+function Wheel({ stops, chips, seconds }: { stops: Stop[]; chips: string[]; seconds: number }) {
+  const [index, setIndex] = useState(0);
+  const [spin, setSpin] = useState(false);
+  const [lock, setLock] = useState(false);
+  const key = stops.map((item) => `${item.chip}|${item.text}`).join("\n");
+  useEffect(() => {
+    setIndex(0);
+    setSpin(false);
+  }, [key]);
+  useEffect(() => {
+    if (stops.length < 2) return;
+    const timer = setInterval(() => setSpin(true), seconds * 1000);
+    return () => clearInterval(timer);
+  }, [key, stops.length, seconds]);
+  useEffect(() => {
+    if (!spin) return;
+    const done = window.setTimeout(() => {
+      setLock(true);
+      setIndex((value) => (value + 1) % stops.length);
+      setSpin(false);
+      requestAnimationFrame(() => requestAnimationFrame(() => setLock(false)));
+    }, 680);
+    return () => clearTimeout(done);
+  }, [spin, stops.length]);
+  const at = stops.length ? index % stops.length : 0;
+  const current = stops[at];
+  const previous = stops.length ? stops[(at + stops.length - 1) % stops.length] : undefined;
+  const next = stops.length ? stops[(at + 1) % stops.length] : undefined;
+
+  return (
+    <div className="modern-feed">
+      {chips.length > 1 ? (
+        <div className="modern-chips">
+          {chips.map((chip) => (
+            <span key={chip} className={`${chip === current?.chip ? "is-on" : ""} ${chip === "הודעות" ? "is-note" : ""}`}>{chip}</span>
+          ))}
+        </div>
+      ) : null}
+      <div className="modern-window">
+        {current ? (
+          <div className={`modern-cylinder${spin ? " is-spin" : ""}${lock ? " is-lock" : ""}`}>
+            <Face item={previous} />
+            <Face item={current} />
+            <Face item={next} />
+          </div>
+        ) : <p className="modern-empty">אין עדכונים כרגע</p>}
+      </div>
+      {current ? <i className="modern-meter" key={`${key}-${at}`} style={{ animationDuration: `${seconds}s` }} /> : null}
+    </div>
+  );
+}
+
+function Face({ item }: { item?: Stop }) {
+  if (!item) return <p />;
+  return (
+    <p className={item.note ? "is-note" : ""}>
+      <small>{item.tag}</small>
+      <span>{item.text}</span>
+    </p>
+  );
+}
+
+function wheelStops(items: Headline[], notices: string[]) {
+  const groups = new Map<string, string[]>();
+  const order: string[] = [];
+  for (const item of items) {
+    const title = item.title.trim();
+    if (!title) continue;
+    const chip = item.source.trim() || "חדשות";
+    const list = groups.get(chip);
+    if (list) {
+      if (list.length < 3 && !list.includes(title)) list.push(title);
+    } else {
+      groups.set(chip, [title]);
+      order.push(chip);
+    }
+  }
+  const notes: Stop[] = notices
+    .map((item) => item.trim())
+    .filter(Boolean)
+    .map((text) => ({ chip: "הודעות", tag: "הודעת בניין", text, note: true }));
+  if (!order.length) return notes;
+  const stops: Stop[] = [];
+  for (const chip of order) {
+    for (const text of groups.get(chip) || []) stops.push({ chip, tag: chip, text, note: false });
+    stops.push(...notes);
+  }
+  return stops;
 }
 
 function House() {

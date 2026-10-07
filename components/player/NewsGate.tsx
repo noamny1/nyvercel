@@ -8,7 +8,7 @@ export function NewsGate({ mode }: { mode: string }) {
   useEffect(() => {
     const stage = document.querySelector(".stage");
     if (!stage) return;
-    const full = stage.classList.contains("layout-luxury") || stage.classList.contains("layout-glass") || stage.classList.contains("layout-cinema");
+    const full = stage.classList.contains("layout-luxury") || stage.classList.contains("layout-modern") || stage.classList.contains("layout-glass") || stage.classList.contains("layout-cinema");
     stage.classList.toggle("no-ticker", !on || full);
   }, [on]);
   return null;

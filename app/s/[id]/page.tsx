@@ -75,7 +75,12 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
   const cinematic = theme === "glass" || theme === "cinema";
   const newsSource = screen.newsSource || source.newsSource || "ynet";
   const sourceCount = newsSource.split(",").map((item) => item.trim()).filter(Boolean).length || 1;
-  const newsTake = luxury ? Math.min(20, Math.max(screen.newsCount || 8, sourceCount * 4)) : (screen.newsCount || 8);
+  const modern = theme === "modern";
+  const newsTake = luxury
+    ? Math.min(20, Math.max(screen.newsCount || 8, sourceCount * 4))
+    : modern
+      ? Math.min(20, sourceCount * 3)
+      : (screen.newsCount || 8);
 
   const [weather, shabbat, headlines, rates, silenced, takeover] = await Promise.all([
     weatherFor(city).catch(() => null),
@@ -90,7 +95,6 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
   const stories = headlines.map((item) => ({ title: item.title, source: item.source || "" }));
   const newsMode = screen.newsTicker || "on";
   const tickerOn = newsTickerOn(newsMode);
-  const modern = theme === "modern";
 
   const indexTheme = theme.startsWith("index");
   const floors = screen.group?.floors ?? [];
@@ -106,7 +110,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
   }
 
   return (
-    <main className={`stage theme-${theme}${luxury ? ` layout-luxury ${heebo.className}` : ""}${cinematic ? ` layout-${theme} ${heebo.className}` : ""}${tickerOn && !luxury && !cinematic ? "" : " no-ticker"}`}>
+    <main className={`stage theme-${theme}${luxury ? ` layout-luxury ${heebo.className}` : ""}${modern ? " layout-modern" : ""}${cinematic ? ` layout-${theme} ${heebo.className}` : ""}${tickerOn && !luxury && !modern && !cinematic ? "" : " no-ticker"}`}>
       <Music playlist={silenced ? "off" : screen.musicPlaylist || ""} url={silenced ? "" : screen.group?.musicUrl || ""} start={screen.id} />
       <NewsGate mode={newsMode} />
       <Wake />
@@ -181,6 +185,11 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
             parsha={shabbat?.parsha || ""}
             rates={rates}
             notices={notices.map((notice) => notice.text)}
+            headlines={stories}
+            sourceId={newsSource}
+            newsCount={newsTake}
+            newsMode={newsMode}
+            seconds={screen.tickerSeconds || 8}
           />
         ) : cinematic ? null : (
           <>
@@ -212,7 +221,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
           </div>
         </footer>
       ) : null}
-      {!luxury && !cinematic ? <NewsTicker titles={stories} seconds={screen.tickerSeconds || 12} sourceId={newsSource} take={screen.newsCount || 8} mode={newsMode} /> : null}
+      {!luxury && !modern && !cinematic ? <NewsTicker titles={stories} seconds={screen.tickerSeconds || 12} sourceId={newsSource} take={screen.newsCount || 8} mode={newsMode} /> : null}
       {theme === "glass" ? (
         <GlassBoard
           temp={weather?.temp ?? null}
