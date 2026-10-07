@@ -352,7 +352,7 @@ export function ReadyLibrary({ onAdd, city = "" }: { onAdd: (draft: SlideDraft) 
         <div className="slide-modal" role="dialog" aria-modal="true" onClick={() => setPest(false)}>
           <div className="slide-modal-card" onClick={(event) => event.stopPropagation()}>
             <div className="pest-preview">
-              <PestVideo src="/safety/pest.mp4?v=1" poster="/safety/pest.jpg?v=1" title={pestTitle} detail={pestLine} day={pestDay} from={pestFrom} />
+              <PestVideo src="/safety/pest.mp4?v=10" poster="/safety/pest.jpg?v=10" title={pestTitle} detail={pestLine} day={pestDay} from={pestFrom} />
             </div>
             <div className="slide-modal-actions">
               <label>כותרת על הסרטון<input value={pestTitle} onChange={(event) => setPestTitle(event.target.value)} /></label>
@@ -499,7 +499,7 @@ export function SavedSlideEditor({
       <div className="slide-modal-card" onClick={(event) => event.stopPropagation()}>
         {slide.templateId === "weekly-parasha" ? <LiveParasha city={city} still={meta.flow === "static"} /> : isDeckId(slide.templateId) ? <DeckPreview id={slide.templateId} /> : pest ? (
           <div className="pest-preview">
-            <PestVideo src="/safety/pest.mp4?v=1" poster="/safety/pest.jpg?v=1" title={heading} detail={body} day={meta.day} from={meta.from} />
+            <PestVideo src="/safety/pest.mp4?v=10" poster="/safety/pest.jpg?v=10" title={heading} detail={body} day={meta.day} from={meta.from} />
           </div>
         ) : qr ? (
           <div className="qr-preview"><QrSlide title={heading} note={body} token={token} /></div>

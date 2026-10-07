@@ -18,7 +18,7 @@
 .stage.slide-full .rail,
 .stage.slide-full .ticker { display: none; }
 .stage.slide-full .brand-bar { display: flex; grid-column: 1; grid-row: 2; }
-.stage.slide-full .slide-image { object-fit: cover; }
+.stage.slide-full .slide-image { object-fit: contain; background: #111; }
 .stage.slide-full .slide-video { object-fit: contain; background: #000; }
 .takeover {
   position: fixed;
@@ -65,13 +65,13 @@
   width: min(100cqw, calc(100cqh * 16 / 9));
   max-height: 100%;
 }
-.char-frame video { width: 100%; height: 100%; display: block; object-fit: fill; background: #000; }
+.char-frame video { width: 100%; height: 100%; display: block; object-fit: contain; background: #000; }
 .pest-card {
   position: absolute;
-  left: 56.1%;
-  top: 74.6%;
-  width: 41.6%;
-  height: 22.2%;
+  left: 55.25%;
+  top: 71.16%;
+  width: 35.78%;
+  height: 19.09%;
   box-sizing: border-box;
   padding: 5% 10% 5% 4%;
   display: flex;
@@ -121,7 +121,7 @@
   box-sizing: border-box;
 }
 .qr-box img { width: 100%; height: 100%; display: block; }
-.slide-frame .slide-image { object-fit: cover; }
+.slide-frame .slide-image { object-fit: contain; background: #111; }
 .slide-copy {
   position: absolute;
   inset: auto 0 0 0;

@@ -13,7 +13,7 @@
   border-radius: 28px;
   overflow: hidden;
 }
-.layout-luxury .slide-image { object-fit: cover; background: #252525; }
+.layout-luxury .slide-image { object-fit: contain; background: #252525; }
 .layout-luxury .slide-copy strong { font-weight: 400; }
 .layout-luxury .slide-copy span { color: #e6d3ae; }
 .layout-luxury .ticker { display: none; }

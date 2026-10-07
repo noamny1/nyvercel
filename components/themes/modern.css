@@ -1,5 +1,5 @@
 .theme-modern .slide { border: 0; }
-.theme-modern .slide-image { object-fit: cover; background: #111; }
+.theme-modern .slide-image { object-fit: contain; background: #111; }
 .theme-modern .rail {
   background: #e5e5e5;
   color: #1a1a1a;

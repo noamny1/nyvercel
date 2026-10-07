@@ -19,13 +19,11 @@
 .layout-cinema .slide { grid-column: 1; grid-row: 1; }
 .layout-glass img.slide-image,
 .layout-cinema img.slide-image {
-  object-fit: cover;
-  animation: motion-drift 28s ease-in-out infinite alternate;
-  transform-origin: 50% 38%;
-}
-@keyframes motion-drift {
-  from { transform: scale(1); }
-  to { transform: scale(1.08) translate3d(-1.2%, -0.8%, 0); }
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center center;
+  background: #252525;
 }
 .glass-slab {
   position: absolute;
