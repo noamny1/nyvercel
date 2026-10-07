@@ -7,6 +7,7 @@ export const NEWS_SOURCES = [
   { id: "0404", name: "חדשות 0404", url: "https://news.google.com/rss/search?q=site:0404.co.il+when:2d&hl=he&gl=IL&ceid=IL:he" },
   { id: "one", name: "ספורט ONE", url: "https://www.one.co.il/rss" },
   { id: "globes", name: "כלכלה גלובס", url: "https://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iID=2" },
+  { id: "bhol", name: "בחדרי חרדים", url: "https://www.bhol.co.il/rss/index.xml" },
 ] as const;
 
 function clean(value: string) {
@@ -109,7 +110,7 @@ function sourceIds(value?: string) {
 }
 
 async function oneSource(sourceId: string, take: number) {
-  const id = sourceId === "וואלה" ? "walla" : sourceId === "חדשות 14" ? "channel14" : sourceId || "ynet";
+  const id = sourceId === "וואלה" ? "walla" : sourceId === "חדשות 14" ? "channel14" : sourceId === "בחדרי חרדים" ? "bhol" : sourceId || "ynet";
   const source = NEWS_SOURCES.find((item) => item.id === id) ?? NEWS_SOURCES[0];
   const name = source.name;
   const limit = Math.min(20, Math.max(1, take));

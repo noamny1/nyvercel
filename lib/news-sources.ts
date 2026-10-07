@@ -5,4 +5,5 @@ export const NEWS_SOURCES = [
   { id: "0404", name: "חדשות 0404" },
   { id: "one", name: "ספורט ONE" },
   { id: "globes", name: "כלכלה גלובס" },
+  { id: "bhol", name: "בחדרי חרדים" },
 ];
