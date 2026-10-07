@@ -50,7 +50,7 @@ export function ModernRail({
   const news = (newsOn ? (sourceId ? fresh : headlines) : []).filter((item) => item.title);
   const pages = wheelPages(news, notices);
   const chips = pageChips(pages);
-  const hold = Math.max(6, seconds);
+  const hold = Math.max(22, seconds);
 
   return (
     <div className="modern-rail">
@@ -104,12 +104,11 @@ function Wheel({ pages, chips, seconds }: { pages: Page[]; chips: string[]; seco
     const done = window.setTimeout(() => {
       setIndex((value) => (value + 1) % pages.length);
       setLeave(false);
-    }, 740);
+    }, 980);
     return () => clearTimeout(done);
   }, [leave, pages.length]);
   const at = pages.length ? index % pages.length : 0;
   const current = pages[at];
-  const next = pages.length ? pages[(at + 1) % pages.length] : undefined;
 
   return (
     <div className="modern-feed">
@@ -121,19 +120,16 @@ function Wheel({ pages, chips, seconds }: { pages: Page[]; chips: string[]; seco
         </div>
       ) : null}
       <div className="modern-stage">
-        <i className={`modern-ring${leave ? " is-fast" : ""}`} />
+        <svg className="modern-arc" viewBox="0 0 120 120" aria-hidden="true">
+          <circle className="is-track" cx="60" cy="60" r="54" />
+          {current ? <circle className="is-sweep" key={`${key}-${at}`} cx="60" cy="60" r="54" style={{ animationDuration: `${seconds}s` }} /> : null}
+        </svg>
         {current ? (
-          <>
-            <article className={`modern-face is-now${leave ? " is-leave" : ""}`}>
-              <Board page={current} />
-            </article>
-            <article className={`modern-face is-next${leave ? " is-enter" : ""}`}>
-              <Board page={next} />
-            </article>
-          </>
+          <article key={at} className={`modern-face${leave ? " is-out" : " is-in"}`}>
+            <Board page={current} />
+          </article>
         ) : <p className="modern-empty">אין עדכונים כרגע</p>}
       </div>
-      {current ? <i className="modern-meter" key={`${key}-${at}`} style={{ animationDuration: `${seconds}s` }} /> : null}
     </div>
   );
 }

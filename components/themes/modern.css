@@ -50,68 +50,85 @@
 .theme-modern .modern-stage {
   position: relative;
   flex: 1;
-  min-height: 150px;
-  perspective: 1100px;
+  min-height: 168px;
+  perspective: 1200px;
+  overflow: hidden;
 }
-.theme-modern .modern-ring {
+.theme-modern .modern-arc {
   position: absolute;
-  inset: 2% 6%;
-  border-radius: 50%;
-  border: 3px solid transparent;
-  border-top-color: #5A1F2B;
-  border-right-color: #e6d3ae;
-  border-bottom-color: #c4a574;
-  border-left-color: #5A1F2B;
-  animation: modern-ring 16s linear infinite;
+  left: 50%;
+  top: 50%;
+  height: 118%;
+  width: auto;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
   pointer-events: none;
 }
-.theme-modern .modern-ring.is-fast { animation-duration: 0.74s; }
+.theme-modern .modern-arc circle {
+  fill: none;
+  stroke: rgba(90, 31, 43, 0.16);
+  stroke-width: 2.5;
+}
+.theme-modern .modern-arc circle.is-sweep {
+  stroke: #c4a574;
+  stroke-width: 3.5;
+  stroke-linecap: round;
+  stroke-dasharray: 339.3;
+  stroke-dashoffset: 339.3;
+  transform-origin: 60px 60px;
+  transform: rotate(-90deg);
+  animation: modern-arc linear forwards;
+}
 .theme-modern .modern-face {
   position: absolute;
-  inset: 14px 18px;
-  border-radius: 18px;
-  background: #F4F1ED;
-  box-shadow: 0 12px 28px rgba(90, 31, 43, 0.16);
-  padding: 12px 14px;
+  inset: 18px 16px;
+  border-radius: 20px;
+  background:
+    linear-gradient(180deg, rgba(230, 211, 174, 0.35), transparent 42px),
+    #F4F1ED;
+  box-shadow: 0 16px 32px rgba(90, 31, 43, 0.18), inset 0 0 0 1px rgba(90, 31, 43, 0.12);
+  padding: 14px 14px 12px;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 8px;
+  gap: 10px;
   overflow: hidden;
   direction: rtl;
   text-align: right;
-  backface-visibility: hidden;
+  transform-style: preserve-3d;
 }
-.theme-modern .modern-face.is-now { transform: rotateY(0); z-index: 2; }
-.theme-modern .modern-face.is-now.is-leave {
-  animation: modern-leave 0.74s cubic-bezier(0.55, 0.05, 0.3, 1) forwards;
+.theme-modern .modern-face.is-in { animation: modern-enter 0.95s cubic-bezier(0.16, 0.84, 0.28, 1) both; }
+.theme-modern .modern-face.is-out { animation: modern-leave 0.9s cubic-bezier(0.6, 0.02, 0.2, 1) forwards; }
+.theme-modern .modern-face.is-in::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 38%, rgba(230, 211, 174, 0.7) 50%, transparent 62%);
+  transform: translateX(-130%);
+  animation: modern-sheen 1s 0.12s ease forwards;
+  pointer-events: none;
 }
-.theme-modern .modern-face.is-next {
-  transform: rotateY(-78deg) scale(0.92);
-  opacity: 0;
-  z-index: 1;
-}
-.theme-modern .modern-face.is-next.is-enter {
-  animation: modern-enter 0.74s cubic-bezier(0.2, 0.75, 0.2, 1) forwards;
-}
+.theme-modern .modern-face.is-in li { animation: modern-line 0.45s ease both; }
+.theme-modern .modern-face.is-in li:nth-child(2) { animation-delay: 0.12s; }
+.theme-modern .modern-face.is-in li:nth-child(3) { animation-delay: 0.24s; }
 .theme-modern .modern-face b {
   font-size: 13px;
   font-weight: 800;
   color: #5A1F2B;
   border-bottom: 1px solid #e6d3ae;
-  padding-bottom: 6px;
+  padding-bottom: 7px;
 }
-.theme-modern .modern-face ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 7px; }
+.theme-modern .modern-face ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 9px; }
 .theme-modern .modern-face li {
   display: grid;
-  grid-template-columns: 18px 1fr;
+  grid-template-columns: 20px 1fr;
   gap: 8px;
   align-items: start;
   margin: 0;
 }
 .theme-modern .modern-face i {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   background: #5A1F2B;
   color: #e6d3ae;
@@ -122,17 +139,18 @@
   place-items: center;
 }
 .theme-modern .modern-face span {
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 700;
-  line-height: 1.25;
+  line-height: 1.35;
   color: #2a161b;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 .theme-modern .modern-empty {
-  height: 100%;
+  position: absolute;
+  inset: 0;
   margin: 0;
   display: grid;
   place-items: center;
@@ -140,21 +158,17 @@
   font-size: 18px;
   font-weight: 700;
 }
-.theme-modern .modern-meter {
-  display: block;
-  height: 3px;
-  border-radius: 99px;
-  background: linear-gradient(90deg, #5A1F2B, #e6d3ae);
-  transform-origin: right center;
-  animation: modern-meter linear forwards;
-}
-@keyframes modern-ring { to { transform: rotate(360deg); } }
-@keyframes modern-leave {
-  to { transform: rotateY(86deg) translateX(12%) scale(0.9); opacity: 0; }
-}
+@keyframes modern-arc { to { stroke-dashoffset: 0; } }
 @keyframes modern-enter {
-  from { transform: rotateY(-86deg) translateX(-12%) scale(0.9); opacity: 0; }
-  to { transform: rotateY(0) scale(1); opacity: 1; }
+  from { transform: rotateY(-72deg) translateZ(-36px) scale(0.94); opacity: 0; }
+  to { transform: rotateY(0) translateZ(0) scale(1); opacity: 1; }
 }
-@keyframes modern-meter { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+@keyframes modern-leave {
+  to { transform: rotateY(76deg) translateZ(-28px) scale(0.94); opacity: 0; }
+}
+@keyframes modern-sheen { to { transform: translateX(130%); } }
+@keyframes modern-line {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
 
