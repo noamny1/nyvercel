@@ -88,31 +88,27 @@ export function ModernRail({
 
 function Wheel({ pages, chips, seconds }: { pages: Page[]; chips: string[]; seconds: number }) {
   const [index, setIndex] = useState(0);
-  const [spin, setSpin] = useState(false);
-  const [lock, setLock] = useState(false);
+  const [leave, setLeave] = useState(false);
   const key = pages.map((item) => `${item.chip}|${item.headlines.join("|")}|${item.notes.join("|")}`).join("\n");
   useEffect(() => {
     setIndex(0);
-    setSpin(false);
+    setLeave(false);
   }, [key]);
   useEffect(() => {
     if (pages.length < 2) return;
-    const timer = setInterval(() => setSpin(true), seconds * 1000);
+    const timer = setInterval(() => setLeave(true), seconds * 1000);
     return () => clearInterval(timer);
   }, [key, pages.length, seconds]);
   useEffect(() => {
-    if (!spin) return;
+    if (!leave) return;
     const done = window.setTimeout(() => {
-      setLock(true);
       setIndex((value) => (value + 1) % pages.length);
-      setSpin(false);
-      requestAnimationFrame(() => requestAnimationFrame(() => setLock(false)));
-    }, 720);
+      setLeave(false);
+    }, 740);
     return () => clearTimeout(done);
-  }, [spin, pages.length]);
+  }, [leave, pages.length]);
   const at = pages.length ? index % pages.length : 0;
   const current = pages[at];
-  const previous = pages.length ? pages[(at + pages.length - 1) % pages.length] : undefined;
   const next = pages.length ? pages[(at + 1) % pages.length] : undefined;
 
   return (
@@ -124,13 +120,17 @@ function Wheel({ pages, chips, seconds }: { pages: Page[]; chips: string[]; seco
           ))}
         </div>
       ) : null}
-      <div className="modern-window">
+      <div className="modern-stage">
+        <i className={`modern-ring${leave ? " is-fast" : ""}`} />
         {current ? (
-          <div className={`modern-cylinder${spin ? " is-spin" : ""}${lock ? " is-lock" : ""}`}>
-            <Board page={next} />
-            <Board page={current} />
-            <Board page={previous} />
-          </div>
+          <>
+            <article className={`modern-face is-now${leave ? " is-leave" : ""}`}>
+              <Board page={current} />
+            </article>
+            <article className={`modern-face is-next${leave ? " is-enter" : ""}`}>
+              <Board page={next} />
+            </article>
+          </>
         ) : <p className="modern-empty">אין עדכונים כרגע</p>}
       </div>
       {current ? <i className="modern-meter" key={`${key}-${at}`} style={{ animationDuration: `${seconds}s` }} /> : null}
@@ -139,26 +139,18 @@ function Wheel({ pages, chips, seconds }: { pages: Page[]; chips: string[]; seco
 }
 
 function Board({ page }: { page?: Page }) {
-  if (!page) return <article />;
+  const lines = page?.headlines.length ? page.headlines : page?.notes || [];
+  const label = page?.headlines.length ? page.chip : "הודעות הבניין";
+  const note = !page?.headlines.length;
   return (
-    <article>
-      {page.headlines.length ? (
-        <>
-          <b>{page.chip}</b>
-          <ul>
-            {page.headlines.map((text) => <li key={text}>{text}</li>)}
-          </ul>
-        </>
-      ) : null}
-      {page.notes.length ? (
-        <>
-          <b className="is-note">הודעות</b>
-          <ul className="is-note">
-            {page.notes.map((text) => <li key={text}>{text}</li>)}
-          </ul>
-        </>
-      ) : null}
-    </article>
+    <>
+      <b className={note ? "is-note" : ""}>{label}</b>
+      <ul>
+        {lines.map((text, index) => (
+          <li key={`${index}-${text}`}><i>{index + 1}</i><span>{text}</span></li>
+        ))}
+      </ul>
+    </>
   );
 }
 
@@ -178,18 +170,20 @@ function wheelPages(items: Headline[], notices: string[]) {
     }
   }
   const notes = notices.map((item) => item.trim()).filter(Boolean);
-  const notePages: string[][] = [];
-  for (let index = 0; index < notes.length; index += 3) notePages.push(notes.slice(index, index + 3));
-  if (!order.length) return notePages.map((page) => ({ chip: "הודעות", headlines: [], notes: page }));
-  const count = Math.max(order.length, notePages.length || 1);
-  return Array.from({ length: count }, (_, index) => {
-    const chip = order[index % order.length];
-    return {
-      chip,
-      headlines: groups.get(chip) || [],
-      notes: notePages.length ? notePages[index % notePages.length] : [],
-    };
-  });
+  const notePages: Page[] = [];
+  for (let index = 0; index < notes.length; index += 3) {
+    notePages.push({ chip: "הודעות", headlines: [], notes: notes.slice(index, index + 3) });
+  }
+  const newsPages: Page[] = order.map((chip) => ({ chip, headlines: groups.get(chip) || [], notes: [] }));
+  if (!newsPages.length) return notePages;
+  if (!notePages.length) return newsPages;
+  const pages: Page[] = [];
+  const count = Math.max(newsPages.length, notePages.length);
+  for (let index = 0; index < count; index += 1) {
+    pages.push(newsPages[index % newsPages.length]);
+    pages.push(notePages[index % notePages.length]);
+  }
+  return pages;
 }
 
 function pageChips(pages: Page[]) {
