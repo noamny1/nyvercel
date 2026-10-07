@@ -1,37 +1,64 @@
 .theme-modern .slide { border: 0; }
 .theme-modern .slide-image { object-fit: contain; background: #111; }
 .theme-modern .rail {
-  background: #e5e5e5;
-  color: #1a1a1a;
-  padding: 22px 18px 16px;
+  background: #EFE8E1;
+  color: #5A1F2B;
+  padding: 16px 14px 12px;
 }
 .theme-modern .ticker {
-  background: #111318;
-  color: #f4f1ed;
+  background: #5A1F2B;
+  color: #F4F1ED;
   font-size: 22px;
   padding-inline: 18px;
 }
 .theme-modern .rail { display: flex; overflow: hidden; }
-.theme-modern .modern-rail { flex: 1; min-height: 0; width: 100%; display: flex; flex-direction: column; gap: 10px; text-align: center; }
-.theme-modern .modern-address { display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 20px; font-weight: 700; }
+.theme-modern .modern-rail { flex: 1; min-height: 0; width: 100%; display: flex; flex-direction: column; gap: 12px; text-align: center; }
+.theme-modern .modern-mast { display: grid; gap: 2px; }
+.theme-modern .modern-address { display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 18px; font-weight: 800; color: #5A1F2B; }
 .theme-modern .modern-address img,
-.theme-modern .modern-address svg { width: 42px; height: 42px; object-fit: contain; }
-.theme-modern .modern-clock { display: grid; justify-items: center; gap: 2px; padding-bottom: 8px; border-bottom: 1px solid rgba(0, 0, 0, 0.18); }
-.theme-modern .modern-clock svg { width: 22px; height: 22px; }
-.theme-modern .modern-clock strong { font-size: 48px; line-height: 1; font-weight: 700; letter-spacing: 1px; }
-.theme-modern .modern-clock small { font-size: 14px; }
-.theme-modern .modern-split,
-.theme-modern .modern-markets { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; align-items: center; }
-.theme-modern .modern-split { padding-bottom: 8px; border-bottom: 1px solid rgba(0, 0, 0, 0.18); }
-.theme-modern .modern-split div,
-.theme-modern .modern-markets span { display: grid; justify-items: center; gap: 2px; }
-.theme-modern .modern-split svg { width: 32px; height: 32px; }
-.theme-modern .modern-split strong,
-.theme-modern .modern-markets strong { font-size: 24px; line-height: 1; }
-.theme-modern .modern-split small,
-.theme-modern .modern-markets small,
-.theme-modern .modern-split b { font-size: 13px; font-weight: 600; }
-.theme-modern .modern-markets { padding-bottom: 8px; border-bottom: 1px solid rgba(0, 0, 0, 0.18); }
+.theme-modern .modern-address svg {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  border-radius: 12px;
+  background: #F4F1ED;
+  box-shadow: inset 0 0 0 1px #e6d3ae;
+  padding: 3px;
+}
+.theme-modern .modern-clock strong {
+  display: block;
+  font-size: 58px;
+  line-height: 0.92;
+  font-weight: 700;
+  letter-spacing: -1px;
+  color: #5A1F2B;
+}
+.theme-modern .modern-clock small { display: block; margin-top: 6px; font-size: 13px; font-weight: 600; color: #8a6233; }
+.theme-modern .modern-facts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: #F4F1ED;
+  border-radius: 18px;
+  box-shadow: inset 0 0 0 1px rgba(90, 31, 43, 0.12);
+  overflow: hidden;
+}
+.theme-modern .modern-fact { display: grid; justify-items: center; align-content: center; gap: 2px; padding: 10px 8px 8px; }
+.theme-modern .modern-fact + .modern-fact { box-shadow: inset 1px 0 0 #e6d3ae; }
+.theme-modern .modern-fact svg { width: 28px; height: 28px; }
+.theme-modern .modern-fact b,
+.theme-modern .modern-rates b { font-size: 26px; line-height: 1; font-weight: 800; color: #5A1F2B; }
+.theme-modern .modern-fact small,
+.theme-modern .modern-rates small { font-size: 12px; font-weight: 700; color: #8a6233; }
+.theme-modern .modern-rates {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-top: 1px solid #e6d3ae;
+  padding: 8px 0 9px;
+}
+.theme-modern .modern-rates span { display: grid; justify-items: center; gap: 2px; }
+.theme-modern .modern-rates span + span { box-shadow: inset 1px 0 0 #e6d3ae; }
+.theme-modern .modern-rates b { font-size: 22px; }
 .theme-modern .modern-feed { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 8px; }
 .theme-modern .modern-chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
 .theme-modern .modern-chips span {

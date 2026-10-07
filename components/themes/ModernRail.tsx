@@ -53,33 +53,34 @@ export function ModernRail({
 
   return (
     <div className="modern-rail">
-      <div className="modern-address">
-        {logoUrl ? <img src={logoUrl} alt="" /> : <House />}
-        <span>{address}</span>
-      </div>
-      <div className="modern-clock">
-        <ClockMark />
-        <strong>{time}</strong>
-        <small>{civil}{hebrew ? ` · ${hebrew}` : ""}</small>
-      </div>
-      <div className="modern-split">
-        <div>
+      <header className="modern-mast">
+        <div className="modern-address">
+          {logoUrl ? <img src={logoUrl} alt="" /> : <House />}
+          <span>{address}</span>
+        </div>
+        <div className="modern-clock">
+          <strong>{time}</strong>
+          <small>{civil}{hebrew ? ` · ${hebrew}` : ""}</small>
+        </div>
+      </header>
+      <section className="modern-facts">
+        <div className="modern-fact">
           <Sun />
-          <strong>{temp === null ? "—" : `${temp}°`}</strong>
+          <b>{temp === null ? "—" : `${temp}°`}</b>
           <small>{weatherLabel}</small>
         </div>
-        <div>
+        <div className="modern-fact">
           <Candle />
-          <b>הדלקת נרות</b>
-          <strong>{candles || "—"}</strong>
+          <small>הדלקת נרות</small>
+          <b>{candles || "—"}</b>
           {parsha ? <small>פרשת {parsha}</small> : null}
         </div>
-      </div>
-      <div className="modern-markets">
-        {shown.length === 0 ? <span>—</span> : shown.map((row) => (
-          <span key={row.name}><strong>{row.value}</strong><small>{row.name}</small></span>
-        ))}
-      </div>
+        <div className="modern-rates">
+          {shown.length === 0 ? <span><b>—</b></span> : shown.map((row) => (
+            <span key={row.name}><b>{row.value}</b><small>{row.name}</small></span>
+          ))}
+        </div>
+      </section>
       <Wheel pages={pages} chips={chips} seconds={hold} />
     </div>
   );
@@ -190,17 +191,8 @@ function pageChips(pages: Page[]) {
 function House() {
   return (
     <svg viewBox="0 0 48 48" aria-hidden="true">
-      <path d="M8 22 24 8l16 14v16a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2Z" fill="none" stroke="#2f6fb2" strokeWidth="2.4" />
-      <path d="M20 40V28h8v12" fill="none" stroke="#2f6fb2" strokeWidth="2.4" />
-    </svg>
-  );
-}
-
-function ClockMark() {
-  return (
-    <svg viewBox="0 0 48 48" aria-hidden="true">
-      <circle cx="24" cy="24" r="14" fill="none" stroke="#222" strokeWidth="1.6" />
-      <path d="M24 16v9l6 3" fill="none" stroke="#222" strokeWidth="1.6" />
+      <path d="M8 22 24 8l16 14v16a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2Z" fill="none" stroke="#5A1F2B" strokeWidth="2.4" />
+      <path d="M20 40V28h8v12" fill="none" stroke="#5A1F2B" strokeWidth="2.4" />
     </svg>
   );
 }
@@ -208,8 +200,8 @@ function ClockMark() {
 function Sun() {
   return (
     <svg viewBox="0 0 48 48" aria-hidden="true">
-      <circle cx="24" cy="24" r="8" fill="#f2b705" />
-      <path d="M24 6v6M24 36v6M6 24h6M36 24h6M11 11l4 4M33 33l4 4M37 11l-4 4M15 33l-4 4" stroke="#f2b705" strokeWidth="2" />
+      <circle cx="24" cy="24" r="7" fill="#e6d3ae" stroke="#5A1F2B" strokeWidth="1.6" />
+      <path d="M24 6v5M24 37v5M6 24h5M37 24h5M11 11l3.5 3.5M33.5 33.5 37 37M37 11l-3.5 3.5M14.5 33.5 11 37" stroke="#5A1F2B" strokeWidth="1.8" strokeLinecap="round" />
     </svg>
   );
 }
@@ -217,8 +209,8 @@ function Sun() {
 function Candle() {
   return (
     <svg viewBox="0 0 48 48" aria-hidden="true">
-      <path d="M24 20c4 0 6-4 4-8-4 2-8 2-8 6 0 1.2.6 2 2 2 1 0 1.4-.4 2 0Z" fill="#f08a24" />
-      <rect x="21" y="20" width="6" height="16" rx="1" fill="#f3e2b8" stroke="#c9a36a" />
+      <path d="M24 18c3.2 0 4.6-3.4 3-6.6-3.2 1.8-6.4 1.6-6.4 5 0 1 .5 1.6 1.6 1.6.8 0 1.1-.3 1.8 0Z" fill="#e6d3ae" />
+      <rect x="21" y="18" width="6" height="16" rx="1.5" fill="#F4F1ED" stroke="#5A1F2B" strokeWidth="1.6" />
     </svg>
   );
 }
