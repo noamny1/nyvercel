@@ -19,7 +19,6 @@ export function ModernRail({
   sourceId = "",
   newsCount = 8,
   newsMode = "on",
-  seconds = 8,
 }: {
   address: string;
   logoUrl: string;
@@ -50,7 +49,7 @@ export function ModernRail({
   const news = (newsOn ? (sourceId ? fresh : headlines) : []).filter((item) => item.title);
   const pages = wheelPages(news, notices);
   const chips = pageChips(pages);
-  const hold = Math.max(22, seconds);
+  const hold = 11;
 
   return (
     <div className="modern-rail">
@@ -143,7 +142,7 @@ function Board({ page }: { page?: Page }) {
       <b className={note ? "is-note" : ""}>{label}</b>
       <ul>
         {lines.map((text, index) => (
-          <li key={`${index}-${text}`}><i>{index + 1}</i><span>{text}</span></li>
+          <li key={`${index}-${text}`}><i aria-hidden="true" /><span>{text}</span></li>
         ))}
       </ul>
     </>
