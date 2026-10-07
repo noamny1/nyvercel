@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useFreshHeadlines, type Headline } from "@/components/player/useFreshHeadlines";
 import { useNewsOn } from "@/components/player/useNewsOn";
 
-type Stop = { chip: string; tag: string; text: string; note: boolean };
+type Page = { chip: string; headlines: string[]; notes: string[] };
 
 export function ModernRail({
   address,
@@ -48,8 +48,8 @@ export function ModernRail({
   const fresh = useFreshHeadlines(sourceId || "ynet", newsCount, headlines);
   const newsOn = useNewsOn(newsMode);
   const news = (newsOn ? (sourceId ? fresh : headlines) : []).filter((item) => item.title);
-  const stops = wheelStops(news, notices);
-  const chips = [...new Set(stops.map((item) => item.chip))];
+  const pages = wheelPages(news, notices);
+  const chips = pageChips(pages);
   const hold = Math.max(6, seconds);
 
   return (
@@ -81,39 +81,39 @@ export function ModernRail({
           <span key={row.name}><strong>{row.value}</strong><small>{row.name}</small></span>
         ))}
       </div>
-      <Wheel stops={stops} chips={chips} seconds={hold} />
+      <Wheel pages={pages} chips={chips} seconds={hold} />
     </div>
   );
 }
 
-function Wheel({ stops, chips, seconds }: { stops: Stop[]; chips: string[]; seconds: number }) {
+function Wheel({ pages, chips, seconds }: { pages: Page[]; chips: string[]; seconds: number }) {
   const [index, setIndex] = useState(0);
   const [spin, setSpin] = useState(false);
   const [lock, setLock] = useState(false);
-  const key = stops.map((item) => `${item.chip}|${item.text}`).join("\n");
+  const key = pages.map((item) => `${item.chip}|${item.headlines.join("|")}|${item.notes.join("|")}`).join("\n");
   useEffect(() => {
     setIndex(0);
     setSpin(false);
   }, [key]);
   useEffect(() => {
-    if (stops.length < 2) return;
+    if (pages.length < 2) return;
     const timer = setInterval(() => setSpin(true), seconds * 1000);
     return () => clearInterval(timer);
-  }, [key, stops.length, seconds]);
+  }, [key, pages.length, seconds]);
   useEffect(() => {
     if (!spin) return;
     const done = window.setTimeout(() => {
       setLock(true);
-      setIndex((value) => (value + 1) % stops.length);
+      setIndex((value) => (value + 1) % pages.length);
       setSpin(false);
       requestAnimationFrame(() => requestAnimationFrame(() => setLock(false)));
-    }, 680);
+    }, 720);
     return () => clearTimeout(done);
-  }, [spin, stops.length]);
-  const at = stops.length ? index % stops.length : 0;
-  const current = stops[at];
-  const previous = stops.length ? stops[(at + stops.length - 1) % stops.length] : undefined;
-  const next = stops.length ? stops[(at + 1) % stops.length] : undefined;
+  }, [spin, pages.length]);
+  const at = pages.length ? index % pages.length : 0;
+  const current = pages[at];
+  const previous = pages.length ? pages[(at + pages.length - 1) % pages.length] : undefined;
+  const next = pages.length ? pages[(at + 1) % pages.length] : undefined;
 
   return (
     <div className="modern-feed">
@@ -127,9 +127,9 @@ function Wheel({ stops, chips, seconds }: { stops: Stop[]; chips: string[]; seco
       <div className="modern-window">
         {current ? (
           <div className={`modern-cylinder${spin ? " is-spin" : ""}${lock ? " is-lock" : ""}`}>
-            <Face item={previous} />
-            <Face item={current} />
-            <Face item={next} />
+            <Board page={next} />
+            <Board page={current} />
+            <Board page={previous} />
           </div>
         ) : <p className="modern-empty">אין עדכונים כרגע</p>}
       </div>
@@ -138,17 +138,31 @@ function Wheel({ stops, chips, seconds }: { stops: Stop[]; chips: string[]; seco
   );
 }
 
-function Face({ item }: { item?: Stop }) {
-  if (!item) return <p />;
+function Board({ page }: { page?: Page }) {
+  if (!page) return <article />;
   return (
-    <p className={item.note ? "is-note" : ""}>
-      <small>{item.tag}</small>
-      <span>{item.text}</span>
-    </p>
+    <article>
+      {page.headlines.length ? (
+        <>
+          <b>{page.chip}</b>
+          <ul>
+            {page.headlines.map((text) => <li key={text}>{text}</li>)}
+          </ul>
+        </>
+      ) : null}
+      {page.notes.length ? (
+        <>
+          <b className="is-note">הודעות</b>
+          <ul className="is-note">
+            {page.notes.map((text) => <li key={text}>{text}</li>)}
+          </ul>
+        </>
+      ) : null}
+    </article>
   );
 }
 
-function wheelStops(items: Headline[], notices: string[]) {
+function wheelPages(items: Headline[], notices: string[]) {
   const groups = new Map<string, string[]>();
   const order: string[] = [];
   for (const item of items) {
@@ -163,17 +177,25 @@ function wheelStops(items: Headline[], notices: string[]) {
       order.push(chip);
     }
   }
-  const notes: Stop[] = notices
-    .map((item) => item.trim())
-    .filter(Boolean)
-    .map((text) => ({ chip: "הודעות", tag: "הודעת בניין", text, note: true }));
-  if (!order.length) return notes;
-  const stops: Stop[] = [];
-  for (const chip of order) {
-    for (const text of groups.get(chip) || []) stops.push({ chip, tag: chip, text, note: false });
-    stops.push(...notes);
-  }
-  return stops;
+  const notes = notices.map((item) => item.trim()).filter(Boolean);
+  const notePages: string[][] = [];
+  for (let index = 0; index < notes.length; index += 3) notePages.push(notes.slice(index, index + 3));
+  if (!order.length) return notePages.map((page) => ({ chip: "הודעות", headlines: [], notes: page }));
+  const count = Math.max(order.length, notePages.length || 1);
+  return Array.from({ length: count }, (_, index) => {
+    const chip = order[index % order.length];
+    return {
+      chip,
+      headlines: groups.get(chip) || [],
+      notes: notePages.length ? notePages[index % notePages.length] : [],
+    };
+  });
+}
+
+function pageChips(pages: Page[]) {
+  const chips = [...new Set(pages.map((page) => page.chip).filter((chip) => chip !== "הודעות"))];
+  if (pages.some((page) => page.notes.length)) chips.push("הודעות");
+  return chips;
 }
 
 function House() {
