@@ -25,7 +25,7 @@
   flex-direction: column;
   gap: 18px;
   margin: 0;
-  padding: 28px 28px 22px;
+  padding: 46px 28px 22px;
   overflow: hidden;
   direction: rtl;
   text-align: right;
@@ -181,7 +181,13 @@
   color: #e6d3ae;
   font-size: clamp(15px, 1.15vw, 22px);
 }
-.layout-luxury .music-credit { left: auto; right: 36px; bottom: 168px; }
+.layout-luxury .music-credit {
+  top: 30px;
+  left: 36px;
+  right: auto;
+  bottom: auto;
+  max-width: calc(24vw - 72px);
+}
 .layout-luxury.stage.slide-full {
   gap: 0;
   padding: 0;
