@@ -51,7 +51,7 @@ export function PestVideo({
     <div className="char-stage">
       <div className="char-frame">
         <video src={src} poster={poster} autoPlay muted loop playsInline />
-        <div className="pest-card">
+        <div className="char-note">
           <strong>{title || "הדברה"}</strong>
           {when ? <b>{when}</b> : null}
           {detail ? <span>{detail}</span> : null}

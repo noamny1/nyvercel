@@ -182,11 +182,15 @@
   font-size: clamp(15px, 1.15vw, 22px);
 }
 .layout-luxury .music-credit {
-  top: 30px;
-  left: 36px;
+  top: 22px;
+  left: 22px;
   right: auto;
   bottom: auto;
-  max-width: calc(24vw - 72px);
+  width: max-content;
+  max-width: calc(24vw - 16px);
+  height: 20px;
+  padding: 0 8px;
+  font-size: 11px;
 }
 .layout-luxury.stage.slide-full {
   gap: 0;

@@ -117,6 +117,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
         ) : (
           <Player slides={visible.map((slide) => {
             const official = FIXED_VIDEOS.find((item) => item.id === slide.templateId);
+            const character = Boolean(official?.url.startsWith("/safety/"));
             const parasha = slide.templateId === "weekly-parasha";
             let flow = "";
             let full = false;
@@ -140,8 +141,8 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
             duration: clientSetsDuration(slide.templateId) ? slide.duration : official?.duration || slow || slide.duration,
             kind: slide.kind,
             templateId: slide.templateId,
-            title: parasha ? (shabbat?.parsha || "") : fillLine(slide.title, meta),
-            detail: fillLine(slide.detail, meta),
+            title: parasha ? (shabbat?.parsha || "") : character && official ? official.title : fillLine(slide.title, meta),
+            detail: character && official ? official.line : fillLine(slide.detail, meta),
             candles: parasha ? shabbat?.candles || "" : "",
             havdalah: parasha ? shabbat?.havdalah || "" : "",
             city: parasha ? shabbat?.city || city : "",
