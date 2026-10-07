@@ -376,3 +376,11 @@ body:has(.stage) { overflow: hidden; background: #000; }
   top: 0;
   width: 340px;
 }
+.layout-modern .music-credit {
+  top: 6px;
+  height: 16px;
+  font-size: 10px;
+  color: rgba(90, 31, 43, 0.55);
+  text-shadow: none;
+  justify-content: center;
+}
