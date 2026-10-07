@@ -13,6 +13,7 @@ import { Shabbat } from "@/components/widgets/Shabbat";
 import { Weather } from "@/components/widgets/Weather";
 import { ModernRail } from "@/components/themes/ModernRail";
 import { LuxuryRail } from "@/components/themes/LuxuryRail";
+import { CinemaBoard, GlassBoard } from "@/components/themes/MotionBoard";
 import { markets } from "@/lib/markets";
 import { liveHeadlines } from "@/lib/news";
 import { prisma } from "@/lib/prisma";
@@ -20,10 +21,12 @@ import { musicSilenced, screenTakeover } from "@/lib/flags";
 import { FIXED_VIDEOS, clientSetsDuration, fillLine } from "@/lib/ready-slides";
 import { newsTickerOn, slideIsOn } from "@/lib/schedule";
 import { shabbatFor } from "@/lib/shabbat";
+import { isThemeId } from "@/lib/themes";
 import { weatherFor } from "@/lib/weather";
 import "@/components/player/player.css";
 import "@/components/themes/modern.css";
 import "@/components/themes/luxury.css";
+import "@/components/themes/motion.css";
 
 const heebo = Heebo({ subsets: ["hebrew", "latin"], weight: ["300", "400", "500"], display: "swap" });
 
@@ -66,8 +69,9 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
   const visible = pool.filter((slide) => slideIsOn(slide));
   const notices = screen.notices.length > 0 ? screen.notices : source.notices;
   const chosen = screen.theme || source.theme || "modern";
-  const theme = chosen === "luxury" ? "luxury" : "modern";
+  const theme = isThemeId(chosen) ? chosen : "modern";
   const luxury = theme === "luxury";
+  const cinematic = theme === "glass" || theme === "cinema";
   const newsSource = screen.newsSource || source.newsSource || "ynet";
   const sourceCount = newsSource.split(",").map((item) => item.trim()).filter(Boolean).length || 1;
   const newsTake = luxury ? Math.min(20, Math.max(screen.newsCount || 8, sourceCount * 4)) : (screen.newsCount || 8);
@@ -100,7 +104,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
   }
 
   return (
-    <main className={`stage theme-${theme}${luxury ? ` layout-luxury ${heebo.className}` : ""}${tickerOn && !luxury ? "" : " no-ticker"}`}>
+    <main className={`stage theme-${theme}${luxury ? ` layout-luxury ${heebo.className}` : ""}${cinematic ? ` layout-${theme} ${heebo.className}` : ""}${tickerOn && !luxury && !cinematic ? "" : " no-ticker"}`}>
       <Music playlist={silenced ? "off" : screen.musicPlaylist || ""} url={silenced ? "" : screen.group?.musicUrl || ""} start={screen.id} />
       <Wake />
       <Ping code={screen.code || screen.id} revision={screen.revision} />
@@ -173,7 +177,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
             rates={rates}
             notices={notices.map((notice) => notice.text)}
           />
-        ) : (
+        ) : cinematic ? null : (
           <>
             <div className="address">{address(street, number, city)}</div>
             {(screen.logoUrl || source.logoUrl) ? <img className="logo" src={screen.logoUrl || source.logoUrl} alt="" /> : null}
@@ -203,7 +207,31 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
           </div>
         </footer>
       ) : null}
-      {tickerOn && !luxury ? <NewsTicker titles={stories} seconds={screen.tickerSeconds || 12} sourceId={newsSource} take={screen.newsCount || 8} /> : null}
+      {tickerOn && !luxury && !cinematic ? <NewsTicker titles={stories} seconds={screen.tickerSeconds || 12} sourceId={newsSource} take={screen.newsCount || 8} /> : null}
+      {theme === "glass" ? (
+        <GlassBoard
+          temp={weather?.temp ?? null}
+          weatherLabel={weather?.label || ""}
+          notices={notices.map((notice) => notice.text)}
+          headlines={stories}
+          street={street}
+          number={number}
+          city={city}
+          logoUrl={screen.logoUrl || source.logoUrl}
+        />
+      ) : null}
+      {theme === "cinema" ? (
+        <CinemaBoard
+          temp={weather?.temp ?? null}
+          weatherLabel={weather?.label || ""}
+          notices={notices.map((notice) => notice.text)}
+          headlines={stories}
+          street={street}
+          number={number}
+          city={city}
+          logoUrl={screen.logoUrl || source.logoUrl}
+        />
+      ) : null}
       <footer className="brand-bar"><img src="/nymedia-logo.png" alt="NYmedia" /></footer>
     </main>
   );

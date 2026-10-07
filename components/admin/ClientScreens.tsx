@@ -26,7 +26,7 @@ type Row = {
   notices: { id: number; text: string; active: boolean }[];
 };
 
-export function ClientScreens({ rows, musicPeers, returnTo }: { rows: Row[]; musicPeers: number; returnTo: string }) {
+export function ClientScreens({ rows, musicPeers, returnTo, themes }: { rows: Row[]; musicPeers: number; returnTo: string; themes?: { id: string; name: string }[] }) {
   const [open, setOpen] = useState<{ id: number; tab: Panel } | null>(null);
   const [sent, setSent] = useState(false);
   const [sending, setSending] = useState(false);
@@ -96,6 +96,7 @@ export function ClientScreens({ rows, musicPeers, returnTo }: { rows: Row[]; mus
                   musicPeers={musicPeers}
                   panel={tab}
                   returnTo={returnTo}
+                  themes={themes}
                 />
               </div>
             ) : null}

@@ -24,6 +24,10 @@ export function ScreenEditor({
   panel,
   returnTo,
   newsTuning = false,
+  themes = [
+    { id: "modern", name: "מודרני" },
+    { id: "luxury", name: "יוקרתי" },
+  ],
 }: {
   screen: {
     id: number;
@@ -52,6 +56,7 @@ export function ScreenEditor({
   panel?: "details" | "slides" | "notices";
   returnTo?: string;
   newsTuning?: boolean;
+  themes?: { id: string; name: string }[];
 }) {
   const router = useRouter();
   const save = scope === "group" ? updateGroup : updateScreen;
@@ -72,7 +77,10 @@ export function ScreenEditor({
   const [overId, setOverId] = useState<number | null>(null);
   const dragged = useRef(false);
   const [tab, setTab] = useState<"details" | "slides" | "notices">(panel || "slides");
-  const [themePick, setThemePick] = useState(screen.theme === "luxury" ? "luxury" : "modern");
+  const themeChoices = themes.some((theme) => theme.id === screen.theme)
+    ? themes
+    : [...themes, THEMES.find((theme) => theme.id === screen.theme)].filter((theme): theme is { id: string; name: string } => Boolean(theme));
+  const [themePick, setThemePick] = useState(themeChoices.some((theme) => theme.id === screen.theme) ? screen.theme : "modern");
   const newsCatalog = feeds && feeds.length > 0 ? feeds : NEWS_SOURCES;
   const [newsPick, setNewsPick] = useState(() => {
     const picked = (screen.newsSource || "ynet").split(",").map((item) => item.trim()).filter(Boolean);
@@ -191,7 +199,7 @@ export function ScreenEditor({
           <label>עיר<input name="city" defaultValue={screen.city} readOnly={lockAddress} /></label>
           <label>תמה
             <select name="theme" defaultValue={themePick} onChange={(event) => setThemePick(event.target.value)}>
-              {THEMES.map((theme) => (
+              {themeChoices.map((theme) => (
                 <option key={theme.id} value={theme.id}>{theme.name}</option>
               ))}
             </select>

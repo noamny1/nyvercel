@@ -11,6 +11,7 @@ const OWNER_LINKS = [
   ["/admin/news", "חדשות"],
   ["/admin/directory", "קומות"],
   ["/admin/control", "לוח בקרה"],
+  ["/admin/themes", "תימות"],
   ["/admin/users", "משתמשים"],
   ["/admin/manage", "ניהול"],
 ];

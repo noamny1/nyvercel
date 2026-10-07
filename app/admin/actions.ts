@@ -6,6 +6,7 @@ import { screenWhere } from "@/lib/access";
 import { requireSession, isSystemAdmin } from "@/lib/session";
 import { nextCode, touchGroup, touchScreen } from "@/lib/publish";
 import { normalizePlaylists } from "@/lib/music-catalog";
+import { savedTheme } from "@/lib/themes";
 
 async function gate() {
   const session = await requireSession();
@@ -58,7 +59,7 @@ export async function updateScreen(formData: FormData) {
       street: owner ? String(formData.get("street") || "") : current.street,
       number: owner ? String(formData.get("number") || "") : current.number,
       city: owner ? String(formData.get("city") || "") : current.city,
-      theme: String(formData.get("theme") || "modern"),
+      theme: await savedTheme(String(formData.get("theme") || "modern"), current.theme),
       newsSource: chosenNews(formData),
       newsCount: owner ? Math.min(20, Math.max(1, Number(formData.get("newsCount")) || current.newsCount || 8)) : current.newsCount,
       tickerSeconds: owner ? Math.min(40, Math.max(6, Number(formData.get("tickerSeconds")) || current.tickerSeconds || 12)) : current.tickerSeconds,
@@ -157,6 +158,8 @@ export async function deleteGroup(formData: FormData) {
 export async function updateGroup(formData: FormData) {
   await gate();
   const id = Number(formData.get("id"));
+  const current = await prisma.screenGroup.findUnique({ where: { id } });
+  if (!current) redirect("/admin");
   await prisma.screenGroup.update({
     where: { id },
     data: {
@@ -164,7 +167,7 @@ export async function updateGroup(formData: FormData) {
       street: String(formData.get("street") || ""),
       number: String(formData.get("number") || ""),
       city: String(formData.get("city") || ""),
-      theme: String(formData.get("theme") || "modern"),
+      theme: await savedTheme(String(formData.get("theme") || "modern"), current.theme),
       newsSource: chosenNews(formData),
       logoUrl: String(formData.get("logoUrl") || ""),
       musicUrl: String(formData.get("musicUrl") || ""),
