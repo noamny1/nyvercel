@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>תמות בתנועה</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root { --ink:#252525; --wine:#5A1F2B; --cream:#F4F1ED; }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; background: #111; color: var(--cream); font-family: Heebo, Arial, sans-serif; }
+    button { font-family: inherit; }
+    .nav {
+      position: fixed; top: 16px; left: 16px; z-index: 5;
+      display: flex; gap: 8px;
+    }
+    .nav button {
+      border: 0; background: rgba(244,241,237,.92); color: var(--ink);
+      border-radius: 999px; padding: 8px 14px; cursor: pointer; font-size: 15px;
+    }
+    .nav button.on { background: var(--wine); color: var(--cream); }
+    .screen { display: none; height: 100%; position: relative; overflow: hidden; }
+    .screen.on { display: block; }
+    .photo, .photo img { position: absolute; inset: 0; width: 100%; height: 100%; }
+    .photo { overflow: hidden; }
+    .photo img { object-fit: cover; animation: drift 26s ease-in-out infinite alternate; }
+    @keyframes drift {
+      from { transform: scale(1); }
+      to { transform: scale(1.1) translate3d(-1.5%, -1%, 0); }
+    }
+    .logo { height: 46px; width: auto; display: block; }
+    .pill { background: var(--ink); border-radius: 16px; padding: 8px 14px; display: inline-flex; }
+
+    /* glass */
+    .glass .veil {
+      position: absolute; inset: 0;
+      background: linear-gradient(90deg, rgba(37,37,37,.15), rgba(37,37,37,.55) 58%, rgba(90,31,43,.72));
+    }
+    .slab {
+      position: absolute; top: 7%; bottom: 7%; right: 4%;
+      width: min(460px, 38vw);
+      border-radius: 32px;
+      background: rgba(244,241,237,.16);
+      border: 1px solid rgba(244,241,237,.35);
+      backdrop-filter: blur(22px);
+      box-shadow: 0 30px 80px rgba(0,0,0,.25);
+      padding: 36px 32px;
+      display: flex; flex-direction: column; justify-content: space-between;
+      animation: enter .9s cubic-bezier(.2,.7,.2,1) both;
+    }
+    @keyframes enter { from { opacity: 0; transform: translateX(36px); } to { opacity: 1; transform: none; } }
+    .clock { font-size: clamp(64px, 7vw, 104px); line-height: .9; font-weight: 500; letter-spacing: -2px; }
+    .muted { opacity: .82; font-size: 22px; margin: 10px 0 0; }
+    .hello { font-size: clamp(48px, 5vw, 76px); line-height: 1; margin: 18px 0 0; font-weight: 500; }
+    .line { font-size: 28px; min-height: 1.4em; transition: opacity .45s ease, transform .45s ease; }
+    .line.out { opacity: 0; transform: translateY(12px); }
+    .brand-row { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; }
+
+    /* word */
+    .word { background: var(--cream); color: var(--ink); display: none; }
+    .word.on { display: grid; grid-template-columns: 1.05fr .95fr; }
+    .word .frame { position: relative; margin: 28px; border-radius: 32px; overflow: hidden; }
+    .word .frame img { width: 100%; height: 100%; object-fit: cover; animation: drift 26s ease-in-out infinite alternate; }
+    .copy { padding: 36px 48px 36px 28px; display: flex; flex-direction: column; }
+    .topbar { display: flex; justify-content: space-between; align-items: center; }
+    .kicker { color: var(--wine); font-size: 18px; }
+    .big {
+      margin-top: auto; margin-bottom: auto;
+      font-size: clamp(64px, 7vw, 112px); line-height: .95; font-weight: 500;
+      animation: wipe 5.2s ease infinite;
+    }
+    @keyframes wipe {
+      0% { clip-path: inset(0 100% 0 0); opacity: 0; }
+      12% { clip-path: inset(0 0 0 0); opacity: 1; }
+      78% { clip-path: inset(0 0 0 0); opacity: 1; }
+      100% { clip-path: inset(0 0 0 100%); opacity: 0; }
+    }
+    .rule { height: 2px; width: 180px; background: var(--wine); transform-origin: right center; animation: grow 5.2s ease infinite; margin: 8px 0 18px auto; }
+    @keyframes grow { 0% { transform: scaleX(0); } 18% { transform: scaleX(1); } 100% { transform: scaleX(1); } }
+    .sub { font-size: 28px; min-height: 1.3em; }
+
+    /* cinema */
+    .cinema { background: var(--ink); }
+    .cinema .stage { position: absolute; top: 4%; right: 4%; left: 4%; height: 68%; border-radius: 18px; overflow: hidden; }
+    .lower {
+      position: absolute; right: 4%; left: 4%; bottom: 4%; height: 20%;
+      display: flex; align-items: center; justify-content: space-between; gap: 28px;
+      animation: up .8s cubic-bezier(.2,.7,.2,1) both;
+    }
+    @keyframes up { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+    .cinema .clock { font-size: clamp(56px, 6vw, 88px); }
+    .cinema .story { text-align: right; }
+    .cinema .story b { display: block; font-size: clamp(28px, 3vw, 42px); font-weight: 500; }
+    .hair { position: absolute; right: 4%; left: 4%; bottom: 25%; height: 2px; background: var(--wine); transform-origin: right; animation: grow 4s ease infinite; }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <button type="button" class="on" data-screen="glass">זכוכית</button>
+    <button type="button" data-screen="word">מילה</button>
+    <button type="button" data-screen="cinema">קולנוע</button>
+  </nav>
+
+  <section class="screen glass on" id="glass">
+    <div class="photo"><img src="building.jpg" alt="" /></div>
+    <div class="veil"></div>
+    <div class="slab">
+      <div>
+        <div class="clock" data-clock>09:56</div>
+        <p class="muted"><span data-day></span> · <span data-heb></span></p>
+        <p class="muted" data-weather>24° מעונן חלקית</p>
+      </div>
+      <div>
+        <div class="hello" data-hello>בוקר טוב</div>
+        <p class="line" data-line>אסיפת דיירים הערב בלובי</p>
+      </div>
+      <div class="brand-row">
+        <div>
+          <div>אודם 19</div>
+          <div class="muted">באר יעקב</div>
+        </div>
+        <img class="logo" src="logo.png" alt="NYMEDIA" />
+      </div>
+    </div>
+  </section>
+
+  <section class="screen word" id="word">
+    <div class="frame"><img src="building.jpg" alt="" /></div>
+    <div class="copy">
+      <div class="topbar">
+        <span class="pill"><img class="logo" src="logo.png" alt="NYMEDIA" /></span>
+        <div class="clock" data-clock style="font-size:56px">09:56</div>
+      </div>
+      <div class="kicker" data-hello>בוקר טוב</div>
+      <div class="big" data-big>הערב</div>
+      <div class="rule"></div>
+      <div class="sub" data-sub>נפגשים בלובי · 20:00</div>
+      <div class="kicker">אודם 19 · באר יעקב</div>
+    </div>
+  </section>
+
+  <section class="screen cinema" id="cinema">
+    <div class="stage photo"><img src="building.jpg" alt="" /></div>
+    <div class="hair"></div>
+    <div class="lower">
+      <img class="logo" src="logo.png" alt="NYMEDIA" />
+      <div class="story">
+        <b class="line" data-line>אסיפת דיירים הערב בלובי</b>
+        <span>אודם 19 · באר יעקב</span>
+      </div>
+      <div>
+        <div class="clock" data-clock>09:56</div>
+        <div data-weather>24° מעונן חלקית</div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    const letters = (n) => {
+      if (n === 15) return "ט״ו";
+      if (n === 16) return "ט״ז";
+      const ones = ["", "א", "ב", "ג", "ד", "ה", "ו", "ז", "ח", "ט"];
+      const tens = ["", "י", "כ", "ל"];
+      const s = (tens[Math.floor(n / 10)] || "") + ones[n % 10];
+      if (s.length < 2) return s + "׳";
+      return s.slice(0, -1) + "״" + s.slice(-1);
+    };
+    const tz = "Asia/Jerusalem";
+    const helloFor = (h) => h < 12 ? "בוקר טוב" : h < 17 ? "צהריים טובים" : h < 21 ? "ערב טוב" : "לילה טוב";
+    function tick() {
+      const now = new Date();
+      const time = new Intl.DateTimeFormat("he-IL", { timeZone: tz, hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(now);
+      const day = new Intl.DateTimeFormat("he-IL", { timeZone: tz, weekday: "long" }).format(now);
+      const parts = new Intl.DateTimeFormat("he-IL-u-ca-hebrew", { timeZone: tz, day: "numeric", month: "long" }).formatToParts(now);
+      const num = Number(parts.find((p) => p.type === "day").value);
+      const month = parts.find((p) => p.type === "month").value;
+      document.querySelectorAll("[data-clock]").forEach((el) => { el.textContent = time; });
+      document.querySelectorAll("[data-day]").forEach((el) => { el.textContent = day; });
+      document.querySelectorAll("[data-heb]").forEach((el) => { el.textContent = letters(num) + " ב" + month; });
+      document.querySelectorAll("[data-hello]").forEach((el) => { el.textContent = helloFor(Number(time.slice(0, 2))); });
+    }
+    tick();
+    setInterval(tick, 1000);
+
+    const lines = ["אסיפת דיירים הערב בלובי", "המעלית חוזרת אחרי שמונה", "שטיפת הלובי מחר בבוקר"];
+    let li = 0;
+    setInterval(() => {
+      document.querySelectorAll("[data-line]").forEach((el) => el.classList.add("out"));
+      setTimeout(() => {
+        li = (li + 1) % lines.length;
+        document.querySelectorAll("[data-line]").forEach((el) => {
+          el.textContent = lines[li];
+          el.classList.remove("out");
+        });
+      }, 420);
+    }, 4600);
+
+    const beats = [
+      ["הערב", "נפגשים בלובי · 20:00"],
+      ["אסיפה", "דיירים בלובי"],
+      ["24°", "מעונן חלקית"],
+      ["בוקר טוב", "אודם 19 · באר יעקב"]
+    ];
+    let bi = 0;
+    setInterval(() => {
+      bi = (bi + 1) % beats.length;
+      const big = document.querySelector("[data-big]");
+      const sub = document.querySelector("[data-sub]");
+      big.style.animation = "none";
+      big.offsetHeight;
+      big.textContent = beats[bi][0];
+      sub.textContent = beats[bi][1];
+      big.style.animation = "";
+    }, 5200);
+
+    document.querySelectorAll(".nav button").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".nav button").forEach((b) => b.classList.remove("on"));
+        document.querySelectorAll(".screen").forEach((s) => s.classList.remove("on"));
+        btn.classList.add("on");
+        document.getElementById(btn.dataset.screen).classList.add("on");
+      });
+    });
+  </script>
+</body>
+</html>
