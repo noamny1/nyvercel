@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useNewsOn } from "@/components/player/useNewsOn";
 
 type Story = { title: string };
 
@@ -13,9 +14,11 @@ export function GlassBoard({
   number,
   city,
   logoUrl,
+  newsMode = "on",
 }: BoardProps) {
   const clock = useClock();
-  const line = useLine(notices, headlines);
+  const newsOn = useNewsOn(newsMode);
+  const line = useLine(notices, newsOn ? headlines : []);
   const place = [street, number].filter(Boolean).join(" ");
   return (
     <aside className="glass-slab">
@@ -49,9 +52,11 @@ export function CinemaBoard({
   number,
   city,
   logoUrl,
+  newsMode = "on",
 }: BoardProps) {
   const clock = useClock();
-  const line = useLine(notices, headlines);
+  const newsOn = useNewsOn(newsMode);
+  const line = useLine(notices, newsOn ? headlines : []);
   const place = [street, number].filter(Boolean).join(" ");
   const address = [place, city].filter(Boolean).join(" · ");
   return (
@@ -82,6 +87,7 @@ type BoardProps = {
   number: string;
   city: string;
   logoUrl: string;
+  newsMode?: string;
 };
 
 function useClock() {

@@ -211,7 +211,7 @@ export function ScreenEditor({
             </>
           ) : null}
           {scope === "screen" ? (
-            <label>פס חדשות
+            <label>חדשות
               <select name="newsTicker" defaultValue={screen.newsTicker || "on"}>
                 <option value="on">פעיל</option>
                 <option value="weekend">כבוי בשישי ושבת</option>

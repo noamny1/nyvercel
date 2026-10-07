@@ -4,6 +4,7 @@ import { Player } from "@/components/player/Player";
 import { Music } from "@/components/player/Music";
 import { Wake } from "@/components/player/Wake";
 import { Ping } from "@/components/player/Ping";
+import { NewsGate } from "@/components/player/NewsGate";
 import { Clock } from "@/components/widgets/Clock";
 import { Directory } from "@/components/widgets/Directory";
 import { Markets } from "@/components/widgets/Markets";
@@ -87,7 +88,8 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
   const greet = welcome(street, number, city);
   const feedMode = screen.feedMode === "news" || screen.feedMode === "notices" ? screen.feedMode : "both";
   const stories = headlines.map((item) => ({ title: item.title, source: item.source || "" }));
-  const tickerOn = newsTickerOn(screen.newsTicker || "on");
+  const newsMode = screen.newsTicker || "on";
+  const tickerOn = newsTickerOn(newsMode);
   const modern = theme === "modern";
 
   const indexTheme = theme.startsWith("index");
@@ -106,6 +108,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
   return (
     <main className={`stage theme-${theme}${luxury ? ` layout-luxury ${heebo.className}` : ""}${cinematic ? ` layout-${theme} ${heebo.className}` : ""}${tickerOn && !luxury && !cinematic ? "" : " no-ticker"}`}>
       <Music playlist={silenced ? "off" : screen.musicPlaylist || ""} url={silenced ? "" : screen.group?.musicUrl || ""} start={screen.id} />
+      <NewsGate mode={newsMode} />
       <Wake />
       <Ping code={screen.code || screen.id} revision={screen.revision} />
       <section className="slide">
@@ -166,6 +169,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
             notices={notices.map((notice) => notice.text)}
             sourceId={newsSource}
             newsCount={newsTake}
+            newsMode={newsMode}
           />
         ) : modern ? (
           <ModernRail
@@ -208,7 +212,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
           </div>
         </footer>
       ) : null}
-      {tickerOn && !luxury && !cinematic ? <NewsTicker titles={stories} seconds={screen.tickerSeconds || 12} sourceId={newsSource} take={screen.newsCount || 8} /> : null}
+      {!luxury && !cinematic ? <NewsTicker titles={stories} seconds={screen.tickerSeconds || 12} sourceId={newsSource} take={screen.newsCount || 8} mode={newsMode} /> : null}
       {theme === "glass" ? (
         <GlassBoard
           temp={weather?.temp ?? null}
@@ -219,6 +223,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
           number={number}
           city={city}
           logoUrl={screen.logoUrl || source.logoUrl}
+          newsMode={newsMode}
         />
       ) : null}
       {theme === "cinema" ? (
@@ -231,6 +236,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
           number={number}
           city={city}
           logoUrl={screen.logoUrl || source.logoUrl}
+          newsMode={newsMode}
         />
       ) : null}
       <footer className="brand-bar"><img src="/nymedia-logo.png" alt="NYmedia" /></footer>

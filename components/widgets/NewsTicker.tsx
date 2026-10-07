@@ -2,20 +2,24 @@
 
 import { useEffect, useState } from "react";
 import { useFreshHeadlines, type Headline } from "@/components/player/useFreshHeadlines";
+import { useNewsOn } from "@/components/player/useNewsOn";
 
-export function NewsTicker({ titles, seconds = 12, sourceId = "", take = 8 }: { titles: Headline[]; seconds?: number; sourceId?: string; take?: number }) {
+export function NewsTicker({ titles, seconds = 12, sourceId = "", take = 8, mode = "on" }: { titles: Headline[]; seconds?: number; sourceId?: string; take?: number; mode?: string }) {
+  const newsOn = useNewsOn(mode);
   const fresh = useFreshHeadlines(sourceId || "ynet", take, titles);
-  const shown = sourceId ? fresh : titles;
+  const shown = newsOn ? (sourceId ? fresh : titles) : [];
+  const shownKey = shown.map((item) => item.title).join("\n");
   const [index, setIndex] = useState(0);
   useEffect(() => {
     setIndex(0);
-  }, [shown]);
+  }, [shownKey]);
   useEffect(() => {
     if (shown.length < 2) return;
     const timer = setInterval(() => setIndex((value) => (value + 1) % shown.length), Math.max(6, seconds) * 1000);
     return () => clearInterval(timer);
-  }, [shown, seconds]);
+  }, [shownKey, shown.length, seconds]);
   const item = shown[index];
+  if (!newsOn) return null;
   return (
     <div className="ticker">
       {item?.source ? <span className="ticker-source">{item.source}</span> : null}

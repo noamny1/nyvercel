@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useFreshHeadlines, type Headline } from "@/components/player/useFreshHeadlines";
+import { useNewsOn } from "@/components/player/useNewsOn";
 
 type Item = { tag: string; text: string; chip: string };
 
@@ -12,6 +13,7 @@ export function LuxuryRail({
   notices,
   sourceId = "",
   newsCount = 8,
+  newsMode = "on",
 }: {
   temp: number | null;
   weatherLabel: string;
@@ -20,6 +22,7 @@ export function LuxuryRail({
   notices: string[];
   sourceId?: string;
   newsCount?: number;
+  newsMode?: string;
 }) {
   const [now, setNow] = useState<Date | null>(null);
   const [active, setActive] = useState("");
@@ -33,7 +36,8 @@ export function LuxuryRail({
   const civil = now ? now.toLocaleDateString("he-IL", { weekday: "long", day: "numeric", month: "long", year: "numeric" }) : "";
   const hebrew = now ? hebrewDate(now) : "";
   const fresh = useFreshHeadlines(sourceId || "ynet", newsCount, headlines);
-  const news = (sourceId ? fresh : headlines).filter((item) => item.title).map((item) => ({
+  const newsOn = useNewsOn(newsMode);
+  const news = (newsOn ? (sourceId ? fresh : headlines) : []).filter((item) => item.title).map((item) => ({
     tag: item.source || "חדשות",
     text: item.title,
     chip: item.source || "חדשות",
