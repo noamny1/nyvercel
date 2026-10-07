@@ -42,7 +42,7 @@ export function ModernRail({
   }, []);
   const time = now ? now.toLocaleTimeString("he-IL", { hour: "2-digit", minute: "2-digit" }) : "";
   const civil = now ? now.toLocaleDateString("he-IL", { weekday: "long", day: "numeric", month: "long" }) : "";
-  const hebrew = now ? now.toLocaleDateString("he-IL-u-ca-hebrew", { day: "numeric", month: "long" }) : "";
+  const hebrew = now ? hebrewDate(now) : "";
   const shown = rates.slice(0, 2);
   const fresh = useFreshHeadlines(sourceId || "ynet", newsCount, headlines);
   const newsOn = useNewsOn(newsMode);
@@ -186,6 +186,24 @@ function pageChips(pages: Page[]) {
   const chips = [...new Set(pages.map((page) => page.chip).filter((chip) => chip !== "הודעות"))];
   if (pages.some((page) => page.notes.length)) chips.push("הודעות");
   return chips;
+}
+
+function hebrewDate(date: Date) {
+  const parts = new Intl.DateTimeFormat("he-IL-u-ca-hebrew", { day: "numeric", month: "long" }).formatToParts(date);
+  const day = Number(parts.find((part) => part.type === "day")?.value || "");
+  const month = parts.find((part) => part.type === "month")?.value || "";
+  if (!day || !month) return "";
+  return `${hebrewNumber(day)} ב${month}`;
+}
+
+function hebrewNumber(value: number) {
+  if (value === 15) return "ט״ו";
+  if (value === 16) return "ט״ז";
+  const ones = ["", "א", "ב", "ג", "ד", "ה", "ו", "ז", "ח", "ט"];
+  const tens = ["", "י", "כ", "ל"];
+  const letters = `${tens[Math.floor(value / 10)] || ""}${ones[value % 10] || ""}`;
+  if (letters.length < 2) return `${letters}׳`;
+  return `${letters.slice(0, -1)}״${letters.slice(-1)}`;
 }
 
 function House() {
