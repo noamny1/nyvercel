@@ -25,9 +25,8 @@ export function AdminNav() {
     <>
       <header className="admin-bar">
         <div className="admin-bar-inner">
-          <Link className="admin-brand" href={owner ? "/admin" : "/admin/buildings"} aria-label="בית">
-            <strong>NYmedia</strong>
-            <span>בית</span>
+          <Link className="admin-brand" href={owner ? "/admin" : "/admin/buildings"} aria-label="דף הניהול">
+            <img src="/logo-white.png" alt="NYmedia" />
           </Link>
           <button className="admin-exit" type="button" onClick={() => signOut({ callbackUrl: "/admin/login" })}>יציאה</button>
         </div>
