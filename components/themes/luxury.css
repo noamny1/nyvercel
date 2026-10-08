@@ -86,6 +86,14 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+.layout-luxury .health-note {
+  display: block;
+  margin-top: 4px;
+  color: #e6d3ae;
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 300;
+}
 .layout-luxury .lux-empty { margin: 24px 0; color: #e6d3ae; font-weight: 300; }
 .layout-luxury .lux-brand { display: flex; justify-content: center; }
 .layout-luxury .lux-brand img {

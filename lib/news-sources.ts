@@ -6,12 +6,16 @@ export const NEWS_SOURCES = [
   { id: "one", name: "ספורט ONE" },
   { id: "globes", name: "כלכלה גלובס" },
   { id: "bhol", name: "בחדרי חרדים" },
+  { id: "health", name: "חדשות בריאות" },
 ];
+
+export const HEALTH_NOTE = "המלצה בלבד, מומלץ לפנות לרופא.";
 
 export function chipLabel(name: string) {
   if (name === "חדשות 14") return "14";
   if (name === "חדשות 0404") return "0404";
   if (name === "ספורט ONE") return "ONE";
   if (name === "כלכלה גלובס") return "גלובס";
+  if (name === "חדשות בריאות") return "בריאות";
   return name;
 }

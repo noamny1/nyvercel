@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useFreshHeadlines, type Headline } from "@/components/player/useFreshHeadlines";
 import { useNewsOn } from "@/components/player/useNewsOn";
+import { HEALTH_NOTE } from "@/lib/news-sources";
 
 export function NewsTicker({ titles, seconds = 12, sourceId = "", take = 8, mode = "on" }: { titles: Headline[]; seconds?: number; sourceId?: string; take?: number; mode?: string }) {
   const newsOn = useNewsOn(mode);
@@ -26,6 +27,7 @@ export function NewsTicker({ titles, seconds = 12, sourceId = "", take = 8, mode
       <span className="ticker-window">
         <span key={index} className="ticker-title">{item?.title || "אין חדשות כרגע"}</span>
       </span>
+      {item?.source === "חדשות בריאות" ? <small className="health-note">{HEALTH_NOTE}</small> : null}
     </div>
   );
 }

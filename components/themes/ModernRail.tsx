@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useFreshHeadlines, type Headline } from "@/components/player/useFreshHeadlines";
 import { useNewsOn } from "@/components/player/useNewsOn";
-import { chipLabel } from "@/lib/news-sources";
+import { chipLabel, HEALTH_NOTE } from "@/lib/news-sources";
 
 type Page = { chip: string; headlines: string[]; notes: string[] };
 
@@ -137,14 +137,21 @@ function Wheel({ pages, chips, seconds }: { pages: Page[]; chips: string[]; seco
 
 function Board({ page }: { page?: Page }) {
   const lines = page?.headlines.length ? page.headlines : page?.notes || [];
-  const label = page?.headlines.length ? page.chip : "הודעות הבניין";
+  const label = page?.headlines.length ? chipLabel(page.chip) : "הודעות הבניין";
   const note = !page?.headlines.length;
+  const health = page?.chip === "חדשות בריאות";
   return (
     <>
       <b className={note ? "is-note" : ""}>{label}</b>
       <ul>
         {lines.map((text, index) => (
-          <li key={`${index}-${text}`}><i aria-hidden="true" /><span>{text}</span></li>
+          <li key={`${index}-${text}`}>
+            <i aria-hidden="true" />
+            <span>
+              <span>{text}</span>
+              {health ? <small>{HEALTH_NOTE}</small> : null}
+            </span>
+          </li>
         ))}
       </ul>
     </>

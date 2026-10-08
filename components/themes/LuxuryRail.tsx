@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useFreshHeadlines, type Headline } from "@/components/player/useFreshHeadlines";
 import { useNewsOn } from "@/components/player/useNewsOn";
-import { chipLabel } from "@/lib/news-sources";
+import { chipLabel, HEALTH_NOTE } from "@/lib/news-sources";
 
 type Item = { tag: string; text: string; chip: string };
 
@@ -100,8 +100,9 @@ export function LuxuryRail({
               <div key={copy}>
                 {loop.map((item, index) => (
                   <article className="lux-item" key={`${copy}-${index}`} data-chip={item.chip}>
-                    <small>{item.tag}</small>
+                    <small>{item.tag === "חדשות בריאות" ? "בריאות" : item.tag}</small>
                     <p>{item.text}</p>
+                    {item.chip === "חדשות בריאות" ? <em className="health-note">{HEALTH_NOTE}</em> : null}
                   </article>
                 ))}
               </div>

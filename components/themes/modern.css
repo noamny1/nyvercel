@@ -171,10 +171,21 @@
   font-weight: 700;
   line-height: 1.35;
   color: #2a161b;
+  min-width: 0;
+}
+.theme-modern .modern-face span > span {
   display: -webkit-box;
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+.theme-modern .modern-face span small {
+  display: block;
+  margin-top: 3px;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.25;
+  color: #8a6233;
 }
 .theme-modern .modern-empty {
   position: absolute;

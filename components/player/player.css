@@ -338,6 +338,12 @@
   font-size: 22px;
   animation: ticker-wheel 0.55s ease;
 }
+.ticker .health-note {
+  flex: none;
+  font-size: 12px;
+  font-weight: 500;
+  color: #e6d3ae;
+}
 .ticker-window {
   position: relative;
   flex: 1;
