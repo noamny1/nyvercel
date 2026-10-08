@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useFreshHeadlines, type Headline } from "@/components/player/useFreshHeadlines";
 import { useNewsOn } from "@/components/player/useNewsOn";
+import { chipLabel } from "@/lib/news-sources";
 
 type Page = { chip: string; headlines: string[]; notes: string[] };
 
@@ -115,7 +116,7 @@ function Wheel({ pages, chips, seconds }: { pages: Page[]; chips: string[]; seco
       {chips.length > 1 ? (
         <div className="modern-chips">
           {chips.map((chip) => (
-            <span key={chip} className={`${chip === current?.chip ? "is-on" : ""} ${chip === "הודעות" ? "is-note" : ""}`}>{chip}</span>
+            <span key={chip} className={`${chip === current?.chip ? "is-on" : ""} ${chip === "הודעות" ? "is-note" : ""}`}>{chipLabel(chip)}</span>
           ))}
         </div>
       ) : null}

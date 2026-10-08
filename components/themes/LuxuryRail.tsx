@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useFreshHeadlines, type Headline } from "@/components/player/useFreshHeadlines";
 import { useNewsOn } from "@/components/player/useNewsOn";
+import { chipLabel } from "@/lib/news-sources";
 
 type Item = { tag: string; text: string; chip: string };
 
@@ -89,7 +90,7 @@ export function LuxuryRail({
         </div>
         <hr className="lux-rule" />
         <div className="lux-chips">
-          {chips.map((chip) => <span key={chip} className={chip === running ? "is-on" : ""}>{chip}</span>)}
+          {chips.map((chip) => <span key={chip} className={chip === running ? "is-on" : ""}>{chipLabel(chip)}</span>)}
         </div>
       </div>
       <div className="lux-feed" ref={feedRef}>

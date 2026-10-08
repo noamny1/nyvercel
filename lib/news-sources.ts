@@ -7,3 +7,9 @@ export const NEWS_SOURCES = [
   { id: "globes", name: "כלכלה גלובס" },
   { id: "bhol", name: "בחדרי חרדים" },
 ];
+
+export function chipLabel(name: string) {
+  if (name === "חדשות 14") return "14";
+  if (name === "חדשות 0404") return "0404";
+  return name;
+}
