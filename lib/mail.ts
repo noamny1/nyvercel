@@ -21,15 +21,15 @@ export function mailText(card: MailCard) {
 
 function mailHtml(card: MailCard) {
   const screens = (card.screens.length ? card.screens : ["לא שויכו מסכים"])
-    .map((line) => `<li>${escapeHtml(line)}</li>`)
+    .map((line) => `<li style="margin:0 0 10px;font-size:22px;line-height:1.9">${escapeHtml(line)}</li>`)
     .join("");
-  return `<div dir="rtl" style="font-family:Calibri,Arial,sans-serif;color:#252525">
-    <p>שלום ${escapeHtml(card.name || "")}</p>
-    <p><a href="${LOGIN}">לחצו כאן לכניסה למסכים</a></p>
-    <p>אימייל: ${escapeHtml(card.email)}<br>סיסמה: ${escapeHtml(card.password)}</p>
-    <p>המסכים:</p>
-    <ul>${screens}</ul>
-    <p>אפשר לנהל רק את המסכים שמופיעים כאן.</p>
+  return `<div dir="rtl" style="font-family:Calibri,Arial,sans-serif;font-size:22px;line-height:1.9;color:#252525">
+    <p style="margin:0 0 22px;font-size:22px;line-height:1.9">שלום ${escapeHtml(card.name || "")}</p>
+    <p style="margin:0 0 22px;font-size:22px;line-height:1.9"><a href="${LOGIN}" style="font-size:22px">לחצו כאן לכניסה למסכים</a></p>
+    <p style="margin:0 0 22px;font-size:22px;line-height:1.9">אימייל: ${escapeHtml(card.email)}<br>סיסמה: ${escapeHtml(card.password)}</p>
+    <p style="margin:0 0 8px;font-size:22px;line-height:1.9">המסכים:</p>
+    <ul style="margin:0 0 22px;padding:0 22px 0 0;font-size:22px;line-height:1.9">${screens}</ul>
+    <p style="margin:0;font-size:22px;line-height:1.9">אפשר לנהל רק את המסכים שמופיעים כאן.</p>
   </div>`;
 }
 
