@@ -62,6 +62,22 @@ body:has(.admin) { background: #F4F1ED; overflow-x: hidden; }
 }
 .admin-menu a:hover { border-color: #5A1F2B; }
 .admin-menu a.is-on { background: #5A1F2B; color: #F4F1ED; border-color: #5A1F2B; }
+.agent-run { display: grid; gap: 12px; }
+.agent-report { display: grid; gap: 10px; }
+.agent-meta { margin: 0; color: #6d625c; font-size: 14px; }
+.agent-finding {
+  display: grid;
+  gap: 4px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: #F4F1ED;
+  border-inline-start: 4px solid #c4a574;
+}
+.agent-finding.is-high { border-inline-start-color: #5A1F2B; }
+.agent-finding.is-ok { border-inline-start-color: #6d8f71; }
+.agent-finding small { color: #6d625c; font-size: 12px; }
+.agent-finding strong { color: #5A1F2B; }
+.agent-finding p { margin: 0; }
 @media (max-width: 700px) {
   .admin-menu { grid-template-columns: 1fr 1fr; }
 }

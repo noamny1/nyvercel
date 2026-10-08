@@ -14,6 +14,7 @@ const OWNER_LINKS = [
   ["/admin/themes", "תימות"],
   ["/admin/users", "משתמשים"],
   ["/admin/manage", "ניהול"],
+  ["/admin/agent", "סוכן"],
 ];
 
 export function AdminNav() {
