@@ -34,8 +34,13 @@
   display: block;
 }
 .stage {
-  position: relative;
-  height: 100vh;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 1366px;
+  height: 768px;
+  transform: translate(-50%, -50%);
+  transform-origin: center center;
   display: grid;
   grid-template-columns: 1fr 340px;
   grid-template-rows: 1fr 64px;
@@ -133,13 +138,13 @@
   color: #F4F1ED;
   box-sizing: border-box;
 }
-.qr-copy small { color: #e6d3ae; font-size: clamp(16px, 1.5vw, 26px); }
-.qr-copy strong { display: block; margin-top: 8px; font-size: clamp(32px, 4.2vw, 72px); font-weight: 500; line-height: 1.15; }
-.qr-copy span { display: block; margin-top: 12px; white-space: pre-line; font-size: clamp(18px, 1.6vw, 30px); line-height: 1.4; }
-.qr-copy em { display: block; margin-top: 16px; color: #e6d3ae; font-style: normal; font-size: clamp(16px, 1.4vw, 26px); }
+.qr-copy small { color: #e6d3ae; font-size: 20px; }
+.qr-copy strong { display: block; margin-top: 8px; font-size: 57px; font-weight: 500; line-height: 1.15; }
+.qr-copy span { display: block; margin-top: 12px; white-space: pre-line; font-size: 22px; line-height: 1.4; }
+.qr-copy em { display: block; margin-top: 16px; color: #e6d3ae; font-style: normal; font-size: 19px; }
 .qr-box {
   justify-self: center;
-  width: min(100%, 58vh);
+  width: min(100%, 445px);
   aspect-ratio: 1;
   background: #fff;
   border-radius: 28px;
@@ -164,8 +169,8 @@
   height: 100%;
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
-  gap: 2.5vh;
-  padding: 4vh 5vw 3vh;
+  gap: 19px;
+  padding: 31px 68px 23px;
   background:
     radial-gradient(ellipse at top, #6d2a38 0%, #3a1520 42%, #14080c 100%);
   color: #F4F1ED;
@@ -175,7 +180,7 @@
 .parasha-slide header { text-align: center; }
 .parasha-slide header strong {
   display: block;
-  font-size: clamp(40px, 5.2vw, 86px);
+  font-size: 71px;
   font-weight: 400;
   line-height: 1.15;
 }
@@ -185,10 +190,10 @@
   justify-content: center;
   flex-wrap: wrap;
   gap: 8px 22px;
-  margin-top: 1vh;
+  margin-top: 8px;
   font-style: normal;
   color: #e6d3ae;
-  font-size: clamp(20px, 2.1vw, 34px);
+  font-size: 29px;
 }
 .parasha-times span { display: inline-flex; align-items: center; gap: 10px; }
 .parasha-city { color: #F4F1ED; }
@@ -198,7 +203,7 @@
   display: block;
   width: 72px;
   height: 1px;
-  margin: 2vh auto 0;
+  margin: 15px auto 0;
   background: rgba(230, 211, 174, 0.7);
 }
 .parasha-body { overflow: hidden; min-height: 0; container-type: size; }
@@ -209,18 +214,18 @@
 .parasha-body span {
   display: block;
   margin-bottom: 0.22em;
-  font-size: clamp(20px, 1.7vw, 28px);
+  font-size: 23px;
   line-height: 1.45;
 }
-.parasha-slide.is-still { gap: 1.2vh; padding-top: 2.4vh; }
-.parasha-slide.is-still header strong { font-size: clamp(32px, 3.4vw, 60px); }
-.parasha-slide.is-still header em { font-size: clamp(18px, 1.6vw, 28px); }
+.parasha-slide.is-still { gap: 9px; padding-top: 18px; }
+.parasha-slide.is-still header strong { font-size: 46px; }
+.parasha-slide.is-still header em { font-size: 22px; }
 .parasha-slide.is-still header em img { width: 68px; height: 54px; }
-.parasha-body.is-still p { animation: none; height: 100%; column-gap: 1.2vw; font-size: 22px; }
+.parasha-body.is-still p { animation: none; height: 100%; column-gap: 16px; font-size: 22px; }
 .parasha-body.is-still span { margin-bottom: 0.02em; line-height: 1.18; font-size: inherit; break-inside: avoid; }
 @keyframes parasha-rise {
   from { transform: translateY(0); }
-  to { transform: translateY(calc(-100% + 52vh)); }
+  to { transform: translateY(calc(-100% + 399px)); }
 }
 .parasha-preview { height: 280px; overflow: hidden; border-radius: 12px; }
 .parasha-preview .parasha-slide { height: 280px; padding: 16px; }
@@ -280,8 +285,8 @@
 .deck-preview { height: 460px; overflow: hidden; border-radius: 12px; background: #1a1014; }
 .deck-preview .know { height: 460px; }
 
-.slide-copy strong { font-size: clamp(36px, 4vw, 72px); line-height: 1.25; display: block; }
-.slide-copy span { font-size: clamp(18px, 1.7vw, 32px); line-height: 1.45; display: block; white-space: pre-line; }
+.slide-copy strong { font-size: 55px; line-height: 1.25; display: block; }
+.slide-copy span { font-size: 23px; line-height: 1.45; display: block; white-space: pre-line; }
 .slide-image, .empty {
   width: 100%;
   height: 100%;
@@ -360,7 +365,7 @@ body:has(.stage) { overflow: hidden; background: #000; }
   left: 0;
   right: auto;
   bottom: auto;
-  width: min(640px, 52vw);
+  width: 640px;
   height: 22px;
   margin: 0;
   padding: 0 14px;

@@ -1,6 +1,7 @@
 import { Heebo } from "next/font/google";
 import { notFound } from "next/navigation";
 import { Player } from "@/components/player/Player";
+import { FitStage } from "@/components/player/FitStage";
 import { Music } from "@/components/player/Music";
 import { Wake } from "@/components/player/Wake";
 import { Ping } from "@/components/player/Ping";
@@ -110,7 +111,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
   }
 
   return (
-    <main className={`stage theme-${theme}${luxury ? ` layout-luxury ${heebo.className}` : ""}${modern ? " layout-modern" : ""}${cinematic ? ` layout-${theme} ${heebo.className}` : ""}${tickerOn && !luxury && !modern && !cinematic ? "" : " no-ticker"}`}>
+    <FitStage className={`stage theme-${theme}${luxury ? ` layout-luxury ${heebo.className}` : ""}${modern ? " layout-modern" : ""}${cinematic ? ` layout-${theme} ${heebo.className}` : ""}${tickerOn && !luxury && !modern && !cinematic ? "" : " no-ticker"}`}>
       <Music playlist={silenced ? "off" : screen.musicPlaylist || ""} url={silenced ? "" : screen.group?.musicUrl || ""} start={screen.id} />
       <NewsGate mode={newsMode} />
       <Wake />
@@ -249,6 +250,6 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
         />
       ) : null}
       <footer className="brand-bar"><img src="/nymedia-logo.png" alt="NYmedia" /></footer>
-    </main>
+    </FitStage>
   );
 }

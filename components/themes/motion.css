@@ -28,10 +28,10 @@
 .glass-slab {
   position: absolute;
   z-index: 4;
-  top: 6vh;
-  bottom: 6vh;
-  right: 3.2vw;
-  width: min(440px, 36vw);
+  top: 46px;
+  bottom: 46px;
+  right: 44px;
+  width: 440px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -53,18 +53,18 @@
 }
 .motion-clock {
   display: block;
-  font-size: clamp(64px, 6vw, 104px);
+  font-size: 82px;
   font-weight: 500;
   line-height: 0.9;
   letter-spacing: -1px;
   font-variant-numeric: tabular-nums;
 }
-.motion-meta { margin: 8px 0 0; font-size: clamp(16px, 1.4vw, 22px); font-weight: 400; opacity: 0.86; }
-.motion-hello { font-size: clamp(42px, 4.4vw, 72px); font-weight: 500; line-height: 1; }
+.motion-meta { margin: 8px 0 0; font-size: 19px; font-weight: 400; opacity: 0.86; }
+.motion-hello { font-size: 60px; font-weight: 500; line-height: 1; }
 .motion-line {
   margin: 12px 0 0;
   min-height: 1.35em;
-  font-size: clamp(22px, 2vw, 32px);
+  font-size: 27px;
   font-weight: 400;
   line-height: 1.35;
   transition: opacity 0.45s ease, transform 0.45s ease;
@@ -76,19 +76,19 @@
 .layout-cinema .slide {
   position: absolute;
   z-index: 1;
-  top: 3.5vh;
-  left: 3vw;
-  right: 3vw;
-  height: 68vh;
+  top: 27px;
+  left: 41px;
+  right: 41px;
+  height: 522px;
   border-radius: 18px;
   overflow: hidden;
 }
 .cinema-hair {
   position: absolute;
   z-index: 4;
-  left: 3vw;
-  right: 3vw;
-  bottom: 24vh;
+  left: 41px;
+  right: 41px;
+  bottom: 184px;
   height: 2px;
   background: #5A1F2B;
   transform-origin: right center;
@@ -102,10 +102,10 @@
 .cinema-bar {
   position: absolute;
   z-index: 4;
-  left: 3vw;
-  right: 3vw;
-  bottom: 3vh;
-  min-height: 16vh;
+  left: 41px;
+  right: 41px;
+  bottom: 23px;
+  min-height: 123px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -119,11 +119,11 @@
   to { opacity: 1; transform: none; }
 }
 .cinema-story { text-align: right; min-width: 0; }
-.cinema-story .motion-line { display: block; font-size: clamp(26px, 2.6vw, 42px); }
+.cinema-story .motion-line { display: block; font-size: 36px; }
 .cinema-story span { display: block; margin-top: 4px; opacity: 0.82; }
 .cinema-time { text-align: left; direction: ltr; }
 .cinema-time span { display: block; margin-top: 6px; direction: rtl; text-align: right; }
-.layout-cinema .motion-clock { font-size: clamp(52px, 5vw, 84px); }
+.layout-cinema .motion-clock { font-size: 68px; }
 .theme-picks { display: grid; gap: 12px; }
 .theme-pick {
   display: flex;
