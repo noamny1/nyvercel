@@ -3,7 +3,7 @@
 .theme-modern .rail {
   background: #EFE8E1;
   color: #5A1F2B;
-  padding: 28px 14px 18px;
+  padding: 10px 10px 12px;
 }
 .theme-modern .ticker {
   background: #5A1F2B;
@@ -12,23 +12,24 @@
   padding-inline: 18px;
 }
 .theme-modern .rail { display: flex; overflow: hidden; }
-.theme-modern .modern-rail { flex: 1; min-height: 0; width: 100%; display: flex; flex-direction: column; gap: 12px; text-align: center; }
+.theme-modern .modern-rail { flex: 1; min-height: 0; width: 100%; display: flex; flex-direction: column; gap: 8px; text-align: center; }
 .theme-modern .modern-mast { display: grid; gap: 2px; }
-.theme-modern .modern-address { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; font-size: 18px; font-weight: 800; color: #5A1F2B; line-height: 1.25; }
+.theme-modern .modern-address { display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 8px; font-size: 14px; font-weight: 800; color: #5A1F2B; line-height: 1.2; }
 .theme-modern .modern-address img,
 .theme-modern .modern-address svg {
-  width: 86px;
-  height: 86px;
+  width: 48px;
+  height: 48px;
+  flex: none;
   object-fit: contain;
-  border-radius: 20px;
+  border-radius: 12px;
   background: #fff;
-  box-shadow: 0 10px 22px rgba(90, 31, 43, 0.1), inset 0 0 0 1px #e6d3ae;
-  padding: 8px;
+  box-shadow: 0 6px 14px rgba(90, 31, 43, 0.1), inset 0 0 0 1px #e6d3ae;
+  padding: 4px;
 }
 .theme-modern .modern-clock strong {
   display: block;
   margin-top: 2px;
-  font-size: 52px;
+  font-size: 40px;
   line-height: 0.92;
   font-weight: 700;
   letter-spacing: -1px;
@@ -37,40 +38,42 @@
 .theme-modern .modern-clock small { display: block; margin-top: 6px; font-size: 13px; font-weight: 600; color: #8a6233; }
 .theme-modern .modern-facts {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   background: #F4F1ED;
-  border-radius: 18px;
+  border-radius: 14px;
   box-shadow: inset 0 0 0 1px rgba(90, 31, 43, 0.12);
   overflow: hidden;
 }
-.theme-modern .modern-fact { display: grid; justify-items: center; align-content: center; gap: 2px; padding: 10px 8px 8px; }
+.theme-modern .modern-fact { display: grid; justify-items: center; align-content: center; gap: 1px; padding: 6px 4px; min-width: 0; }
 .theme-modern .modern-fact + .modern-fact { box-shadow: inset 1px 0 0 #e6d3ae; }
-.theme-modern .modern-fact svg { width: 28px; height: 28px; }
+.theme-modern .modern-fact svg { width: 16px; height: 16px; }
 .theme-modern .modern-fact b,
-.theme-modern .modern-rates b { font-size: 26px; line-height: 1; font-weight: 800; color: #5A1F2B; }
+.theme-modern .modern-rates b { font-size: 14px; line-height: 1; font-weight: 800; color: #5A1F2B; }
 .theme-modern .modern-fact small,
-.theme-modern .modern-rates small { font-size: 12px; font-weight: 700; color: #8a6233; }
+.theme-modern .modern-rates small { font-size: 10px; font-weight: 700; color: #8a6233; }
 .theme-modern .modern-rates {
-  grid-column: 1 / -1;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  border-top: 1px solid #e6d3ae;
-  padding: 8px 0 9px;
+  display: contents;
 }
-.theme-modern .modern-rates span { display: grid; justify-items: center; gap: 2px; }
+.theme-modern .modern-rates span { display: grid; justify-items: center; align-content: center; gap: 1px; min-width: 0; padding: 6px 4px; }
 .theme-modern .modern-rates span + span { box-shadow: inset 1px 0 0 #e6d3ae; }
-.theme-modern .modern-rates b { font-size: 22px; }
+.theme-modern .modern-rates b { font-size: 14px; }
 .theme-modern .modern-feed { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 8px; }
-.theme-modern .modern-chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
+.theme-modern .modern-chips { display: flex; flex-wrap: nowrap; justify-content: stretch; gap: 4px; }
 .theme-modern .modern-chips span {
-  border: 1.5px solid #5A1F2B;
+  flex: 1 1 0;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  border: 1px solid #5A1F2B;
   color: #5A1F2B;
   background: #F4F1ED;
   border-radius: 999px;
-  padding: 4px 10px;
-  font-size: 13px;
+  padding: 3px 6px;
+  font-size: 11px;
   font-weight: 700;
   line-height: 1.2;
+  text-align: center;
 }
 .theme-modern .modern-chips span.is-on { background: #5A1F2B; color: #F4F1ED; }
 .theme-modern .modern-chips span.is-note { border-color: #c4a574; }

@@ -23,9 +23,9 @@
   grid-row: 1 / span 2;
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 12px;
   margin: 0;
-  padding: 46px 28px 22px;
+  padding: 14px 14px 16px;
   overflow: hidden;
   direction: rtl;
   text-align: right;
@@ -56,13 +56,19 @@
 }
 .layout-luxury .lux-sun { width: 16px; height: 16px; border-radius: 50%; background: #e6d3ae; }
 .layout-luxury .lux-rule { width: 100%; height: 1px; margin: 16px 0 0; border: 0; background: #e6d3ae; }
-.layout-luxury .lux-chips { display: flex; flex-wrap: wrap; justify-content: flex-start; gap: 8px; margin-top: 14px; }
+.layout-luxury .lux-chips { display: flex; flex-wrap: nowrap; justify-content: stretch; gap: 4px; margin-top: 10px; }
 .layout-luxury .lux-chips span {
+  flex: 1 1 0;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: center;
   border: 1px solid #e6d3ae;
   border-radius: 999px;
-  padding: 6px 14px;
+  padding: 3px 6px;
   color: #F4F1ED;
-  font-size: 14px;
+  font-size: 11px;
   font-weight: 300;
 }
 .layout-luxury .lux-chips .is-on { background: #5A1F2B; border-color: #5A1F2B; }
@@ -81,13 +87,13 @@
   overflow: hidden;
 }
 .layout-luxury .lux-empty { margin: 24px 0; color: #e6d3ae; font-weight: 300; }
-.layout-luxury .lux-brand { margin-top: auto; display: flex; flex-direction: column; align-items: center; }
+.layout-luxury .lux-brand { display: flex; justify-content: center; }
 .layout-luxury .lux-brand img {
   display: block;
-  height: 72px;
+  height: 36px;
   width: auto;
   max-width: 100%;
-  margin-top: 16px;
+  margin: 0;
   object-fit: contain;
   filter: brightness(0) invert(1);
 }
