@@ -273,6 +273,9 @@
 
 .know {
   position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
   height: 100%;
   overflow: hidden;
   direction: rtl;
@@ -285,20 +288,27 @@
 .know-veil {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to left, rgba(22, 10, 14, 0.93) 0%, rgba(22, 10, 14, 0.8) 48%, rgba(22, 10, 14, 0.28) 100%);
+  background: linear-gradient(to left, rgba(0, 0, 0, 0.28), rgba(0, 0, 0, 0.05) 55%, rgba(0, 0, 0, 0));
 }
 .know-bar { position: absolute; top: 0; right: 0; left: 0; height: 8px; background: #5A1F2B; z-index: 2; }
 .know-body {
   position: relative;
   z-index: 1;
-  height: 100%;
+  align-self: center;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 1.5cqh;
-  padding: 5cqh 4.5cqw 3.5cqh;
-  max-width: 74%;
+  gap: 12px;
+  width: min(62%, 640px);
+  max-height: calc(100% - 48px);
+  margin: 24px 28px;
+  padding: 22px 26px;
+  overflow: auto;
+  border: 1px solid #e6d3ae;
+  border-radius: 28px;
+  background: #252525;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.35);
 }
 .know-kicker { margin: 0; color: #e6d3ae; font-size: clamp(15px, 3cqh, 26px); }
 .know-head { display: flex; align-items: center; gap: 2cqh; }
