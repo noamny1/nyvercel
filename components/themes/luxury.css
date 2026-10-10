@@ -1,7 +1,7 @@
 .layout-luxury.stage,
 .layout-luxury.stage.no-ticker {
   grid-template-columns: 328px minmax(0, 1fr);
-  grid-template-rows: minmax(0, 1fr) 124px;
+  grid-template-rows: minmax(0, 1fr) 96px;
   gap: 16px;
   padding: 22px;
   background: #252525;
@@ -110,7 +110,8 @@
   grid-column: 2;
   grid-row: 2;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 219px;
+  grid-template-columns: minmax(0, 620px) 150px;
+  justify-content: center;
   gap: 16px;
   min-width: 0;
 }
