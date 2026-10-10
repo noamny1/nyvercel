@@ -1,6 +1,6 @@
 import { Heebo } from "next/font/google";
 import { notFound } from "next/navigation";
-import { Player } from "@/components/player/Player";
+import { ClientLogo } from "@/components/player/FlagLogo";
 import { FitStage } from "@/components/player/FitStage";
 import { Music } from "@/components/player/Music";
 import { Wake } from "@/components/player/Wake";
@@ -195,7 +195,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
         ) : cinematic ? null : (
           <>
             <div className="address">{address(street, number, city)}</div>
-            {(screen.logoUrl || source.logoUrl) ? <img className="logo" src={screen.logoUrl || source.logoUrl} alt="" /> : null}
+            <ClientLogo url={screen.logoUrl || source.logoUrl} className="logo" />
             <Clock />
             <Weather temp={weather?.temp ?? null} label={weather?.label || ""} />
             <Shabbat candles={shabbat?.candles || ""} parsha={shabbat?.parsha || ""} />
@@ -217,8 +217,8 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
               </strong>
             ) : null}
           </div>
-          <div className={`lux-logo${(screen.logoUrl || source.logoUrl) ? " is-photo" : " is-empty"}`}>
-            {(screen.logoUrl || source.logoUrl) ? <img src={screen.logoUrl || source.logoUrl} alt="" /> : <span>לוגו הלקוח<small>הבניין</small></span>}
+          <div className={`lux-logo${(screen.logoUrl || source.logoUrl) ? " is-photo" : " is-flag"}`}>
+            <ClientLogo url={screen.logoUrl || source.logoUrl} />
           </div>
         </footer>
       ) : null}

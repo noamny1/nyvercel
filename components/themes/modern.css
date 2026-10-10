@@ -16,12 +16,13 @@
 .theme-modern .modern-mast { display: grid; gap: 2px; }
 .theme-modern .modern-address { display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 8px; font-size: 14px; font-weight: 800; color: #5A1F2B; line-height: 1.2; }
 .theme-modern .modern-address img,
-.theme-modern .modern-address svg {
-  width: 48px;
-  height: 48px;
+.theme-modern .modern-address svg,
+.theme-modern .modern-address .il-flag {
+  width: 64px;
+  height: 42px;
   flex: none;
   object-fit: contain;
-  border-radius: 12px;
+  border-radius: 8px;
   background: #fff;
   box-shadow: 0 6px 14px rgba(90, 31, 43, 0.1), inset 0 0 0 1px #e6d3ae;
   padding: 4px;

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useNewsOn } from "@/components/player/useNewsOn";
+import { ClientLogo } from "@/components/player/FlagLogo";
 
 type Story = { title: string };
 
@@ -35,7 +36,7 @@ export function GlassBoard({
         <div>
           {place ? <div>{place}</div> : null}
           {city ? <div className="motion-meta">{city}</div> : null}
-          {logoUrl ? <img className="motion-client" src={logoUrl} alt="" /> : null}
+          <ClientLogo url={logoUrl} className="motion-client" />
         </div>
         <img className="motion-ny" src="/logo-white.png" alt="NYmedia" />
       </div>
@@ -67,7 +68,7 @@ export function CinemaBoard({
         <div className="cinema-story">
           <b className={line.out ? "motion-line is-out" : "motion-line"}>{line.text}</b>
           {address ? <span>{address}</span> : null}
-          {logoUrl ? <img className="motion-client" src={logoUrl} alt="" /> : null}
+          <ClientLogo url={logoUrl} className="motion-client" />
         </div>
         <div className="cinema-time">
           <strong className="motion-clock">{clock.time}</strong>

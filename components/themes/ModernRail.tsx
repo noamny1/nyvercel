@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useFreshHeadlines, type Headline } from "@/components/player/useFreshHeadlines";
 import { useNewsOn } from "@/components/player/useNewsOn";
-import { chipLabel, HEALTH_NOTE } from "@/lib/news-sources";
+import { ClientLogo } from "@/components/player/FlagLogo";
 
 type Page = { chip: string; headlines: string[]; notes: string[] };
 
@@ -56,7 +56,7 @@ export function ModernRail({
     <div className="modern-rail">
       <header className="modern-mast">
         <div className="modern-address">
-          {logoUrl ? <img src={logoUrl} alt="" /> : <House />}
+          <ClientLogo url={logoUrl} />
           <span>{address}</span>
         </div>
         <div className="modern-clock">
@@ -212,15 +212,6 @@ function hebrewNumber(value: number) {
   const letters = `${tens[Math.floor(value / 10)] || ""}${ones[value % 10] || ""}`;
   if (letters.length < 2) return `${letters}׳`;
   return `${letters.slice(0, -1)}״${letters.slice(-1)}`;
-}
-
-function House() {
-  return (
-    <svg viewBox="0 0 48 48" aria-hidden="true">
-      <path d="M8 22 24 8l16 14v16a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2Z" fill="none" stroke="#5A1F2B" strokeWidth="2.4" />
-      <path d="M20 40V28h8v12" fill="none" stroke="#5A1F2B" strokeWidth="2.4" />
-    </svg>
-  );
 }
 
 function Sun() {
