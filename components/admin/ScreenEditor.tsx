@@ -3,7 +3,6 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { KindMark, ReadyLibrary, SavedSlideEditor, type SlideDraft } from "@/components/admin/ReadyLibrary";
-import { FlagLogo } from "@/components/player/FlagLogo";
 import { NEWS_SOURCES } from "@/lib/news-sources";
 import { THEMES } from "@/lib/themes";
 import { PLAYLISTS } from "@/lib/music-catalog";
@@ -292,11 +291,11 @@ export function ScreenEditor({
         ) : null}
         <div className="logo-panel">
           <div className="logo-well">
-            {logoPreview ? <img src={logoPreview} alt="" /> : <FlagLogo />}
+            {logoPreview ? <img src={logoPreview} alt="" /> : <span>אין לוגו</span>}
           </div>
           <div className="logo-copy">
             <strong>לוגו הבניין</strong>
-            <p>{uploading ? "מעלה את הלוגו..." : "ברירת המחדל היא דגל ישראל. אפשר להחליף ללוגו של הבניין."}</p>
+            <p>{uploading ? "מעלה את הלוגו..." : "מוצג במסך. PNG, JPG או GIF."}</p>
             <div className="logo-actions">
               <label className="file-pill">
                 <input
