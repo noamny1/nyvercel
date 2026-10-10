@@ -12,16 +12,18 @@ export function CharacterVideo({
   title,
   detail,
   poster,
+  onReady,
 }: {
   src: string;
   title?: string;
   detail?: string;
   poster?: string;
+  onReady?: () => void;
 }) {
   return (
     <div className="char-stage">
       <div className="char-frame">
-        <video src={src} poster={poster} autoPlay muted loop playsInline />
+        <video src={src} poster={poster} autoPlay muted loop playsInline preload="auto" onCanPlay={onReady} onError={onReady} />
         <div className="char-note">
           <strong>{title}</strong>
           {detail ? <span>{detail}</span> : null}
@@ -38,6 +40,7 @@ export function PestVideo({
   day,
   from,
   poster,
+  onReady,
 }: {
   src: string;
   title?: string;
@@ -45,12 +48,13 @@ export function PestVideo({
   day?: string;
   from?: string;
   poster?: string;
+  onReady?: () => void;
 }) {
   const when = pestWhen(day, from);
   return (
     <div className="char-stage">
       <div className="char-frame">
-        <video src={src} poster={poster} autoPlay muted loop playsInline />
+        <video src={src} poster={poster} autoPlay muted loop playsInline preload="auto" onCanPlay={onReady} onError={onReady} />
         <div className="char-note">
           <strong>{title || "הדברה"}</strong>
           {when ? <b>{when}</b> : null}

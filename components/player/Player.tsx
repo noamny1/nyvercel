@@ -89,9 +89,74 @@ function YoutubeSlide({ url, fallback }: { url: string; fallback?: string }) {
   );
 }
 
+function SlideFace({ slide, onReady }: { slide: PlaySlide; onReady?: () => void }) {
+  const soon = () => onReady?.();
+  useEffect(() => {
+    const media = slide.kind === "image" || slide.kind === "template" || isVideoFile(slide.imageUrl) || slide.kind === "youtube";
+    if (media) return;
+    const timer = setTimeout(soon, 80);
+    return () => clearTimeout(timer);
+  }, [slide]);
+
+  if (slide.kind === "youtube") {
+    const file = isVideoFile(slide.imageUrl) ? slide.imageUrl : isVideoFile(slide.detail || "") ? slide.detail : "";
+    if (file && slide.templateId === "fixed-pest") {
+      return <PestVideo src={file} poster={file.replace(/\.mp4(\?|$)/i, ".jpg$1")} title={slide.title} detail={slide.detail} day={slide.day} from={slide.from} onReady={onReady} />;
+    }
+    if (file && slide.templateId?.startsWith("fixed-")) {
+      return <CharacterVideo src={file} poster={file.replace(/\.mp4(\?|$)/i, ".jpg$1")} title={slide.title} detail={slide.detail} onReady={onReady} />;
+    }
+    if (file) return <video className="slide-video" src={file} autoPlay muted loop playsInline preload="auto" onCanPlay={onReady} onError={onReady} />;
+    return <YoutubeSlide url={slide.imageUrl} fallback={slide.detail} />;
+  }
+  const pdf = slide.imageUrl.toLowerCase().includes(".pdf");
+  if (slide.templateId === "file-qr") return <QrSlide title={slide.title} note={slide.detail} token={slide.token} />;
+  if (pdf) return <iframe className="slide-image" src={`${slide.imageUrl}#toolbar=0&navpanes=0`} title="שקף" />;
+  if (slide.templateId === "weekly-parasha") {
+    return <ParashaSlide name={slide.title || ""} candles={slide.candles || ""} havdalah={slide.havdalah || ""} city={slide.city || ""} verses={slide.verses || []} seconds={slide.duration} still={slide.still} />;
+  }
+  if (isDeckId(slide.templateId)) {
+    return <KnowledgeSlide deck={slide.templateId} />;
+  }
+  if (slide.kind === "template" || (slide.kind === "image" && (slide.title || slide.detail))) {
+    return (
+      <div className="slide-frame">
+        <img className="slide-image" src={slide.imageUrl} alt="" onLoad={onReady} onError={onReady} />
+        <div className="slide-copy">
+          <strong>{slide.title}</strong>
+          {slide.detail ? <span>{slide.detail}</span> : null}
+        </div>
+      </div>
+    );
+  }
+  if (isVideoFile(slide.imageUrl)) {
+    return <video className="slide-video" src={slide.imageUrl} autoPlay muted loop playsInline preload="auto" onCanPlay={onReady} onError={onReady} />;
+  }
+  return <img className="slide-image" src={slide.imageUrl} alt="" onLoad={onReady} onError={onReady} />;
+}
+
+function preloadSlide(slide: PlaySlide | undefined) {
+  if (!slide) return;
+  const file = isVideoFile(slide.imageUrl) ? slide.imageUrl : isVideoFile(slide.detail || "") ? slide.detail || "" : "";
+  if (file) {
+    const video = document.createElement("video");
+    video.preload = "auto";
+    video.muted = true;
+    video.src = file;
+    video.load();
+    return;
+  }
+  if (!slide.imageUrl || slide.imageUrl.includes(".pdf") || slide.kind === "youtube") return;
+  const image = new Image();
+  image.src = slide.imageUrl;
+}
+
 export function Player({ slides }: { slides: PlaySlide[] }) {
   const [index, setIndex] = useState(0);
+  const [leaving, setLeaving] = useState<number | null>(null);
+  const [shown, setShown] = useState(true);
   const current = slides[index];
+  const previous = leaving != null ? slides[leaving] : null;
 
   useEffect(() => {
     const stage = document.querySelector(".stage");
@@ -100,42 +165,43 @@ export function Player({ slides }: { slides: PlaySlide[] }) {
   }, [current?.full]);
 
   useEffect(() => {
-    if (!current) return;
-    const timer = setTimeout(() => setIndex((value) => (value + 1) % slides.length), Math.max(3, current.duration) * 1000);
+    if (!current || slides.length < 2) return;
+    const timer = setTimeout(() => {
+      setLeaving(index);
+      setShown(false);
+      setIndex((value) => (value + 1) % slides.length);
+    }, Math.max(3, current.duration) * 1000);
     return () => clearTimeout(timer);
-  }, [current, slides.length]);
+  }, [current, index, slides.length]);
+
+  useEffect(() => {
+    preloadSlide(slides[(index + 1) % slides.length]);
+  }, [index, slides]);
+
+  useEffect(() => {
+    if (leaving == null || shown) return;
+    const timer = setTimeout(() => setShown(true), 1800);
+    return () => clearTimeout(timer);
+  }, [leaving, shown, index]);
+
+  useEffect(() => {
+    if (leaving == null || !shown) return;
+    const timer = setTimeout(() => setLeaving(null), 750);
+    return () => clearTimeout(timer);
+  }, [leaving, shown]);
 
   if (!current) return <div className="empty">אין שקפים</div>;
-  if (current.kind === "youtube") {
-    const file = isVideoFile(current.imageUrl) ? current.imageUrl : isVideoFile(current.detail || "") ? current.detail : "";
-    if (file && current.templateId === "fixed-pest") {
-      return <PestVideo src={file} poster={file.replace(/\.mp4(\?|$)/i, ".jpg$1")} title={current.title} detail={current.detail} day={current.day} from={current.from} />;
-    }
-    if (file && current.templateId?.startsWith("fixed-")) {
-      return <CharacterVideo src={file} poster={file.replace(/\.mp4(\?|$)/i, ".jpg$1")} title={current.title} detail={current.detail} />;
-    }
-    if (file) return <video className="slide-video" src={file} autoPlay muted loop playsInline />;
-    return <YoutubeSlide url={current.imageUrl} fallback={current.detail} />;
-  }
-  const pdf = current.imageUrl.toLowerCase().includes(".pdf");
-  if (current.templateId === "file-qr") return <QrSlide title={current.title} note={current.detail} token={current.token} />;
-  if (pdf) return <iframe className="slide-image" src={`${current.imageUrl}#toolbar=0&navpanes=0`} title="שקף" />;
-  if (current.templateId === "weekly-parasha") {
-    return <ParashaSlide name={current.title || ""} candles={current.candles || ""} havdalah={current.havdalah || ""} city={current.city || ""} verses={current.verses || []} seconds={current.duration} still={current.still} />;
-  }
-  if (isDeckId(current.templateId)) {
-    return <KnowledgeSlide deck={current.templateId} />;
-  }
-  if (current.kind === "template" || (current.kind === "image" && (current.title || current.detail))) {
-    return (
-      <div className="slide-frame">
-        <img className="slide-image" src={current.imageUrl} alt="" />
-        <div className="slide-copy">
-          <strong>{current.title}</strong>
-          {current.detail ? <span>{current.detail}</span> : null}
+  const entering = leaving != null;
+  return (
+    <div className="slide-stack">
+      {previous && leaving !== index ? (
+        <div className="slide-layer">
+          <SlideFace slide={previous} />
         </div>
+      ) : null}
+      <div className={`slide-layer${entering ? " is-enter" : ""}${shown ? " is-shown" : ""}`}>
+        <SlideFace slide={current} onReady={entering ? () => setShown(true) : undefined} />
       </div>
-    );
-  }
-  return <img className="slide-image" src={current.imageUrl} alt="" />;
+    </div>
+  );
 }
