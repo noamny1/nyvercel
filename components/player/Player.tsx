@@ -241,21 +241,21 @@ export function Player({ slides }: { slides: PlaySlide[] }) {
 
   useEffect(() => {
     if (!covered || !ready) return;
-    const timer = setTimeout(() => setHold(null), 760);
+    const timer = setTimeout(() => setHold(null), 700);
     return () => clearTimeout(timer);
   }, [covered, ready]);
 
   if (!current) return <div className="empty">אין שקפים</div>;
   return (
     <div className="slide-stack">
-      <div className="slide-layer">
-        <SlideFace slide={current} onReady={() => setReady(true)} />
-      </div>
       {covered ? (
-        <div className={`slide-layer is-cover${ready ? " is-gone" : ""}`}>
+        <div className="slide-layer is-under">
           <SlideFace slide={covered} />
         </div>
       ) : null}
+      <div className={`slide-layer is-front${covered ? (ready ? " is-in" : " is-wait") : ""}`}>
+        <SlideFace slide={current} onReady={() => setReady(true)} />
+      </div>
     </div>
   );
 }
