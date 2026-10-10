@@ -67,8 +67,17 @@
   width: auto;
   height: auto;
 }
-.slide-layer.is-cover { opacity: 1; }
-.slide-layer.is-cover.is-gone { opacity: 0; transition: opacity 0.7s ease; }
+.slide-stack { overflow: hidden; }
+.slide-layer.is-cover {
+  z-index: 3;
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+.slide-layer.is-cover.is-gone {
+  opacity: 1;
+  transform: translate3d(-100%, 0, 0);
+  transition: transform 0.7s ease;
+}
 .slide-layer > .slide-image,
 .slide-layer > .slide-video,
 .slide-layer > .slide-frame,

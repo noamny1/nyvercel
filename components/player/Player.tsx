@@ -241,7 +241,7 @@ export function Player({ slides }: { slides: PlaySlide[] }) {
 
   useEffect(() => {
     if (!covered || !ready) return;
-    const timer = setTimeout(() => setHold(null), 750);
+    const timer = setTimeout(() => setHold(null), 760);
     return () => clearTimeout(timer);
   }, [covered, ready]);
 
