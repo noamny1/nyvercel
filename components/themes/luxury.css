@@ -140,7 +140,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 28px;
+  gap: 0;
   max-width: 100%;
   font-size: 40px;
   font-weight: 400;
@@ -155,6 +155,7 @@
 .layout-luxury .lux-address i {
   width: 9px;
   height: 9px;
+  margin: 0 22px;
   border-radius: 50%;
   background: #e6d3ae;
   flex: none;
