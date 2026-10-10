@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Providers } from "@/components/Providers";
 import "./globals.css";
+import "@/components/player/flag.css";
 
 export const metadata: Metadata = {
   title: "NYmedia",

@@ -184,8 +184,8 @@
   padding: 12px;
 }
 .layout-luxury .lux-logo.is-flag .il-flag {
-  width: min(100%, 150px);
-  height: 96px;
+  width: min(100%, 180px);
+  height: 112px;
 }
 .layout-luxury .lux-logo span,
 .layout-luxury .lux-logo small { display: block; max-width: 100%; }

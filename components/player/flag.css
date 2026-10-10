@@ -1,8 +1,7 @@
 .il-flag {
   display: block;
-  width: 72px;
-  height: 48px;
-  perspective: 140px;
+  width: 92px;
+  height: 60px;
 }
 .il-cloth {
   position: relative;
@@ -14,14 +13,13 @@
   padding: 14% 0;
   background: #fff;
   border-radius: 2px;
-  overflow: hidden;
-  transform-origin: left center;
-  box-shadow: inset -10px 0 14px rgba(0, 24, 72, 0.12);
-  animation: il-wave 2.8s ease-in-out infinite;
+  transform-origin: 0 50%;
+  box-shadow: inset -8px 0 10px rgba(0, 24, 72, 0.1);
+  animation: il-wave 2.6s ease-in-out infinite;
 }
 .il-cloth i {
   display: block;
-  height: 15%;
+  height: 16%;
   background: #0038b8;
 }
 .il-cloth svg {
@@ -36,24 +34,11 @@
   stroke-width: 6;
   stroke-linejoin: round;
 }
-.il-cloth::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(100deg, transparent 20%, rgba(0, 24, 72, 0.12) 42%, transparent 58%, rgba(255, 255, 255, 0.55) 74%, transparent 88%);
-  background-size: 220% 100%;
-  animation: il-sheen 2.8s linear infinite;
-}
 @keyframes il-wave {
-  0%, 100% { transform: rotateY(0deg) skewY(0deg); }
-  35% { transform: rotateY(18deg) skewY(1.4deg); }
-  70% { transform: rotateY(-8deg) skewY(-0.6deg); }
-}
-@keyframes il-sheen {
-  from { background-position: 120% 0; }
-  to { background-position: -40% 0; }
+  0%, 100% { transform: skewY(0deg) scaleX(1); }
+  40% { transform: skewY(3deg) scaleX(0.97); }
+  75% { transform: skewY(-2deg) scaleX(1); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .il-cloth,
-  .il-cloth::after { animation: none; }
+  .il-cloth { animation: none; }
 }
