@@ -175,7 +175,7 @@ function SlideFace({ slide, onReady }: { slide: PlaySlide; onReady?: () => void 
   if (slide.kind === "template" || (slide.kind === "image" && (slide.title || slide.detail))) {
     const bubble = /general-clean|greet-welcome/.test(`${slide.templateId || ""} ${slide.imageUrl || ""}`);
     return (
-      <div className="slide-frame">
+      <div className={bubble ? "slide-frame is-overlay" : "slide-frame"}>
         <img className="slide-image" src={slide.imageUrl} alt="" onLoad={onReady} onError={onReady} />
         <div className={bubble ? "slide-copy is-bubble" : "slide-copy"}>
           <strong>{slide.title}</strong>
