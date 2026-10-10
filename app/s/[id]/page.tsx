@@ -172,6 +172,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
             mode={feedMode}
             headlines={stories}
             notices={notices.map((notice) => notice.text)}
+            logoUrl={screen.logoUrl || source.logoUrl}
             sourceId={newsSource}
             newsCount={newsTake}
             newsMode={newsMode}

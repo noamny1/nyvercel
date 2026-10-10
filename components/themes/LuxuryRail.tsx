@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useFreshHeadlines, type Headline } from "@/components/player/useFreshHeadlines";
 import { useNewsOn } from "@/components/player/useNewsOn";
 import { chipLabel, HEALTH_NOTE } from "@/lib/news-sources";
+import { ClientLogo } from "@/components/player/FlagLogo";
 
 type Item = { tag: string; text: string; chip: string };
 
@@ -12,6 +13,7 @@ export function LuxuryRail({
   weatherLabel,
   headlines,
   notices,
+  logoUrl = "",
   sourceId = "",
   newsCount = 8,
   newsMode = "on",
@@ -21,6 +23,7 @@ export function LuxuryRail({
   mode?: "news" | "notices" | "both";
   headlines: Headline[];
   notices: string[];
+  logoUrl?: string;
   sourceId?: string;
   newsCount?: number;
   newsMode?: string;
@@ -77,7 +80,8 @@ export function LuxuryRail({
   return (
     <>
       <div className="lux-brand">
-        <img src="/logo-nymedia.png" alt="NYmedia" />
+        <ClientLogo url={logoUrl} className="lux-client" />
+        <img className="lux-ny" src="/logo-nymedia.png" alt="NYmedia" />
       </div>
       <div className="lux-top">
         <strong className="lux-clock">{time}</strong>

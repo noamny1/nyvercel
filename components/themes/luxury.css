@@ -96,12 +96,25 @@
   font-weight: 300;
 }
 .layout-luxury .lux-empty { margin: 24px 0; color: #e6d3ae; font-weight: 300; }
-.layout-luxury .lux-brand { display: flex; justify-content: center; }
-.layout-luxury .lux-brand img {
+.layout-luxury .lux-brand {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.layout-luxury .lux-brand .lux-client {
+  width: 118px;
+  height: 76px;
+  flex: none;
+  object-fit: contain;
+  border-radius: 8px;
+  background: #fff;
+}
+.layout-luxury .lux-brand .lux-ny {
   display: block;
-  height: 50px;
+  height: 42px;
   width: auto;
-  max-width: 100%;
+  max-width: 46%;
   margin: 0;
   object-fit: contain;
   filter: brightness(0) invert(1);
@@ -181,11 +194,16 @@
   object-fit: cover;
 }
 .layout-luxury .lux-logo.is-flag {
-  padding: 12px;
+  padding: 8px 12px;
 }
 .layout-luxury .lux-logo.is-flag .il-flag {
-  width: min(100%, 180px);
-  height: 112px;
+  width: min(100%, 168px);
+  height: 96px;
+}
+.layout-luxury .lux-logo .il-cloth,
+.layout-luxury .lux-brand .il-cloth {
+  font-size: 0;
+  line-height: 0;
 }
 .layout-luxury .lux-logo span,
 .layout-luxury .lux-logo small { display: block; max-width: 100%; }
