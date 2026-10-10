@@ -109,9 +109,9 @@ function SlideFace({ slide, onReady }: { slide: PlaySlide; onReady?: () => void 
     if (file) return <video className="slide-video" src={file} autoPlay muted loop playsInline preload="auto" onCanPlay={onReady} onError={onReady} />;
     return <YoutubeSlide url={slide.imageUrl} fallback={slide.detail} />;
   }
-  const pdf = slide.imageUrl.toLowerCase().includes(".pdf");
+  const pdf = (slide.imageUrl || "").toLowerCase().includes(".pdf");
   if (slide.templateId === "file-qr") return <QrSlide title={slide.title} note={slide.detail} token={slide.token} />;
-  if (pdf) return <iframe className="slide-image" src={`${slide.imageUrl}#toolbar=0&navpanes=0`} title="שקף" />;
+  if (pdf) return <iframe className="slide-image" src={`${slide.imageUrl}#toolbar=0&navpanes=0`} title="שקף" onLoad={onReady} />;
   if (slide.templateId === "weekly-parasha") {
     return <ParashaSlide name={slide.title || ""} candles={slide.candles || ""} havdalah={slide.havdalah || ""} city={slide.city || ""} verses={slide.verses || []} seconds={slide.duration} still={slide.still} />;
   }
@@ -153,10 +153,10 @@ function preloadSlide(slide: PlaySlide | undefined) {
 
 export function Player({ slides }: { slides: PlaySlide[] }) {
   const [index, setIndex] = useState(0);
-  const [leaving, setLeaving] = useState<number | null>(null);
-  const [shown, setShown] = useState(true);
+  const [hold, setHold] = useState<number | null>(null);
+  const [ready, setReady] = useState(true);
   const current = slides[index];
-  const previous = leaving != null ? slides[leaving] : null;
+  const covered = hold != null && hold !== index ? slides[hold] : null;
 
   useEffect(() => {
     const stage = document.querySelector(".stage");
@@ -167,8 +167,8 @@ export function Player({ slides }: { slides: PlaySlide[] }) {
   useEffect(() => {
     if (!current || slides.length < 2) return;
     const timer = setTimeout(() => {
-      setLeaving(index);
-      setShown(false);
+      setHold(index);
+      setReady(false);
       setIndex((value) => (value + 1) % slides.length);
     }, Math.max(3, current.duration) * 1000);
     return () => clearTimeout(timer);
@@ -179,29 +179,28 @@ export function Player({ slides }: { slides: PlaySlide[] }) {
   }, [index, slides]);
 
   useEffect(() => {
-    if (leaving == null || shown) return;
-    const timer = setTimeout(() => setShown(true), 1800);
+    if (!covered || ready) return;
+    const timer = setTimeout(() => setReady(true), 1800);
     return () => clearTimeout(timer);
-  }, [leaving, shown, index]);
+  }, [covered, ready, index]);
 
   useEffect(() => {
-    if (leaving == null || !shown) return;
-    const timer = setTimeout(() => setLeaving(null), 750);
+    if (!covered || !ready) return;
+    const timer = setTimeout(() => setHold(null), 750);
     return () => clearTimeout(timer);
-  }, [leaving, shown]);
+  }, [covered, ready]);
 
   if (!current) return <div className="empty">אין שקפים</div>;
-  const entering = leaving != null;
   return (
     <div className="slide-stack">
-      {previous && leaving !== index ? (
-        <div className="slide-layer">
-          <SlideFace slide={previous} />
+      <div className="slide-layer">
+        <SlideFace slide={current} onReady={() => setReady(true)} />
+      </div>
+      {covered ? (
+        <div className={`slide-layer is-cover${ready ? " is-gone" : ""}`}>
+          <SlideFace slide={covered} />
         </div>
       ) : null}
-      <div className={`slide-layer${entering ? " is-enter" : ""}${shown ? " is-shown" : ""}`}>
-        <SlideFace slide={current} onReady={entering ? () => setShown(true) : undefined} />
-      </div>
     </div>
   );
 }
