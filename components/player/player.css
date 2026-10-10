@@ -284,34 +284,44 @@
   container-type: size;
   font-family: Calibri, "Segoe UI", Assistant, Arial, sans-serif;
 }
-.know-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-.know-veil {
+.know-bg {
   position: absolute;
-  inset: 0;
-  background: linear-gradient(to left, rgba(0, 0, 0, 0.28), rgba(0, 0, 0, 0.05) 55%, rgba(0, 0, 0, 0));
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
-.know-bar { position: absolute; top: 0; right: 0; left: 0; height: 8px; background: #5A1F2B; z-index: 2; }
+.know-veil { position: absolute; top: 0; right: 0; bottom: 0; left: 0; z-index: 0; background: transparent; }
+.know-bar { position: absolute; top: 0; right: 0; left: 0; height: 8px; background: #5A1F2B; z-index: 6; }
 .know-body {
-  position: relative;
-  z-index: 1;
-  align-self: center;
+  position: absolute;
+  z-index: 5;
+  top: 36px;
+  right: 24px;
+  bottom: 24px;
+  left: auto;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   justify-content: center;
   gap: 12px;
-  width: min(62%, 640px);
-  max-height: calc(100% - 48px);
-  margin: 24px 28px;
+  width: 540px;
+  max-width: calc(100% - 48px);
+  margin: 0;
   padding: 22px 26px;
   overflow: auto;
   border: 1px solid #e6d3ae;
   border-radius: 28px;
-  background: #252525;
-  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.35);
+  background: #111;
+  color: #F4F1ED;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.45);
 }
-.know-kicker { margin: 0; color: #e6d3ae; font-size: clamp(15px, 3cqh, 26px); }
-.know-head { display: flex; align-items: center; gap: 2cqh; }
+.know-kicker { margin: 0; color: #e6d3ae; font-size: 22px; }
+.know-head { display: flex; align-items: center; gap: 14px; }
 .know-portrait {
   width: 150px;
   height: 190px;
@@ -324,11 +334,11 @@
   background: #f4f1ed;
   flex: none;
 }
-.know h2 { margin: 0; font-size: clamp(26px, 6.4cqh, 64px); font-weight: 500; line-height: 1.12; text-wrap: balance; }
-.know ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 0.9cqh; }
-.know li { display: flex; gap: 0.65em; align-items: flex-start; font-size: clamp(16px, 3.5cqh, 30px); line-height: 1.32; }
-.know li i { width: 0.38em; height: 0.38em; margin-top: 0.48em; border-radius: 50%; background: #e6d3ae; flex: none; }
-.know-note { margin: 0.2cqh 0 0; color: rgba(244, 241, 237, 0.72); font-size: clamp(12px, 2.2cqh, 18px); }
+.know h2 { margin: 0; font-size: 40px; font-weight: 500; line-height: 1.15; color: #F4F1ED; }
+.know ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+.know li { display: flex; gap: 10px; align-items: flex-start; font-size: 24px; line-height: 1.35; color: #F4F1ED; }
+.know li i { width: 8px; height: 8px; margin-top: 12px; border-radius: 50%; background: #e6d3ae; flex: none; }
+.know-note { margin: 4px 0 0; color: #e6d3ae; font-size: 16px; }
 .deck-wrap { display: grid; gap: 10px; }
 .deck-preview { height: 460px; overflow: hidden; border-radius: 12px; background: #1a1014; }
 .deck-preview .know { height: 460px; }
