@@ -20,9 +20,8 @@ export function KnowledgeSlide({ deck, offset = 0 }: { deck: DeckId; offset?: nu
   const turn = useTurn();
   const card = useMemo(() => pickDeck(deck, offset, turn), [deck, offset, turn]);
   const total = deckCount(deck);
-  const lobby = card.image.endsWith("/lobby.jpg");
   return (
-    <article className={lobby ? "know is-lobby" : "know"}>
+    <article className="know">
       <img className="know-bg" src={card.image} alt="" />
       <div className="know-veil" />
       <div className="know-bar" />

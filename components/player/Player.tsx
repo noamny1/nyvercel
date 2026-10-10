@@ -173,10 +173,11 @@ function SlideFace({ slide, onReady }: { slide: PlaySlide; onReady?: () => void 
     return <KnowledgeSlide deck={slide.templateId} />;
   }
   if (slide.kind === "template" || (slide.kind === "image" && (slide.title || slide.detail))) {
+    const bubble = slide.templateId === "general-clean" || slide.templateId === "greet-welcome";
     return (
       <div className="slide-frame">
         <img className="slide-image" src={slide.imageUrl} alt="" onLoad={onReady} onError={onReady} />
-        <div className="slide-copy">
+        <div className={bubble ? "slide-copy is-bubble" : "slide-copy"}>
           <strong>{slide.title}</strong>
           {slide.detail ? <span>{slide.detail}</span> : null}
         </div>
