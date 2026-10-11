@@ -108,7 +108,10 @@ model RemoteDesk {
   shellOut  String   @default("")
   shellUntil DateTime?
   logOut    String   @default("")
-  seenAt    DateTime?
+  seenAt     DateTime?
+  upgradeUrl String   @default("")
+  lastApk    String   @default("")
+  keeperAt   DateTime?
 }
 
 model DeviceStatus {
