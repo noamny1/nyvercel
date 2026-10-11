@@ -29,7 +29,7 @@ export async function GET(request: Request) {
   if (watchOff) return NextResponse.json({ image: "" });
   const desk = await prisma.remoteDesk.findUnique({
     where: { screenId },
-    select: { frame: true, width: true, height: true },
+    select: { frame: true, width: true, height: true, frameAt: true },
   });
   if (!desk?.frame || desk.frame.byteLength < 32) return NextResponse.json({ image: "" });
   const bytes = Buffer.from(desk.frame);
@@ -39,6 +39,7 @@ export async function GET(request: Request) {
     mime,
     w: desk.width || 0,
     h: desk.height || 0,
+    at: desk.frameAt ? desk.frameAt.getTime() : 0,
   }, { headers: { "Cache-Control": "no-store" } });
 }
 

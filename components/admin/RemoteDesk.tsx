@@ -44,10 +44,11 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
         try {
           const response = await fetch(`/api/admin/remote?screenId=${screenId}`, { cache: "no-store" });
           if (response.ok) {
-            const data = await response.json() as { image?: string; mime?: string; w?: number; h?: number };
+            const data = await response.json() as { image?: string; mime?: string; w?: number; h?: number; at?: number };
             if (data.image && !stop) {
               setShot(`data:${data.mime || "image/jpeg"};base64,${data.image}`);
               setSize({ w: Number(data.w) || 0, h: Number(data.h) || 0 });
+              if (data.at) setNote(`תמונה עדכנית, לפני ${Math.max(0, Math.round((Date.now() - data.at) / 1000))} שניות`);
             }
           }
         } catch {
