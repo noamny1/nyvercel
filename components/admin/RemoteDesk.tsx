@@ -13,7 +13,6 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
   const [apps, setApps] = useState<{ name: string; package: string }[]>([]);
   const [note, setNote] = useState("");
   const [busy, setBusy] = useState("");
-  const [log, setLog] = useState("");
   const [pictures, setPictures] = useState(true);
   const [keeperOn, setKeeperOn] = useState(false);
   const [keeperChecked, setKeeperChecked] = useState(false);
@@ -29,7 +28,6 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
             if (!stop) {
               setApps(Array.isArray(data.apps) ? data.apps : []);
               if (data.note) setNote(data.note);
-              if (data.log) setLog(data.log);
               setLive(!!data.screenOn);
               setRemoteOn(!!data.remoteOn);
               setKeeperOn(!!data.keeperOn);
@@ -143,69 +141,6 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
         >
           מחיקת NYmedia
         </button>
-        <button
-          type="button"
-          disabled={busy !== ""}
-          onClick={() => {
-            setBusy("שולחים את שומר השדרוג…");
-            void fetch("/keeper.apk")
-              .then((response) => response.blob())
-              .then(async (body) => {
-                const { upload } = await import("@vercel/blob/client");
-                const file = new File([body], "ny-keeper.apk", { type: "application/vnd.android.package-archive" });
-                const blob = await upload("ny-keeper.apk", file, {
-                  access: "public",
-                  handleUploadUrl: "/api/admin/remote/apk",
-                  contentType: "application/vnd.android.package-archive",
-                });
-                await send("install", { text: blob.url });
-                setNote("השומר נשלח. לחצו אתחול פעם אחת. אחרי העלייה אפשר לשדרג בלי למחוק.");
-                setBusy("");
-              })
-              .catch(() => {
-                setNote("שליחת השומר נכשלה");
-                setBusy("");
-              });
-          }}
-        >
-          התקנת שומר שדרוג
-        </button>
-        <label style={{ display: "flex", gap: 8, alignItems: "center" }}>
-          שדרוג NYmedia
-          <input
-            type="file"
-            accept=".apk,application/vnd.android.package-archive"
-            disabled={busy !== ""}
-            onChange={(event) => {
-              const file = event.target.files?.[0];
-              event.target.value = "";
-              if (!file) return;
-              if (!keeperOn) {
-                setNote("קודם מתקינים את שומר השדרוג ולוחצים אתחול פעם אחת.");
-                return;
-              }
-              setBusy("שולחים גרסה חדשה…");
-              void import("@vercel/blob/client").then(async ({ upload }) => {
-                const blob = await upload(file.name.endsWith(".apk") ? file.name : `${file.name}.apk`, file, {
-                  access: "public",
-                  handleUploadUrl: "/api/admin/remote/apk",
-                  contentType: "application/vnd.android.package-archive",
-                });
-                await fetch("/api/admin/remote/upgrade", {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ screenId, url: blob.url }),
-                });
-                setNote("השומר מתקין את הגרסה בלי למחוק. NYmedia תחזור לבד תוך כדקה.");
-                setBusy("");
-              }).catch(() => {
-                setNote("שליחת הגרסה נכשלה");
-                setBusy("");
-              });
-            }}
-          />
-        </label>
-        <button type="button" onClick={() => { setLog("מבקשים יומן…"); send("log"); }}>יומן אחרון</button>
       </div>
       <form
         style={{ display: "flex", gap: 8, marginBottom: 12 }}
@@ -249,7 +184,7 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
                   contentType: "application/vnd.android.package-archive",
                 });
                 await send("install", { text: blob.url });
-                setNote("הקובץ נשלח לסטרימר. ההתקנה לוקחת כדקה.");
+                setNote("הקובץ נשלח. הוא נשמר בתיקיית Download על הסטרימר, ומותקן משם.");
                 setBusy("");
               }).catch(() => {
                 setNote("העלאת הקובץ נכשלה");
@@ -270,7 +205,7 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
               onClick={() => {
                 const self = app.package === "com.example.nymediaapp";
                 const message = self
-                  ? "למחוק את NYmedia? השליטה מרחוק תיפסק עד שתתקין אותה מחדש על הקופסה."
+                  ? "למחוק את NYmedia? המסך ייכבה. השומר נשאר."
                   : `למחוק את ${app.name}?`;
                 if (!confirm(message)) return;
                 setNote("מוחקים…");
@@ -282,7 +217,6 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
           </div>
         ))}
       </div>
-      {log ? <pre style={{ whiteSpace: "pre-wrap", background: "#1b1b1b", color: "#F4F1ED", padding: 12, borderRadius: 12, maxWidth: 1100, maxHeight: 320, overflow: "auto" }}>{log}</pre> : null}
     </div>
   );
 }
