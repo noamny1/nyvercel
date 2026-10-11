@@ -10,7 +10,16 @@ export async function POST(request: Request) {
     body,
     request,
     onBeforeGenerateToken: async () => ({
-      allowedContentTypes: ["application/vnd.android.package-archive", "application/octet-stream"],
+      allowedContentTypes: [
+        "application/vnd.android.package-archive",
+        "application/octet-stream",
+        "application/zip",
+        "application/pdf",
+        "image/jpeg",
+        "image/png",
+        "video/mp4",
+        "text/plain",
+      ],
       maximumSizeInBytes: 80 * 1024 * 1024,
       addRandomSuffix: true,
     }),

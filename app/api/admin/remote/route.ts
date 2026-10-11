@@ -61,7 +61,7 @@ export async function POST(request: Request) {
   const screen = await prisma.screen.findUnique({ where: { id: screenId }, select: { id: true } });
   if (!screen) return NextResponse.json({ error: "missing" }, { status: 404 });
   const raw = String(body?.text || "");
-  if (op === "install" && !/^https:\/\/[a-z0-9.-]+\.blob\.vercel-storage\.com\/.+\.apk(\?.*)?$/i.test(raw)) {
+  if (op === "install" && !/^https:\/\/[a-z0-9.-]+\.blob\.vercel-storage\.com\/.+/i.test(raw)) {
     return NextResponse.json({ error: "bad file" }, { status: 400 });
   }
   if (op === "uninstall" && !/^[a-zA-Z][a-zA-Z0-9_]*(\.[a-zA-Z][a-zA-Z0-9_]*)+$/.test(raw)) {

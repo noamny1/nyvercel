@@ -65,7 +65,7 @@ export default async function ControlPage({ searchParams }: { searchParams: Prom
                   boxShadow: `0 0 8px ${screen.remoteDesk?.keeperAt && now - screen.remoteDesk.keeperAt.getTime() < 12000 ? "#1faa4a" : "#d12626"}`,
                 }}
               />
-              {screen.remoteDesk?.keeperAt && now - screen.remoteDesk.keeperAt.getTime() < 12000 ? "שומר שדרוג רץ" : "שומר שדרוג לא רץ"}
+              {screen.remoteDesk?.keeperAt && now - screen.remoteDesk.keeperAt.getTime() < 12000 ? "גישה פעילה" : "אין גישה"}
             </span>
             <span>
               {screen.group?.building?.name || screen.group?.name || "בלי קבוצה"}

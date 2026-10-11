@@ -23,7 +23,7 @@ export async function POST(request: Request) {
     if (!PACKAGE.test(pkg)) return [];
     return [{ name: name || pkg, package: pkg }];
   }) : [];
-  const note = String(body?.note || "").replace(/[^\p{L}\p{N} .:_-]/gu, "").slice(0, 120);
+  const note = String(body?.note || "").replace(/[^\p{L}\p{N} .:_/-]/gu, "").slice(0, 160);
   await prisma.remoteDesk.upsert({
     where: { screenId: id },
     update: { apps: JSON.stringify(apps), note },
