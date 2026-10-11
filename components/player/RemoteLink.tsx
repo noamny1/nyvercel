@@ -18,8 +18,8 @@ export function RemoteLink({ code }: { code: number }) {
               const height = Math.max(node.clientHeight, 1);
               const shot = toBlob(node, {
                 type: "image/jpeg",
-                quality: 0.42,
-                pixelRatio: Math.min(0.7, 720 / width),
+                quality: 0.34,
+                pixelRatio: Math.min(0.5, 520 / width),
                 skipFonts: true,
                 cacheBust: false,
                 filter: (domNode) => {

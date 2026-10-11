@@ -20,11 +20,13 @@ export async function GET(request: Request) {
   if (!screenId) return NextResponse.json({ error: "missing" }, { status: 400 });
   const screen = await prisma.screen.findUnique({ where: { id: screenId }, select: { id: true } });
   if (!screen) return NextResponse.json({ error: "missing" }, { status: 404 });
+  const watchOff = new URL(request.url).searchParams.get("watch") === "0";
   await prisma.remoteDesk.upsert({
     where: { screenId },
-    update: { watchedAt: new Date() },
-    create: { screenId, watchedAt: new Date() },
+    update: { watchedAt: watchOff ? new Date(0) : new Date() },
+    create: { screenId, watchedAt: watchOff ? new Date(0) : new Date() },
   });
+  if (watchOff) return NextResponse.json({ image: "" });
   const desk = await prisma.remoteDesk.findUnique({
     where: { screenId },
     select: { frame: true, width: true, height: true },

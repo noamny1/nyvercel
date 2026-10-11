@@ -14,6 +14,7 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
   const [note, setNote] = useState("");
   const [busy, setBusy] = useState("");
   const [log, setLog] = useState("");
+  const [pictures, setPictures] = useState(true);
 
   useEffect(() => {
     let stop = false;
@@ -44,6 +45,7 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
   }, [screenId]);
 
   useEffect(() => {
+    if (!pictures) return;
     let stop = false;
     const tick = async () => {
       while (!stop) {
@@ -62,14 +64,14 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
         } catch {
           // The next poll retries.
         }
-        await new Promise((resolve) => setTimeout(resolve, 1200));
+        await new Promise((resolve) => setTimeout(resolve, 2200));
       }
     };
     tick();
     return () => {
       stop = true;
     };
-  }, [screenId]);
+  }, [screenId, pictures]);
 
   async function send(op: string, extra: Record<string, number | string> = {}) {
     await fetch("/api/admin/remote", {
@@ -90,9 +92,23 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
 
   return (
     <div>
-      <p>התמונה מתעדכנת כל שנייה בערך. לחיצה על התמונה לוחצת על הסטרימר.</p>
+      <p>{pictures ? "התמונה קטנה ומתעדכנת כל כמה שניות. לחיצה עליה לוחצת על הסטרימר." : "מעבר התמונות כבוי. הסטרימר לא מצלם ולא שולח."}</p>
       <p><b>{live || remoteOn ? "מחובר" : "לא מחובר"}</b></p>
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap", margin: "12px 0" }}>
+        <button
+          type="button"
+          onClick={() => {
+            const next = !pictures;
+            setPictures(next);
+            if (!next) {
+              setShot("");
+              setWaiting(true);
+              void fetch(`/api/admin/remote?screenId=${screenId}&watch=0`, { cache: "no-store" });
+            }
+          }}
+        >
+          {pictures ? "כיבוי תמונות" : "הדלקת תמונות"}
+        </button>
         <button type="button" onClick={() => send("key", { text: "4" })}>אחורה</button>
         <button type="button" onClick={() => send("key", { text: "3" })}>מסך הבית</button>
         <button type="button" onClick={() => send("key", { text: "66" })}>אישור</button>
@@ -100,6 +116,16 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
         <button type="button" onClick={() => send("key", { text: "25" })}>ווליום -</button>
         <button type="button" onClick={() => { if (confirm(`לאתחל את ${title}?`)) send("reboot"); }}>אתחול</button>
         <button type="button" onClick={() => { if (confirm("להפעיל מחדש רק את האפליקציה?")) send("relaunch"); }}>הפעלת האפליקציה</button>
+        <button
+          type="button"
+          onClick={() => {
+            if (!confirm("למחוק את NYmedia מהסטרימר? השליטה מרחוק תיפסק עד שתתקין אותה מחדש.")) return;
+            setNote("נשלחה מחיקה של NYmedia.");
+            send("uninstall", { text: "com.example.nymediaapp" });
+          }}
+        >
+          מחיקת NYmedia
+        </button>
         <button type="button" onClick={() => { setLog("מבקשים יומן…"); send("log"); }}>יומן אחרון</button>
       </div>
       <form
@@ -113,14 +139,14 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
         <input value={text} onChange={(event) => setText(event.target.value)} placeholder="טקסט באנגלית" style={{ padding: 8 }} />
         <button type="submit">שליחה</button>
       </form>
-      {waiting ? <p>{live || remoteOn ? "מחובר. התמונה עולה עוד רגע." : "לא מחובר. האפליקציה על הסטרימר לא שולחת אות."}</p> : null}
+      {waiting && pictures ? <p>{live || remoteOn ? "מחובר. התמונה עולה עוד רגע." : "לא מחובר. האפליקציה על הסטרימר לא שולחת אות."}</p> : null}
       {shot ? (
         <img
           ref={imgRef}
           src={shot}
           alt={title}
           onClick={tap}
-          style={{ width: "100%", maxWidth: 1100, height: "auto", background: "#111", cursor: "crosshair", borderRadius: 12 }}
+          style={{ width: "100%", maxWidth: 720, height: "auto", background: "#111", cursor: "crosshair", borderRadius: 12 }}
         />
       ) : null}
       <h2 style={{ marginTop: 28 }}>אפליקציות על הסטרימר</h2>
