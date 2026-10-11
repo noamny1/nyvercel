@@ -102,6 +102,18 @@ model RemoteDesk {
   height    Int      @default(0)
   apps      String   @default("")
   note      String   @default("")
+  shellOut  String   @default("")
+  shellUntil DateTime?
+}
+
+model ShellAudit {
+  id        Int      @id @default(autoincrement())
+  screenId  Int
+  email     String
+  command   String
+  at        DateTime @default(now())
+
+  @@index([screenId, at])
 }
 
 model RemoteCommand {

@@ -20,7 +20,7 @@ export async function POST(request: Request) {
   const apps = Array.isArray(body?.apps) ? body.apps.slice(0, 200).flatMap((item) => {
     const name = String(item?.name || "").replace(/[^\p{L}\p{N} ._+()-]/gu, "").slice(0, 60);
     const pkg = String(item?.package || "");
-    if (!PACKAGE.test(pkg) || pkg === "com.example.nymediaapp") return [];
+    if (!PACKAGE.test(pkg)) return [];
     return [{ name: name || pkg, package: pkg }];
   }) : [];
   const note = String(body?.note || "").replace(/[^\p{L}\p{N} .:_-]/gu, "").slice(0, 120);

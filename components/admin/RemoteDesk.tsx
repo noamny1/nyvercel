@@ -11,6 +11,10 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
   const [apps, setApps] = useState<{ name: string; package: string }[]>([]);
   const [note, setNote] = useState("");
   const [busy, setBusy] = useState("");
+  const [shell, setShell] = useState("");
+  const [shellOpen, setShellOpen] = useState(false);
+  const [password, setPassword] = useState("");
+  const [command, setCommand] = useState("");
 
   useEffect(() => {
     let stop = false;
@@ -23,6 +27,8 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
             if (!stop) {
               setApps(Array.isArray(data.apps) ? data.apps : []);
               if (data.note) setNote(data.note);
+              setShell(data.shell || "");
+              setShellOpen(!!data.shellOpen);
             }
           }
         } catch {
@@ -109,7 +115,7 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
         <input value={text} onChange={(event) => setText(event.target.value)} placeholder="טקסט באנגלית" style={{ padding: 8 }} />
         <button type="submit">שליחה</button>
       </form>
-      {waiting ? <p>ממתינים שהסטרימר יתחבר. צריך להתקין את אפליקציה 7.1.1 ומעלה.</p> : null}
+      {waiting ? <p>ממתינים שהסטרימר יתחבר. צריך להתקין את אפליקציה 7.1.2 ומעלה.</p> : null}
       {shot ? (
         <img
           ref={imgRef}
@@ -159,7 +165,11 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
             <button
               type="button"
               onClick={() => {
-                if (!confirm(`למחוק את ${app.name}?`)) return;
+                const self = app.package === "com.example.nymediaapp";
+                const message = self
+                  ? "למחוק את NYmedia? השליטה מרחוק תיפסק עד שתתקין אותה מחדש על הקופסה."
+                  : `למחוק את ${app.name}?`;
+                if (!confirm(message)) return;
                 setNote("מוחקים…");
                 send("uninstall", { text: app.package });
               }}
@@ -169,6 +179,41 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
           </div>
         ))}
       </div>
+      <h2 style={{ marginTop: 28 }}>מסוף הקופסה</h2>
+      <p>נפתח ל-10 דקות רק עם סיסמת המנהל. כל פקודה נשמרת עם השעה והמשתמש.</p>
+      {shellOpen ? (
+        <form
+          style={{ display: "flex", gap: 8, margin: "12px 0" }}
+          onSubmit={(event) => {
+            event.preventDefault();
+            if (!command.trim()) return;
+            send("shell", { text: command.trim() });
+            setCommand("");
+          }}
+        >
+          <input value={command} onChange={(event) => setCommand(event.target.value)} placeholder="פקודה" style={{ flex: 1, padding: 8 }} />
+          <button type="submit">הרצה</button>
+        </form>
+      ) : (
+        <form
+          style={{ display: "flex", gap: 8, margin: "12px 0" }}
+          onSubmit={async (event) => {
+            event.preventDefault();
+            const response = await fetch("/api/admin/remote", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ screenId, op: "shell-open", text: password }),
+            });
+            setPassword("");
+            if (!response.ok) setNote("הסיסמה שגויה");
+            else setShellOpen(true);
+          }}
+        >
+          <input type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="סיסמת מנהל" style={{ padding: 8 }} />
+          <button type="submit">פתיחת מסוף</button>
+        </form>
+      )}
+      {shell ? <pre style={{ whiteSpace: "pre-wrap", background: "#111", color: "#F4F1ED", padding: 12, borderRadius: 12, maxWidth: 1100 }}>{shell}</pre> : null}
     </div>
   );
 }
