@@ -105,6 +105,8 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
         <button type="button" onClick={() => send("key", { text: "25" })}>ווליום למטה</button>
         <button type="button" onClick={() => send("frames", { text: "0" })}>עצירת תמונות</button>
         <button type="button" onClick={() => send("frames", { text: "1" })}>הפעלת תמונות</button>
+        <button type="button" onClick={() => send("media", { text: "0" })}>עצירת NYMEDIA</button>
+        <button type="button" onClick={() => send("media", { text: "1" })}>הפעלת NYMEDIA</button>
         <button
           type="button"
           onClick={() => {
