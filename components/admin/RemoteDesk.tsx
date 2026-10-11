@@ -109,7 +109,7 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
           style={{ width: "100%", maxWidth: 960, height: "auto", background: "#111", cursor: "crosshair", borderRadius: 12 }}
         />
       ) : (
-        <p>המסך עדיין לא מופיע. בסטרימר לוחצים הפעלת לחיצה מרחוק, ומפעילים את NY Keeper. אם הוא כבר היה דלוק, מכבים ומדליקים שוב.</p>
+        <p>המסך עדיין לא מופיע. בסטרימר פותחים את NY Keeper ומאשרים את חלון הרוט, אפשר לצמיתות.</p>
       )}
       <label style={{ display: "flex", gap: 8, alignItems: "center", margin: "16px 0" }}>
         העברת קובץ
