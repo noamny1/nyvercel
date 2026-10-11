@@ -16,6 +16,7 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
   const [log, setLog] = useState("");
   const [pictures, setPictures] = useState(true);
   const [keeperOn, setKeeperOn] = useState(false);
+  const [keeperChecked, setKeeperChecked] = useState(false);
 
   useEffect(() => {
     let stop = false;
@@ -32,6 +33,7 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
               setLive(!!data.screenOn);
               setRemoteOn(!!data.remoteOn);
               setKeeperOn(!!data.keeperOn);
+              setKeeperChecked(true);
             }
           }
         } catch {
@@ -95,7 +97,20 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
   return (
     <div>
       <p>{pictures ? "התמונה קטנה ומתעדכנת כל כמה שניות. לחיצה עליה לוחצת על הסטרימר." : "מעבר התמונות כבוי. הסטרימר לא מצלם ולא שולח."}</p>
-      <p><b>{live || remoteOn ? "מחובר" : "לא מחובר"}</b> · {keeperOn ? "שומר השדרוג פעיל" : "שומר השדרוג עדיין לא פעיל"}</p>
+      <p><b>{live || remoteOn ? "מחובר" : "לא מחובר"}</b></p>
+      <p style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <span
+          style={{
+            width: 18,
+            height: 18,
+            borderRadius: "50%",
+            display: "inline-block",
+            background: !keeperChecked ? "#cfc8bf" : keeperOn ? "#1faa4a" : "#d12626",
+            boxShadow: keeperChecked ? `0 0 12px ${keeperOn ? "#1faa4a" : "#d12626"}` : "none",
+          }}
+        />
+        <b>{!keeperChecked ? "בודקים את שומר השדרוג…" : keeperOn ? "שומר שדרוג רץ תקין" : "שומר שדרוג לא רץ"}</b>
+      </p>
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap", margin: "12px 0" }}>
         <button
           type="button"

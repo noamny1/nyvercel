@@ -32,7 +32,7 @@ export default async function ControlPage({ searchParams }: { searchParams: Prom
       where,
       orderBy: { id: "desc" },
       take: 40,
-      include: { heartbeat: true, deviceStatus: true, group: { include: { building: true } } },
+      include: { heartbeat: true, deviceStatus: true, remoteDesk: { select: { keeperAt: true } }, group: { include: { building: true } } },
     }),
   ]);
   const rows = screens.map((screen) => ({ screen, state: stateOf(screen, now) }));
@@ -54,6 +54,19 @@ export default async function ControlPage({ searchParams }: { searchParams: Prom
         {visible.map(({ screen, state }) => (
           <div key={screen.id} className={state}>
             <span><i className="dot" />{state === "online" ? "תקין" : state === "offline" ? "לא תקין" : "כבוי"} · {screen.name}</span>
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+              <i
+                className="dot"
+                style={{
+                  width: 14,
+                  height: 14,
+                  margin: 0,
+                  background: screen.remoteDesk?.keeperAt && now - screen.remoteDesk.keeperAt.getTime() < 120000 ? "#1faa4a" : "#d12626",
+                  boxShadow: `0 0 8px ${screen.remoteDesk?.keeperAt && now - screen.remoteDesk.keeperAt.getTime() < 120000 ? "#1faa4a" : "#d12626"}`,
+                }}
+              />
+              {screen.remoteDesk?.keeperAt && now - screen.remoteDesk.keeperAt.getTime() < 120000 ? "שומר שדרוג רץ" : "שומר שדרוג לא רץ"}
+            </span>
             <span>
               {screen.group?.building?.name || screen.group?.name || "בלי קבוצה"}
               {" · "}
