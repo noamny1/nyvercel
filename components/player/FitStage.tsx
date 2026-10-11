@@ -13,7 +13,11 @@ export function FitStage({ className, children }: { className: string; children:
     if (!node) return;
     const fit = () => {
       const scale = Math.min(window.innerWidth / WIDTH, window.innerHeight / HEIGHT);
-      node.style.transform = `translate(-50%, -50%) scale(${scale})`;
+      node.style.zoom = String(scale);
+      node.style.position = "fixed";
+      node.style.left = `${Math.max(0, (window.innerWidth - WIDTH * scale) / 2)}px`;
+      node.style.top = `${Math.max(0, (window.innerHeight - HEIGHT * scale) / 2)}px`;
+      node.style.transform = "none";
     };
     fit();
     window.addEventListener("resize", fit);
