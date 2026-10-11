@@ -70,6 +70,8 @@ model Screen {
   revision   Int          @default(1)
   musicPlaylist String    @default("")
   heartbeat  Heartbeat?
+  remoteDesk RemoteDesk?
+  remoteCommands RemoteCommand[]
   users      User[]
   slides     Slide[]
   notices    Notice[]
@@ -88,6 +90,31 @@ model Heartbeat {
   at       DateTime @default(now())
 
   @@index([at])
+}
+
+model RemoteDesk {
+  screenId  Int      @id
+  screen    Screen   @relation(fields: [screenId], references: [id], onDelete: Cascade)
+  watchedAt DateTime @default(now())
+  frame     Bytes?
+  frameAt   DateTime?
+  width     Int      @default(0)
+  height    Int      @default(0)
+}
+
+model RemoteCommand {
+  id        Int      @id @default(autoincrement())
+  screenId  Int
+  screen    Screen   @relation(fields: [screenId], references: [id], onDelete: Cascade)
+  op        String
+  x         Int      @default(0)
+  y         Int      @default(0)
+  x2        Int      @default(0)
+  y2        Int      @default(0)
+  text      String   @default("")
+  createdAt DateTime @default(now())
+
+  @@index([screenId, id])
 }
 
 model Slide {
