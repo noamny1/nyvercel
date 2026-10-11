@@ -12,9 +12,13 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
   const [apps, setApps] = useState<{ name: string; package: string }[]>([]);
   const [note, setNote] = useState("");
   const [busy, setBusy] = useState("");
-  const [pictures, setPictures] = useState(true);
+  const [pictures, setPictures] = useState(false);
   const [keeperOn, setKeeperOn] = useState(false);
   const [keeperChecked, setKeeperChecked] = useState(false);
+
+  useEffect(() => {
+    void fetch(`/api/admin/remote?screenId=${screenId}&watch=0`, { cache: "no-store" });
+  }, [screenId]);
 
   useEffect(() => {
     let stop = false;
