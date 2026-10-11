@@ -456,7 +456,8 @@
 .notice { margin: 6px 0; font-size: 16px; }
 .ticker-track { display: inline-block; white-space: nowrap; animation: marquee 36s linear infinite; }
 @keyframes marquee { from { transform: translateX(-100%); } to { transform: translateX(100%); } }
-body:has(.stage) { overflow: hidden; background: #000; }
+html:has(.stage),
+body:has(.stage) { height: 100%; margin: 0; overflow: hidden; background: #111; }
 .music-credit {
   position: fixed;
   z-index: 40;
