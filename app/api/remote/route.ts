@@ -14,6 +14,12 @@ async function screenId(request: Request) {
 export async function GET(request: Request) {
   const id = await screenId(request);
   if (!id) return NextResponse.json({ watch: false });
+  const now = new Date();
+  await prisma.remoteDesk.upsert({
+    where: { screenId: id },
+    update: { seenAt: now },
+    create: { screenId: id, seenAt: now },
+  });
   const desk = await prisma.remoteDesk.findUnique({ where: { screenId: id }, select: { watchedAt: true } });
   const watch = !!desk && Date.now() - desk.watchedAt.getTime() < 20000;
   const take = new URL(request.url).searchParams.get("take") === "1";

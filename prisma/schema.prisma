@@ -108,6 +108,7 @@ model RemoteDesk {
   shellOut  String   @default("")
   shellUntil DateTime?
   logOut    String   @default("")
+  seenAt    DateTime?
 }
 
 model DeviceStatus {

@@ -8,15 +8,11 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
   const [size, setSize] = useState({ w: 0, h: 0 });
   const [waiting, setWaiting] = useState(true);
   const [live, setLive] = useState(false);
+  const [remoteOn, setRemoteOn] = useState(false);
   const [text, setText] = useState("");
   const [apps, setApps] = useState<{ name: string; package: string }[]>([]);
   const [note, setNote] = useState("");
   const [busy, setBusy] = useState("");
-  const [shell, setShell] = useState("");
-  const [shellOpen, setShellOpen] = useState(false);
-  const [password, setPassword] = useState("");
-  const [otp, setOtp] = useState("");
-  const [command, setCommand] = useState("");
   const [log, setLog] = useState("");
 
   useEffect(() => {
@@ -30,10 +26,9 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
             if (!stop) {
               setApps(Array.isArray(data.apps) ? data.apps : []);
               if (data.note) setNote(data.note);
-              setShell(data.shell || "");
-              setShellOpen(!!data.shellOpen);
               if (data.log) setLog(data.log);
-              setLive(!!data.online);
+              setLive(!!data.screenOn);
+              setRemoteOn(!!data.remoteOn);
             }
           }
         } catch {
@@ -101,6 +96,7 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
   return (
     <div>
       <p>התמונה מתעדכנת כל שנייה בערך. לחיצה על התמונה לוחצת על הסטרימר.</p>
+      <p><b>{remoteOn ? "מחובר" : live ? "המסך דולק, השליטה עדיין לא מחוברת" : "לא מחובר"}</b></p>
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap", margin: "12px 0" }}>
         <button type="button" onClick={() => send("key", { text: "4" })}>אחורה</button>
         <button type="button" onClick={() => send("key", { text: "3" })}>מסך הבית</button>
@@ -122,7 +118,7 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
         <input value={text} onChange={(event) => setText(event.target.value)} placeholder="טקסט באנגלית" style={{ padding: 8 }} />
         <button type="submit">שליחה</button>
       </form>
-      {waiting ? <p>{live ? "האפליקציה פועלת. התמונה עולה עוד רגע." : "החיבור מתחיל לבד כשהאפליקציה נפתחת על הסטרימר."}</p> : null}
+      {waiting ? <p>{remoteOn ? "מחובר. התמונה עולה עוד רגע." : live ? "המסך דולק, אבל האפליקציה עדיין לא שולחת שליטה." : "לא מחובר. האפליקציה על הסטרימר לא פתוחה."}</p> : null}
       {shot ? (
         <img
           ref={imgRef}
@@ -186,45 +182,6 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
           </div>
         ))}
       </div>
-      <h2 style={{ marginTop: 28 }}>מסוף הקופסה</h2>
-      <p>נפתח ל-10 דקות רק עם סיסמת המנהל וקוד מאמת מהטלפון. כל פקודה נשמרת.</p>
-      {shellOpen ? (
-        <form
-          style={{ display: "flex", gap: 8, margin: "12px 0" }}
-          onSubmit={(event) => {
-            event.preventDefault();
-            if (!command.trim()) return;
-            send("shell", { text: command.trim() });
-            setCommand("");
-          }}
-        >
-          <input value={command} onChange={(event) => setCommand(event.target.value)} placeholder="פקודה" style={{ flex: 1, padding: 8 }} />
-          <button type="submit">הרצה</button>
-        </form>
-      ) : (
-        <form
-          style={{ display: "flex", gap: 8, margin: "12px 0" }}
-          onSubmit={async (event) => {
-            event.preventDefault();
-            const response = await fetch("/api/admin/remote", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ screenId, op: "shell-open", text: password, code: otp }),
-            });
-            setPassword("");
-            setOtp("");
-            if (response.status === 401) {
-              const data = await response.json().catch(() => ({}));
-              setNote(data.error === "password" ? "הסיסמה שגויה" : "קוד המאמת שגוי. אם עוד אין מאמת, מגדירים אותו בתפריט מאמת.");
-            } else if (response.ok) setShellOpen(true);
-          }}
-        >
-          <input type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="סיסמת מנהל" style={{ padding: 8 }} />
-          <input value={otp} onChange={(event) => setOtp(event.target.value)} inputMode="numeric" autoComplete="one-time-code" placeholder="קוד מאמת" style={{ padding: 8, width: 120 }} />
-          <button type="submit">פתיחת מסוף</button>
-        </form>
-      )}
-      {shell ? <pre style={{ whiteSpace: "pre-wrap", background: "#111", color: "#F4F1ED", padding: 12, borderRadius: 12, maxWidth: 1100 }}>{shell}</pre> : null}
       {log ? <pre style={{ whiteSpace: "pre-wrap", background: "#1b1b1b", color: "#F4F1ED", padding: 12, borderRadius: 12, maxWidth: 1100, maxHeight: 320, overflow: "auto" }}>{log}</pre> : null}
     </div>
   );

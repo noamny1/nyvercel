@@ -20,13 +20,20 @@ export async function GET(request: Request) {
   } catch {
     apps = [];
   }
-  const status = await prisma.deviceStatus.findUnique({ where: { screenId }, select: { at: true } });
+  const screen = await prisma.screen.findUnique({
+    where: { id: screenId },
+    select: { heartbeat: { select: { at: true } }, remoteDesk: { select: { seenAt: true } } },
+  });
+  const now = Date.now();
+  const screenOn = !!screen?.heartbeat && now - screen.heartbeat.at.getTime() < 8 * 60 * 1000;
+  const remoteOn = !!screen?.remoteDesk?.seenAt && now - screen.remoteDesk.seenAt.getTime() < 30000;
   return NextResponse.json({
     apps,
     note: desk?.note || "",
     shell: desk?.shellOut || "",
     shellOpen: !!desk?.shellUntil && desk.shellUntil.getTime() > Date.now(),
     log: desk?.logOut || "",
-    online: !!status && Date.now() - status.at.getTime() < 120000,
+    screenOn,
+    remoteOn,
   }, { headers: { "Cache-Control": "no-store" } });
 }
