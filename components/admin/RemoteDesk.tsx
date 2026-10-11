@@ -145,7 +145,7 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
           מחיקת NYmedia
         </button>
       </div>
-      {waiting && pictures ? <p>{live || remoteOn ? "מחובר. התמונה עולה עוד רגע." : "לא מחובר. האפליקציה על הסטרימר לא שולחת אות."}</p> : null}
+      {waiting && pictures ? <p>התמונות דולקות. אם אין תמונה תוך כמה שניות, ההודעה למטה מסבירה למה.</p> : null}
       {shot ? (
         <img
           ref={imgRef}

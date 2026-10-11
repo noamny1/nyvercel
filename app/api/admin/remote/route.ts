@@ -97,11 +97,6 @@ export async function POST(request: Request) {
     await prisma.shellAudit.create({ data: { screenId, email, command: raw.slice(0, 240) } });
   }
   const num = (value: number | undefined) => Math.max(0, Math.min(8000, Math.round(Number(value) || 0)));
-  await prisma.remoteDesk.upsert({
-    where: { screenId },
-    update: { watchedAt: new Date() },
-    create: { screenId, watchedAt: new Date() },
-  });
   await prisma.remoteCommand.create({
     data: {
       screenId,
