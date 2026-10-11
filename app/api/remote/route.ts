@@ -15,26 +15,43 @@ export async function GET(request: Request) {
   const id = await screenId(request);
   if (!id) return NextResponse.json({ watch: false, needFrame: false });
   const now = new Date();
-  try {
-    await prisma.heartbeat.upsert({
-      where: { screenId: id },
-      update: { at: now },
-      create: { screenId: id, at: now },
-    });
-  } catch {
-    // The screen can still be watched if the heartbeat table is briefly unavailable.
+  const who = new URL(request.url).searchParams.get("who");
+  if (who !== "keeper") {
+    try {
+      await prisma.heartbeat.upsert({
+        where: { screenId: id },
+        update: { at: now },
+        create: { screenId: id, at: now },
+      });
+    } catch {
+      // The screen can still be watched if the heartbeat table is briefly unavailable.
+    }
   }
-  try {
-    await prisma.remoteDesk.upsert({
-      where: { screenId: id },
-      update: { seenAt: now },
-      create: { screenId: id, seenAt: now },
-    });
-  } catch {
-    // seenAt is optional. A missing column must not stop the screenshot channel.
+  if (who === "keeper") {
+    try {
+      await prisma.remoteDesk.upsert({
+        where: { screenId: id },
+        update: { seenAt: now, keeperAt: now },
+        create: { screenId: id, seenAt: now, keeperAt: now },
+      });
+    } catch {
+      // A missing column must not stop the screenshot channel.
+    }
+  } else {
+    try {
+      await prisma.remoteDesk.upsert({
+        where: { screenId: id },
+        update: { seenAt: now },
+        create: { screenId: id, seenAt: now },
+      });
+    } catch {
+      // seenAt is optional. A missing column must not stop the screenshot channel.
+    }
   }
-  const desk = await prisma.remoteDesk.findUnique({ where: { screenId: id }, select: { watchedAt: true, frameAt: true } });
-  const watch = !!desk && Date.now() - desk.watchedAt.getTime() < 20000;
+  const desk = await prisma.remoteDesk.findUnique({ where: { screenId: id }, select: { watchedAt: true, frameAt: true, keeperAt: true } });
+  const keeperFresh = !!desk?.keeperAt && Date.now() - desk.keeperAt.getTime() < 30000;
+  const watching = !!desk && Date.now() - desk.watchedAt.getTime() < 20000;
+  const watch = watching && (who === "keeper" || !keeperFresh);
   const needFrame = watch && (!desk?.frameAt || Date.now() - desk.frameAt.getTime() > 2500);
   const take = new URL(request.url).searchParams.get("take") === "1";
   const commands = take && watch ? await takeCommands(id) : [];

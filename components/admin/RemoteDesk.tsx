@@ -96,7 +96,7 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
 
   return (
     <div>
-      <p>{pictures ? "התמונה קטנה ומתעדכנת כל כמה שניות. לחיצה עליה לוחצת על הסטרימר." : "מעבר התמונות כבוי. הסטרימר לא מצלם ולא שולח."}</p>
+      <p>{pictures ? "התמונה מגיעה משומר השדרוג. לחיצה עליה לוחצת על הסטרימר." : "מעבר התמונות כבוי. השומר לא מצלם ולא שולח."}</p>
       <p><b>{live || remoteOn ? "מחובר" : "לא מחובר"}</b></p>
       <p style={{ display: "flex", alignItems: "center", gap: 10 }}>
         <span
