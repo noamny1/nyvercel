@@ -1,8 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export function RemoteDesk({ screenId, title }: { screenId: number; title: string }) {
+  const imgRef = useRef<HTMLImageElement>(null);
+  const [shot, setShot] = useState("");
+  const [size, setSize] = useState({ w: 0, h: 0 });
   const [note, setNote] = useState("");
   const [busy, setBusy] = useState("");
   const [keeperOn, setKeeperOn] = useState(false);
@@ -34,12 +37,47 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
     };
   }, [screenId]);
 
-  async function send(op: string, extra: Record<string, string> = {}) {
+  useEffect(() => {
+    let stop = false;
+    const tick = async () => {
+      while (!stop) {
+        try {
+          const response = await fetch(`/api/admin/remote?screenId=${screenId}`, { cache: "no-store" });
+          if (response.ok) {
+            const data = await response.json() as { image?: string; mime?: string; w?: number; h?: number };
+            if (data.image && !stop) {
+              setShot(`data:${data.mime || "image/jpeg"};base64,${data.image}`);
+              setSize({ w: Number(data.w) || 0, h: Number(data.h) || 0 });
+            }
+          }
+        } catch {
+          // The next poll retries.
+        }
+        await new Promise((resolve) => setTimeout(resolve, 1500));
+      }
+    };
+    tick();
+    return () => {
+      stop = true;
+      void fetch(`/api/admin/remote?screenId=${screenId}&watch=0`, { cache: "no-store" });
+    };
+  }, [screenId]);
+
+  async function send(op: string, extra: Record<string, number | string> = {}) {
     await fetch("/api/admin/remote", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ screenId, op, ...extra }),
     });
+  }
+
+  function tap(event: React.MouseEvent<HTMLImageElement>) {
+    const node = imgRef.current;
+    if (!node || !size.w || !size.h) return;
+    const rect = node.getBoundingClientRect();
+    const x = Math.round(((event.clientX - rect.left) / rect.width) * size.w);
+    const y = Math.round(((event.clientY - rect.top) / rect.height) * size.h);
+    void send("tap", { x, y });
   }
 
   return (
@@ -57,7 +95,22 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
         />
         <b>{!keeperChecked ? "בודקים גישה…" : keeperOn ? "גישה פעילה" : "אין גישה"}</b>
       </p>
-      <p>{keeperOn ? `${title} מחובר. אפשר להעביר קובץ.` : "השומר על הסטרימר לא מחובר, ולכן אי אפשר להעביר קובץ."}</p>
+      <p>זה המסך של {title}. לחיצה על התמונה לוחצת באותו מקום בסטרימר.</p>
+      <div style={{ display: "flex", gap: 8, margin: "12px 0" }}>
+        <button type="button" onClick={() => send("key", { text: "4" })}>אחורה</button>
+        <button type="button" onClick={() => send("key", { text: "3" })}>מסך הבית</button>
+      </div>
+      {shot ? (
+        <img
+          ref={imgRef}
+          src={shot}
+          alt={title}
+          onClick={tap}
+          style={{ width: "100%", maxWidth: 960, height: "auto", background: "#111", cursor: "crosshair", borderRadius: 12 }}
+        />
+      ) : (
+        <p>המסך עדיין לא מופיע. בסטרימר פותחים את NY Keeper, לוחצים הפעלת צפייה ומאשרים, ואז הפעלת לחיצה ומפעילים את NY Keeper בנגישות.</p>
+      )}
       <label style={{ display: "flex", gap: 8, alignItems: "center", margin: "16px 0" }}>
         העברת קובץ
         <input
@@ -68,7 +121,6 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
             event.target.value = "";
             if (!file || !keeperOn) return;
             setBusy("מעלים את הקובץ…");
-            setNote("");
             void import("@vercel/blob/client").then(async ({ upload }) => {
               const blob = await upload(file.name, file, {
                 access: "public",
@@ -76,7 +128,7 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
                 contentType: file.type || "application/octet-stream",
               });
               await send("install", { text: blob.url });
-              setNote("הקובץ בדרך לסטרימר. כאן יופיע איפה הוא נשמר.");
+              setNote("הקובץ בדרך לסטרימר.");
               setBusy("");
             }).catch(() => {
               setNote("העלאת הקובץ נכשלה");
