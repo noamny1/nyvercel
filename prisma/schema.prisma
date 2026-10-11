@@ -13,6 +13,8 @@ model User {
   passwordHash String
   name         String   @default("")
   role         String   @default("client")
+  totpSecret   String   @default("")
+  totpPending  String   @default("")
   screens      Screen[]
   createdAt    DateTime @default(now())
 
@@ -71,6 +73,7 @@ model Screen {
   musicPlaylist String    @default("")
   heartbeat  Heartbeat?
   remoteDesk RemoteDesk?
+  deviceStatus DeviceStatus?
   remoteCommands RemoteCommand[]
   users      User[]
   slides     Slide[]
@@ -104,6 +107,18 @@ model RemoteDesk {
   note      String   @default("")
   shellOut  String   @default("")
   shellUntil DateTime?
+  logOut    String   @default("")
+}
+
+model DeviceStatus {
+  screenId   Int      @id
+  screen     Screen   @relation(fields: [screenId], references: [id], onDelete: Cascade)
+  version    String   @default("")
+  resolution String   @default("")
+  ip         String   @default("")
+  freeMb     Int      @default(0)
+  bootedAt   DateTime?
+  at         DateTime @default(now())
 }
 
 model ShellAudit {

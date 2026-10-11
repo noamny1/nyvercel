@@ -14,7 +14,9 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
   const [shell, setShell] = useState("");
   const [shellOpen, setShellOpen] = useState(false);
   const [password, setPassword] = useState("");
+  const [otp, setOtp] = useState("");
   const [command, setCommand] = useState("");
+  const [log, setLog] = useState("");
 
   useEffect(() => {
     let stop = false;
@@ -29,6 +31,7 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
               if (data.note) setNote(data.note);
               setShell(data.shell || "");
               setShellOpen(!!data.shellOpen);
+              if (data.log) setLog(data.log);
             }
           }
         } catch {
@@ -103,6 +106,8 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
         <button type="button" onClick={() => send("key", { text: "24" })}>ווליום +</button>
         <button type="button" onClick={() => send("key", { text: "25" })}>ווליום -</button>
         <button type="button" onClick={() => { if (confirm(`לאתחל את ${title}?`)) send("reboot"); }}>אתחול</button>
+        <button type="button" onClick={() => { if (confirm("להפעיל מחדש רק את האפליקציה?")) send("relaunch"); }}>הפעלת האפליקציה</button>
+        <button type="button" onClick={() => { setLog("מבקשים יומן…"); send("log"); }}>יומן אחרון</button>
       </div>
       <form
         style={{ display: "flex", gap: 8, marginBottom: 12 }}
@@ -115,7 +120,7 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
         <input value={text} onChange={(event) => setText(event.target.value)} placeholder="טקסט באנגלית" style={{ padding: 8 }} />
         <button type="submit">שליחה</button>
       </form>
-      {waiting ? <p>ממתינים שהסטרימר יתחבר. צריך להתקין את אפליקציה 7.1.2 ומעלה.</p> : null}
+      {waiting ? <p>ממתינים שהסטרימר יתחבר. צריך להתקין את אפליקציה 7.1.3 ומעלה.</p> : null}
       {shot ? (
         <img
           ref={imgRef}
@@ -180,7 +185,7 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
         ))}
       </div>
       <h2 style={{ marginTop: 28 }}>מסוף הקופסה</h2>
-      <p>נפתח ל-10 דקות רק עם סיסמת המנהל. כל פקודה נשמרת עם השעה והמשתמש.</p>
+      <p>נפתח ל-10 דקות רק עם סיסמת המנהל וקוד מאמת מהטלפון. כל פקודה נשמרת.</p>
       {shellOpen ? (
         <form
           style={{ display: "flex", gap: 8, margin: "12px 0" }}
@@ -202,18 +207,23 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
             const response = await fetch("/api/admin/remote", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ screenId, op: "shell-open", text: password }),
+              body: JSON.stringify({ screenId, op: "shell-open", text: password, code: otp }),
             });
             setPassword("");
-            if (!response.ok) setNote("הסיסמה שגויה");
-            else setShellOpen(true);
+            setOtp("");
+            if (response.status === 401) {
+              const data = await response.json().catch(() => ({}));
+              setNote(data.error === "password" ? "הסיסמה שגויה" : "קוד המאמת שגוי. אם עוד אין מאמת, מגדירים אותו בתפריט מאמת.");
+            } else if (response.ok) setShellOpen(true);
           }}
         >
           <input type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="סיסמת מנהל" style={{ padding: 8 }} />
+          <input value={otp} onChange={(event) => setOtp(event.target.value)} inputMode="numeric" autoComplete="one-time-code" placeholder="קוד מאמת" style={{ padding: 8, width: 120 }} />
           <button type="submit">פתיחת מסוף</button>
         </form>
       )}
       {shell ? <pre style={{ whiteSpace: "pre-wrap", background: "#111", color: "#F4F1ED", padding: 12, borderRadius: 12, maxWidth: 1100 }}>{shell}</pre> : null}
+      {log ? <pre style={{ whiteSpace: "pre-wrap", background: "#1b1b1b", color: "#F4F1ED", padding: 12, borderRadius: 12, maxWidth: 1100, maxHeight: 320, overflow: "auto" }}>{log}</pre> : null}
     </div>
   );
 }

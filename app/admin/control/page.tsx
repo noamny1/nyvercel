@@ -32,7 +32,7 @@ export default async function ControlPage({ searchParams }: { searchParams: Prom
       where,
       orderBy: { id: "desc" },
       take: 40,
-      include: { heartbeat: true, group: { include: { building: true } } },
+      include: { heartbeat: true, deviceStatus: true, group: { include: { building: true } } },
     }),
   ]);
   const rows = screens.map((screen) => ({ screen, state: stateOf(screen, now) }));
@@ -60,6 +60,11 @@ export default async function ControlPage({ searchParams }: { searchParams: Prom
               {screen.heartbeat ? screen.heartbeat.at.toLocaleString("he-IL", { timeZone: "Asia/Jerusalem" }) : "אין אות"}
               {" · "}
               <a href={`/s/${screen.code || screen.id}`} target="_blank">/s/{screen.code || screen.id}</a>
+            </span>
+            <span>
+              {screen.deviceStatus
+                ? `${screen.deviceStatus.version || "—"} · ${screen.deviceStatus.resolution || "—"} · ${screen.deviceStatus.ip || "—"} · ${screen.deviceStatus.freeMb}MB פנוי · עלה ${screen.deviceStatus.bootedAt ? screen.deviceStatus.bootedAt.toLocaleString("he-IL", { timeZone: "Asia/Jerusalem" }) : "—"}`
+                : "אין דיווח מהאפליקציה"}
             </span>
           </div>
         ))}

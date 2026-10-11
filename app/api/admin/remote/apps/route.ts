@@ -11,7 +11,7 @@ export async function GET(request: Request) {
   if (!screenId) return NextResponse.json({ apps: [], note: "" });
   const desk = await prisma.remoteDesk.findUnique({
     where: { screenId },
-    select: { apps: true, note: true, shellOut: true, shellUntil: true },
+    select: { apps: true, note: true, shellOut: true, shellUntil: true, logOut: true },
   });
   let apps: { name: string; package: string }[] = [];
   try {
@@ -25,5 +25,6 @@ export async function GET(request: Request) {
     note: desk?.note || "",
     shell: desk?.shellOut || "",
     shellOpen: !!desk?.shellUntil && desk.shellUntil.getTime() > Date.now(),
+    log: desk?.logOut || "",
   }, { headers: { "Cache-Control": "no-store" } });
 }

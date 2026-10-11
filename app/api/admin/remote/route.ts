@@ -2,10 +2,11 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { isSystemAdmin, requireSession } from "@/lib/session";
+import { open, verifyTotp } from "@/lib/totp";
 
 export const dynamic = "force-dynamic";
 
-const OPS = new Set(["tap", "key", "text", "swipe", "reboot", "apps", "uninstall", "install", "shell", "shell-open"]);
+const OPS = new Set(["tap", "key", "text", "swipe", "reboot", "apps", "uninstall", "install", "shell", "shell-open", "relaunch", "log"]);
 
 async function admin() {
   const session = await requireSession();
@@ -47,6 +48,7 @@ export async function POST(request: Request) {
     x2?: number;
     y2?: number;
     text?: string;
+    code?: string;
   } | null;
   const screenId = Number(body?.screenId);
   const op = String(body?.op || "");
@@ -67,6 +69,9 @@ export async function POST(request: Request) {
     const email = session.user?.email?.trim().toLowerCase() || "";
     const account = email ? await prisma.user.findUnique({ where: { email } }) : null;
     if (op === "shell-open") {
+      const pending = account?.totpSecret ? open(account.totpSecret) : "";
+      const code = String(body?.code || "");
+      if (!pending || !verifyTotp(pending, code)) return NextResponse.json({ error: "totp" }, { status: 401 });
       const ok = !!account && await bcrypt.compare(raw, account.passwordHash);
       if (!ok) return NextResponse.json({ error: "password" }, { status: 401 });
       const until = new Date(Date.now() + 10 * 60 * 1000);
