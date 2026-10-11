@@ -34,7 +34,7 @@ export async function GET(request: Request) {
     const now = Date.now();
     remoteOn = (!!link?.seenAt && now - link.seenAt.getTime() < 30000)
       || (!!link?.frameAt && now - link.frameAt.getTime() < 20000);
-    keeperOn = !!link?.keeperAt && now - link.keeperAt.getTime() < 120000;
+    keeperOn = !!link?.keeperAt && now - link.keeperAt.getTime() < 12000;
   } catch {
     remoteOn = false;
   }

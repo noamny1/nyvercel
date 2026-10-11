@@ -176,7 +176,7 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
                   contentType: "application/vnd.android.package-archive",
                 });
                 await send("install", { text: blob.url });
-                setNote("הקובץ נשלח. הוא נשמר בתיקיית Download על הסטרימר, ומותקן משם.");
+                setNote("הקובץ נשלח. הוא יישמר בתיקיית Download של הסטרימר.");
                 setBusy("");
               }).catch(() => {
                 setNote("העלאת הקובץ נכשלה");
