@@ -1,16 +1,16 @@
 .layout-luxury.stage,
 .layout-luxury.stage.no-ticker {
-  grid-template-columns: 340px minmax(0, 1fr);
-  grid-template-rows: minmax(0, 1fr) 92px;
-  gap: 12px;
-  padding: 14px;
+  grid-template-columns: 286px minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) 78px;
+  gap: 10px;
+  padding: 12px;
   background: #252525;
   color: #F4F1ED;
 }
 .layout-luxury .slide {
   grid-column: 2;
   grid-row: 1;
-  border-radius: 18px;
+  border-radius: 16px;
   overflow: hidden;
 }
 .layout-luxury .slide-image { object-fit: contain; background: #252525; }
@@ -32,7 +32,7 @@
   color: #F4F1ED;
   background: #252525;
   border: 1px solid #5c4e48;
-  border-radius: 18px;
+  border-radius: 16px;
 }
 .layout-luxury .lux-clock {
   display: block;
@@ -58,7 +58,18 @@
 .layout-luxury .lux-weather span + span { margin-inline-start: 14px; }
 .layout-luxury .lux-sun { width: 16px; height: 16px; border-radius: 50%; background: #e6d3ae; }
 .layout-luxury .lux-rule { width: 100%; height: 1px; margin: 12px 0 0; border: 0; background: #e6d3ae; }
-.layout-luxury .lux-chips { display: flex; flex-wrap: nowrap; justify-content: stretch; gap: 4px; margin-top: 10px; }
+.layout-luxury .lux-top,
+.layout-luxury .lux-feed,
+.layout-luxury .lux-item,
+.layout-luxury .lux-chips {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: stretch;
+  gap: 4px;
+  margin-top: 10px;
+  min-width: 0;
+  max-width: 100%;
+}
 .layout-luxury .lux-chips span {
   flex: 1 1 0;
   min-width: 0;
@@ -113,9 +124,9 @@
   grid-column: 2;
   grid-row: 2;
   display: grid;
-  grid-template-columns: minmax(0, 680px) 148px;
-  justify-content: center;
-  gap: 12px;
+  grid-template-columns: minmax(0, 1fr) 118px;
+  justify-content: stretch;
+  gap: 10px;
   min-width: 0;
 }
 .layout-luxury .lux-address {
@@ -126,7 +137,7 @@
   gap: 6px;
   min-width: 0;
   padding: 0 24px;
-  border-radius: 18px;
+  border-radius: 16px;
   background: #5A1F2B;
   color: #F4F1ED;
   direction: rtl;
@@ -135,7 +146,7 @@
 }
 .layout-luxury .lux-address small {
   color: #e6d3ae;
-  font-size: 18px;
+  font-size: 15px;
   font-weight: 300;
   letter-spacing: 0.12em;
 }
@@ -145,7 +156,7 @@
   justify-content: center;
   gap: 0;
   max-width: 100%;
-  font-size: 32px;
+  font-size: 26px;
   font-weight: 400;
   line-height: 1.15;
 }
@@ -171,7 +182,7 @@
   padding: 0;
   overflow: hidden;
   border: 1px solid #e6d3ae;
-  border-radius: 18px;
+  border-radius: 16px;
   background: #252525;
   text-align: center;
 }
