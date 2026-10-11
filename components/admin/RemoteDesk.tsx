@@ -7,6 +7,7 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
   const [shot, setShot] = useState("");
   const [size, setSize] = useState({ w: 0, h: 0 });
   const [waiting, setWaiting] = useState(true);
+  const [live, setLive] = useState(false);
   const [text, setText] = useState("");
   const [apps, setApps] = useState<{ name: string; package: string }[]>([]);
   const [note, setNote] = useState("");
@@ -32,6 +33,7 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
               setShell(data.shell || "");
               setShellOpen(!!data.shellOpen);
               if (data.log) setLog(data.log);
+              setLive(!!data.online);
             }
           }
         } catch {
@@ -120,7 +122,7 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
         <input value={text} onChange={(event) => setText(event.target.value)} placeholder="טקסט באנגלית" style={{ padding: 8 }} />
         <button type="submit">שליחה</button>
       </form>
-      {waiting ? <p>ממתינים שהסטרימר יתחבר. צריך להתקין את אפליקציה 7.1.3 ומעלה.</p> : null}
+      {waiting ? <p>{live ? "האפליקציה פועלת. התמונה עולה עוד רגע." : "החיבור מתחיל לבד כשהאפליקציה נפתחת על הסטרימר."}</p> : null}
       {shot ? (
         <img
           ref={imgRef}

@@ -15,7 +15,7 @@ export async function GET(request: Request) {
   const id = await screenId(request);
   if (!id) return NextResponse.json({ watch: false });
   const desk = await prisma.remoteDesk.findUnique({ where: { screenId: id }, select: { watchedAt: true } });
-  const watch = !!desk && Date.now() - desk.watchedAt.getTime() < 12000;
+  const watch = !!desk && Date.now() - desk.watchedAt.getTime() < 20000;
   const take = new URL(request.url).searchParams.get("take") === "1";
   const commands = take && watch ? await takeCommands(id) : [];
   return NextResponse.json({ watch, commands }, { headers: { "Cache-Control": "no-store" } });

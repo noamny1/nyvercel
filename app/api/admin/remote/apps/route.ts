@@ -20,11 +20,13 @@ export async function GET(request: Request) {
   } catch {
     apps = [];
   }
+  const status = await prisma.deviceStatus.findUnique({ where: { screenId }, select: { at: true } });
   return NextResponse.json({
     apps,
     note: desk?.note || "",
     shell: desk?.shellOut || "",
     shellOpen: !!desk?.shellUntil && desk.shellUntil.getTime() > Date.now(),
     log: desk?.logOut || "",
+    online: !!status && Date.now() - status.at.getTime() < 120000,
   }, { headers: { "Cache-Control": "no-store" } });
 }
