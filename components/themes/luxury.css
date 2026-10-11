@@ -1,6 +1,6 @@
 .layout-luxury.stage,
 .layout-luxury.stage.no-ticker {
-  grid-template-columns: 286px minmax(0, 1fr);
+  grid-template-columns: 330px minmax(0, 1fr);
   grid-template-rows: minmax(0, 1fr) 78px;
   gap: 10px;
   padding: 12px;
@@ -70,25 +70,32 @@
   min-width: 0;
   max-width: 100%;
 }
+.layout-luxury .lux-clock,
+.layout-luxury .lux-civil,
+.layout-luxury .lux-hebrew,
+.layout-luxury .lux-weather,
+.layout-luxury .lux-chips {
+  width: 100%;
+}
 .layout-luxury .lux-chips {
   display: flex;
-  flex-wrap: nowrap;
-  justify-content: stretch;
-  gap: 4px;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 6px;
   margin-top: 10px;
   min-width: 0;
   max-width: 100%;
 }
 .layout-luxury .lux-chips span {
-  flex: 1 1 0;
+  flex: 0 0 auto;
   min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  overflow: visible;
+  text-overflow: clip;
   white-space: nowrap;
   text-align: center;
   border: 1px solid #e6d3ae;
   border-radius: 999px;
-  padding: 3px 6px;
+  padding: 4px 10px;
   color: #F4F1ED;
   font-size: 11px;
   font-weight: 300;
