@@ -60,13 +60,16 @@ export async function GET(request: Request) {
   const watch = watching && (who === "keeper" || !keeperFresh);
   const needFrame = watch && (!desk?.frameAt || Date.now() - desk.frameAt.getTime() > 2500);
   const take = new URL(request.url).searchParams.get("take") === "1";
-  const commands = take && (who === "keeper" || !keeperFresh) ? await takeCommands(id) : [];
+  const commands = take && who === "keeper" ? await takeCommands(id) : [];
   return NextResponse.json({ found: true, watch, needFrame, commands }, { headers: { "Cache-Control": "no-store" } });
 }
 
 export async function POST(request: Request) {
   const id = await screenId(request);
   if (!id) return NextResponse.json({ commands: [] }, { status: 404 });
+  if (new URL(request.url).searchParams.get("who") !== "keeper") {
+    return NextResponse.json({ ok: true });
+  }
   const type = request.headers.get("content-type") || "";
   if (type.includes("application/json")) {
     const body = await request.json().catch(() => null) as { note?: string } | null;
