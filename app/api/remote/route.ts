@@ -16,7 +16,9 @@ export async function GET(request: Request) {
   if (!id) return NextResponse.json({ watch: false });
   const desk = await prisma.remoteDesk.findUnique({ where: { screenId: id }, select: { watchedAt: true } });
   const watch = !!desk && Date.now() - desk.watchedAt.getTime() < 12000;
-  return NextResponse.json({ watch }, { headers: { "Cache-Control": "no-store" } });
+  const take = new URL(request.url).searchParams.get("take") === "1";
+  const commands = take && watch ? await takeCommands(id) : [];
+  return NextResponse.json({ watch, commands }, { headers: { "Cache-Control": "no-store" } });
 }
 
 export async function POST(request: Request) {
@@ -31,22 +33,24 @@ export async function POST(request: Request) {
     update: { frame: bytes, frameAt: new Date(), width, height },
     create: { screenId: id, frame: bytes, frameAt: new Date(), width, height },
   });
+  return NextResponse.json({ ok: true }, { headers: { "Cache-Control": "no-store" } });
+}
+
+async function takeCommands(screenId: number) {
   const commands = await prisma.remoteCommand.findMany({
-    where: { screenId: id },
+    where: { screenId },
     orderBy: { id: "asc" },
-    take: 6,
+    take: 4,
   });
   if (commands.length) {
     await prisma.remoteCommand.deleteMany({ where: { id: { in: commands.map((item) => item.id) } } });
   }
-  return NextResponse.json({
-    commands: commands.map((item) => ({
-      op: item.op,
-      x: item.x,
-      y: item.y,
-      x2: item.x2,
-      y2: item.y2,
-      text: item.text,
-    })),
-  }, { headers: { "Cache-Control": "no-store" } });
+  return commands.map((item) => ({
+    op: item.op,
+    x: item.x,
+    y: item.y,
+    x2: item.x2,
+    y2: item.y2,
+    text: item.text,
+  }));
 }

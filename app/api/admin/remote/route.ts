@@ -4,7 +4,7 @@ import { isSystemAdmin, requireSession } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 
-const OPS = new Set(["tap", "key", "text", "swipe", "reboot"]);
+const OPS = new Set(["tap", "key", "text", "swipe", "reboot", "apps", "uninstall", "install"]);
 
 async function admin() {
   const session = await requireSession();
@@ -51,6 +51,16 @@ export async function POST(request: Request) {
   if (!screenId || !OPS.has(op)) return NextResponse.json({ error: "bad" }, { status: 400 });
   const screen = await prisma.screen.findUnique({ where: { id: screenId }, select: { id: true } });
   if (!screen) return NextResponse.json({ error: "missing" }, { status: 404 });
+  const raw = String(body?.text || "");
+  if (op === "install" && !/^https:\/\/[a-z0-9.-]+\.blob\.vercel-storage\.com\/.+\.apk(\?.*)?$/i.test(raw)) {
+    return NextResponse.json({ error: "bad file" }, { status: 400 });
+  }
+  if (op === "uninstall" && !/^[a-zA-Z][a-zA-Z0-9_]*(\.[a-zA-Z][a-zA-Z0-9_]*)+$/.test(raw)) {
+    return NextResponse.json({ error: "bad package" }, { status: 400 });
+  }
+  if (op === "uninstall" && (raw === "com.example.nymediaapp" || raw === "android" || raw.startsWith("com.android."))) {
+    return NextResponse.json({ error: "protected" }, { status: 400 });
+  }
   const num = (value: number | undefined) => Math.max(0, Math.min(8000, Math.round(Number(value) || 0)));
   await prisma.remoteDesk.upsert({
     where: { screenId },
@@ -65,7 +75,7 @@ export async function POST(request: Request) {
       y: num(body?.y),
       x2: num(body?.x2),
       y2: num(body?.y2),
-      text: String(body?.text || "").slice(0, 80),
+      text: raw.slice(0, op === "install" ? 500 : 80),
     },
   });
   return NextResponse.json({ ok: true });

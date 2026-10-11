@@ -8,6 +8,34 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
   const [size, setSize] = useState({ w: 0, h: 0 });
   const [waiting, setWaiting] = useState(true);
   const [text, setText] = useState("");
+  const [apps, setApps] = useState<{ name: string; package: string }[]>([]);
+  const [note, setNote] = useState("");
+  const [busy, setBusy] = useState("");
+
+  useEffect(() => {
+    let stop = false;
+    const tick = async () => {
+      while (!stop) {
+        try {
+          const response = await fetch(`/api/admin/remote/apps?screenId=${screenId}`, { cache: "no-store" });
+          if (response.ok) {
+            const data = await response.json();
+            if (!stop) {
+              setApps(Array.isArray(data.apps) ? data.apps : []);
+              if (data.note) setNote(data.note);
+            }
+          }
+        } catch {
+          // The next poll retries.
+        }
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+      }
+    };
+    tick();
+    return () => {
+      stop = true;
+    };
+  }, [screenId]);
 
   useEffect(() => {
     let stop = false;
@@ -81,7 +109,7 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
         <input value={text} onChange={(event) => setText(event.target.value)} placeholder="טקסט באנגלית" style={{ padding: 8 }} />
         <button type="submit">שליחה</button>
       </form>
-      {waiting ? <p>ממתינים שהסטרימר יתחבר. צריך להתקין את אפליקציה 7.1.0 ומעלה.</p> : null}
+      {waiting ? <p>ממתינים שהסטרימר יתחבר. צריך להתקין את אפליקציה 7.1.1 ומעלה.</p> : null}
       {shot ? (
         <img
           ref={imgRef}
@@ -91,6 +119,56 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
           style={{ width: "100%", maxWidth: 1100, height: "auto", background: "#111", cursor: "crosshair", borderRadius: 12 }}
         />
       ) : null}
+      <h2 style={{ marginTop: 28 }}>אפליקציות על הסטרימר</h2>
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", margin: "12px 0" }}>
+        <button type="button" onClick={() => { setNote("מבקשים את הרשימה…"); send("apps"); }}>רענון רשימה</button>
+        <label style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          התקנת APK
+          <input
+            type="file"
+            accept=".apk,application/vnd.android.package-archive"
+            disabled={busy !== ""}
+            onChange={(event) => {
+              const file = event.target.files?.[0];
+              event.target.value = "";
+              if (!file) return;
+              setBusy("מעלים את הקובץ…");
+              void import("@vercel/blob/client").then(async ({ upload }) => {
+                const blob = await upload(file.name.endsWith(".apk") ? file.name : `${file.name}.apk`, file, {
+                  access: "public",
+                  handleUploadUrl: "/api/admin/remote/apk",
+                  contentType: "application/vnd.android.package-archive",
+                });
+                await send("install", { text: blob.url });
+                setNote("הקובץ נשלח לסטרימר. ההתקנה לוקחת כדקה.");
+                setBusy("");
+              }).catch(() => {
+                setNote("העלאת הקובץ נכשלה");
+                setBusy("");
+              });
+            }}
+          />
+        </label>
+      </div>
+      {busy ? <p>{busy}</p> : null}
+      {note ? <p>{note}</p> : null}
+      <div style={{ display: "grid", gap: 8, maxWidth: 720 }}>
+        {apps.map((app) => (
+          <div key={app.package} style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "center" }}>
+            <span>{app.name}<br /><small>{app.package}</small></span>
+            <button
+              type="button"
+              onClick={() => {
+                if (!confirm(`למחוק את ${app.name}?`)) return;
+                setNote("מוחקים…");
+                send("uninstall", { text: app.package });
+              }}
+            >
+              מחיקה
+            </button>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

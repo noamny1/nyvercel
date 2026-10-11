@@ -100,6 +100,8 @@ model RemoteDesk {
   frameAt   DateTime?
   width     Int      @default(0)
   height    Int      @default(0)
+  apps      String   @default("")
+  note      String   @default("")
 }
 
 model RemoteCommand {
