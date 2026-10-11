@@ -20,13 +20,22 @@ export async function GET(request: Request) {
   } catch {
     apps = [];
   }
-  const screen = await prisma.screen.findUnique({
-    where: { id: screenId },
-    select: { heartbeat: { select: { at: true } }, remoteDesk: { select: { seenAt: true } } },
-  });
-  const now = Date.now();
-  const screenOn = !!screen?.heartbeat && now - screen.heartbeat.at.getTime() < 8 * 60 * 1000;
-  const remoteOn = !!screen?.remoteDesk?.seenAt && now - screen.remoteDesk.seenAt.getTime() < 30000;
+  let screenOn = false;
+  let remoteOn = false;
+  try {
+    const beat = await prisma.heartbeat.findUnique({ where: { screenId } });
+    screenOn = !!beat && Date.now() - beat.at.getTime() < 8 * 60 * 1000;
+  } catch {
+    screenOn = false;
+  }
+  try {
+    const link = await prisma.remoteDesk.findUnique({ where: { screenId }, select: { seenAt: true, frameAt: true } });
+    const now = Date.now();
+    remoteOn = (!!link?.seenAt && now - link.seenAt.getTime() < 30000)
+      || (!!link?.frameAt && now - link.frameAt.getTime() < 20000);
+  } catch {
+    remoteOn = false;
+  }
   return NextResponse.json({
     apps,
     note: desk?.note || "",

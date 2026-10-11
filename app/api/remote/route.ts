@@ -13,18 +13,32 @@ async function screenId(request: Request) {
 
 export async function GET(request: Request) {
   const id = await screenId(request);
-  if (!id) return NextResponse.json({ watch: false });
+  if (!id) return NextResponse.json({ watch: false, needFrame: false });
   const now = new Date();
-  await prisma.remoteDesk.upsert({
-    where: { screenId: id },
-    update: { seenAt: now },
-    create: { screenId: id, seenAt: now },
-  });
-  const desk = await prisma.remoteDesk.findUnique({ where: { screenId: id }, select: { watchedAt: true } });
+  try {
+    await prisma.heartbeat.upsert({
+      where: { screenId: id },
+      update: { at: now },
+      create: { screenId: id, at: now },
+    });
+  } catch {
+    // The screen can still be watched if the heartbeat table is briefly unavailable.
+  }
+  try {
+    await prisma.remoteDesk.upsert({
+      where: { screenId: id },
+      update: { seenAt: now },
+      create: { screenId: id, seenAt: now },
+    });
+  } catch {
+    // seenAt is optional. A missing column must not stop the screenshot channel.
+  }
+  const desk = await prisma.remoteDesk.findUnique({ where: { screenId: id }, select: { watchedAt: true, frameAt: true } });
   const watch = !!desk && Date.now() - desk.watchedAt.getTime() < 20000;
+  const needFrame = watch && (!desk?.frameAt || Date.now() - desk.frameAt.getTime() > 2500);
   const take = new URL(request.url).searchParams.get("take") === "1";
   const commands = take && watch ? await takeCommands(id) : [];
-  return NextResponse.json({ watch, commands }, { headers: { "Cache-Control": "no-store" } });
+  return NextResponse.json({ watch, needFrame, commands }, { headers: { "Cache-Control": "no-store" } });
 }
 
 export async function POST(request: Request) {

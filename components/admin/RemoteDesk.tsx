@@ -96,7 +96,7 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
   return (
     <div>
       <p>התמונה מתעדכנת כל שנייה בערך. לחיצה על התמונה לוחצת על הסטרימר.</p>
-      <p><b>{remoteOn ? "מחובר" : live ? "המסך דולק, השליטה עדיין לא מחוברת" : "לא מחובר"}</b></p>
+      <p><b>{live || remoteOn ? "מחובר" : "לא מחובר"}</b></p>
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap", margin: "12px 0" }}>
         <button type="button" onClick={() => send("key", { text: "4" })}>אחורה</button>
         <button type="button" onClick={() => send("key", { text: "3" })}>מסך הבית</button>
@@ -118,7 +118,7 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
         <input value={text} onChange={(event) => setText(event.target.value)} placeholder="טקסט באנגלית" style={{ padding: 8 }} />
         <button type="submit">שליחה</button>
       </form>
-      {waiting ? <p>{remoteOn ? "מחובר. התמונה עולה עוד רגע." : live ? "המסך דולק, אבל האפליקציה עדיין לא שולחת שליטה." : "לא מחובר. האפליקציה על הסטרימר לא פתוחה."}</p> : null}
+      {waiting ? <p>{live || remoteOn ? "מחובר. התמונה עולה עוד רגע." : "לא מחובר. האפליקציה על הסטרימר לא שולחת אות."}</p> : null}
       {shot ? (
         <img
           ref={imgRef}

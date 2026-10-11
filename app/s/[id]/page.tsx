@@ -5,6 +5,7 @@ import { FitStage } from "@/components/player/FitStage";
 import { Music } from "@/components/player/Music";
 import { Wake } from "@/components/player/Wake";
 import { Ping } from "@/components/player/Ping";
+import { RemoteLink } from "@/components/player/RemoteLink";
 import { NewsGate } from "@/components/player/NewsGate";
 import { Clock } from "@/components/widgets/Clock";
 import { Directory } from "@/components/widgets/Directory";
@@ -105,6 +106,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
       <main className="takeover">
         <Wake />
         <Ping code={screen.code || screen.id} revision={screen.revision} />
+        <RemoteLink code={screen.code || screen.id} />
         <img src={takeover.image} alt="" />
       </main>
     );
@@ -116,6 +118,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
       <NewsGate mode={newsMode} />
       <Wake />
       <Ping code={screen.code || screen.id} revision={screen.revision} />
+      <RemoteLink code={screen.code || screen.id} />
       <section className="slide">
         {indexTheme && visible.length === 0 ? (
           <div className="index-board">
