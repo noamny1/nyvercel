@@ -25,16 +25,19 @@ export async function GET(request: Request) {
     update: { watchedAt: new Date() },
     create: { screenId, watchedAt: new Date() },
   });
-  const desk = await prisma.remoteDesk.findUnique({ where: { screenId } });
-  if (!desk?.frame) return new NextResponse(null, { status: 204 });
-  return new NextResponse(new Uint8Array(desk.frame), {
-    headers: {
-      "Content-Type": "image/jpeg",
-      "Cache-Control": "no-store",
-      "X-Remote-W": String(desk.width || 0),
-      "X-Remote-H": String(desk.height || 0),
-    },
+  const desk = await prisma.remoteDesk.findUnique({
+    where: { screenId },
+    select: { frame: true, width: true, height: true },
   });
+  if (!desk?.frame || desk.frame.byteLength < 32) return NextResponse.json({ image: "" });
+  const bytes = Buffer.from(desk.frame);
+  const mime = bytes[0] === 0x89 && bytes[1] === 0x50 ? "image/png" : "image/jpeg";
+  return NextResponse.json({
+    image: bytes.toString("base64"),
+    mime,
+    w: desk.width || 0,
+    h: desk.height || 0,
+  }, { headers: { "Cache-Control": "no-store" } });
 }
 
 export async function POST(request: Request) {

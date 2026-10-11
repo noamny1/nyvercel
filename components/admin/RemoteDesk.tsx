@@ -45,23 +45,19 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
 
   useEffect(() => {
     let stop = false;
-    let current = "";
     const tick = async () => {
       while (!stop) {
         try {
           const response = await fetch(`/api/admin/remote?screenId=${screenId}`, { cache: "no-store" });
-          if (response.status === 200) {
-            const w = Number(response.headers.get("X-Remote-W")) || 0;
-            const h = Number(response.headers.get("X-Remote-H")) || 0;
-            const blob = await response.blob();
-            const url = URL.createObjectURL(blob);
-            if (current) URL.revokeObjectURL(current);
-            current = url;
-            if (!stop) {
-              setShot(url);
-              setSize({ w, h });
-              setWaiting(false);
-            }
+          if (!response.ok) {
+            await new Promise((resolve) => setTimeout(resolve, 1500));
+            continue;
+          }
+          const data = await response.json() as { image?: string; mime?: string; w?: number; h?: number };
+          if (data.image && !stop) {
+            setShot(`data:${data.mime || "image/jpeg"};base64,${data.image}`);
+            setSize({ w: Number(data.w) || 0, h: Number(data.h) || 0 });
+            setWaiting(false);
           }
         } catch {
           // The next poll retries.
@@ -72,7 +68,6 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
     tick();
     return () => {
       stop = true;
-      if (current) URL.revokeObjectURL(current);
     };
   }, [screenId]);
 
