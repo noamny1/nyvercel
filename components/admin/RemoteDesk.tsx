@@ -9,7 +9,6 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
   const [waiting, setWaiting] = useState(true);
   const [live, setLive] = useState(false);
   const [remoteOn, setRemoteOn] = useState(false);
-  const [text, setText] = useState("");
   const [apps, setApps] = useState<{ name: string; package: string }[]>([]);
   const [note, setNote] = useState("");
   const [busy, setBusy] = useState("");
@@ -142,17 +141,6 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
           מחיקת NYmedia
         </button>
       </div>
-      <form
-        style={{ display: "flex", gap: 8, marginBottom: 12 }}
-        onSubmit={(event) => {
-          event.preventDefault();
-          if (text.trim()) send("text", { text: text.trim() });
-          setText("");
-        }}
-      >
-        <input value={text} onChange={(event) => setText(event.target.value)} placeholder="טקסט באנגלית" style={{ padding: 8 }} />
-        <button type="submit">שליחה</button>
-      </form>
       {waiting && pictures ? <p>{live || remoteOn ? "מחובר. התמונה עולה עוד רגע." : "לא מחובר. האפליקציה על הסטרימר לא שולחת אות."}</p> : null}
       {shot ? (
         <img
