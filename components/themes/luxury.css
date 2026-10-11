@@ -10,7 +10,7 @@
 .layout-luxury .slide {
   grid-column: 2;
   grid-row: 1;
-  border-radius: 28px;
+  border-radius: 18px;
   overflow: hidden;
 }
 .layout-luxury .slide-image { object-fit: contain; background: #252525; }
@@ -32,7 +32,7 @@
   color: #F4F1ED;
   background: #252525;
   border: 1px solid #5c4e48;
-  border-radius: 28px;
+  border-radius: 18px;
 }
 .layout-luxury .lux-clock {
   display: block;
@@ -126,7 +126,7 @@
   gap: 6px;
   min-width: 0;
   padding: 0 24px;
-  border-radius: 28px;
+  border-radius: 18px;
   background: #5A1F2B;
   color: #F4F1ED;
   direction: rtl;
@@ -171,7 +171,7 @@
   padding: 0;
   overflow: hidden;
   border: 1px solid #e6d3ae;
-  border-radius: 28px;
+  border-radius: 18px;
   background: #252525;
   text-align: center;
 }
