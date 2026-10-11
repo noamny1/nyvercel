@@ -13,7 +13,7 @@ async function screenId(request: Request) {
 
 export async function GET(request: Request) {
   const id = await screenId(request);
-  if (!id) return NextResponse.json({ watch: false, needFrame: false });
+  if (!id) return NextResponse.json({ found: false, watch: false, needFrame: false, commands: [] });
   const now = new Date();
   const who = new URL(request.url).searchParams.get("who");
   if (who !== "keeper") {
@@ -48,14 +48,20 @@ export async function GET(request: Request) {
       // seenAt is optional. A missing column must not stop the screenshot channel.
     }
   }
-  const desk = await prisma.remoteDesk.findUnique({ where: { screenId: id }, select: { watchedAt: true, frameAt: true, keeperAt: true } });
+  let desk: { watchedAt: Date; frameAt: Date | null; keeperAt: Date | null } | null = null;
+  try {
+    desk = await prisma.remoteDesk.findUnique({ where: { screenId: id }, select: { watchedAt: true, frameAt: true, keeperAt: true } });
+  } catch {
+    const basic = await prisma.remoteDesk.findUnique({ where: { screenId: id }, select: { watchedAt: true, frameAt: true } });
+    desk = basic ? { watchedAt: basic.watchedAt, frameAt: basic.frameAt, keeperAt: null } : null;
+  }
   const keeperFresh = !!desk?.keeperAt && Date.now() - desk.keeperAt.getTime() < 30000;
   const watching = !!desk && Date.now() - desk.watchedAt.getTime() < 20000;
   const watch = watching && (who === "keeper" || !keeperFresh);
   const needFrame = watch && (!desk?.frameAt || Date.now() - desk.frameAt.getTime() > 2500);
   const take = new URL(request.url).searchParams.get("take") === "1";
   const commands = take && watch ? await takeCommands(id) : [];
-  return NextResponse.json({ watch, needFrame, commands }, { headers: { "Cache-Control": "no-store" } });
+  return NextResponse.json({ found: true, watch, needFrame, commands }, { headers: { "Cache-Control": "no-store" } });
 }
 
 export async function POST(request: Request) {
