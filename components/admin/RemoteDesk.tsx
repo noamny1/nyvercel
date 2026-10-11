@@ -6,6 +6,7 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
   const imgRef = useRef<HTMLImageElement>(null);
   const [shot, setShot] = useState("");
   const [size, setSize] = useState({ w: 0, h: 0 });
+  const [fresh, setFresh] = useState("");
   const [note, setNote] = useState("");
   const [busy, setBusy] = useState("");
   const [keeperOn, setKeeperOn] = useState(false);
@@ -48,7 +49,7 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
             if (data.image && !stop) {
               setShot(`data:${data.mime || "image/jpeg"};base64,${data.image}`);
               setSize({ w: Number(data.w) || 0, h: Number(data.h) || 0 });
-              if (data.at) setNote(`תמונה עדכנית, לפני ${Math.max(0, Math.round((Date.now() - data.at) / 1000))} שניות`);
+              if (data.at) setFresh(`תמונה עדכנית, לפני ${Math.max(0, Math.round((Date.now() - data.at) / 1000))} שניות`);
             }
           }
         } catch {
@@ -97,9 +98,21 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
         <b>{!keeperChecked ? "בודקים גישה…" : keeperOn ? "גישה פעילה" : "אין גישה"}</b>
       </p>
       <p>זה המסך של {title}. לחיצה על התמונה לוחצת באותו מקום בסטרימר.</p>
-      <div style={{ display: "flex", gap: 8, margin: "12px 0" }}>
+      <div style={{ display: "flex", gap: 8, margin: "12px 0", flexWrap: "wrap" }}>
         <button type="button" onClick={() => send("key", { text: "4" })}>אחורה</button>
         <button type="button" onClick={() => send("key", { text: "3" })}>מסך הבית</button>
+        <button type="button" onClick={() => send("key", { text: "24" })}>ווליום למעלה</button>
+        <button type="button" onClick={() => send("key", { text: "25" })}>ווליום למטה</button>
+        <button type="button" onClick={() => send("frames", { text: "0" })}>עצירת תמונות</button>
+        <button type="button" onClick={() => send("frames", { text: "1" })}>הפעלת תמונות</button>
+        <button
+          type="button"
+          onClick={() => {
+            if (window.confirm("למחוק את NYMEDIA מהסטרימר?")) void send("uninstall", { text: "com.example.nymediaapp" });
+          }}
+        >
+          מחיקת NYMEDIA
+        </button>
       </div>
       {shot ? (
         <img
@@ -138,6 +151,7 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
           }}
         />
       </label>
+      {fresh ? <p>{fresh}</p> : null}
       {busy ? <p>{busy}</p> : null}
       {note ? <p>{note}</p> : null}
     </div>

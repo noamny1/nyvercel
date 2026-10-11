@@ -6,7 +6,7 @@ import { open, verifyTotp } from "@/lib/totp";
 
 export const dynamic = "force-dynamic";
 
-const OPS = new Set(["tap", "key", "text", "swipe", "reboot", "apps", "uninstall", "install", "shell", "shell-open", "relaunch", "log"]);
+const OPS = new Set(["tap", "key", "text", "swipe", "reboot", "apps", "uninstall", "install", "shell", "shell-open", "relaunch", "log", "frames"]);
 
 async function admin() {
   const session = await requireSession();
