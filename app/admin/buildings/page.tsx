@@ -79,6 +79,23 @@ export default async function BuildingsPage({ searchParams }: { searchParams: Pr
       </form>
       ) : null}
       {owner ? (
+        <form className="card" action={createListedScreen}>
+          <h2>מסך חדש</h2>
+          <div className="row">
+            <label>רחוב<input name="street" required /></label>
+            <label>מספר<input name="number" required /></label>
+            <label>עיר<input name="city" required /></label>
+            <label>קבוצה
+              <select name="groupId" defaultValue="">
+                <option value="">בלי קבוצה</option>
+                {groups.map((group) => <option key={group.id} value={group.id}>{group.name}</option>)}
+              </select>
+            </label>
+            <button type="submit">יצירה</button>
+          </div>
+        </form>
+      ) : null}
+      {owner ? (
       <div className="table-wrap">
         <table className="screen-table">
           <thead>
@@ -159,23 +176,6 @@ export default async function BuildingsPage({ searchParams }: { searchParams: Pr
           }))}
         />
       )}
-      {owner ? (
-        <form className="card" action={createListedScreen}>
-          <h2>מסך חדש</h2>
-          <div className="row">
-            <label>רחוב<input name="street" required /></label>
-            <label>מספר<input name="number" required /></label>
-            <label>עיר<input name="city" required /></label>
-            <label>קבוצה
-              <select name="groupId" defaultValue="">
-                <option value="">בלי קבוצה</option>
-                {groups.map((group) => <option key={group.id} value={group.id}>{group.name}</option>)}
-              </select>
-            </label>
-            <button type="submit">יצירה</button>
-          </div>
-        </form>
-      ) : null}
     </main>
   );
 }
