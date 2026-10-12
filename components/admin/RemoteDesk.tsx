@@ -12,6 +12,7 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
   const [busy, setBusy] = useState("");
   const [keeperOn, setKeeperOn] = useState(false);
   const [keeperChecked, setKeeperChecked] = useState(false);
+  const [live, setLive] = useState(false);
 
   useEffect(() => {
     let stop = false;
@@ -40,6 +41,7 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
   }, [screenId]);
 
   useEffect(() => {
+    if (!live) return;
     let stop = false;
     const tick = async () => {
       while (!stop) {
@@ -67,7 +69,7 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
       stop = true;
       void fetch(`/api/admin/remote?screenId=${screenId}&watch=0`, { cache: "no-store" });
     };
-  }, [screenId]);
+  }, [screenId, live]);
 
   async function send(op: string, extra: Record<string, number | string> = {}) {
     await fetch("/api/admin/remote", {
@@ -100,6 +102,17 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
           }}
         />
         <b>{!keeperChecked ? "בודקים גישה…" : keeperOn ? "גישה פעילה" : "אין גישה"}</b>
+        <span
+          style={{
+            width: 18,
+            height: 18,
+            borderRadius: "50%",
+            display: "inline-block",
+            background: live ? "#1faa4a" : "#d12626",
+            boxShadow: `0 0 12px ${live ? "#1faa4a" : "#d12626"}`,
+          }}
+        />
+        <b>{live ? "חיבור פתוח" : "חיבור סגור"}</b>
       </p>
       <p>זה המסך של {title}. לחיצה על התמונה לוחצת באותו מקום בסטרימר.</p>
       <div style={{ display: "flex", gap: 8, margin: "12px 0", flexWrap: "wrap" }}>
@@ -107,8 +120,16 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
         <button type="button" onClick={() => send("key", { text: "3" })}>מסך הבית</button>
         <button type="button" onClick={() => send("key", { text: "24" })}>ווליום למעלה</button>
         <button type="button" onClick={() => send("key", { text: "25" })}>ווליום למטה</button>
-        <button type="button" onClick={() => send("frames", { text: "0" })}>עצירת תמונות</button>
-        <button type="button" onClick={() => send("frames", { text: "1" })}>הפעלת תמונות</button>
+        <button
+          type="button"
+          onClick={() => {
+            const next = !live;
+            setLive(next);
+            void send("frames", { text: next ? "1" : "0" });
+          }}
+        >
+          {live ? "סגירת חיבור" : "פתיחת חיבור"}
+        </button>
         <button type="button" onClick={() => send("media", { text: "0" })}>עצירת NYMEDIA</button>
         <button type="button" onClick={() => send("media", { text: "1" })}>הפעלת NYMEDIA</button>
         <button
