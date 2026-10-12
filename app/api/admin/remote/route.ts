@@ -23,12 +23,24 @@ export async function GET(request: Request) {
   const url = new URL(request.url);
   const watchOff = url.searchParams.get("watch") === "0";
   const since = Number(url.searchParams.get("at") || 0);
+  const closedAt = Number(url.searchParams.get("t") || 0);
+  if (watchOff) {
+    const current = await prisma.remoteDesk.findUnique({ where: { screenId }, select: { watchedAt: true } });
+    const newer = !!current?.watchedAt && closedAt > 0 && current.watchedAt.getTime() > closedAt;
+    if (!newer) {
+      await prisma.remoteDesk.upsert({
+        where: { screenId },
+        update: { watchedAt: new Date(0) },
+        create: { screenId, watchedAt: new Date(0) },
+      });
+    }
+    return NextResponse.json({ image: "" });
+  }
   await prisma.remoteDesk.upsert({
     where: { screenId },
-    update: { watchedAt: watchOff ? new Date(0) : new Date() },
-    create: { screenId, watchedAt: watchOff ? new Date(0) : new Date() },
+    update: { watchedAt: new Date() },
+    create: { screenId, watchedAt: new Date() },
   });
-  if (watchOff) return NextResponse.json({ image: "" });
   const meta = await prisma.remoteDesk.findUnique({
     where: { screenId },
     select: { frameAt: true, width: true, height: true },

@@ -43,6 +43,7 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
   useEffect(() => {
     if (!live) return;
     let stop = false;
+    seenAt.current = 0;
     const tick = async () => {
       while (!stop) {
         try {
@@ -67,7 +68,7 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
     tick();
     return () => {
       stop = true;
-      void fetch(`/api/admin/remote?screenId=${screenId}&watch=0`, { cache: "no-store" });
+      void fetch(`/api/admin/remote?screenId=${screenId}&watch=0&t=${Date.now()}`, { cache: "no-store" });
     };
   }, [screenId, live]);
 
