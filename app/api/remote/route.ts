@@ -2,6 +2,50 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
+export const maxDuration = 10;
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function hold(id: number) {
+  const started = Date.now();
+  let touched = 0;
+  while (Date.now() - started < 8000) {
+    const now = new Date();
+    if (Date.now() - touched > 4000) {
+      touched = Date.now();
+      try {
+        await prisma.remoteDesk.upsert({
+          where: { screenId: id },
+          update: { seenAt: now, keeperAt: now },
+          create: { screenId: id, seenAt: now, keeperAt: now },
+        });
+      } catch {
+        // A missing column must not stop the live command channel.
+      }
+    }
+    const commands = await prisma.remoteCommand.findMany({
+      where: { screenId: id },
+      orderBy: { id: "asc" },
+      take: 8,
+    });
+    const desk = await prisma.remoteDesk.findUnique({ where: { screenId: id }, select: { watchedAt: true } });
+    const watching = !!desk && Date.now() - desk.watchedAt.getTime() < 20000;
+    if (commands.length || !watching) {
+      if (commands.length) {
+        await prisma.remoteCommand.deleteMany({ where: { id: { in: commands.map((item) => item.id) } } });
+      }
+      return NextResponse.json({
+        found: true,
+        watch: watching,
+        commands: commands.map((item) => ({ op: item.op, x: item.x, y: item.y, x2: item.x2, y2: item.y2, text: item.text })),
+      }, { headers: { "Cache-Control": "no-store" } });
+    }
+    await sleep(200);
+  }
+  return NextResponse.json({ found: true, watch: true, commands: [] }, { headers: { "Cache-Control": "no-store" } });
+}
 
 async function screenId(request: Request) {
   const key = Number(new URL(request.url).searchParams.get("code"));
@@ -14,8 +58,9 @@ async function screenId(request: Request) {
 export async function GET(request: Request) {
   const id = await screenId(request);
   if (!id) return NextResponse.json({ found: false, watch: false, needFrame: false, commands: [] });
-  const now = new Date();
   const who = new URL(request.url).searchParams.get("who");
+  if (who === "keeper" && new URL(request.url).searchParams.get("wait") === "1") return hold(id);
+  const now = new Date();
   if (who !== "keeper") {
     try {
       await prisma.heartbeat.upsert({

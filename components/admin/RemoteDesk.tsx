@@ -59,7 +59,7 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
         } catch {
           // The next poll retries.
         }
-        await new Promise((resolve) => setTimeout(resolve, 3000));
+        await new Promise((resolve) => setTimeout(resolve, 400));
       }
     };
     tick();
