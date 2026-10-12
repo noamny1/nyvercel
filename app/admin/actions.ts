@@ -327,6 +327,25 @@ export async function updateGroupNotice(formData: FormData) {
   redirect(`/admin/groups/${groupId}`);
 }
 
+async function starterScreen() {
+  const name = "נועם בדיקה 33";
+  const found = await prisma.screen.findMany({
+    where: {
+      OR: [
+        { name },
+        { name: { startsWith: `${name},` } },
+        { street: "נועם בדיקה", number: "33" },
+      ],
+    },
+    include: {
+      slides: { orderBy: { sort: "asc" } },
+      notices: { orderBy: { id: "asc" } },
+      group: { include: { slides: { orderBy: { sort: "asc" } }, notices: { orderBy: { id: "asc" } } } },
+    },
+  });
+  return found.find((screen) => screen.name === name) || found[0] || null;
+}
+
 export async function createListedScreen(formData: FormData) {
   await gate();
   const street = String(formData.get("street") || "").trim();
@@ -334,6 +353,9 @@ export async function createListedScreen(formData: FormData) {
   const city = String(formData.get("city") || "").trim();
   const groupId = Number(formData.get("groupId")) || null;
   const place = [street, number].filter(Boolean).join(" ");
+  const starter = await starterScreen();
+  const slides = starter && starter.slides.length > 0 ? starter.slides : starter?.group?.slides || [];
+  const notices = starter && starter.notices.length > 0 ? starter.notices : starter?.group?.notices || [];
   await prisma.screen.create({
     data: {
       name: [place, city].filter(Boolean).join(", ") || "מסך",
@@ -342,6 +364,33 @@ export async function createListedScreen(formData: FormData) {
       city,
       groupId,
       code: await nextCode(),
+      theme: starter?.theme || starter?.group?.theme || "modern",
+      logoUrl: starter?.logoUrl || starter?.group?.logoUrl || "",
+      newsSource: starter?.newsSource || starter?.group?.newsSource || "ynet",
+      newsCount: starter?.newsCount || 8,
+      tickerSeconds: starter?.tickerSeconds || 12,
+      newsTicker: starter?.newsTicker || "on",
+      feedMode: starter?.feedMode || "both",
+      musicPlaylist: starter?.musicPlaylist || "",
+      slides: {
+        create: slides.map((slide) => ({
+          imageUrl: slide.imageUrl,
+          kind: slide.kind,
+          templateId: slide.templateId,
+          title: slide.title,
+          detail: slide.detail,
+          meta: slide.meta,
+          sort: slide.sort,
+          duration: slide.duration,
+          active: slide.active,
+          weekdays: slide.weekdays,
+          startsOn: slide.startsOn,
+          endsOn: slide.endsOn,
+        })),
+      },
+      notices: {
+        create: notices.map((notice) => ({ text: notice.text, active: notice.active })),
+      },
     },
   });
   redirect("/admin/buildings");
