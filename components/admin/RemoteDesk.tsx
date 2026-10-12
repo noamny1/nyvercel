@@ -140,6 +140,14 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
         >
           מחיקת NYMEDIA
         </button>
+        <button
+          type="button"
+          onClick={() => {
+            if (window.confirm("לאתחל את הסטרימר?")) void send("reboot");
+          }}
+        >
+          אתחול סטרימר
+        </button>
       </div>
       {shot ? (
         <img
