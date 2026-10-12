@@ -151,7 +151,6 @@ function hebrewYear(year: number) {
   const ones = ["", "א", "ב", "ג", "ד", "ה", "ו", "ז", "ח", "ט"];
   const tens = ["", "י", "כ", "ל", "מ", "נ", "ס", "ע", "פ", "צ"];
   const hundreds = ["", "ק", "ר", "ש", "ת", "תק", "תר", "תש", "תת", "תתק"];
-  const thousands = Math.floor(year / 1000);
   let rest = year % 1000;
   const head = hundreds[Math.floor(rest / 100)] || "";
   rest %= 100;
@@ -162,8 +161,7 @@ function hebrewYear(year: number) {
     const letters = `${tens[Math.floor(rest / 10)] || ""}${ones[rest % 10] || ""}`;
     tail = letters.length < 2 ? `${letters}׳` : `${letters.slice(0, -1)}״${letters.slice(-1)}`;
   }
-  const body = head && tail ? `${head}${tail}` : `${head}${tail}`;
-  return `${thousands ? `${ones[thousands]}׳` : ""}${body}`;
+  return `${head}${tail}`;
 }
 
 function hebrewNumber(value: number) {
