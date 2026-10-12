@@ -126,7 +126,7 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
           src={shot}
           alt={title}
           onClick={tap}
-          style={{ width: "100%", maxWidth: 960, height: "auto", background: "#111", cursor: "crosshair", borderRadius: 12 }}
+          style={{ width: 480, maxWidth: "100%", height: "auto", background: "#111", cursor: "crosshair", borderRadius: 12 }}
         />
       ) : (
         <p>המסך עדיין לא מופיע. בסטרימר פותחים את NY Keeper ומאשרים את חלון הרוט, אפשר לצמיתות.</p>
