@@ -139,11 +139,31 @@ function blocks(news: Item[], notes: Item[]) {
 }
 
 function hebrewDate(date: Date) {
-  const parts = new Intl.DateTimeFormat("he-IL-u-ca-hebrew", { day: "numeric", month: "long" }).formatToParts(date);
+  const parts = new Intl.DateTimeFormat("he-IL-u-ca-hebrew", { day: "numeric", month: "long", year: "numeric" }).formatToParts(date);
   const day = Number(parts.find((part) => part.type === "day")?.value || "");
   const month = parts.find((part) => part.type === "month")?.value || "";
+  const year = Number(parts.find((part) => part.type === "year")?.value || "");
   if (!day || !month) return "";
-  return `${hebrewNumber(day)} ב${month}`;
+  return `${hebrewNumber(day)} ב${month}${year ? ` ${hebrewYear(year)}` : ""}`;
+}
+
+function hebrewYear(year: number) {
+  const ones = ["", "א", "ב", "ג", "ד", "ה", "ו", "ז", "ח", "ט"];
+  const tens = ["", "י", "כ", "ל", "מ", "נ", "ס", "ע", "פ", "צ"];
+  const hundreds = ["", "ק", "ר", "ש", "ת", "תק", "תר", "תש", "תת", "תתק"];
+  const thousands = Math.floor(year / 1000);
+  let rest = year % 1000;
+  const head = hundreds[Math.floor(rest / 100)] || "";
+  rest %= 100;
+  let tail = "";
+  if (rest === 15) tail = "ט״ו";
+  else if (rest === 16) tail = "ט״ז";
+  else if (rest > 0) {
+    const letters = `${tens[Math.floor(rest / 10)] || ""}${ones[rest % 10] || ""}`;
+    tail = letters.length < 2 ? `${letters}׳` : `${letters.slice(0, -1)}״${letters.slice(-1)}`;
+  }
+  const body = head && tail ? `${head}${tail}` : `${head}${tail}`;
+  return `${thousands ? `${ones[thousands]}׳` : ""}${body}`;
 }
 
 function hebrewNumber(value: number) {
