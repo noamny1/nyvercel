@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 
 export function RemoteDesk({ screenId, title }: { screenId: number; title: string }) {
   const imgRef = useRef<HTMLImageElement>(null);
+  const seenAt = useRef(0);
   const [shot, setShot] = useState("");
   const [size, setSize] = useState({ w: 0, h: 0 });
   const [fresh, setFresh] = useState("");
@@ -43,10 +44,13 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
     const tick = async () => {
       while (!stop) {
         try {
-          const response = await fetch(`/api/admin/remote?screenId=${screenId}`, { cache: "no-store" });
+          const response = await fetch(`/api/admin/remote?screenId=${screenId}&at=${seenAt.current}`, { cache: "no-store" });
           if (response.ok) {
-            const data = await response.json() as { image?: string; mime?: string; w?: number; h?: number; at?: number };
-            if (data.image && !stop) {
+            const data = await response.json() as { image?: string; mime?: string; w?: number; h?: number; at?: number; same?: boolean };
+            if (data.same && data.at) {
+              setFresh(`תמונה עדכנית, לפני ${Math.max(0, Math.round((Date.now() - data.at) / 1000))} שניות`);
+            } else if (data.image && !stop) {
+              seenAt.current = Number(data.at) || 0;
               setShot(`data:${data.mime || "image/jpeg"};base64,${data.image}`);
               setSize({ w: Number(data.w) || 0, h: Number(data.h) || 0 });
               if (data.at) setFresh(`תמונה עדכנית, לפני ${Math.max(0, Math.round((Date.now() - data.at) / 1000))} שניות`);
@@ -55,7 +59,7 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
         } catch {
           // The next poll retries.
         }
-        await new Promise((resolve) => setTimeout(resolve, 1500));
+        await new Promise((resolve) => setTimeout(resolve, 3000));
       }
     };
     tick();
