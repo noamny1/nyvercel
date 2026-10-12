@@ -81,7 +81,6 @@ const tracks: Record<PlaylistId, Track[]> = {
     { title: "Electro Cabello", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Electro%20Cabello.mp3" },
     { title: "Fiddles McGinty", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Fiddles%20McGinty.mp3" },
     { title: "Fireflies and Stardust", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Fireflies%20and%20Stardust.mp3" },
-    { title: "Flying Kerfuffle", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Flying%20Kerfuffle.mp3" },
     { title: "Fretless", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Fretless.mp3" },
     { title: "Galway", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Galway.mp3" },
     { title: "Glitter Blast", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Glitter%20Blast.mp3" },
