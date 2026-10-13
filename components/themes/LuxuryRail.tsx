@@ -15,6 +15,10 @@ export function LuxuryRail({
   sourceId = "",
   newsCount = 8,
   newsMode = "on",
+  compact = false,
+  initialTime = "",
+  initialCivil = "",
+  initialHebrew = "",
 }: {
   temp: number | null;
   weatherLabel: string;
@@ -24,18 +28,27 @@ export function LuxuryRail({
   sourceId?: string;
   newsCount?: number;
   newsMode?: string;
+  compact?: boolean;
+  initialTime?: string;
+  initialCivil?: string;
+  initialHebrew?: string;
 }) {
-  const [now, setNow] = useState<Date | null>(null);
+  const [time, setTime] = useState(initialTime);
+  const [civil, setCivil] = useState(initialCivil);
+  const [hebrew, setHebrew] = useState(initialHebrew);
   const [active, setActive] = useState("");
   const feedRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    setNow(new Date());
-    const timer = setInterval(() => setNow(new Date()), 1000);
+    const tick = () => {
+      const now = new Date();
+      setTime(clockText(now));
+      setCivil(civilDate(now));
+      setHebrew(hebrewDate(now));
+    };
+    tick();
+    const timer = setInterval(tick, 1000);
     return () => clearInterval(timer);
   }, []);
-  const time = now ? clockText(now) : "";
-  const civil = now ? civilDate(now) : "";
-  const hebrew = now ? hebrewDate(now) : "";
   const fresh = useFreshHeadlines(sourceId || "ynet", newsCount, headlines);
   const newsOn = useNewsOn(newsMode);
   const news = (newsOn ? (sourceId ? fresh : headlines) : []).filter((item) => item.title).map((item) => ({
@@ -44,8 +57,8 @@ export function LuxuryRail({
     chip: item.source || "חדשות",
   }));
   const notes = notices.filter(Boolean).map((text) => ({ tag: "הודעת בניין", text, chip: "הודעות" }));
-  const base = blocks(news, notes);
-  const loop = base.length ? Array.from({ length: Math.max(2, Math.ceil(4 / base.length)) }, () => base).flat() : [];
+  const base = blocks(news, notes, compact ? 2 : 4);
+  const loop = base.length ? Array.from({ length: compact ? 1 : Math.max(2, Math.ceil(4 / base.length)) }, () => base).flat() : [];
   const chips = [...news.reduce((names, item) => names.add(item.chip), new Set<string>()), ...(notes.length ? ["הודעות"] : [])];
   const running = active || chips[0] || "";
 
@@ -115,7 +128,7 @@ export function LuxuryRail({
   );
 }
 
-function blocks(news: Item[], notes: Item[]) {
+function blocks(news: Item[], notes: Item[], take = 4) {
   const order: string[] = [];
   const grouped = new Map<string, Item[]>();
   for (const item of news) {
@@ -126,13 +139,13 @@ function blocks(news: Item[], notes: Item[]) {
       order.push(item.chip);
     }
   }
-  if (!order.length) return notes.slice(0, 4);
+  if (!order.length) return notes.slice(0, take);
   const mixed: Item[] = [];
   let noteAt = 0;
   for (const chip of order) {
-    mixed.push(...(grouped.get(chip) || []).slice(0, 4));
+    mixed.push(...(grouped.get(chip) || []).slice(0, take));
     if (!notes.length) continue;
-    const count = Math.min(4, notes.length);
+    const count = Math.min(take, notes.length);
     for (let index = 0; index < count; index += 1) mixed.push(notes[(noteAt + index) % notes.length]);
     noteAt = (noteAt + count) % notes.length;
   }

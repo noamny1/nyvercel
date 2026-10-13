@@ -2,6 +2,7 @@ import { Heebo } from "next/font/google";
 import { notFound } from "next/navigation";
 import { Player } from "@/components/player/Player";
 import { FitStage } from "@/components/player/FitStage";
+import { lobbyClock } from "@/lib/lobby-clock";
 import { Music } from "@/components/player/Music";
 import { Wake } from "@/components/player/Wake";
 import { Ping } from "@/components/player/Ping";
@@ -75,6 +76,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
   const theme = isThemeId(chosen) ? chosen : "modern";
   const luxury = theme === "luxury" || theme === "luxury720";
   const wide = theme === "luxury720";
+  const clock = lobbyClock();
   const cinematic = theme === "glass" || theme === "cinema";
   const newsSource = screen.newsSource || source.newsSource || "ynet";
   const sourceCount = newsSource.split(",").map((item) => item.trim()).filter(Boolean).length || 1;
@@ -177,8 +179,12 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
             headlines={stories}
             notices={notices.map((notice) => notice.text)}
             sourceId={newsSource}
-            newsCount={newsTake}
+            newsCount={wide ? 2 : newsTake}
             newsMode={newsMode}
+            compact={wide}
+            initialTime={clock.time}
+            initialCivil={clock.civil}
+            initialHebrew={clock.hebrew}
           />
         ) : modern ? (
           <ModernRail
