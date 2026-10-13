@@ -209,9 +209,9 @@ function preloadSlide(slide: PlaySlide | undefined) {
 export function Player({ slides }: { slides: PlaySlide[] }) {
   const [index, setIndex] = useState(0);
   const [hold, setHold] = useState<number | null>(null);
-  const [ready, setReady] = useState(true);
   const current = slides[index];
   const covered = hold != null && hold !== index ? slides[hold] : null;
+  const seconds = Math.max(3, Number(current?.duration) || 8);
 
   useEffect(() => {
     const stage = document.querySelector(".stage");
@@ -220,30 +220,23 @@ export function Player({ slides }: { slides: PlaySlide[] }) {
   }, [current?.full]);
 
   useEffect(() => {
-    if (!current || slides.length < 2) return;
-    const timer = setTimeout(() => {
+    if (slides.length < 2) return;
+    const timer = window.setTimeout(() => {
       setHold(index);
-      setReady(false);
       setIndex((value) => (value + 1) % slides.length);
-    }, Math.max(3, current.duration) * 1000);
-    return () => clearTimeout(timer);
-  }, [current, index, slides.length]);
+    }, seconds * 1000);
+    return () => window.clearTimeout(timer);
+  }, [index, seconds, slides.length]);
 
   useEffect(() => {
     preloadSlide(slides[(index + 1) % slides.length]);
   }, [index, slides]);
 
   useEffect(() => {
-    if (!covered || ready) return;
-    const timer = setTimeout(() => setReady(true), 1800);
-    return () => clearTimeout(timer);
-  }, [covered, ready, index]);
-
-  useEffect(() => {
-    if (!covered || !ready) return;
-    const timer = setTimeout(() => setHold(null), 700);
-    return () => clearTimeout(timer);
-  }, [covered, ready]);
+    if (hold == null) return;
+    const timer = window.setTimeout(() => setHold(null), 700);
+    return () => window.clearTimeout(timer);
+  }, [hold, index]);
 
   if (!current) return <div className="empty">אין שקפים</div>;
   return (
@@ -253,8 +246,8 @@ export function Player({ slides }: { slides: PlaySlide[] }) {
           <SlideFace slide={covered} />
         </div>
       ) : null}
-      <div className={`slide-layer is-front${covered ? (ready ? " is-in" : " is-wait") : ""}`}>
-        <SlideFace slide={current} onReady={() => setReady(true)} />
+      <div className="slide-layer is-front is-in">
+        <SlideFace slide={current} />
       </div>
     </div>
   );
