@@ -77,7 +77,8 @@ export function LuxuryRail({
   return (
     <>
       <div className="lux-brand">
-        <img src="/logo-nymedia.png" alt="NYmedia" />
+        <img className="lux-brand-color" src="/logo-nymedia.png" alt="NYmedia" />
+        <img className="lux-brand-white" src="/logo-white.png" alt="" />
       </div>
       <div className="lux-top">
         <strong className="lux-clock">{time}</strong>
