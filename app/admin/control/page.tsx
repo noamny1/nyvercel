@@ -24,20 +24,31 @@ export default async function ControlPage({ searchParams }: { searchParams: Prom
   const now = Date.now();
   const where = await screenWhere(session);
   const cutoff = new Date(now - ONLINE_MS);
+  const statusWhere =
+    filter === "online"
+      ? { active: true, heartbeat: { is: { at: { gte: cutoff } } } }
+      : filter === "inactive"
+        ? { active: false }
+        : filter === "offline"
+          ? {
+              active: true,
+              OR: [{ heartbeat: { is: null } }, { heartbeat: { is: { at: { lt: cutoff } } } }],
+            }
+          : {};
   const [total, inactive, online, screens] = await Promise.all([
     prisma.screen.count({ where }),
     prisma.screen.count({ where: { AND: [where, { active: false }] } }),
     prisma.screen.count({ where: { AND: [where, { active: true, heartbeat: { is: { at: { gte: cutoff } } } }] } }),
     prisma.screen.findMany({
-      where,
+      where: { AND: [where, statusWhere] },
       orderBy: { id: "desc" },
-      take: 40,
+      ...(filter === "all" ? { take: 40 } : {}),
       include: { heartbeat: true, deviceStatus: true, remoteDesk: { select: { keeperAt: true } }, group: { include: { building: true } } },
     }),
   ]);
   const rows = screens.map((screen) => ({ screen, state: stateOf(screen, now) }));
   const counts = { total, inactive, online, offline: Math.max(0, total - inactive - online) };
-  const visible = filter === "all" ? rows : rows.filter((row) => row.state === filter);
+  const visible = rows;
 
   return (
     <main className="admin">
