@@ -338,23 +338,27 @@
 .layout-luxury720 .luxury-foot {
   position: absolute;
   left: 312px;
-  right: 10px;
+  right: auto;
   bottom: 10px;
   display: block;
-  width: auto;
+  width: 958px;
   height: 128px;
 }
 .layout-luxury720 .lux-address {
   position: absolute;
   top: 0;
   left: 0;
-  right: 230px;
+  right: auto;
+  width: 728px;
   height: 128px;
 }
-.layout-luxury720 .lux-logo {
+.layout-luxury720 .lux-logo,
+.layout-luxury720 .lux-logo.is-photo,
+.layout-luxury720 .lux-logo.is-empty {
   position: absolute;
   top: 0;
-  right: 0;
+  left: 738px;
+  right: auto;
   width: 220px;
   height: 128px;
   z-index: 2;

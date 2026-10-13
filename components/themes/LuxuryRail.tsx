@@ -33,8 +33,8 @@ export function LuxuryRail({
     const timer = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
-  const time = now ? now.toLocaleTimeString("he-IL", { hour: "2-digit", minute: "2-digit" }) : "";
-  const civil = now ? now.toLocaleDateString("he-IL", { weekday: "long", day: "numeric", month: "long", year: "numeric" }) : "";
+  const time = now ? clockText(now) : "";
+  const civil = now ? civilDate(now) : "";
   const hebrew = now ? hebrewDate(now) : "";
   const fresh = useFreshHeadlines(sourceId || "ynet", newsCount, headlines);
   const newsOn = useNewsOn(newsMode);
@@ -139,13 +139,90 @@ function blocks(news: Item[], notes: Item[]) {
   return mixed;
 }
 
+const WEEKDAYS = ["יום ראשון", "יום שני", "יום שלישי", "יום רביעי", "יום חמישי", "יום שישי", "יום שבת"];
+const MONTHS = ["ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני", "יולי", "אוגוסט", "ספטמבר", "אוקטובר", "נובמבר", "דצמבר"];
+
+function clockText(date: Date) {
+  const hours = date.getHours();
+  const minutes = date.getMinutes();
+  return `${hours < 10 ? "0" : ""}${hours}:${minutes < 10 ? "0" : ""}${minutes}`;
+}
+
+function civilDate(date: Date) {
+  return `${WEEKDAYS[date.getDay()]}, ${date.getDate()} ב${MONTHS[date.getMonth()]} ${date.getFullYear()}`;
+}
+
 function hebrewDate(date: Date) {
-  const parts = new Intl.DateTimeFormat("he-IL-u-ca-hebrew", { day: "numeric", month: "long", year: "numeric" }).formatToParts(date);
-  const day = Number(parts.find((part) => part.type === "day")?.value || "");
-  const month = parts.find((part) => part.type === "month")?.value || "";
-  const year = Number(parts.find((part) => part.type === "year")?.value || "");
-  if (!day || !month) return "";
-  return `${hebrewNumber(day)} ב${month}${year ? ` ${hebrewYear(year)}` : ""}`;
+  try {
+    const format = new Intl.DateTimeFormat("he-IL-u-ca-hebrew", { day: "numeric", month: "long", year: "numeric" });
+    if (typeof format.formatToParts === "function") {
+      const parts = format.formatToParts(date);
+      const day = Number(parts.find((part) => part.type === "day")?.value || "");
+      const month = parts.find((part) => part.type === "month")?.value || "";
+      const year = Number(parts.find((part) => part.type === "year")?.value || "");
+      if (day && month) return `${hebrewNumber(day)} ב${month}${year ? ` ${hebrewYear(year)}` : ""}`;
+    }
+    const text = format.format(date).replace(/^ה׳\s*/, "").replace(/^ה'\s*/, "");
+    if (["תשרי", "חשוון", "חשון", "כסלו", "טבת", "שבט", "אדר", "ניסן", "אייר", "סיון", "סיוון", "תמוז", "אב", "אלול"].some((month) => text.includes(month))) return text;
+  } catch { /* old Android has no Hebrew calendar parts */ }
+  return hebrewFallback(date);
+}
+
+function hebrewFallback(date: Date) {
+  const abs = julianDay(date.getFullYear(), date.getMonth() + 1, date.getDate());
+  let year = 5780;
+  while (hebrewNewYear(year) > abs) year -= 1;
+  while (hebrewNewYear(year + 1) <= abs) year += 1;
+  const months = hebrewMonths(year);
+  let left = abs - hebrewNewYear(year);
+  let month = 0;
+  for (; month < months.length; month += 1) {
+    if (left < months[month].days) break;
+    left -= months[month].days;
+  }
+  return `${hebrewNumber(left + 1)} ב${months[month].name} ${hebrewYear(year)}`;
+}
+
+function julianDay(year: number, month: number, day: number) {
+  const a = Math.floor((14 - month) / 12);
+  const y = year + 4800 - a;
+  const m = month + 12 * a - 3;
+  return day + Math.floor((153 * m + 2) / 5) + 365 * y + Math.floor(y / 4) - Math.floor(y / 100) + Math.floor(y / 400) - 32045;
+}
+
+function isLeap(year: number) {
+  return ((7 * year) + 1) % 19 < 7;
+}
+
+function hebrewNewYear(year: number) {
+  const months = Math.floor((235 * year - 234) / 19);
+  const parts = 12084 + 13753 * months;
+  let day = 1 + 29 * months + Math.floor(parts / 25920);
+  const rem = parts % 25920;
+  if (rem >= 19440) day += 1;
+  const weekday = day % 7;
+  if (weekday === 0 || weekday === 3 || weekday === 5) day += 1;
+  else if (weekday === 2 && rem >= 9924 && !isLeap(year)) day += 1;
+  else if (weekday === 1 && rem >= 16789 && isLeap(year - 1)) day += 1;
+  return day + 347997;
+}
+
+function hebrewMonths(year: number) {
+  const length = hebrewNewYear(year + 1) - hebrewNewYear(year);
+  const cheshvan = length === 355 || length === 385 ? 30 : 29;
+  const kislev = length === 353 || length === 383 ? 29 : 30;
+  const names = ["תשרי", "חשוון", "כסלו", "טבת", "שבט"];
+  const days = [30, cheshvan, kislev, 29, 30];
+  if (isLeap(year)) {
+    names.push("אדר א׳", "אדר ב׳");
+    days.push(30, 29);
+  } else {
+    names.push("אדר");
+    days.push(29);
+  }
+  names.push("ניסן", "אייר", "סיוון", "תמוז", "אב", "אלול");
+  days.push(30, 29, 30, 29, 30, 29);
+  return names.map((name, index) => ({ name, days: days[index] }));
 }
 
 function hebrewYear(year: number) {
