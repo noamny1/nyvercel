@@ -269,7 +269,7 @@
   padding: 0;
   background: #252525;
 }
-.layout-luxury .lux-brand-white { display: none; }
+.layout-luxury .lux-brand .lux-brand-white { display: none; }
 .layout-luxury720 .lux-brand .lux-brand-color { display: none; }
 .layout-luxury720 .lux-brand .lux-brand-white {
   display: block;
