@@ -273,7 +273,7 @@
 .layout-luxury720 .lux-brand .lux-brand-color { display: none; }
 .layout-luxury720 .lux-brand .lux-brand-white {
   display: block;
-  height: 54px;
+  height: 66px;
   width: auto;
   max-width: 100%;
   margin: 0 auto;
@@ -297,33 +297,33 @@
 }
 .layout-luxury720 .lux-brand {
   -webkit-box-flex: 0;
-  flex: 0 0 62px;
-  height: 62px;
-  min-height: 62px;
+  flex: 0 0 74px;
+  height: 74px;
+  min-height: 74px;
   overflow: hidden;
 }
 .layout-luxury720 .lux-top {
-  -webkit-box-flex: 1;
-  flex: 1 1 auto;
-  justify-content: center;
+  -webkit-box-flex: 0;
+  flex: 0 0 auto;
+  justify-content: flex-start;
   overflow: visible;
 }
 .layout-luxury720 .lux-clock {
   display: block;
-  margin-top: 10px;
-  font-size: 62px;
+  margin-top: 4px;
+  font-size: 48px;
   line-height: 1;
   color: #F4F1ED;
 }
 .layout-luxury720 .lux-civil,
-.layout-luxury720 .lux-hebrew { margin-top: 8px; font-size: 20px; line-height: 1.25; }
-.layout-luxury720 .lux-weather { margin-top: 14px; font-size: 24px; }
+.layout-luxury720 .lux-hebrew { margin-top: 4px; font-size: 16px; line-height: 1.25; }
+.layout-luxury720 .lux-weather { margin-top: 8px; font-size: 20px; }
 .layout-luxury720 .lux-feed {
-  -webkit-box-flex: 0;
-  flex: 0 0 230px;
-  height: 230px;
+  -webkit-box-flex: 1;
+  flex: 1 1 auto;
+  height: auto;
   min-height: 0;
-  max-height: 230px;
+  max-height: none;
   overflow: hidden;
 }
 .layout-luxury720 .lux-item { padding: 6px 0; }

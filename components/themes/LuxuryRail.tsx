@@ -57,7 +57,7 @@ export function LuxuryRail({
     chip: item.source || "חדשות",
   }));
   const notes = notices.filter(Boolean).map((text) => ({ tag: "הודעת בניין", text, chip: "הודעות" }));
-  const base = blocks(news, notes, compact ? 2 : 4);
+  const base = blocks(news, notes, compact ? 3 : 4);
   const loop = base.length ? Array.from({ length: compact ? 1 : Math.max(2, Math.ceil(4 / base.length)) }, () => base).flat() : [];
   const chips = [...news.reduce((names, item) => names.add(item.chip), new Set<string>()), ...(notes.length ? ["הודעות"] : [])];
   const running = active || chips[0] || "";

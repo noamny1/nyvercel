@@ -179,7 +179,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
             headlines={stories}
             notices={notices.map((notice) => notice.text)}
             sourceId={newsSource}
-            newsCount={wide ? 2 : newsTake}
+            newsCount={wide ? 3 : newsTake}
             newsMode={newsMode}
             compact={wide}
             initialTime={clock.time}
