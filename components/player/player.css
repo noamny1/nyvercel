@@ -71,7 +71,24 @@
   width: auto;
   height: auto;
 }
-.slide-stack { overflow: hidden; background: #111; }
+.slide-stack {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  overflow: hidden;
+  background: #111;
+}
+.slide-pane {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: #111;
+}
+.slide-pane.is-off { display: none; }
 .slide-layer { background: #111; }
 .slide-layer.is-under { z-index: 1; }
 .slide-layer.is-front { z-index: 2; }

@@ -143,7 +143,7 @@ function YoutubeSlide({ url, fallback }: { url: string; fallback?: string }) {
   );
 }
 
-function SlideFace({ slide, onReady }: { slide: PlaySlide; onReady?: () => void }) {
+function SlideFace({ slide, onReady, live = true }: { slide: PlaySlide; onReady?: () => void; live?: boolean }) {
   const soon = () => onReady?.();
   useEffect(() => {
     const media = slide.kind === "image" || slide.kind === "template" || isVideoFile(slide.imageUrl) || slide.kind === "youtube";
@@ -154,6 +154,7 @@ function SlideFace({ slide, onReady }: { slide: PlaySlide; onReady?: () => void 
 
   if (slide.kind === "youtube") {
     const file = isVideoFile(slide.imageUrl) ? slide.imageUrl : isVideoFile(slide.detail || "") ? slide.detail : "";
+    if (file && !live) return <video className="slide-video" data-media={file} poster={file.replace(/\.mp4(\?|$)/i, ".jpg$1")} muted playsInline preload="none" />;
     if (file && slide.templateId === "fixed-pest") {
       return <PestVideo src={file} poster={file.replace(/\.mp4(\?|$)/i, ".jpg$1")} title={slide.title} detail={slide.detail} day={slide.day} from={slide.from} onReady={onReady} />;
     }
@@ -161,6 +162,11 @@ function SlideFace({ slide, onReady }: { slide: PlaySlide; onReady?: () => void 
       return <CharacterVideo src={file} poster={file.replace(/\.mp4(\?|$)/i, ".jpg$1")} title={slide.title} detail={slide.detail} onReady={onReady} />;
     }
     if (file) return <video className="slide-video" src={file} autoPlay muted loop playsInline preload="auto" onCanPlay={onReady} onError={onReady} />;
+    if (!live) {
+      const clip = youtubeId(slide.imageUrl);
+      const embed = clip ? `https://www.youtube.com/embed/${clip}?autoplay=1&mute=1&playsinline=1&rel=0&controls=0` : "";
+      return <iframe className="slide-image" data-media={embed} title="סרטון" />;
+    }
     return <YoutubeSlide url={slide.imageUrl} fallback={slide.detail} />;
   }
   const pdf = (slide.imageUrl || "").toLowerCase().includes(".pdf");
@@ -185,6 +191,7 @@ function SlideFace({ slide, onReady }: { slide: PlaySlide; onReady?: () => void 
     );
   }
   if (isVideoFile(slide.imageUrl)) {
+    if (!live) return <video className="slide-video" data-media={slide.imageUrl} muted playsInline preload="none" />;
     return <video className="slide-video" src={slide.imageUrl} autoPlay muted loop playsInline preload="auto" onCanPlay={onReady} onError={onReady} />;
   }
   return <img className="slide-image" src={slide.imageUrl} alt="" onLoad={onReady} onError={onReady} />;
@@ -210,10 +217,10 @@ export function Player({ slides }: { slides: PlaySlide[] }) {
   const [index, setIndex] = useState(0);
   const [hold, setHold] = useState<number | null>(null);
   const current = slides[index];
-  const covered = hold != null && hold !== index ? slides[hold] : null;
   const seconds = Math.max(3, Number(current?.duration) || 8);
 
   useEffect(() => {
+    document.documentElement.setAttribute("data-player", "live");
     const stage = document.querySelector(".stage");
     stage?.classList.toggle("slide-full", Boolean(current?.full));
     return () => stage?.classList.remove("slide-full");
@@ -238,17 +245,14 @@ export function Player({ slides }: { slides: PlaySlide[] }) {
     return () => window.clearTimeout(timer);
   }, [hold, index]);
 
-  if (!current) return <div className="empty">אין שקפים</div>;
+  if (!slides.length) return <div className="empty">אין שקפים</div>;
   return (
-    <div className="slide-stack">
-      {covered ? (
-        <div className="slide-layer is-under">
-          <SlideFace slide={covered} />
+    <div className="slide-stack" id="slide-stack">
+      {slides.map((slide, item) => (
+        <div key={`${slide.templateId || slide.kind || "slide"}-${item}`} className={item === index ? "slide-pane" : "slide-pane is-off"} data-sec={Math.max(3, Number(slide.duration) || 8)}>
+          <SlideFace slide={slide} live={item === index || item === hold} />
         </div>
-      ) : null}
-      <div className="slide-layer is-front is-in">
-        <SlideFace slide={current} />
-      </div>
+      ))}
     </div>
   );
 }

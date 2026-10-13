@@ -116,6 +116,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
   }
 
   return (
+    <>
     <FitStage width={wide ? 1280 : 1366} height={wide ? 720 : 768} fill={wide ? 1 : 0.97} className={`stage theme-${theme}${luxury ? ` layout-luxury ${heebo.className}` : ""}${wide ? " layout-luxury720" : ""}${modern ? " layout-modern" : ""}${cinematic ? ` layout-${theme} ${heebo.className}` : ""}${tickerOn && !luxury && !modern && !cinematic ? "" : " no-ticker"}`}>
       <Music playlist={silenced ? "off" : screen.musicPlaylist || ""} url={silenced ? "" : screen.group?.musicUrl || ""} start={screen.id} />
       <NewsGate mode={newsMode} />
@@ -261,5 +262,61 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
       ) : null}
       <footer className="brand-bar"><img src="/nymedia-logo.png" alt="NYmedia" /></footer>
     </FitStage>
+    <script dangerouslySetInnerHTML={{ __html: `
+(function () {
+  function start() {
+  var root = document.getElementById("slide-stack");
+  if (!root) return;
+  var nodes = root.getElementsByClassName("slide-pane");
+  if (!nodes.length || nodes.length < 2) return;
+  var index = 0;
+  function seconds(node) {
+    var value = parseInt(node.getAttribute("data-sec") || "8", 10);
+    if (!value || value < 3) return 8;
+    return value;
+  }
+  function wake(node) {
+    var videos = node.getElementsByTagName("video");
+    var frames = node.getElementsByTagName("iframe");
+    var i;
+    for (i = 0; i < videos.length; i++) {
+      var video = videos[i];
+      var media = video.getAttribute("data-media");
+      if (media && !video.getAttribute("src")) video.setAttribute("src", media);
+      video.muted = true;
+      try { video.play(); } catch (err) {}
+    }
+    for (i = 0; i < frames.length; i++) {
+      var frame = frames[i];
+      var src = frame.getAttribute("data-media");
+      if (src && !frame.getAttribute("src")) frame.setAttribute("src", src);
+    }
+  }
+  function show(next) {
+    var i;
+    for (i = 0; i < nodes.length; i++) {
+      if (i === next) {
+        nodes[i].className = "slide-pane";
+        wake(nodes[i]);
+      } else {
+        nodes[i].className = "slide-pane is-off";
+      }
+    }
+  }
+  function tick() {
+    window.setTimeout(function () {
+      if (document.documentElement.getAttribute("data-player") === "live") return;
+      index = (index + 1) % nodes.length;
+      show(index);
+      tick();
+    }, seconds(nodes[index]) * 1000);
+  }
+  tick();
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start);
+  else start();
+})();
+` }} />
+    </>
   );
 }
