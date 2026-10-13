@@ -49,8 +49,8 @@
   direction: ltr;
 }
 .stage.layout-luxury720 {
-  width: 720px;
-  height: 1280px;
+  width: 1280px;
+  height: 720px;
 }
 .slide {
   position: relative;

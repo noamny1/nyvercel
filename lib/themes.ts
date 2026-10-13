@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 export const THEMES = [
   { id: "modern", name: "מודרני", note: "התמה הרגילה של המסך" },
   { id: "luxury", name: "יוקרתי", note: "עמודה כהה, חדשות והודעות לסירוגין" },
-  { id: "luxury720", name: "יוקרתי720", note: "אותה תמה יוקרתית, למסך עומד 720×1280" },
+  { id: "luxury720", name: "יוקרתי720", note: "אותה תמה יוקרתית, למסך 1280×720" },
   { id: "glass", name: "זכוכית", note: "תמונה על כל המסך, כרטיס שקוף והודעה מתחלפת" },
   { id: "cinema", name: "קולנוע", note: "שקף רחב, שעון והודעה בשורה למטה" },
 ] as const;
