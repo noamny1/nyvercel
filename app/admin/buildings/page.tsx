@@ -54,7 +54,6 @@ export default async function BuildingsPage({ searchParams }: { searchParams: Pr
         ],
       },
       orderBy: { id: "asc" },
-      take: 30,
       include: {
         group: true,
         heartbeat: true,
