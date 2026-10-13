@@ -77,9 +77,12 @@ export function ScreenEditor({
   const [overId, setOverId] = useState<number | null>(null);
   const dragged = useRef(false);
   const [tab, setTab] = useState<"details" | "slides" | "notices">(panel || "slides");
-  const themeChoices = themes.some((theme) => theme.id === screen.theme)
-    ? themes
-    : [...themes, THEMES.find((theme) => theme.id === screen.theme)].filter((theme): theme is { id: string; name: string } => Boolean(theme));
+  const offered = newsTuning && !themes.some((theme) => theme.id === "luxury720")
+    ? [...themes, { id: "luxury720", name: "יוקרתי720" }]
+    : themes;
+  const themeChoices = offered.some((theme) => theme.id === screen.theme)
+    ? offered
+    : [...offered, THEMES.find((theme) => theme.id === screen.theme)].filter((theme): theme is { id: string; name: string } => Boolean(theme));
   const [themePick, setThemePick] = useState(themeChoices.some((theme) => theme.id === screen.theme) ? screen.theme : "modern");
   const newsCatalog = feeds && feeds.length > 0 ? feeds : NEWS_SOURCES;
   const [newsPick, setNewsPick] = useState(() => {
@@ -219,7 +222,7 @@ export function ScreenEditor({
               </select>
             </label>
           ) : null}
-          {scope === "screen" && themePick === "luxury" ? (
+          {scope === "screen" && (themePick === "luxury" || themePick === "luxury720") ? (
             <label>תוכן העמודה
               <select name="feedMode" defaultValue={screen.feedMode || "both"}>
                 <option value="news">חדשות</option>

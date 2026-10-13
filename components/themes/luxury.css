@@ -261,6 +261,35 @@
 @media (prefers-reduced-motion: reduce) {
   .layout-luxury .lux-track { animation: none; }
 }
+.layout-luxury720.stage,
+.layout-luxury720.stage.no-ticker {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: 640px minmax(0, 1fr) 136px;
+  gap: 8px;
+  padding: 10px;
+}
+.layout-luxury720 .rail,
+.layout-luxury720.stage.no-ticker .rail {
+  grid-column: 1;
+  grid-row: 1;
+}
+.layout-luxury720 .slide {
+  grid-column: 1;
+  grid-row: 2;
+}
+.layout-luxury720 .luxury-foot {
+  grid-column: 1;
+  grid-row: 3;
+  grid-template-columns: minmax(0, 1fr) 250px;
+}
+.layout-luxury720 .lux-top {
+  flex: 0 0 auto;
+  justify-content: flex-start;
+}
+.layout-luxury720 .lux-feed {
+  flex: 1 1 auto;
+  min-height: 0;
+}
 @keyframes lux-rise {
   from { transform: translateY(0); }
   to { transform: translateY(-50%); }

@@ -73,7 +73,8 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
   const notices = screen.notices.length > 0 ? screen.notices : source.notices;
   const chosen = screen.theme || source.theme || "modern";
   const theme = isThemeId(chosen) ? chosen : "modern";
-  const luxury = theme === "luxury";
+  const luxury = theme === "luxury" || theme === "luxury720";
+  const portrait = theme === "luxury720";
   const cinematic = theme === "glass" || theme === "cinema";
   const newsSource = screen.newsSource || source.newsSource || "ynet";
   const sourceCount = newsSource.split(",").map((item) => item.trim()).filter(Boolean).length || 1;
@@ -113,7 +114,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
   }
 
   return (
-    <FitStage className={`stage theme-${theme}${luxury ? ` layout-luxury ${heebo.className}` : ""}${modern ? " layout-modern" : ""}${cinematic ? ` layout-${theme} ${heebo.className}` : ""}${tickerOn && !luxury && !modern && !cinematic ? "" : " no-ticker"}`}>
+    <FitStage width={portrait ? 720 : 1366} height={portrait ? 1280 : 768} className={`stage theme-${theme}${luxury ? ` layout-luxury ${heebo.className}` : ""}${portrait ? " layout-luxury720" : ""}${modern ? " layout-modern" : ""}${cinematic ? ` layout-${theme} ${heebo.className}` : ""}${tickerOn && !luxury && !modern && !cinematic ? "" : " no-ticker"}`}>
       <Music playlist={silenced ? "off" : screen.musicPlaylist || ""} url={silenced ? "" : screen.group?.musicUrl || ""} start={screen.id} />
       <NewsGate mode={newsMode} />
       <Wake />

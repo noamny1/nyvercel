@@ -48,6 +48,10 @@
   background: #000;
   direction: ltr;
 }
+.stage.layout-luxury720 {
+  width: 720px;
+  height: 1280px;
+}
 .slide {
   position: relative;
   grid-column: 1;

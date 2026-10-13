@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 export const THEMES = [
   { id: "modern", name: "מודרני", note: "התמה הרגילה של המסך" },
   { id: "luxury", name: "יוקרתי", note: "עמודה כהה, חדשות והודעות לסירוגין" },
+  { id: "luxury720", name: "יוקרתי720", note: "אותה תמה יוקרתית, למסך עומד 720×1280" },
   { id: "glass", name: "זכוכית", note: "תמונה על כל המסך, כרטיס שקוף והודעה מתחלפת" },
   { id: "cinema", name: "קולנוע", note: "שקף רחב, שעון והודעה בשורה למטה" },
 ] as const;
@@ -29,7 +30,7 @@ export async function clientThemes() {
 
 export async function savedTheme(requested: string, current: string) {
   const ids = await clientThemeIds();
-  if (isThemeId(requested) && ids.includes(requested)) return requested;
+  if (isThemeId(requested) && (ids.includes(requested) || requested === "luxury720")) return requested;
   if (isThemeId(requested) && requested === current) return current;
   if (isThemeId(current) && ids.includes(current)) return current;
   return ids[0] || "modern";
