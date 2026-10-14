@@ -77,13 +77,13 @@ export function ScreenEditor({
   const [overId, setOverId] = useState<number | null>(null);
   const dragged = useRef(false);
   const [tab, setTab] = useState<"details" | "slides" | "notices">(panel || "slides");
-  const offered = newsTuning && !themes.some((theme) => theme.id === "luxury720")
-    ? [...themes, { id: "luxury720", name: "יוקרתי720" }]
-    : themes;
-  const themeChoices = offered.some((theme) => theme.id === screen.theme)
+  const clientFacing = themes.filter((theme) => theme.id !== "luxury720");
+  const offered = newsTuning ? [...clientFacing, { id: "luxury720", name: "יוקרתי720" }] : clientFacing;
+  const shown = !newsTuning && screen.theme === "luxury720" ? "luxury" : screen.theme;
+  const themeChoices = offered.some((theme) => theme.id === shown)
     ? offered
-    : [...offered, THEMES.find((theme) => theme.id === screen.theme)].filter((theme): theme is { id: string; name: string } => Boolean(theme));
-  const [themePick, setThemePick] = useState(themeChoices.some((theme) => theme.id === screen.theme) ? screen.theme : "modern");
+    : [...offered, THEMES.find((theme) => theme.id === shown)].filter((theme): theme is { id: string; name: string } => Boolean(theme));
+  const [themePick, setThemePick] = useState(themeChoices.some((theme) => theme.id === shown) ? shown : "modern");
   const newsCatalog = feeds && feeds.length > 0 ? feeds : NEWS_SOURCES;
   const [newsPick, setNewsPick] = useState(() => {
     const picked = (screen.newsSource || "ynet").split(",").map((item) => item.trim()).filter(Boolean);
