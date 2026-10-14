@@ -164,9 +164,10 @@ export async function setGroupUser(formData: FormData) {
   const user = await prisma.user.findFirst({ where: { id: userId, role: "client" }, select: { id: true } });
   if (!user) redirect("/admin");
   const screens = await prisma.screen.findMany({ where: { groupId: id }, select: { id: true } });
-  await prisma.screenGroup.update({
-    where: { id },
-    data: { managers: { connect: { id: user.id } } },
+  await prisma.groupManager.upsert({
+    where: { groupId_userId: { groupId: id, userId: user.id } },
+    create: { groupId: id, userId: user.id },
+    update: {},
   });
   if (screens.length) {
     await prisma.user.update({
@@ -183,10 +184,7 @@ export async function removeGroupUser(formData: FormData) {
   const userId = Number(formData.get("userId")) || 0;
   if (!id || !userId) redirect("/admin");
   const screens = await prisma.screen.findMany({ where: { groupId: id }, select: { id: true } });
-  await prisma.screenGroup.update({
-    where: { id },
-    data: { managers: { disconnect: { id: userId } } },
-  });
+  await prisma.groupManager.deleteMany({ where: { groupId: id, userId } });
   if (screens.length) {
     await prisma.user.update({
       where: { id: userId },
@@ -403,7 +401,7 @@ async function starterScreen() {
 
 async function adoptGroup(screenId: number, groupId: number) {
   const [target, starter] = await Promise.all([
-    prisma.screenGroup.findUnique({ where: { id: groupId }, select: { logoUrl: true, managers: { select: { id: true } } } }),
+    prisma.screenGroup.findUnique({ where: { id: groupId }, select: { logoUrl: true, groupLinks: { select: { userId: true } } } }),
     starterScreen(),
   ]);
   const slides = starter && starter.slides.length > 0 ? starter.slides : starter?.group?.slides || [];
@@ -431,7 +429,7 @@ async function adoptGroup(screenId: number, groupId: number) {
       : []),
     prisma.screen.update({
       where: { id: screenId },
-      data: { groupId, logoUrl: target?.logoUrl || "", users: { set: (target?.managers || []).map((user) => ({ id: user.id })) } },
+      data: { groupId, logoUrl: target?.logoUrl || "", users: { set: (target?.groupLinks || []).map((link) => ({ id: link.userId })) } },
     }),
   ]);
   await touchScreen(screenId);
@@ -448,7 +446,7 @@ export async function createListedScreen(formData: FormData) {
   const slides = starter && starter.slides.length > 0 ? starter.slides : starter?.group?.slides || [];
   const notices = starter && starter.notices.length > 0 ? starter.notices : starter?.group?.notices || [];
   const managers = groupId
-    ? await prisma.user.findMany({ where: { role: "client", managedGroups: { some: { id: groupId } } }, select: { id: true } })
+    ? await prisma.groupManager.findMany({ where: { groupId, user: { role: "client" } }, select: { userId: true } })
     : [];
   await prisma.screen.create({
     data: {
@@ -466,7 +464,7 @@ export async function createListedScreen(formData: FormData) {
       newsTicker: starter?.newsTicker || "on",
       feedMode: starter?.feedMode || "both",
       musicPlaylist: starter?.musicPlaylist || "",
-      ...(managers.length ? { users: { connect: managers.map((user) => ({ id: user.id })) } } : {}),
+      ...(managers.length ? { users: { connect: managers.map((link) => ({ id: link.userId })) } } : {}),
       slides: {
         create: slides.map((slide) => ({
           imageUrl: slide.imageUrl,

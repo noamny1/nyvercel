@@ -95,6 +95,26 @@ const statements = [
   `ALTER TABLE "Slide" ADD COLUMN IF NOT EXISTS "startsOn" TEXT NOT NULL DEFAULT ''`,
   `ALTER TABLE "Slide" ADD COLUMN IF NOT EXISTS "endsOn" TEXT NOT NULL DEFAULT ''`,
   `CREATE TABLE IF NOT EXISTS "SchemaNote" ("id" TEXT PRIMARY KEY)`,
+  `CREATE TABLE IF NOT EXISTS "GroupManager" (
+    "groupId" INTEGER NOT NULL,
+    "userId" INTEGER NOT NULL,
+    CONSTRAINT "GroupManager_pkey" PRIMARY KEY ("groupId", "userId")
+  )`,
+  `CREATE INDEX IF NOT EXISTS "GroupManager_userId_idx" ON "GroupManager"("userId")`,
+  `DO $$ BEGIN
+    ALTER TABLE "GroupManager"
+      ADD CONSTRAINT "GroupManager_groupId_fkey"
+      FOREIGN KEY ("groupId") REFERENCES "ScreenGroup"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+  EXCEPTION
+    WHEN duplicate_object THEN NULL;
+  END $$`,
+  `DO $$ BEGIN
+    ALTER TABLE "GroupManager"
+      ADD CONSTRAINT "GroupManager_userId_fkey"
+      FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+  EXCEPTION
+    WHEN duplicate_object THEN NULL;
+  END $$`,
   `CREATE TABLE IF NOT EXISTS "SystemFlag" (
     "id" TEXT NOT NULL,
     "value" TEXT NOT NULL DEFAULT '',

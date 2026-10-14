@@ -18,22 +18,34 @@ export default async function AdminHome() {
   if (!session) redirect("/admin/login");
   const owner = isSystemAdmin(session);
   if (!owner) redirect("/admin/buildings");
-  const [groups, clients, starter] = await Promise.all([
+  const where = await groupWhere(session);
+  const [listed, clients, starter] = await Promise.all([
     prisma.screenGroup.findMany({
-      where: await groupWhere(session),
+      where,
       orderBy: { id: "asc" },
       include: {
         _count: { select: { screens: true } },
         screens: { select: { users: { where: { role: "client" }, select: { id: true } } } },
-        managers: { where: { role: "client" }, select: { id: true, name: true, email: true }, orderBy: { name: "asc" } },
+        groupLinks: {
+          where: { user: { role: "client" } },
+          select: { user: { select: { id: true, name: true, email: true } } },
+        },
       },
-    }),
+    }).catch(() => null),
     prisma.user.findMany({ where: { role: "client" }, orderBy: { name: "asc" }, select: { id: true, name: true, email: true } }),
     prisma.screen.findFirst({
       where: { OR: [{ name: "נועם בדיקה 33" }, { name: { startsWith: "נועם בדיקה 33," } }, { street: "נועם בדיקה", number: "33" }] },
       select: { logoUrl: true, group: { select: { logoUrl: true } } },
     }),
   ]);
+  const groups = listed || (await prisma.screenGroup.findMany({
+    where,
+    orderBy: { id: "asc" },
+    include: {
+      _count: { select: { screens: true } },
+      screens: { select: { users: { where: { role: "client" }, select: { id: true } } } },
+    },
+  })).map((group) => ({ ...group, groupLinks: [] as { user: { id: number; name: string; email: string } }[] }));
   const fallback = starter?.logoUrl || starter?.group?.logoUrl || "";
   if (fallback) {
     const missing = groups.filter((group) => !group.logoUrl).map((group) => group.id);
@@ -43,13 +55,15 @@ export default async function AdminHome() {
     }
   }
   for (const group of groups) {
-    const known = new Set(group.managers.map((user) => user.id));
+    const members = group.groupLinks.map((link) => link.user);
+    const known = new Set(members.map((user) => user.id));
     const extra = [...new Set(group.screens.flatMap((screen) => screen.users.map((user) => user.id)))].filter((id) => !known.has(id));
-    if (!extra.length) continue;
-    await prisma.screenGroup.update({ where: { id: group.id }, data: { managers: { connect: extra.map((id) => ({ id })) } } });
-    const added = clients.filter((user) => extra.includes(user.id));
-    group.managers.push(...added);
-    group.managers.sort((a, b) => memberName(a).localeCompare(memberName(b), "he"));
+    if (extra.length) {
+      await prisma.groupManager.createMany({ data: extra.map((userId) => ({ groupId: group.id, userId })), skipDuplicates: true }).catch(() => null);
+      members.push(...clients.filter((user) => extra.includes(user.id)));
+    }
+    members.sort((a, b) => memberName(a).localeCompare(memberName(b), "he"));
+    group.groupLinks.splice(0, group.groupLinks.length, ...members.map((user) => ({ user })));
   }
 
   return (
@@ -69,7 +83,7 @@ export default async function AdminHome() {
                   <GroupTools
                     groupId={group.id}
                     logoUrl={group.logoUrl}
-                    members={group.managers.map((user) => ({ id: user.id, name: memberName(user) }))}
+                    members={group.groupLinks.map((link) => ({ id: link.user.id, name: memberName(link.user) }))}
                     clients={clients}
                     saveLogo={setGroupLogo}
                     saveUser={setGroupUser}

@@ -15,8 +15,8 @@ model User {
   role         String   @default("client")
   totpSecret   String   @default("")
   totpPending  String   @default("")
-  screens      Screen[]
-  managedGroups ScreenGroup[] @relation("GroupManagers")
+  screens       Screen[]
+  groupLinks   GroupManager[]
   createdAt    DateTime @default(now())
 
   @@index([role, name])
@@ -45,12 +45,22 @@ model ScreenGroup {
   buildingId Int?
   building   Building? @relation(fields: [buildingId], references: [id], onDelete: SetNull)
   screens    Screen[]
-  managers   User[]       @relation("GroupManagers")
+  groupLinks GroupManager[]
   slides     Slide[]
   notices    Notice[]
   tickers    Ticker[]
   floors     Floor[]
   createdAt  DateTime @default(now())
+}
+
+model GroupManager {
+  groupId Int
+  userId  Int
+  group   ScreenGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user    User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([groupId, userId])
+  @@index([userId])
 }
 
 model Screen {
