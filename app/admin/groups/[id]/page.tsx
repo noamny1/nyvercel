@@ -2,7 +2,8 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { ScreenEditor } from "@/components/admin/ScreenEditor";
 import { AdminNav } from "@/components/admin/AdminNav";
-import { deleteAddress, moveAddress, renameGroup } from "@/app/admin/actions";
+import { GroupScreenList } from "@/components/admin/GroupScreenList";
+import { deleteAddress, moveAddress, renameGroup, reorderGroupScreens } from "@/app/admin/actions";
 import { prisma } from "@/lib/prisma";
 import { screenWhere } from "@/lib/access";
 import { NEWS_SOURCES } from "@/lib/news-sources";
@@ -32,7 +33,7 @@ export default async function GroupPage({
     prisma.screenGroup.findUnique({
       where: { id: Number(id) },
       include: {
-        screens: { orderBy: { id: "asc" } },
+        screens: { orderBy: [{ listSort: "asc" }, { id: "asc" }] },
         slides: { orderBy: { sort: "asc" } },
         notices: { orderBy: { id: "desc" } },
       },
@@ -60,51 +61,28 @@ export default async function GroupPage({
       ) : <h1>{group.name}</h1>}
       <section className="card">
         <h2>מסכים משויכים</h2>
-        {screens.length === 0 ? <p>אין עדיין כתובת בקבוצה. יוצרים כתובת בלשונית בניינים ומשייכים אותה לכאן.</p> : null}
-        <div className="screens">
-          {screens.map((screen) => {
+        <GroupScreenList
+          groupId={group.id}
+          owner={owner}
+          others={others}
+          moveAddress={moveAddress}
+          deleteAddress={deleteAddress}
+          saveOrder={reorderGroupScreens}
+          rows={screens.map((screen) => {
             const street = screen.street || group.street;
             const number = screen.number || group.number;
             const city = screen.city || group.city;
-            const label = addressOf(street, number, city) || screen.name;
-            return (
-              <div key={screen.id}>
-                <span className="screen-title">
-                  מסך {screen.code || screen.id}
-                  <small>{label} · {screen.floor || "לובי"}</small>
-                </span>
-                <span className="screen-actions">
-                  <a href={`/s/${screen.code || screen.id}`} target="_blank">פתיחה</a>
-                  {owner && others.length > 0 ? (
-                    <form action={moveAddress}>
-                      <input type="hidden" name="screenId" value={screen.id} />
-                      <input type="hidden" name="groupId" value={group.id} />
-                      <input type="hidden" name="label" value={label} />
-                      <input type="hidden" name="street" value={street} />
-                      <input type="hidden" name="number" value={number} />
-                      <input type="hidden" name="city" value={city} />
-                      <select name="targetGroupId" defaultValue="" aria-label="קבוצה אחרת">
-                        <option value=""></option>
-                        {others.map((item) => (
-                          <option key={item.id} value={item.id}>{item.name}</option>
-                        ))}
-                      </select>
-                      <button className="light" type="submit">העברה</button>
-                    </form>
-                  ) : null}
-                  {owner ? (
-                    <form action={deleteAddress}>
-                      <input type="hidden" name="screenId" value={screen.id} />
-                      <input type="hidden" name="groupId" value={group.id} />
-                      <input type="hidden" name="label" value={label} />
-                      <button className="light" type="submit">מחיקה</button>
-                    </form>
-                  ) : null}
-                </span>
-              </div>
-            );
+            return {
+              id: screen.id,
+              code: screen.code,
+              street,
+              number,
+              city,
+              floor: screen.floor || "לובי",
+              label: addressOf(street, number, city) || screen.name,
+            };
           })}
-        </div>
+        />
       </section>
       <p><Link href={edit ? `/admin/groups/${group.id}` : `/admin/groups/${group.id}?edit=1`}>{edit ? "סגירת עריכת התוכן" : "עריכת תוכן הקבוצה"}</Link></p>
       {edit ? <ScreenEditor screen={group} slides={group.slides} notices={group.notices} scope="group" buildings={buildings} feeds={[...NEWS_SOURCES, ...feeds.filter((feed) => !NEWS_SOURCES.some((item) => item.id === feed.id))]} newsTuning={owner} themes={await clientThemes()} /> : null}

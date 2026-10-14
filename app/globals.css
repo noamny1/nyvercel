@@ -181,6 +181,17 @@ body:has(.admin) { background: #F4F1ED; overflow-x: hidden; }
   white-space: nowrap;
 }
 .admin .file-pick input { position: absolute; inset: 0; opacity: 0; width: 100%; height: 100%; cursor: pointer; }
+.admin .group-search { display: grid; gap: 6px; max-width: 360px; margin-bottom: 12px; }
+.admin .screen-line { display: flex; align-items: center; gap: 8px; }
+.admin .drag-handle {
+  width: 28px;
+  min-height: 28px;
+  padding: 0;
+  background: transparent;
+  color: #5c5854;
+  border: 1px solid rgba(37, 37, 37, 0.16);
+  cursor: grab;
+}
 .admin .group-name { display: flex; gap: 12px; align-items: end; max-width: 520px; }
 .admin .group-name label { flex: 1; }
 .admin .group-name button { margin-bottom: 0; }

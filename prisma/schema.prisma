@@ -70,6 +70,7 @@ model Screen {
   number     String       @default("")
   city       String       @default("")
   floor      String       @default("לובי")
+  listSort   Int          @default(0)
   theme      String       @default("modern")
   logoUrl    String       @default("")
   newsSource String       @default("ynet")

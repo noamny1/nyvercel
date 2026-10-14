@@ -406,6 +406,7 @@ async function adoptGroup(screenId: number, groupId: number) {
     starterScreen(),
   ]);
   const slides = starter && starter.slides.length > 0 ? starter.slides : starter?.group?.slides || [];
+  const last = await prisma.screen.aggregate({ where: { groupId }, _max: { listSort: true } });
   await prisma.$transaction([
     prisma.slide.deleteMany({ where: { screenId } }),
     prisma.notice.deleteMany({ where: { screenId } }),
@@ -430,10 +431,30 @@ async function adoptGroup(screenId: number, groupId: number) {
       : []),
     prisma.screen.update({
       where: { id: screenId },
-      data: { groupId, logoUrl: target?.logoUrl || "", users: { set: (target?.groupLinks || []).map((link) => ({ id: link.userId })) } },
+      data: { groupId, logoUrl: target?.logoUrl || "", listSort: (last._max.listSort || 0) + 1, users: { set: (target?.groupLinks || []).map((link) => ({ id: link.userId })) } },
     }),
   ]);
   await touchScreen(screenId);
+}
+
+export async function reorderGroupScreens(formData: FormData) {
+  const session = await gate();
+  const groupId = Number(formData.get("groupId"));
+  const submitted = formData.getAll("id").map(Number).filter(Boolean);
+  if (!groupId || !submitted.length) return;
+  const visible = new Set((await prisma.screen.findMany({
+    where: { id: { in: submitted }, groupId, ...(await screenWhere(session)) },
+    select: { id: true },
+  })).map((screen) => screen.id));
+  const ordered = submitted.filter((id) => visible.has(id));
+  const screens = await prisma.screen.findMany({
+    where: { groupId },
+    orderBy: [{ listSort: "asc" }, { id: "asc" }],
+    select: { id: true },
+  });
+  let index = 0;
+  const next = screens.map((screen) => (visible.has(screen.id) ? ordered[index++] : screen.id)).filter((id): id is number => Boolean(id));
+  await prisma.$transaction(next.map((id, sort) => prisma.screen.update({ where: { id }, data: { listSort: sort + 1 } })));
 }
 
 export async function createListedScreen(formData: FormData) {
@@ -450,6 +471,7 @@ export async function createListedScreen(formData: FormData) {
   const managers = groupId
     ? await prisma.groupManager.findMany({ where: { groupId, user: { role: "client" } }, select: { userId: true } })
     : [];
+  const last = groupId ? await prisma.screen.aggregate({ where: { groupId }, _max: { listSort: true } }) : null;
   await prisma.screen.create({
     data: {
       name: [place, city].filter(Boolean).join(", ") || "מסך",
@@ -457,6 +479,7 @@ export async function createListedScreen(formData: FormData) {
       number,
       city,
       floor,
+      listSort: (last?._max.listSort || 0) + 1,
       groupId,
       code: await nextCode(),
       theme: starter?.theme || starter?.group?.theme || "modern",
