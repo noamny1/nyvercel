@@ -77,6 +77,7 @@ body:has(.admin) { background: #F4F1ED; overflow-x: hidden; }
 .agent-finding small { color: #6d625c; font-size: 12px; }
 .agent-finding strong { color: #5A1F2B; }
 .agent-finding p { margin: 0; }
+.open-link { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 @media (max-width: 700px) {
   .admin-menu { grid-template-columns: 1fr 1fr; }
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { runSystemAgentAction } from "@/app/admin/agent/actions";
+import { closeOpenLink, listOpenLinks, runSystemAgentAction, type OpenLink } from "@/app/admin/agent/actions";
 import type { AgentReport } from "@/lib/system-agent";
 
 const LEVEL = { high: "חשוב", mid: "שיפור", ok: "תקין" };
@@ -10,6 +10,35 @@ export function SystemAgent() {
   const [report, setReport] = useState<AgentReport | null>(null);
   const [error, setError] = useState("");
   const [pending, start] = useTransition();
+  const [links, setLinks] = useState<OpenLink[] | null>(null);
+  const [linkError, setLinkError] = useState("");
+  const [checking, setChecking] = useState(false);
+  const [closing, setClosing] = useState(0);
+
+  async function checkLinks() {
+    setLinkError("");
+    setChecking(true);
+    try {
+      setLinks(await listOpenLinks());
+    } catch (reason) {
+      setLinkError(reason instanceof Error ? reason.message : "הבדיקה נכשלה");
+    } finally {
+      setChecking(false);
+    }
+  }
+
+  async function closeLink(id: number) {
+    setClosing(id);
+    setLinkError("");
+    try {
+      await closeOpenLink(id);
+      setLinks(await listOpenLinks());
+    } catch (reason) {
+      setLinkError(reason instanceof Error ? reason.message : "הסגירה נכשלה");
+    } finally {
+      setClosing(0);
+    }
+  }
 
   return (
     <section className="card agent-run">
@@ -43,6 +72,26 @@ export function SystemAgent() {
             </article>
           ))}
         </div>
+      ) : null}
+      <h2>חיבורי שליטה מרחוק</h2>
+      <p>בודק אם יש כרגע חיבור פתוח לאחת הכתובות. אפשר לסגור אותו מכאן.</p>
+      <button type="button" disabled={checking} onClick={() => void checkLinks()}>
+        {checking ? "בודק חיבורים..." : "בדיקת חיבורים פתוחים"}
+      </button>
+      {linkError ? <p className="error">{linkError}</p> : null}
+      {links ? (
+        links.length ? (
+          <div className="agent-report">
+            {links.map((link) => (
+              <article key={link.id} className="agent-finding is-high open-link">
+                <strong>{link.label}</strong>
+                <button type="button" disabled={closing === link.id} onClick={() => void closeLink(link.id)}>
+                  {closing === link.id ? "סוגר..." : "סגירת חיבור"}
+                </button>
+              </article>
+            ))}
+          </div>
+        ) : <p>אין כרגע חיבור שליטה מרחוק פתוח.</p>
       ) : null}
     </section>
   );
