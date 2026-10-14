@@ -77,7 +77,8 @@ export default async function GroupPage({
                       <input type="hidden" name="street" value={street} />
                       <input type="hidden" name="number" value={number} />
                       <input type="hidden" name="city" value={city} />
-                      <select name="targetGroupId" defaultValue={others[0]?.id || ""} aria-label="קבוצה אחרת">
+                      <select name="targetGroupId" defaultValue="" aria-label="קבוצה אחרת">
+                        <option value=""></option>
                         {others.map((item) => (
                           <option key={item.id} value={item.id}>{item.name}</option>
                         ))}
