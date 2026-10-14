@@ -173,7 +173,7 @@ export default async function BuildingsPage({ searchParams }: { searchParams: Pr
             newsTicker: screen.newsTicker,
             feedMode: screen.feedMode,
             musicPlaylist: screen.musicPlaylist,
-            people: assignedUsers(screen.users).map((user) => user.name || user.email),
+            people: assignedUsers(screen.users).map((user) => user.email),
             slides: screen.slides,
             notices: screen.notices,
           }))}
