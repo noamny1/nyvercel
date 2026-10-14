@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { isSystemAdmin, requireSession } from "@/lib/session";
-import { open, verifyTotp } from "@/lib/totp";
 
 export const dynamic = "force-dynamic";
 
@@ -97,9 +96,6 @@ export async function POST(request: Request) {
     const email = session.user?.email?.trim().toLowerCase() || "";
     const account = email ? await prisma.user.findUnique({ where: { email } }) : null;
     if (op === "shell-open") {
-      const pending = account?.totpSecret ? open(account.totpSecret) : "";
-      const code = String(body?.code || "");
-      if (!pending || !verifyTotp(pending, code)) return NextResponse.json({ error: "totp" }, { status: 401 });
       const ok = !!account && await bcrypt.compare(raw, account.passwordHash);
       if (!ok) return NextResponse.json({ error: "password" }, { status: 401 });
       const until = new Date(Date.now() + 10 * 60 * 1000);
