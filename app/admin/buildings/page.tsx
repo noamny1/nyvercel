@@ -157,7 +157,7 @@ export default async function BuildingsPage({ searchParams }: { searchParams: Pr
           musicPeers={screens.length}
           themes={await clientThemes()}
           returnTo={query ? `/admin/buildings?q=${encodeURIComponent(query)}` : "/admin/buildings"}
-          rows={screens.map((screen) => ({
+          rows={[...screens].sort((a, b) => (a.groupId || 0) - (b.groupId || 0) || a.listSort - b.listSort || a.id - b.id).map((screen) => ({
             id: screen.id,
             code: screen.code,
             name: screen.name,

@@ -32,6 +32,13 @@ export function ClientScreens({ rows, musicPeers, returnTo, themes }: { rows: Ro
   const [sent, setSent] = useState(false);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
+  const [query, setQuery] = useState("");
+  const needle = query.trim().toLowerCase();
+  const many = rows.length > 1;
+  const visible = rows.filter((screen) => {
+    const place = [screen.street, screen.number, screen.city, screen.floor, screen.code || screen.id].filter(Boolean).join(" ");
+    return !needle || place.toLowerCase().includes(needle);
+  });
 
   function pick(id: number, tab: Panel) {
     setError("");
@@ -41,8 +48,12 @@ export function ClientScreens({ rows, musicPeers, returnTo, themes }: { rows: Ro
   if (!rows.length) return <p>עדיין אין מסכים משויכים.</p>;
 
   return (
-    <section className="client-home">
-      {rows.map((screen) => {
+    <section className={many ? "client-home is-many" : "client-home"}>
+      <label className="client-search">חיפוש כתובת
+        <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="רחוב, עיר, קומה או מספר מסך" />
+      </label>
+      {visible.length === 0 ? <p>אין מסך שמתאים לחיפוש.</p> : null}
+      {visible.map((screen) => {
         const place = [screen.street, screen.number].filter(Boolean).join(" ");
         const address = [place, screen.city].filter(Boolean).join(", ") || screen.name;
         const tab = open?.id === screen.id ? open.tab : null;
