@@ -17,10 +17,10 @@ function jerusalemHour() {
   return Number(value);
 }
 
-function place(screen: { name: string; street: string; number: string; city: string; floor: string; code: number }) {
+function place(screen: { name: string; street: string; number: string; city: string; floor: string; code: number | null }) {
   const line = [screen.street, screen.number].filter(Boolean).join(" ");
   const city = [line, screen.city].filter(Boolean).join(", ");
-  return [city || screen.name, screen.floor || "לובי", `מסך ${screen.code}`].filter(Boolean).join(" · ");
+  return [city || screen.name, screen.floor || "לובי", screen.code ? `מסך ${screen.code}` : ""].filter(Boolean).join(" · ");
 }
 
 function escapeHtml(value: string) {
