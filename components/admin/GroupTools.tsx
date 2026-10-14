@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 
 type Client = { id: number; name: string; email: string };
-type Member = { id: number; name: string };
+type Member = { id: number; email: string };
 
 export function GroupTools({
   groupId,
@@ -30,7 +30,7 @@ export function GroupTools({
   const taken = new Set(members.map((member) => member.id));
   const needle = query.trim().toLowerCase();
   const hits = needle
-    ? clients.filter((user) => !taken.has(user.id) && `${user.name} ${user.email}`.toLowerCase().includes(needle)).slice(0, 8)
+    ? clients.filter((user) => !taken.has(user.id) && user.email.toLowerCase().includes(needle)).slice(0, 8)
     : [];
 
   function choose(id: string) {
@@ -65,7 +65,7 @@ export function GroupTools({
           <form action={removeUser} key={member.id}>
             <input type="hidden" name="id" value={groupId} />
             <input type="hidden" name="userId" value={member.id} />
-            <span>{member.name}</span>
+            <span>{member.email}</span>
             <button type="submit" aria-label="הסרת משתמש">×</button>
           </form>
         )) : <span className="none">לא משוייך משתמש</span>}
@@ -75,8 +75,8 @@ export function GroupTools({
         <input type="hidden" name="userId" value={picked} />
         <input
           value={query}
-          placeholder="הוספת משתמש"
-          aria-label="הוספת משתמש"
+          placeholder="הוספה לפי מייל"
+          aria-label="הוספה לפי מייל"
           autoComplete="off"
           onFocus={() => setOpen(true)}
           onBlur={() => window.setTimeout(() => setOpen(false), 150)}
@@ -89,7 +89,7 @@ export function GroupTools({
           <span className="user-hits">
             {hits.length ? hits.map((user) => (
               <button type="button" key={user.id} onMouseDown={(event) => event.preventDefault()} onClick={() => choose(String(user.id))}>
-                {user.name || user.email}
+                {user.email}
               </button>
             )) : <span className="none">אין משתמש כזה</span>}
           </span>

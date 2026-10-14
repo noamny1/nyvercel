@@ -143,13 +143,13 @@ body:has(.admin) { background: #F4F1ED; overflow-x: hidden; }
 .admin .group-tools select { width: 180px; padding: 8px 10px; }
 .admin .group-tools button { padding: 8px 12px; }
 .admin .user-find { position: relative; }
-.admin .user-find input { width: 180px; padding: 8px 10px; }
+.admin .user-find input { width: 220px; padding: 8px 10px; }
 .admin .user-hits {
   position: absolute;
   z-index: 8;
   top: calc(100% + 4px);
   right: 0;
-  width: 220px;
+  width: 280px;
   background: #fff;
   border: 1px solid rgba(37, 37, 37, 0.16);
   border-radius: 8px;
@@ -167,7 +167,7 @@ body:has(.admin) { background: #F4F1ED; overflow-x: hidden; }
   font-weight: 400;
   padding: 8px 10px;
 }
-.admin .group-members { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; max-width: 360px; }
+.admin .group-members { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; max-width: 520px; }
 .admin .group-members form { display: flex; gap: 4px; align-items: center; background: #F4F1ED; border-radius: 999px; padding: 4px 8px 4px 4px; }
 .admin .group-members button { padding: 0 6px; line-height: 1.4; background: transparent; color: #5A1F2B; border: 0; }
 .admin .group-members .none, .admin .user-hits .none { color: #5c5854; font-size: 13px; padding: 8px 10px; }

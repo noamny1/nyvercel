@@ -9,8 +9,8 @@ import { AdminNav } from "@/components/admin/AdminNav";
 
 export const dynamic = "force-dynamic";
 
-function memberName(user: { name: string; email: string }) {
-  return user.name || user.email;
+function memberName(user: { email: string }) {
+  return user.email;
 }
 
 export default async function AdminHome() {
@@ -83,7 +83,7 @@ export default async function AdminHome() {
                   <GroupTools
                     groupId={group.id}
                     logoUrl={group.logoUrl}
-                    members={group.groupLinks.map((link) => ({ id: link.user.id, name: memberName(link.user) }))}
+                    members={group.groupLinks.map((link) => ({ id: link.user.id, email: link.user.email }))}
                     clients={clients}
                     saveLogo={setGroupLogo}
                     saveUser={setGroupUser}
@@ -91,7 +91,7 @@ export default async function AdminHome() {
                   />
                   <form action={deleteGroup}>
                     <input type="hidden" name="id" value={group.id} />
-                    <button className="light" type="submit">מחיקה</button>
+                    <button className="light" type="submit">מחיקת קבוצה</button>
                   </form>
                 </span>
               ) : null}
