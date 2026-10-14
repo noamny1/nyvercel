@@ -151,10 +151,22 @@ export async function setGroupLogo(formData: FormData) {
   const file = formData.get("file");
   if (!id || !(file instanceof File) || !file.size || !file.type.startsWith("image/")) redirect("/admin");
   if (!process.env.BLOB_READ_WRITE_TOKEN) redirect("/admin");
-  const blob = await put(`uploads/${Date.now()}-${file.name}`, file, { access: "public", contentType: file.type });
+  const blob = await put(`uploads/${Date.now()}-${file.name}`, file, { access: "public", contentType: file.type || "image/gif" });
   await prisma.screenGroup.update({ where: { id }, data: { logoUrl: blob.url } });
+  await prisma.screen.updateMany({ where: { groupId: id }, data: { logoUrl: blob.url } });
   await touchGroup(id);
   redirect("/admin");
+}
+
+export async function syncGroupLogos(groups: { id: number; logoUrl: string }[]) {
+  for (const group of groups) {
+    if (!group.logoUrl) continue;
+    const changed = await prisma.screen.updateMany({
+      where: { groupId: group.id, NOT: { logoUrl: group.logoUrl } },
+      data: { logoUrl: group.logoUrl },
+    });
+    if (changed.count) await touchGroup(group.id);
+  }
 }
 
 export async function setGroupPromo(formData: FormData) {
@@ -533,8 +545,8 @@ export async function createListedScreen(formData: FormData) {
   const managers = groupId
     ? await prisma.groupManager.findMany({ where: { groupId, user: { role: "client" } }, select: { userId: true } })
     : [];
-  const groupPromo = groupId
-    ? await prisma.screenGroup.findUnique({ where: { id: groupId }, select: { promoUrl: true, promoSeconds: true } })
+  const groupRow = groupId
+    ? await prisma.screenGroup.findUnique({ where: { id: groupId }, select: { promoUrl: true, promoSeconds: true, logoUrl: true } })
     : null;
   const last = groupId ? await prisma.screen.aggregate({ where: { groupId }, _max: { listSort: true } }) : null;
   await prisma.screen.create({
@@ -548,7 +560,7 @@ export async function createListedScreen(formData: FormData) {
       groupId,
       code: await nextCode(),
       theme: starter?.theme || starter?.group?.theme || "modern",
-      logoUrl: starter?.logoUrl || starter?.group?.logoUrl || "",
+      logoUrl: groupRow?.logoUrl || starter?.logoUrl || starter?.group?.logoUrl || "",
       newsSource: starter?.newsSource || starter?.group?.newsSource || "ynet",
       newsCount: starter?.newsCount || 8,
       tickerSeconds: starter?.tickerSeconds || 12,
@@ -572,15 +584,15 @@ export async function createListedScreen(formData: FormData) {
             startsOn: slide.startsOn,
             endsOn: slide.endsOn,
           })),
-          ...(groupPromo?.promoUrl ? [{
-            imageUrl: groupPromo.promoUrl,
+          ...(groupRow?.promoUrl ? [{
+            imageUrl: groupRow.promoUrl,
             kind: "image",
             templateId: "group-promo",
             title: "",
             detail: "",
             meta: "",
             sort: 1000,
-            duration: groupPromo.promoSeconds || 20,
+            duration: groupRow.promoSeconds || 20,
             active: true,
             weekdays: "0123456",
             startsOn: "",

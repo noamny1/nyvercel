@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { groupWhere } from "@/lib/access";
 import { isSystemAdmin, requireSession } from "@/lib/session";
 import { GroupTools } from "@/components/admin/GroupTools";
-import { createGroup, deleteGroup, removeGroupUser, setGroupLogo, setGroupPromo, setGroupUser } from "./actions";
+import { createGroup, deleteGroup, removeGroupUser, setGroupLogo, setGroupPromo, setGroupUser, syncGroupLogos } from "./actions";
 import { AdminNav } from "@/components/admin/AdminNav";
 
 export const dynamic = "force-dynamic";
@@ -65,6 +65,7 @@ export default async function AdminHome() {
     members.sort((a, b) => memberName(a).localeCompare(memberName(b), "he"));
     group.groupLinks.splice(0, group.groupLinks.length, ...members.map((user) => ({ user })));
   }
+  await syncGroupLogos(groups.map((group) => ({ id: group.id, logoUrl: group.logoUrl })));
 
   return (
     <main className="admin">
