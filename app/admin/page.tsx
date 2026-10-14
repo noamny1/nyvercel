@@ -4,25 +4,13 @@ import { prisma } from "@/lib/prisma";
 import { groupWhere } from "@/lib/access";
 import { isSystemAdmin, requireSession } from "@/lib/session";
 import { GroupTools } from "@/components/admin/GroupTools";
-import { createGroup, deleteGroup, setGroupLogo, setGroupUser } from "./actions";
+import { createGroup, deleteGroup, removeGroupUser, setGroupLogo, setGroupUser } from "./actions";
 import { AdminNav } from "@/components/admin/AdminNav";
 
 export const dynamic = "force-dynamic";
 
-function leadUser(screens: { users: { id: number }[] }[]) {
-  const counts = new Map<number, number>();
-  for (const screen of screens) {
-    for (const user of screen.users) counts.set(user.id, (counts.get(user.id) || 0) + 1);
-  }
-  let best = 0;
-  let picked = 0;
-  for (const [id, count] of counts) {
-    if (count > best) {
-      best = count;
-      picked = id;
-    }
-  }
-  return picked ? String(picked) : "";
+function memberName(user: { name: string; email: string }) {
+  return user.name || user.email;
 }
 
 export default async function AdminHome() {
@@ -37,6 +25,7 @@ export default async function AdminHome() {
       include: {
         _count: { select: { screens: true } },
         screens: { select: { users: { where: { role: "client" }, select: { id: true } } } },
+        managers: { where: { role: "client" }, select: { id: true, name: true, email: true }, orderBy: { name: "asc" } },
       },
     }),
     prisma.user.findMany({ where: { role: "client" }, orderBy: { name: "asc" }, select: { id: true, name: true, email: true } }),
@@ -52,6 +41,15 @@ export default async function AdminHome() {
       await prisma.screenGroup.updateMany({ where: { id: { in: missing } }, data: { logoUrl: fallback } });
       for (const group of groups) if (!group.logoUrl) group.logoUrl = fallback;
     }
+  }
+  for (const group of groups) {
+    const known = new Set(group.managers.map((user) => user.id));
+    const extra = [...new Set(group.screens.flatMap((screen) => screen.users.map((user) => user.id)))].filter((id) => !known.has(id));
+    if (!extra.length) continue;
+    await prisma.screenGroup.update({ where: { id: group.id }, data: { managers: { connect: extra.map((id) => ({ id })) } } });
+    const added = clients.filter((user) => extra.includes(user.id));
+    group.managers.push(...added);
+    group.managers.sort((a, b) => memberName(a).localeCompare(memberName(b), "he"));
   }
 
   return (
@@ -71,11 +69,11 @@ export default async function AdminHome() {
                   <GroupTools
                     groupId={group.id}
                     logoUrl={group.logoUrl}
-                    userId={leadUser(group.screens)}
-                    userName={clients.find((user) => String(user.id) === leadUser(group.screens))?.name || ""}
+                    members={group.managers.map((user) => ({ id: user.id, name: memberName(user) }))}
                     clients={clients}
                     saveLogo={setGroupLogo}
                     saveUser={setGroupUser}
+                    removeUser={removeGroupUser}
                   />
                   <form action={deleteGroup}>
                     <input type="hidden" name="id" value={group.id} />

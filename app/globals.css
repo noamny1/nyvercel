@@ -167,7 +167,10 @@ body:has(.admin) { background: #F4F1ED; overflow-x: hidden; }
   font-weight: 400;
   padding: 8px 10px;
 }
-.admin .user-hits button:hover { background: #F4F1ED; }
+.admin .group-members { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; max-width: 360px; }
+.admin .group-members form { display: flex; gap: 4px; align-items: center; background: #F4F1ED; border-radius: 999px; padding: 4px 8px 4px 4px; }
+.admin .group-members button { padding: 0 6px; line-height: 1.4; background: transparent; color: #5A1F2B; border: 0; }
+.admin .group-members .none, .admin .user-hits .none { color: #5c5854; font-size: 13px; padding: 8px 10px; }
 .admin .file-pick {
   position: relative;
   border: 1px solid rgba(37, 37, 37, 0.22);

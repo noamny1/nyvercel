@@ -16,6 +16,7 @@ model User {
   totpSecret   String   @default("")
   totpPending  String   @default("")
   screens      Screen[]
+  managedGroups ScreenGroup[] @relation("GroupManagers")
   createdAt    DateTime @default(now())
 
   @@index([role, name])
@@ -44,6 +45,7 @@ model ScreenGroup {
   buildingId Int?
   building   Building? @relation(fields: [buildingId], references: [id], onDelete: SetNull)
   screens    Screen[]
+  managers   User[]       @relation("GroupManagers")
   slides     Slide[]
   notices    Notice[]
   tickers    Ticker[]

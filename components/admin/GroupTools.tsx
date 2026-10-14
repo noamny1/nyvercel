@@ -3,38 +3,39 @@
 import { useRef, useState } from "react";
 
 type Client = { id: number; name: string; email: string };
+type Member = { id: number; name: string };
 
 export function GroupTools({
   groupId,
   logoUrl,
-  userId,
-  userName,
+  members,
   clients,
   saveLogo,
   saveUser,
+  removeUser,
 }: {
   groupId: number;
   logoUrl: string;
-  userId: string;
-  userName: string;
+  members: Member[];
   clients: Client[];
   saveLogo: (formData: FormData) => void;
   saveUser: (formData: FormData) => void;
+  removeUser: (formData: FormData) => void;
 }) {
   const logoForm = useRef<HTMLFormElement>(null);
   const userForm = useRef<HTMLFormElement>(null);
-  const [query, setQuery] = useState(userName);
+  const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
-  const [picked, setPicked] = useState(userId);
+  const [picked, setPicked] = useState("");
+  const taken = new Set(members.map((member) => member.id));
   const needle = query.trim().toLowerCase();
-  const hits = clients.filter((user) => {
-    const label = `${user.name} ${user.email}`.toLowerCase();
-    return !needle || label.includes(needle);
-  }).slice(0, 8);
+  const hits = needle
+    ? clients.filter((user) => !taken.has(user.id) && `${user.name} ${user.email}`.toLowerCase().includes(needle)).slice(0, 8)
+    : [];
 
-  function choose(id: string, label: string) {
+  function choose(id: string) {
     setPicked(id);
-    setQuery(label);
+    setQuery("");
     setOpen(false);
     const form = userForm.current;
     const field = form?.querySelector('input[name="userId"]') as HTMLInputElement | null;
@@ -59,13 +60,23 @@ export function GroupTools({
           />
         </label>
       </form>
+      <span className="group-members">
+        {members.length ? members.map((member) => (
+          <form action={removeUser} key={member.id}>
+            <input type="hidden" name="id" value={groupId} />
+            <input type="hidden" name="userId" value={member.id} />
+            <span>{member.name}</span>
+            <button type="submit" aria-label="הסרת משתמש">×</button>
+          </form>
+        )) : <span className="none">לא משוייך משתמש</span>}
+      </span>
       <form action={saveUser} ref={userForm} className="user-find">
         <input type="hidden" name="id" value={groupId} />
         <input type="hidden" name="userId" value={picked} />
         <input
           value={query}
-          placeholder="חיפוש משתמש"
-          aria-label="חיפוש משתמש"
+          placeholder="הוספת משתמש"
+          aria-label="הוספת משתמש"
           autoComplete="off"
           onFocus={() => setOpen(true)}
           onBlur={() => window.setTimeout(() => setOpen(false), 150)}
@@ -74,14 +85,13 @@ export function GroupTools({
             setOpen(true);
           }}
         />
-        {open ? (
+        {open && needle ? (
           <span className="user-hits">
-            <button type="button" onMouseDown={(event) => event.preventDefault()} onClick={() => choose("", "")}>בלי משתמש</button>
-            {hits.map((user) => (
-              <button type="button" key={user.id} onMouseDown={(event) => event.preventDefault()} onClick={() => choose(String(user.id), user.name || user.email)}>
+            {hits.length ? hits.map((user) => (
+              <button type="button" key={user.id} onMouseDown={(event) => event.preventDefault()} onClick={() => choose(String(user.id))}>
                 {user.name || user.email}
               </button>
-            ))}
+            )) : <span className="none">אין משתמש כזה</span>}
           </span>
         ) : null}
       </form>
