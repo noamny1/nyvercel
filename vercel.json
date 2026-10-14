@@ -6,6 +6,10 @@
     {
       "path": "/api/cron/news",
       "schedule": "*/15 * * * *"
+    },
+    {
+      "path": "/api/cron/backup",
+      "schedule": "20 1 * * *"
     }
   ]
 }
