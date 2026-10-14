@@ -236,11 +236,7 @@ export async function moveAddress(formData: FormData) {
   const number = String(formData.get("number") || fromGroup.number);
   const city = String(formData.get("city") || fromGroup.city);
   if (screenId) {
-    await prisma.screen.update({
-      where: { id: screenId },
-      data: { groupId: to, street, number, city, name: label || street },
-    });
-    await touchScreen(screenId);
+    await adoptGroup(screenId, to);
   } else {
     await prisma.screen.create({
       data: { groupId: to, street, number, city, name: label || "כתובת", code: await nextCode() },
@@ -346,6 +342,42 @@ async function starterScreen() {
   return found.find((screen) => screen.name === name) || found[0] || null;
 }
 
+async function adoptGroup(screenId: number, groupId: number) {
+  const [target, starter] = await Promise.all([
+    prisma.screenGroup.findUnique({ where: { id: groupId }, select: { logoUrl: true } }),
+    starterScreen(),
+  ]);
+  const slides = starter && starter.slides.length > 0 ? starter.slides : starter?.group?.slides || [];
+  await prisma.$transaction([
+    prisma.slide.deleteMany({ where: { screenId } }),
+    prisma.notice.deleteMany({ where: { screenId } }),
+    ...(slides.length
+      ? [prisma.slide.createMany({
+          data: slides.map((slide) => ({
+            screenId,
+            imageUrl: slide.imageUrl,
+            kind: slide.kind,
+            templateId: slide.templateId,
+            title: slide.title,
+            detail: slide.detail,
+            meta: slide.meta,
+            sort: slide.sort,
+            duration: slide.duration,
+            active: slide.active,
+            weekdays: slide.weekdays,
+            startsOn: slide.startsOn,
+            endsOn: slide.endsOn,
+          })),
+        })]
+      : []),
+    prisma.screen.update({
+      where: { id: screenId },
+      data: { groupId, logoUrl: target?.logoUrl || "" },
+    }),
+  ]);
+  await touchScreen(screenId);
+}
+
 export async function createListedScreen(formData: FormData) {
   await gate();
   const street = String(formData.get("street") || "").trim();
@@ -407,7 +439,8 @@ export async function moveListedScreen(formData: FormData) {
   await ownerGate();
   const id = Number(formData.get("id"));
   const groupId = Number(formData.get("groupId")) || null;
-  if (id) {
+  if (id && groupId) await adoptGroup(id, groupId);
+  else if (id) {
     await prisma.screen.update({ where: { id }, data: { groupId } });
     await touchScreen(id);
   }
