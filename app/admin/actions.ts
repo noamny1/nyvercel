@@ -441,6 +441,7 @@ export async function createListedScreen(formData: FormData) {
   const street = String(formData.get("street") || "").trim();
   const number = String(formData.get("number") || "").trim();
   const city = String(formData.get("city") || "").trim();
+  const floor = String(formData.get("floor") || "").trim().slice(0, 40) || "לובי";
   const groupId = Number(formData.get("groupId")) || null;
   const place = [street, number].filter(Boolean).join(" ");
   const starter = await starterScreen();
@@ -455,6 +456,7 @@ export async function createListedScreen(formData: FormData) {
       street,
       number,
       city,
+      floor,
       groupId,
       code: await nextCode(),
       theme: starter?.theme || starter?.group?.theme || "modern",
