@@ -132,7 +132,11 @@ export default async function BuildingsPage({ searchParams }: { searchParams: Pr
                       <GroupMove screenId={screen.id} groupId={screen.groupId} groups={groups} />
                     </td>
                   ) : null}
-                  {owner ? <td data-label="סטטוס"><span className={`status ${state}`}><i />{label}</span></td> : null}
+                  {owner ? (
+                    <td data-label="סטטוס">
+                      <span className={`status ${state === "online" ? "online" : "offline"}`} title={label} aria-label={label}><i /></span>
+                    </td>
+                  ) : null}
                   <td data-label="משתמשים">
                     {people.length ? people.map((user) => <span key={user.email} className="assigned-user">{user.email}</span>) : "—"}
                   </td>

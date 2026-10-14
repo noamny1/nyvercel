@@ -725,10 +725,9 @@ body:has(.admin) { background: #F4F1ED; overflow-x: hidden; }
   padding: 12px 14px;
   color: #252525;
 }
-.admin .status { display: inline-flex; align-items: center; gap: 8px; }
-.admin .status i { width: 8px; height: 8px; border-radius: 50%; background: #8a847c; }
-.admin .status.online i { background: #2f6b45; }
-.admin .status.offline i { background: #5A1F2B; }
+.admin .status { display: inline-flex; align-items: center; justify-content: center; }
+.admin .status i { width: 14px; height: 14px; border-radius: 50%; background: #d12626; box-shadow: 0 0 8px #d12626; }
+.admin .status.online i { background: #1faa4a; box-shadow: 0 0 8px #1faa4a; }
 .admin .acts { display: flex; flex-wrap: wrap; gap: 4px; justify-content: flex-end; }
 .admin .icon-btn, .admin .acts button {
   display: inline-flex;
