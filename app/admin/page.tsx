@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { groupWhere } from "@/lib/access";
 import { isSystemAdmin, requireSession } from "@/lib/session";
+import { GroupTools } from "@/components/admin/GroupTools";
 import { createGroup, deleteGroup, setGroupLogo, setGroupUser } from "./actions";
 import { AdminNav } from "@/components/admin/AdminNav";
 
@@ -67,25 +68,15 @@ export default async function AdminHome() {
               </span>
               {owner ? (
                 <span className="group-tools">
-                  <form action={setGroupLogo}>
-                    <input type="hidden" name="id" value={group.id} />
-                    {group.logoUrl ? <img src={group.logoUrl} alt="" /> : null}
-                    <label className="file-pick">
-                      החלפת לוגו
-                      <input name="file" type="file" accept="image/*" required />
-                    </label>
-                    <button className="light" type="submit">שמירה</button>
-                  </form>
-                  <form action={setGroupUser}>
-                    <input type="hidden" name="id" value={group.id} />
-                    <select name="userId" defaultValue={leadUser(group.screens)} aria-label="משתמש הקבוצה">
-                      <option value="">בלי משתמש</option>
-                      {clients.map((user) => (
-                        <option key={user.id} value={user.id}>{user.name || user.email}</option>
-                      ))}
-                    </select>
-                    <button className="light" type="submit">משתמש</button>
-                  </form>
+                  <GroupTools
+                    groupId={group.id}
+                    logoUrl={group.logoUrl}
+                    userId={leadUser(group.screens)}
+                    userName={clients.find((user) => String(user.id) === leadUser(group.screens))?.name || ""}
+                    clients={clients}
+                    saveLogo={setGroupLogo}
+                    saveUser={setGroupUser}
+                  />
                   <form action={deleteGroup}>
                     <input type="hidden" name="id" value={group.id} />
                     <button className="light" type="submit">מחיקה</button>

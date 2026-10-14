@@ -142,6 +142,32 @@ body:has(.admin) { background: #F4F1ED; overflow-x: hidden; }
 .admin .group-tools img { width: 72px; height: 36px; object-fit: contain; background: #252525; border-radius: 6px; }
 .admin .group-tools select { width: 180px; padding: 8px 10px; }
 .admin .group-tools button { padding: 8px 12px; }
+.admin .user-find { position: relative; }
+.admin .user-find input { width: 180px; padding: 8px 10px; }
+.admin .user-hits {
+  position: absolute;
+  z-index: 8;
+  top: calc(100% + 4px);
+  right: 0;
+  width: 220px;
+  background: #fff;
+  border: 1px solid rgba(37, 37, 37, 0.16);
+  border-radius: 8px;
+  display: grid;
+  max-height: 220px;
+  overflow: auto;
+  box-shadow: 0 8px 24px rgba(37, 37, 37, 0.12);
+}
+.admin .user-hits button {
+  background: transparent;
+  color: #252525;
+  border: 0;
+  border-radius: 0;
+  text-align: right;
+  font-weight: 400;
+  padding: 8px 10px;
+}
+.admin .user-hits button:hover { background: #F4F1ED; }
 .admin .file-pick {
   position: relative;
   border: 1px solid rgba(37, 37, 37, 0.22);
