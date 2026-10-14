@@ -25,11 +25,6 @@ export async function GET(request: Request) {
       update: { keeperAt: now },
       create: { screenId: id, keeperAt: now },
     });
-    await prisma.heartbeat.upsert({
-      where: { screenId: id },
-      update: { at: now },
-      create: { screenId: id, at: now },
-    });
   } catch {
     return NextResponse.json({ upgrade: "", restore: "" });
   }

@@ -61,17 +61,6 @@ export async function GET(request: Request) {
   const who = new URL(request.url).searchParams.get("who");
   if (who === "keeper" && new URL(request.url).searchParams.get("wait") === "1") return hold(id);
   const now = new Date();
-  if (who !== "keeper") {
-    try {
-      await prisma.heartbeat.upsert({
-        where: { screenId: id },
-        update: { at: now },
-        create: { screenId: id, at: now },
-      });
-    } catch {
-      // The screen can still be watched if the heartbeat table is briefly unavailable.
-    }
-  }
   if (who === "keeper") {
     try {
       await prisma.remoteDesk.upsert({

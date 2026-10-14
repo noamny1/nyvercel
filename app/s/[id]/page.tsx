@@ -266,7 +266,6 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
 (function () {
   function start() {
   function beat() {
-    if (document.documentElement.getAttribute("data-player") === "live") return;
     var stage = document.querySelector(".stage");
     var code = stage ? stage.getAttribute("data-code") : "";
     if (!code) return;

@@ -21,13 +21,9 @@ function assignedUsers(users: { name: string; email: string; role: string }[]) {
   });
 }
 
-function fresh(at: Date | null | undefined, now: number) {
-  return !!at && now - at.getTime() <= ONLINE_MS;
-}
-
-function stateOf(screen: { active: boolean; heartbeat: { at: Date } | null; remoteDesk?: { keeperAt: Date | null } | null; deviceStatus?: { at: Date } | null }, now: number) {
+function stateOf(screen: { active: boolean; heartbeat: { at: Date } | null }, now: number) {
   if (!screen.active) return "inactive";
-  if (fresh(screen.heartbeat?.at, now) || fresh(screen.remoteDesk?.keeperAt, now) || fresh(screen.deviceStatus?.at, now)) return "online";
+  if (screen.heartbeat && now - screen.heartbeat.at.getTime() <= ONLINE_MS) return "online";
   return "offline";
 }
 
@@ -61,8 +57,6 @@ export default async function BuildingsPage({ searchParams }: { searchParams: Pr
       include: {
         group: true,
         heartbeat: true,
-        remoteDesk: { select: { keeperAt: true } },
-        deviceStatus: { select: { at: true } },
         users: { select: { name: true, email: true, role: true }, orderBy: { email: "asc" } },
         slides: { orderBy: { sort: "asc" } },
         notices: { orderBy: { id: "desc" } },

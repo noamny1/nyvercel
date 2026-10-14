@@ -9,13 +9,9 @@ export const dynamic = "force-dynamic";
 
 const ONLINE_MS = 8 * 60 * 1000;
 
-function fresh(at: Date | null | undefined, now: number) {
-  return !!at && now - at.getTime() <= ONLINE_MS;
-}
-
-function stateOf(screen: { active: boolean; heartbeat: { at: Date } | null; remoteDesk?: { keeperAt: Date | null } | null; deviceStatus?: { at: Date } | null }, now: number) {
+function stateOf(screen: { active: boolean; heartbeat: { at: Date } | null }, now: number) {
   if (!screen.active) return "inactive";
-  if (fresh(screen.heartbeat?.at, now) || fresh(screen.remoteDesk?.keeperAt, now) || fresh(screen.deviceStatus?.at, now)) return "online";
+  if (screen.heartbeat && now - screen.heartbeat.at.getTime() <= ONLINE_MS) return "online";
   return "offline";
 }
 
@@ -28,34 +24,21 @@ export default async function ControlPage({ searchParams }: { searchParams: Prom
   const now = Date.now();
   const where = await screenWhere(session);
   const cutoff = new Date(now - ONLINE_MS);
-  const alive = {
-    active: true,
-    OR: [
-      { heartbeat: { is: { at: { gte: cutoff } } } },
-      { remoteDesk: { is: { keeperAt: { gte: cutoff } } } },
-      { deviceStatus: { is: { at: { gte: cutoff } } } },
-    ],
-  };
-  const quiet = {
-    active: true,
-    AND: [
-      { OR: [{ heartbeat: { is: null } }, { heartbeat: { is: { at: { lt: cutoff } } } }] },
-      { OR: [{ remoteDesk: { is: null } }, { remoteDesk: { is: { OR: [{ keeperAt: null }, { keeperAt: { lt: cutoff } }] } } }] },
-      { OR: [{ deviceStatus: { is: null } }, { deviceStatus: { is: { at: { lt: cutoff } } } }] },
-    ],
-  };
   const statusWhere =
     filter === "online"
-      ? alive
+      ? { active: true, heartbeat: { is: { at: { gte: cutoff } } } }
       : filter === "inactive"
         ? { active: false }
         : filter === "offline"
-          ? quiet
+          ? {
+              active: true,
+              OR: [{ heartbeat: { is: null } }, { heartbeat: { is: { at: { lt: cutoff } } } }],
+            }
           : {};
   const [total, inactive, online, screens] = await Promise.all([
     prisma.screen.count({ where }),
     prisma.screen.count({ where: { AND: [where, { active: false }] } }),
-    prisma.screen.count({ where: { AND: [where, alive] } }),
+    prisma.screen.count({ where: { AND: [where, { active: true, heartbeat: { is: { at: { gte: cutoff } } } }] } }),
     prisma.screen.findMany({
       where: { AND: [where, statusWhere] },
       orderBy: { id: "desc" },
