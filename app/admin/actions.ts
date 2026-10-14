@@ -157,6 +157,53 @@ export async function setGroupLogo(formData: FormData) {
   redirect("/admin");
 }
 
+export async function setGroupPromo(formData: FormData) {
+  await ownerGate();
+  const id = Number(formData.get("id"));
+  const url = String(formData.get("url") || "");
+  const duration = Math.max(8, Math.min(60, Math.round(Number(formData.get("duration")) || 20)));
+  if (!id || !/^https:\/\/.+\.mp4(\?|$)/i.test(url)) redirect("/admin");
+  await prisma.screenGroup.update({ where: { id }, data: { promoUrl: url, promoSeconds: duration } });
+  await spreadGroupPromo(id, url, duration);
+  redirect("/admin");
+}
+
+async function spreadGroupPromo(groupId: number, url: string, duration: number) {
+  const screens = await prisma.screen.findMany({ where: { groupId }, select: { id: true } });
+  if (!screens.length) {
+    await touchGroup(groupId);
+    return;
+  }
+  const ids = screens.map((screen) => screen.id);
+  const existing = await prisma.slide.findMany({
+    where: { screenId: { in: ids }, templateId: "group-promo" },
+    select: { screenId: true },
+  });
+  const have = new Set(existing.map((slide) => slide.screenId));
+  if (have.size) {
+    await prisma.slide.updateMany({
+      where: { screenId: { in: [...have].filter((id): id is number => id != null) }, templateId: "group-promo" },
+      data: { imageUrl: url, duration, active: true, weekdays: "0123456", title: "", detail: "" },
+    });
+  }
+  const missing = ids.filter((id) => !have.has(id));
+  if (missing.length) {
+    await prisma.slide.createMany({
+      data: missing.map((screenId) => ({
+        screenId,
+        imageUrl: url,
+        kind: "image",
+        templateId: "group-promo",
+        duration,
+        weekdays: "0123456",
+        sort: 1000,
+        active: true,
+      })),
+    });
+  }
+  await touchGroup(groupId);
+}
+
 export async function setGroupUser(formData: FormData) {
   await ownerGate();
   const id = Number(formData.get("id"));
@@ -402,7 +449,7 @@ async function starterScreen() {
 
 async function adoptGroup(screenId: number, groupId: number) {
   const [target, starter] = await Promise.all([
-    prisma.screenGroup.findUnique({ where: { id: groupId }, select: { logoUrl: true, groupLinks: { select: { userId: true } } } }),
+    prisma.screenGroup.findUnique({ where: { id: groupId }, select: { logoUrl: true, promoUrl: true, promoSeconds: true, groupLinks: { select: { userId: true } } } }),
     starterScreen(),
   ]);
   const slides = starter && starter.slides.length > 0 ? starter.slides : starter?.group?.slides || [];
@@ -435,6 +482,21 @@ async function adoptGroup(screenId: number, groupId: number) {
     }),
   ]);
   await touchScreen(screenId);
+  if (target?.promoUrl) {
+    await prisma.slide.create({
+      data: {
+        screenId,
+        imageUrl: target.promoUrl,
+        kind: "image",
+        templateId: "group-promo",
+        duration: target.promoSeconds || 20,
+        weekdays: "0123456",
+        sort: 1000,
+        active: true,
+      },
+    });
+    await touchScreen(screenId);
+  }
 }
 
 export async function reorderGroupScreens(formData: FormData) {
@@ -471,6 +533,9 @@ export async function createListedScreen(formData: FormData) {
   const managers = groupId
     ? await prisma.groupManager.findMany({ where: { groupId, user: { role: "client" } }, select: { userId: true } })
     : [];
+  const groupPromo = groupId
+    ? await prisma.screenGroup.findUnique({ where: { id: groupId }, select: { promoUrl: true, promoSeconds: true } })
+    : null;
   const last = groupId ? await prisma.screen.aggregate({ where: { groupId }, _max: { listSort: true } }) : null;
   await prisma.screen.create({
     data: {
@@ -492,20 +557,36 @@ export async function createListedScreen(formData: FormData) {
       musicPlaylist: starter?.musicPlaylist || "",
       ...(managers.length ? { users: { connect: managers.map((link) => ({ id: link.userId })) } } : {}),
       slides: {
-        create: slides.map((slide) => ({
-          imageUrl: slide.imageUrl,
-          kind: slide.kind,
-          templateId: slide.templateId,
-          title: slide.title,
-          detail: slide.detail,
-          meta: slide.meta,
-          sort: slide.sort,
-          duration: slide.duration,
-          active: slide.active,
-          weekdays: slide.weekdays,
-          startsOn: slide.startsOn,
-          endsOn: slide.endsOn,
-        })),
+        create: [
+          ...slides.map((slide) => ({
+            imageUrl: slide.imageUrl,
+            kind: slide.kind,
+            templateId: slide.templateId,
+            title: slide.title,
+            detail: slide.detail,
+            meta: slide.meta,
+            sort: slide.sort,
+            duration: slide.duration,
+            active: slide.active,
+            weekdays: slide.weekdays,
+            startsOn: slide.startsOn,
+            endsOn: slide.endsOn,
+          })),
+          ...(groupPromo?.promoUrl ? [{
+            imageUrl: groupPromo.promoUrl,
+            kind: "image",
+            templateId: "group-promo",
+            title: "",
+            detail: "",
+            meta: "",
+            sort: 1000,
+            duration: groupPromo.promoSeconds || 20,
+            active: true,
+            weekdays: "0123456",
+            startsOn: "",
+            endsOn: "",
+          }] : []),
+        ],
       },
       notices: {
         create: notices.map((notice) => ({ text: notice.text, active: notice.active })),

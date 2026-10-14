@@ -611,6 +611,7 @@ export function SavedSlideEditor({
             </label>
           ) : null}
           {kind === "youtube" && fixed && !pest ? <p>סרטון קבוע. אפשר למחוק אותו מהמסך, אבל אי אפשר להחליף את הקישור.</p> : null}
+          {slide.templateId === "group-promo" ? <p>סרטון תדמית של הקבוצה. מחיקה מסירה אותו רק מהכתובת הזו.</p> : null}
           <label>שניות<input type="number" min={qr ? 8 : pest ? 5 : 3} value={seconds} readOnly={locked} onChange={(event) => setSeconds(Number(event.target.value))} /></label>
           {locked ? <p>האורך נקבע לפי הסרטון: {official?.duration} שניות.</p> : null}
           {pest ? <p>הסרטון חוזר על עצמו לפי מספר השניות.</p> : null}

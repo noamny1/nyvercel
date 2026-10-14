@@ -364,7 +364,7 @@ export function ScreenEditor({
                   setOpenSlide(slide.id);
                 }}
               >
-                <span className="slide-label">{slide.title || (slide.kind === "youtube" ? "סרטון" : "שקף")}</span>
+                <span className="slide-label">{slide.templateId === "group-promo" ? "סרטון תדמית" : slide.title || (slide.kind === "youtube" ? "סרטון" : "שקף")}</span>
                 <span className="thumb">
                   {slide.kind === "youtube" ? <img src={/\.mp4(\?|$)/i.test(slide.imageUrl) ? slide.imageUrl.replace(/\.mp4(\?|$)/i, ".jpg$1") : `https://i.ytimg.com/vi/${slide.imageUrl.slice(-11)}/hqdefault.jpg`} alt="" /> : slide.imageUrl.toLowerCase().includes(".pdf") ? <span className="pdf-mark">PDF</span> : <img src={slide.imageUrl} alt="" />}
                   <KindMark video={slide.kind === "youtube"} />

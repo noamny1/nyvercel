@@ -141,6 +141,7 @@ body:has(.admin) { background: #F4F1ED; overflow-x: hidden; }
 .admin .group-tools { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: flex-end; }
 .admin .group-tools form { display: flex; gap: 8px; align-items: center; }
 .admin .group-tools img { width: 72px; height: 36px; object-fit: contain; background: #252525; border-radius: 6px; }
+.admin .group-tools video { width: 72px; height: 36px; object-fit: cover; background: #252525; border-radius: 6px; }
 .admin .group-tools select { width: 180px; padding: 8px 10px; }
 .admin .group-tools button { padding: 8px 12px; }
 .admin .user-find { position: relative; }

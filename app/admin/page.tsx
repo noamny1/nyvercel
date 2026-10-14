@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { groupWhere } from "@/lib/access";
 import { isSystemAdmin, requireSession } from "@/lib/session";
 import { GroupTools } from "@/components/admin/GroupTools";
-import { createGroup, deleteGroup, removeGroupUser, setGroupLogo, setGroupUser } from "./actions";
+import { createGroup, deleteGroup, removeGroupUser, setGroupLogo, setGroupPromo, setGroupUser } from "./actions";
 import { AdminNav } from "@/components/admin/AdminNav";
 
 export const dynamic = "force-dynamic";
@@ -70,7 +70,7 @@ export default async function AdminHome() {
     <main className="admin">
       <AdminNav />
       <h1>ניהול קבוצות מסכים</h1>
-      <p>נכנסים לשם הקבוצה כדי לשנות אותו. כאן מגדירים לוגו ומשתמש.</p>
+      <p>נכנסים לשם הקבוצה כדי לשנות אותו. כאן מגדירים לוגו, סרטון תדמית ומשתמש.</p>
       <div className="screens">
         {groups.map((group) => (
             <div className="group-row" key={group.id}>
@@ -83,9 +83,11 @@ export default async function AdminHome() {
                   <GroupTools
                     groupId={group.id}
                     logoUrl={group.logoUrl}
+                    promoUrl={group.promoUrl}
                     members={group.groupLinks.map((link) => ({ id: link.user.id, email: link.user.email }))}
                     clients={clients}
                     saveLogo={setGroupLogo}
+                    savePromo={setGroupPromo}
                     saveUser={setGroupUser}
                     removeUser={removeGroupUser}
                   />

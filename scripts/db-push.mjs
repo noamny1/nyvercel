@@ -91,6 +91,8 @@ const statements = [
     CONSTRAINT "ShellAudit_pkey" PRIMARY KEY ("id")
   )`,
   `ALTER TABLE "Screen" ADD COLUMN IF NOT EXISTS "floor" TEXT NOT NULL DEFAULT 'לובי'`,
+  `ALTER TABLE "ScreenGroup" ADD COLUMN IF NOT EXISTS "promoUrl" TEXT NOT NULL DEFAULT ''`,
+  `ALTER TABLE "ScreenGroup" ADD COLUMN IF NOT EXISTS "promoSeconds" INTEGER NOT NULL DEFAULT 20`,
   `ALTER TABLE "Screen" ADD COLUMN IF NOT EXISTS "listSort" INTEGER NOT NULL DEFAULT 0`,
   `UPDATE "Screen" SET "listSort" = "id" WHERE "listSort" = 0`,
   `ALTER TABLE "Screen" ADD COLUMN IF NOT EXISTS "newsTicker" TEXT NOT NULL DEFAULT 'on'`,

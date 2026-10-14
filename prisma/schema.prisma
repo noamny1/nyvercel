@@ -40,6 +40,8 @@ model ScreenGroup {
   city       String   @default("")
   theme      String   @default("modern")
   logoUrl    String   @default("")
+  promoUrl   String   @default("")
+  promoSeconds Int     @default(20)
   newsSource String   @default("ynet")
   musicUrl   String   @default("")
   buildingId Int?
