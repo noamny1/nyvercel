@@ -16,10 +16,10 @@ export function isThemeId(value: string): value is ThemeId {
   return THEMES.some((theme) => theme.id === value);
 }
 
-export async function clientThemeIds() {
+export async function clientThemeIds(): Promise<ThemeId[]> {
   const row = await prisma.systemFlag.findUnique({ where: { id: "clientThemes" } }).catch(() => null);
   if (!row) return DEFAULT_CLIENT_IDS;
-  const picked = row.value.split(",").map((item) => item.trim()).filter(isThemeId).filter((id) => id !== "luxury720");
+  const picked = row.value.split(",").map((item) => item.trim()).filter((id): id is ThemeId => isThemeId(id) && id !== "luxury720");
   return picked.length > 0 ? picked : DEFAULT_CLIENT_IDS;
 }
 
@@ -31,8 +31,8 @@ export async function clientThemes() {
 export async function savedTheme(requested: string, current: string, owner = false) {
   if (owner && (requested === "luxury" || requested === "luxury720")) return requested;
   if (!owner && requested === "luxury" && current === "luxury720") return "luxury720";
-  const ids = (await clientThemeIds()).filter((id) => id !== "luxury720");
-  if (isThemeId(requested) && ids.includes(requested)) return requested;
-  if (isThemeId(current) && (ids.includes(current) || current === "luxury720")) return current;
-  return ids[0] || "modern";
+  const ids = await clientThemeIds();
+  if (isThemeId(requested) && requested !== "luxury720" && ids.includes(requested)) return requested;
+  if (isThemeId(current) && (current === "luxury720" || ids.includes(current))) return current;
+  return ids.find((id) => id !== "luxury720") || "modern";
 }
