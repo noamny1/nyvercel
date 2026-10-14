@@ -175,7 +175,7 @@ export async function renameGroup(formData: FormData) {
   const id = Number(formData.get("id"));
   const name = String(formData.get("name") || "").trim();
   if (id && name) await prisma.screenGroup.update({ where: { id }, data: { name } });
-  redirect("/admin");
+  redirect(id ? `/admin/groups/${id}` : "/admin");
 }
 
 export async function deleteGroup(formData: FormData) {

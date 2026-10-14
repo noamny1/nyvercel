@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { groupWhere } from "@/lib/access";
 import { isSystemAdmin, requireSession } from "@/lib/session";
-import { createGroup, deleteGroup, renameGroup, setGroupLogo, setGroupUser } from "./actions";
+import { createGroup, deleteGroup, setGroupLogo, setGroupUser } from "./actions";
 import { AdminNav } from "@/components/admin/AdminNav";
 
 export const dynamic = "force-dynamic";
@@ -57,21 +57,24 @@ export default async function AdminHome() {
     <main className="admin">
       <AdminNav />
       <h1>ניהול קבוצות מסכים</h1>
-      <p>קבוצה היא שם בלבד. את הכתובות יוצרים בלשונית בניינים ומשייכים משם.</p>
+      <p>נכנסים לשם הקבוצה כדי לשנות אותו. כאן מגדירים לוגו ומשתמש.</p>
       <div className="screens">
         {groups.map((group) => (
-            <div key={group.id}>
+            <div className="group-row" key={group.id}>
               <span className="screen-title">
                 <Link href={`/admin/groups/${group.id}`}>{group.name}</Link>
                 <small>{group._count.screens} מסכים</small>
               </span>
               {owner ? (
-                <span className="screen-actions">
+                <span className="group-tools">
                   <form action={setGroupLogo}>
                     <input type="hidden" name="id" value={group.id} />
-                    {group.logoUrl ? <img src={group.logoUrl} alt="" width={72} height={32} style={{ objectFit: "contain" }} /> : null}
-                    <input name="file" type="file" accept="image/*" aria-label="לוגו הקבוצה" required />
-                    <button className="light" type="submit">לוגו</button>
+                    {group.logoUrl ? <img src={group.logoUrl} alt="" /> : null}
+                    <label className="file-pick">
+                      החלפת לוגו
+                      <input name="file" type="file" accept="image/*" required />
+                    </label>
+                    <button className="light" type="submit">שמירה</button>
                   </form>
                   <form action={setGroupUser}>
                     <input type="hidden" name="id" value={group.id} />
@@ -82,11 +85,6 @@ export default async function AdminHome() {
                       ))}
                     </select>
                     <button className="light" type="submit">משתמש</button>
-                  </form>
-                  <form action={renameGroup}>
-                    <input type="hidden" name="id" value={group.id} />
-                    <input name="name" defaultValue={group.name} aria-label="שם הקבוצה" required />
-                    <button className="light" type="submit">שמירת שם</button>
                   </form>
                   <form action={deleteGroup}>
                     <input type="hidden" name="id" value={group.id} />

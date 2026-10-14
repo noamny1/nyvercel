@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { ScreenEditor } from "@/components/admin/ScreenEditor";
 import { AdminNav } from "@/components/admin/AdminNav";
-import { deleteAddress, moveAddress } from "@/app/admin/actions";
+import { deleteAddress, moveAddress, renameGroup } from "@/app/admin/actions";
 import { prisma } from "@/lib/prisma";
 import { screenWhere } from "@/lib/access";
 import { NEWS_SOURCES } from "@/lib/news-sources";
@@ -51,7 +51,13 @@ export default async function GroupPage({
     <main className="admin">
       <AdminNav />
       <p><Link href="/admin">כל הקבוצות</Link></p>
-      <h1>{group.name}</h1>
+      {owner ? (
+        <form className="card group-name" action={renameGroup}>
+          <input type="hidden" name="id" value={group.id} />
+          <label>שם הקבוצה<input name="name" defaultValue={group.name} required /></label>
+          <button type="submit">עדכון שם</button>
+        </form>
+      ) : <h1>{group.name}</h1>}
       <section className="card">
         <h2>מסכים משויכים</h2>
         {screens.length === 0 ? <p>אין עדיין כתובת בקבוצה. יוצרים כתובת בלשונית בניינים ומשייכים אותה לכאן.</p> : null}
