@@ -5,7 +5,7 @@ import { useEffect, useRef, type ReactNode } from "react";
 const WIDTH = 1366;
 const HEIGHT = 768;
 
-export function FitStage({ className, children, width = WIDTH, height = HEIGHT, fill = 0.97 }: { className: string; children: ReactNode; width?: number; height?: number; fill?: number }) {
+export function FitStage({ className, children, width = WIDTH, height = HEIGHT, fill = 0.97, code = 0, revision = 0 }: { className: string; children: ReactNode; width?: number; height?: number; fill?: number; code?: number; revision?: number }) {
   const ref = useRef<HTMLElement>(null);
 
   useEffect(() => {
@@ -21,7 +21,7 @@ export function FitStage({ className, children, width = WIDTH, height = HEIGHT, 
   }, [width, height, fill]);
 
   return (
-    <main ref={ref} className={className}>
+    <main ref={ref} className={className} data-code={code || undefined} data-rev={revision || undefined}>
       {children}
     </main>
   );

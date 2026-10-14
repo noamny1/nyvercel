@@ -117,7 +117,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
 
   return (
     <>
-    <FitStage width={wide ? 1280 : 1366} height={wide ? 720 : 768} fill={wide ? 1 : 0.97} className={`stage theme-${theme}${luxury ? ` layout-luxury ${heebo.className}` : ""}${wide ? " layout-luxury720" : ""}${modern ? " layout-modern" : ""}${cinematic ? ` layout-${theme} ${heebo.className}` : ""}${tickerOn && !luxury && !modern && !cinematic ? "" : " no-ticker"}`}>
+    <FitStage width={wide ? 1280 : 1366} height={wide ? 720 : 768} fill={wide ? 1 : 0.97} code={screen.code || screen.id} revision={screen.revision} className={`stage theme-${theme}${luxury ? ` layout-luxury ${heebo.className}` : ""}${wide ? " layout-luxury720" : ""}${modern ? " layout-modern" : ""}${cinematic ? ` layout-${theme} ${heebo.className}` : ""}${tickerOn && !luxury && !modern && !cinematic ? "" : " no-ticker"}`}>
       <Music playlist={silenced ? "off" : screen.musicPlaylist || ""} url={silenced ? "" : screen.group?.musicUrl || ""} start={screen.id} />
       <NewsGate mode={newsMode} />
       <Wake />
@@ -265,6 +265,24 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
     <script dangerouslySetInnerHTML={{ __html: `
 (function () {
   function start() {
+  function beat() {
+    if (document.documentElement.getAttribute("data-player") === "live") return;
+    var stage = document.querySelector(".stage");
+    var code = stage ? stage.getAttribute("data-code") : "";
+    if (!code) return;
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", "/api/ping?code=" + code + "&beat=1", true);
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState !== 4 || xhr.status !== 200) return;
+      var revision = stage.getAttribute("data-rev") || "";
+      var data = null;
+      try { data = JSON.parse(xhr.responseText); } catch (err) { data = null; }
+      if (data && data.r && revision && String(data.r) !== String(revision)) location.replace(location.pathname + "?v=" + data.r);
+    };
+    xhr.send();
+  }
+  beat();
+  window.setInterval(beat, 12000);
   var root = document.getElementById("slide-stack");
   if (!root) return;
   var nodes = root.getElementsByClassName("slide-pane");
