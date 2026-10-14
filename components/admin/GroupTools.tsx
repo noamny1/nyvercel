@@ -90,6 +90,7 @@ export function GroupTools({
       <form action={saveLogo} ref={logoForm}>
         <input type="hidden" name="id" value={groupId} />
         {logoUrl ? <img src={logoUrl} alt="" /> : null}
+        <small className="logo-size">250×136</small>
         <label className="file-pick">
           החלפת לוגו
           <input
