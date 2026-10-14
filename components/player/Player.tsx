@@ -143,6 +143,30 @@ function YoutubeSlide({ url, fallback }: { url: string; fallback?: string }) {
   );
 }
 
+function SilentClip({ src, live, onReady }: { src: string; live: boolean; onReady?: () => void }) {
+  const ref = useRef<HTMLVideoElement>(null);
+  useEffect(() => {
+    const node = ref.current;
+    if (!node) return;
+    const hush = () => {
+      node.muted = true;
+      node.defaultMuted = true;
+      node.volume = 0;
+    };
+    hush();
+    node.addEventListener("play", hush);
+    node.addEventListener("volumechange", hush);
+    node.addEventListener("loadedmetadata", hush);
+    return () => {
+      node.removeEventListener("play", hush);
+      node.removeEventListener("volumechange", hush);
+      node.removeEventListener("loadedmetadata", hush);
+    };
+  }, [src]);
+  if (!live) return <video className="slide-video" data-media={src} data-silent="1" muted playsInline preload="none" />;
+  return <video ref={ref} className="slide-video" src={src} data-silent="1" autoPlay muted loop playsInline preload="auto" onCanPlay={onReady} onError={onReady} />;
+}
+
 function SlideFace({ slide, onReady, live = true }: { slide: PlaySlide; onReady?: () => void; live?: boolean }) {
   const soon = () => onReady?.();
   useEffect(() => {
@@ -191,6 +215,7 @@ function SlideFace({ slide, onReady, live = true }: { slide: PlaySlide; onReady?
     );
   }
   if (isVideoFile(slide.imageUrl)) {
+    if (slide.templateId === "group-promo") return <SilentClip src={slide.imageUrl} live={live} onReady={onReady} />;
     if (!live) return <video className="slide-video" data-media={slide.imageUrl} muted playsInline preload="none" />;
     return <video className="slide-video" src={slide.imageUrl} autoPlay muted loop playsInline preload="auto" onCanPlay={onReady} onError={onReady} />;
   }

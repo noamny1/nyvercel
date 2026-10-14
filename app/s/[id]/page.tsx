@@ -282,6 +282,17 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
   }
   beat();
   window.setInterval(beat, 12000);
+  function hushPromo() {
+    var clips = document.querySelectorAll("video[data-silent]");
+    var i;
+    for (i = 0; i < clips.length; i++) {
+      clips[i].muted = true;
+      clips[i].defaultMuted = true;
+      clips[i].volume = 0;
+    }
+  }
+  hushPromo();
+  window.setInterval(hushPromo, 1000);
   var root = document.getElementById("slide-stack");
   if (!root) return;
   var nodes = root.getElementsByClassName("slide-pane");
@@ -301,6 +312,8 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
       var media = video.getAttribute("data-media");
       if (media && !video.getAttribute("src")) video.setAttribute("src", media);
       video.muted = true;
+      video.defaultMuted = true;
+      if (video.getAttribute("data-silent") === "1") video.volume = 0;
       try { video.play(); } catch (err) {}
     }
     for (i = 0; i < frames.length; i++) {
