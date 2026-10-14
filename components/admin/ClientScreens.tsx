@@ -13,6 +13,7 @@ type Row = {
   street: string;
   number: string;
   city: string;
+  floor?: string;
   theme: string;
   logoUrl: string;
   newsSource: string;
@@ -48,7 +49,7 @@ export function ClientScreens({ rows, musicPeers, returnTo, themes }: { rows: Ro
         return (
           <article className={tab ? "client-card is-open" : "client-card"} key={screen.id}>
             <header>
-              <strong>{address}</strong>
+              <strong>{address} · {screen.floor || "לובי"}</strong>
               <small>משתמשים מורשים</small>
               <span>{screen.people.length ? screen.people.join(" · ") : "—"}</span>
             </header>

@@ -69,6 +69,7 @@ model Screen {
   street     String       @default("")
   number     String       @default("")
   city       String       @default("")
+  floor      String       @default("לובי")
   theme      String       @default("modern")
   logoUrl    String       @default("")
   newsSource String       @default("ynet")

@@ -71,7 +71,7 @@ export default async function GroupPage({
               <div key={screen.id}>
                 <span className="screen-title">
                   מסך {screen.code || screen.id}
-                  <small>{label}</small>
+                  <small>{label} · {screen.floor || "לובי"}</small>
                 </span>
                 <span className="screen-actions">
                   <a href={`/s/${screen.code || screen.id}`} target="_blank">פתיחה</a>

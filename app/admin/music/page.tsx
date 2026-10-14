@@ -8,9 +8,10 @@ import { isSystemAdmin, requireSession } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 
-function place(screen: { street: string; number: string; city: string; name: string }) {
+function place(screen: { street: string; number: string; city: string; name: string; floor?: string }) {
   const line = [screen.street, screen.number].filter(Boolean).join(" ");
-  return [line, screen.city].filter(Boolean).join(", ") || screen.name;
+  const address = [line, screen.city].filter(Boolean).join(", ") || screen.name;
+  return `${address} · ${screen.floor || "לובי"}`;
 }
 
 export default async function MusicPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {

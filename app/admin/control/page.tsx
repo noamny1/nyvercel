@@ -64,7 +64,7 @@ export default async function ControlPage({ searchParams }: { searchParams: Prom
       <div className="screens">
         {visible.map(({ screen, state }) => (
           <div key={screen.id} className={state}>
-            <span><i className="dot" />{state === "online" ? "תקין" : state === "offline" ? "לא תקין" : "כבוי"} · {screen.name}</span>
+            <span><i className="dot" />{state === "online" ? "תקין" : state === "offline" ? "לא תקין" : "כבוי"} · {screen.name} · {screen.floor || "לובי"}</span>
             <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
               <i
                 className="dot"

@@ -8,9 +8,10 @@ import { requireSession } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 
-function line(screen: { id: number; street: string; number: string; city: string; name: string; group: { street: string; number: string; city: string } | null }) {
+function line(screen: { id: number; street: string; number: string; city: string; name: string; floor?: string; group: { street: string; number: string; city: string } | null }) {
   const place = [screen.street || screen.group?.street || "", screen.number || screen.group?.number || ""].filter(Boolean).join(" ");
-  return [place, screen.city || screen.group?.city || ""].filter(Boolean).join(", ") || screen.name || `מסך ${screen.id}`;
+  const address = [place, screen.city || screen.group?.city || ""].filter(Boolean).join(", ") || screen.name || `מסך ${screen.id}`;
+  return `${address} · ${screen.floor || "לובי"}`;
 }
 
 export default async function UpdatesPage({ params }: { params: Promise<{ id: string }> }) {

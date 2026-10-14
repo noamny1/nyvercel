@@ -90,6 +90,8 @@ const statements = [
     "at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT "ShellAudit_pkey" PRIMARY KEY ("id")
   )`,
+  `ALTER TABLE "Screen" ADD COLUMN IF NOT EXISTS "floor" TEXT NOT NULL DEFAULT 'לובי'`,
+  `UPDATE "Screen" SET "floor" = 'לובי' WHERE "floor" = ''`,
   `ALTER TABLE "Screen" ADD COLUMN IF NOT EXISTS "newsTicker" TEXT NOT NULL DEFAULT 'on'`,
   `ALTER TABLE "Screen" ADD COLUMN IF NOT EXISTS "feedMode" TEXT NOT NULL DEFAULT 'both'`,
   `ALTER TABLE "Slide" ADD COLUMN IF NOT EXISTS "startsOn" TEXT NOT NULL DEFAULT ''`,

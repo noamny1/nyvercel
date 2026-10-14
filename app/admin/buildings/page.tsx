@@ -103,6 +103,7 @@ export default async function BuildingsPage({ searchParams }: { searchParams: Pr
               <th>רחוב</th>
               <th>מספר</th>
               <th>עיר</th>
+              <th>קומה</th>
               {owner ? <th>קבוצה</th> : null}
               {owner ? <th>סטטוס</th> : null}
               <th>משתמשים</th>
@@ -124,6 +125,7 @@ export default async function BuildingsPage({ searchParams }: { searchParams: Pr
                   <td data-label="רחוב"><Link href={editHref}>{street || "—"}</Link></td>
                   <td data-label="מספר">{number || "—"}</td>
                   <td data-label="עיר">{city || "—"}</td>
+                  <td data-label="קומה">{screen.floor || "לובי"}</td>
                   {owner ? (
                     <td data-label="קבוצה">
                       <GroupMove screenId={screen.id} groupId={screen.groupId} groups={groups} />
@@ -161,6 +163,7 @@ export default async function BuildingsPage({ searchParams }: { searchParams: Pr
             street: screen.street || screen.group?.street || "",
             number: screen.number || screen.group?.number || "",
             city: screen.city || screen.group?.city || "",
+            floor: screen.floor || "לובי",
             theme: screen.theme,
             logoUrl: screen.logoUrl,
             newsSource: screen.newsSource,

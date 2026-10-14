@@ -14,7 +14,9 @@ export default async function RemotePage({ params }: { params: Promise<{ id: str
   const { id } = await params;
   const screen = await prisma.screen.findUnique({ where: { id: Number(id) } });
   if (!screen) notFound();
-  const title = screen.name || `מסך ${screen.code || screen.id}`;
+  const place = [screen.street, screen.number].filter(Boolean).join(" ");
+  const address = [place, screen.city].filter(Boolean).join(", ");
+  const title = `${address || screen.name || `מסך ${screen.code || screen.id}`} · ${screen.floor || "לובי"}`;
 
   return (
     <main className="admin">

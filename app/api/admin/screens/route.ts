@@ -4,12 +4,13 @@ import { requireSession } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 
-function shape(screen: { id: number; street: string; number: string; city: string; name: string; group: { street: string; number: string; city: string } | null }) {
+function shape(screen: { id: number; street: string; number: string; city: string; name: string; floor?: string; group: { street: string; number: string; city: string } | null }) {
   return {
     id: screen.id,
     street: screen.street || screen.group?.street || "",
     number: screen.number || screen.group?.number || "",
     city: screen.city || screen.group?.city || "",
+    floor: screen.floor || "לובי",
     name: screen.name,
   };
 }

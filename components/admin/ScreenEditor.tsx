@@ -35,6 +35,7 @@ export function ScreenEditor({
     street: string;
     number: string;
     city: string;
+    floor?: string;
     theme: string;
     logoUrl: string;
     newsSource: string;
@@ -200,6 +201,7 @@ export function ScreenEditor({
           <label>רחוב<input name="street" defaultValue={screen.street} readOnly={lockAddress} /></label>
           <label>מספר<input name="number" defaultValue={screen.number} readOnly={lockAddress} /></label>
           <label>עיר<input name="city" defaultValue={screen.city} readOnly={lockAddress} /></label>
+          {scope === "screen" ? <label>קומה<input name="floor" defaultValue={screen.floor || "לובי"} readOnly={lockAddress} /></label> : null}
           <label>תמה
             <select name="theme" defaultValue={themePick} onChange={(event) => setThemePick(event.target.value)}>
               {themeChoices.map((theme) => (

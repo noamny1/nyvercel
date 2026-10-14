@@ -5,12 +5,13 @@ import { useEffect, useState } from "react";
 import { assignScreens, createClientUser, deleteClientUser, saveAndSendUser } from "@/app/admin/users/actions";
 import { ClientCard } from "@/components/admin/ClientCard";
 
-type Screen = { id: number; street: string; number: string; city: string; name: string };
+type Screen = { id: number; street: string; number: string; city: string; name: string; floor?: string };
 type UserRow = { id: number; name: string; email: string; screenIds: number[] };
 
 function line(screen: Screen) {
   const place = [screen.street, screen.number].filter(Boolean).join(" ");
-  return [place, screen.city].filter(Boolean).join(", ") || screen.name || `מסך ${screen.id}`;
+  const address = [place, screen.city].filter(Boolean).join(", ") || screen.name || `מסך ${screen.id}`;
+  return `${address} · ${screen.floor || "לובי"}`;
 }
 
 function makePassword() {
