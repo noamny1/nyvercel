@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { put } from "@vercel/blob";
 import { prisma } from "@/lib/prisma";
 import { screenWhere } from "@/lib/access";
 import { requireSession, isSystemAdmin } from "@/lib/session";
@@ -124,6 +125,11 @@ export async function updateNotice(formData: FormData) {
   redirect(safeReturn(formData, `/admin/screens/${screenId}`));
 }
 
+async function fallbackLogo() {
+  const starter = await starterScreen();
+  return starter?.logoUrl || starter?.group?.logoUrl || "";
+}
+
 export async function createGroup(formData: FormData) {
   await gate();
   const group = await prisma.screenGroup.create({
@@ -132,9 +138,36 @@ export async function createGroup(formData: FormData) {
       street: String(formData.get("street") || ""),
       number: String(formData.get("number") || ""),
       city: String(formData.get("city") || ""),
+      logoUrl: await fallbackLogo(),
     },
   });
   redirect(`/admin/groups/${group.id}`);
+}
+
+export async function setGroupLogo(formData: FormData) {
+  await ownerGate();
+  const id = Number(formData.get("id"));
+  const file = formData.get("file");
+  if (!id || !(file instanceof File) || !file.size || !file.type.startsWith("image/")) redirect("/admin");
+  if (!process.env.BLOB_READ_WRITE_TOKEN) redirect("/admin");
+  const blob = await put(`uploads/${Date.now()}-${file.name}`, file, { access: "public", contentType: file.type });
+  await prisma.screenGroup.update({ where: { id }, data: { logoUrl: blob.url } });
+  await touchGroup(id);
+  redirect("/admin");
+}
+
+export async function setGroupUser(formData: FormData) {
+  await ownerGate();
+  const id = Number(formData.get("id"));
+  const userId = Number(formData.get("userId")) || 0;
+  if (!id) redirect("/admin");
+  const user = userId ? await prisma.user.findFirst({ where: { id: userId, role: "client" }, select: { id: true } }) : null;
+  const screens = await prisma.screen.findMany({ where: { groupId: id }, select: { id: true } });
+  await prisma.$transaction(screens.map((screen) => prisma.screen.update({
+    where: { id: screen.id },
+    data: { users: { set: user ? [{ id: user.id }] : [] } },
+  })));
+  redirect("/admin");
 }
 
 export async function renameGroup(formData: FormData) {
