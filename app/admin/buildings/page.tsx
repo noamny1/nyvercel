@@ -134,7 +134,7 @@ export default async function BuildingsPage({ searchParams }: { searchParams: Pr
                   ) : null}
                   {owner ? <td data-label="סטטוס"><span className={`status ${state}`}><i />{label}</span></td> : null}
                   <td data-label="משתמשים">
-                    {people.length ? people.map((user) => <span key={user.email} className="assigned-user">{user.name || user.email}</span>) : "—"}
+                    {people.length ? people.map((user) => <span key={user.email} className="assigned-user">{user.email}</span>) : "—"}
                   </td>
                   <td data-label="פעולות" className="acts">
                     <a className="icon-btn" href={`/s/${screen.code || screen.id}`} target="_blank">פתיחה</a>
