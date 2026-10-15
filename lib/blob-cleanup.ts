@@ -4,6 +4,13 @@ import { prisma } from "@/lib/prisma";
 const WEEK = 7 * 24 * 60 * 60 * 1000;
 const LIMIT = 150;
 
+export type UnusedFile = {
+  path: string;
+  name: string;
+  bytes: number;
+  days: number;
+};
+
 function pathOf(value: string) {
   if (!value.includes("blob.vercel-storage.com")) return "";
   try {
@@ -23,8 +30,7 @@ function remember(used: Set<string>, value: string) {
   }
 }
 
-export async function cleanUnusedBlobs() {
-  if (!process.env.BLOB_READ_WRITE_TOKEN) return { deleted: 0, skipped: true };
+async function usedPaths() {
   const [screens, groups, slides, desks, files] = await Promise.all([
     prisma.screen.findMany({ select: { logoUrl: true } }),
     prisma.screenGroup.findMany({ select: { logoUrl: true, promoUrl: true, musicUrl: true } }),
@@ -48,10 +54,14 @@ export async function cleanUnusedBlobs() {
     remember(used, row.lastApk);
   }
   for (const row of files) remember(used, row.url);
+  return used;
+}
 
+async function staleBlobs(used: Set<string>) {
   const cutoff = Date.now() - WEEK;
-  const stale: string[] = [];
+  const found: { path: string; url: string; bytes: number; days: number }[] = [];
   let cursor: string | undefined;
+  let more = false;
   do {
     const page = await list({ cursor, limit: 1000 });
     for (const blob of page.blobs) {
@@ -61,12 +71,43 @@ export async function cleanUnusedBlobs() {
       const uploaded = new Date(blob.uploadedAt).getTime();
       if (!uploaded || uploaded > cutoff) continue;
       if (used.has(path)) continue;
-      stale.push(blob.url);
-      if (stale.length >= LIMIT) break;
+      if (found.length >= LIMIT) {
+        more = true;
+        break;
+      }
+      found.push({
+        path,
+        url: blob.url,
+        bytes: blob.size,
+        days: Math.max(7, Math.floor((Date.now() - uploaded) / 86400000)),
+      });
     }
-    cursor = page.hasMore && stale.length < LIMIT ? page.cursor : undefined;
+    cursor = page.hasMore && !more ? page.cursor : undefined;
   } while (cursor);
+  return { found, more };
+}
 
-  if (stale.length) await del(stale);
-  return { deleted: stale.length, skipped: false };
+export async function previewUnusedBlobs() {
+  if (!process.env.BLOB_READ_WRITE_TOKEN) return { files: [] as UnusedFile[], more: false, missing: true };
+  const { found, more } = await staleBlobs(await usedPaths());
+  return {
+    files: found.map((file) => ({
+      path: file.path,
+      name: file.path.split("/").pop() || file.path,
+      bytes: file.bytes,
+      days: file.days,
+    })),
+    more,
+    missing: false,
+  };
+}
+
+export async function deleteUnusedBlobs(paths: string[]) {
+  if (!process.env.BLOB_READ_WRITE_TOKEN) return { deleted: 0 };
+  const wanted = new Set(paths.filter((path) => path.startsWith("uploads/") || path.startsWith("view/")));
+  if (!wanted.size) return { deleted: 0 };
+  const { found } = await staleBlobs(await usedPaths());
+  const urls = found.filter((file) => wanted.has(file.path)).map((file) => file.url);
+  if (urls.length) await del(urls);
+  return { deleted: urls.length };
 }

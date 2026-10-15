@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { isSystemAdmin, requireSession } from "@/lib/session";
 import { checkResources, mailResourceReport, type ResourceReport } from "@/lib/resource-check";
 import { runSystemAgent, type AgentReport } from "@/lib/system-agent";
+import { deleteUnusedBlobs, previewUnusedBlobs, type UnusedFile } from "@/lib/blob-cleanup";
 
 async function admin() {
   const session = await requireSession();
@@ -54,4 +55,16 @@ export async function closeOpenLink(screenId: number) {
   await prisma.remoteCommand.create({
     data: { screenId, op: "frames", text: "0" },
   });
+}
+
+export type BlobPreview = { files: UnusedFile[]; more: boolean; missing: boolean };
+
+export async function previewBlobCleanupAction(): Promise<BlobPreview> {
+  await admin();
+  return previewUnusedBlobs();
+}
+
+export async function confirmBlobCleanupAction(paths: string[]) {
+  await admin();
+  return deleteUnusedBlobs(paths.slice(0, 150));
 }

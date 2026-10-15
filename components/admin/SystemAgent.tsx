@@ -1,10 +1,17 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { closeOpenLink, listOpenLinks, runResourceCheckAction, runSystemAgentAction, type OpenLink } from "@/app/admin/agent/actions";
+import { closeOpenLink, confirmBlobCleanupAction, listOpenLinks, previewBlobCleanupAction, runResourceCheckAction, runSystemAgentAction, type OpenLink } from "@/app/admin/agent/actions";
+import type { UnusedFile } from "@/lib/blob-cleanup";
 import type { AgentReport } from "@/lib/system-agent";
 
 const LEVEL = { high: "חשוב", mid: "שיפור", ok: "תקין" };
+
+function fileSize(bytes: number) {
+  if (bytes >= 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} מ״ב`;
+  if (bytes >= 1024) return `${Math.max(1, Math.round(bytes / 1024))} ק״ב`;
+  return `${bytes} ב`;
+}
 
 export function SystemAgent() {
   const [report, setReport] = useState<AgentReport | null>(null);
@@ -18,6 +25,12 @@ export function SystemAgent() {
   const [linkError, setLinkError] = useState("");
   const [checking, setChecking] = useState(false);
   const [closing, setClosing] = useState(0);
+  const [files, setFiles] = useState<UnusedFile[] | null>(null);
+  const [filesMore, setFilesMore] = useState(false);
+  const [fileError, setFileError] = useState("");
+  const [scanningFiles, setScanningFiles] = useState(false);
+  const [deletingFiles, setDeletingFiles] = useState(false);
+  const [deletedCount, setDeletedCount] = useState<number | null>(null);
 
   async function checkLinks() {
     setLinkError("");
@@ -107,6 +120,60 @@ export function SystemAgent() {
           ))}
           {resourceNote ? <p className="agent-meta">{resourceNote}</p> : null}
         </div>
+      ) : null}
+      <h2>ניקוי אחסון</h2>
+      <p>מציג קבצים ישנים שאף מסך, קבוצה או שקף לא משתמש בהם. שום דבר לא נמחק לפני אישור.</p>
+      <button
+        type="button"
+        disabled={scanningFiles || deletingFiles}
+        onClick={() => {
+          setFileError("");
+          setDeletedCount(null);
+          setScanningFiles(true);
+          void previewBlobCleanupAction()
+            .then((result) => {
+              setFiles(result.files);
+              setFilesMore(result.more);
+              if (result.missing) setFileError("אחסון הקבצים לא מחובר.");
+            })
+            .catch((reason) => setFileError(reason instanceof Error ? reason.message : "הבדיקה נכשלה"))
+            .finally(() => setScanningFiles(false));
+        }}
+      >
+        {scanningFiles ? "בודק קבצים..." : "בדיקת קבצים למחיקה"}
+      </button>
+      {fileError ? <p className="error">{fileError}</p> : null}
+      {deletedCount !== null ? <p>נמחקו {deletedCount} קבצים.</p> : null}
+      {files ? (
+        files.length ? (
+          <div className="agent-report">
+            {files.map((file) => (
+              <article key={file.path} className="agent-finding is-mid">
+                <strong>{file.name}</strong>
+                <p>{fileSize(file.bytes)} · לפני {file.days} ימים · לא מחובר לאף מסך</p>
+              </article>
+            ))}
+            {filesMore ? <p className="agent-meta">יש עוד קבצים. אחרי המחיקה הזו אפשר לבדוק שוב.</p> : null}
+            <button
+              type="button"
+              disabled={deletingFiles}
+              onClick={() => {
+                setFileError("");
+                setDeletingFiles(true);
+                void confirmBlobCleanupAction(files.map((file) => file.path))
+                  .then((result) => {
+                    setDeletedCount(result.deleted);
+                    setFiles([]);
+                    setFilesMore(false);
+                  })
+                  .catch((reason) => setFileError(reason instanceof Error ? reason.message : "המחיקה נכשלה"))
+                  .finally(() => setDeletingFiles(false));
+              }}
+            >
+              {deletingFiles ? "מוחק..." : `אישור מחיקה של ${files.length} קבצים`}
+            </button>
+          </div>
+        ) : deletedCount === null ? <p>אין קבצים למחיקה.</p> : null
       ) : null}
       <h2>חיבורי שליטה מרחוק</h2>
       <p>בודק אם יש כרגע חיבור פתוח לאחת הכתובות. אפשר לסגור אותו מכאן.</p>
