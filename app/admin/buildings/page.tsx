@@ -35,7 +35,8 @@ export default async function BuildingsPage({ searchParams }: { searchParams: Pr
   const { q = "" } = await searchParams;
   const query = q.trim();
   const id = Number(query);
-  const [screens, groups] = await Promise.all([
+  const email = session.user?.email?.trim().toLowerCase();
+  const [screens, groups, manager] = await Promise.all([
     prisma.screen.findMany({
       where: {
         AND: [
@@ -63,6 +64,12 @@ export default async function BuildingsPage({ searchParams }: { searchParams: Pr
       },
     }),
     prisma.screenGroup.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
+    !owner && email
+      ? prisma.groupManager.findFirst({
+          where: { user: { email: { equals: email, mode: "insensitive" } } },
+          select: { groupId: true },
+        })
+      : Promise.resolve(null),
   ]);
 
   return (
@@ -158,6 +165,7 @@ export default async function BuildingsPage({ searchParams }: { searchParams: Pr
       </div>
       ) : (
         <ClientScreens
+          manager={Boolean(manager)}
           musicPeers={screens.length}
           themes={await clientThemes()}
           returnTo={query ? `/admin/buildings?q=${encodeURIComponent(query)}` : "/admin/buildings"}

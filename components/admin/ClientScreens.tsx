@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ScreenEditor } from "@/components/admin/ScreenEditor";
+import { GroupBulk } from "@/components/admin/GroupBulk";
 import { sendAdvice } from "@/app/admin/advice";
 
 type Panel = "slides" | "details" | "notices" | "advice";
@@ -27,7 +28,7 @@ type Row = {
   notices: { id: number; text: string; active: boolean }[];
 };
 
-export function ClientScreens({ rows, musicPeers, returnTo, themes }: { rows: Row[]; musicPeers: number; returnTo: string; themes?: { id: string; name: string }[] }) {
+export function ClientScreens({ rows, musicPeers, returnTo, themes, manager = false }: { rows: Row[]; musicPeers: number; returnTo: string; themes?: { id: string; name: string }[]; manager?: boolean }) {
   const [open, setOpen] = useState<{ id: number; tab: Panel } | null>(null);
   const [sent, setSent] = useState(false);
   const [sending, setSending] = useState(false);
@@ -52,6 +53,7 @@ export function ClientScreens({ rows, musicPeers, returnTo, themes }: { rows: Ro
       <label className="client-search">חיפוש כתובת
         <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="רחוב, עיר, קומה או מספר מסך" />
       </label>
+      {manager ? <GroupBulk rows={rows} themes={themes || []} /> : null}
       {visible.length === 0 ? <p>אין מסך שמתאים לחיפוש.</p> : null}
       {visible.map((screen) => {
         const place = [screen.street, screen.number].filter(Boolean).join(" ");
