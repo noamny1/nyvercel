@@ -62,7 +62,28 @@ body:has(.admin) { background: #F4F1ED; overflow-x: hidden; }
 .admin-menu a:hover { border-color: #5A1F2B; }
 .admin-menu a.is-on { background: #5A1F2B; color: #F4F1ED; border-color: #5A1F2B; }
 .agent-run { display: grid; gap: 12px; }
+.agent-board {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  align-items: start;
+}
+.agent-tool {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+  background: #fff;
+  border: 1px solid rgba(37, 37, 37, 0.1);
+  border-radius: 16px;
+  padding: 16px;
+}
+.agent-tool h2 { margin: 0; font-size: 20px; line-height: 1.3; }
+.agent-tool > p { margin: 0; color: #5c5854; font-size: 15px; line-height: 1.55; }
+.agent-tool > button { width: 100%; min-height: 48px; margin-top: auto; }
+.agent-tool:has(.agent-report) { grid-column: 1 / -1; }
 .agent-report { display: grid; gap: 10px; }
+.agent-report > button { width: 100%; min-height: 48px; }
 .agent-meta { margin: 0; color: #6d625c; font-size: 14px; }
 .agent-finding {
   display: grid;
@@ -78,8 +99,12 @@ body:has(.admin) { background: #F4F1ED; overflow-x: hidden; }
 .agent-finding strong { color: #5A1F2B; }
 .agent-finding p { margin: 0; }
 .open-link { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.open-link button { width: auto; min-height: 40px; flex: 0 0 auto; }
 @media (max-width: 700px) {
   .admin-menu { grid-template-columns: 1fr 1fr; }
+  .agent-board { grid-template-columns: 1fr; }
+  .open-link { align-items: stretch; flex-direction: column; }
+  .open-link button { width: 100%; }
 }
 .admin-exit {
   border: 1px solid rgba(244, 241, 237, 0.45);
