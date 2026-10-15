@@ -6,7 +6,7 @@ import { mailResourceReport, checkResources } from "@/lib/resource-check";
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
-const THEME_MS = 8 * 60 * 1000;
+const THEME_MS = 12 * 60 * 1000;
 const ACCESS_MS = 2 * 60 * 1000;
 
 function jerusalemClock() {

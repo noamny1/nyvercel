@@ -5,7 +5,7 @@ import { isSystemAdmin, requireSession } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 
-const OPS = new Set(["tap", "key", "text", "swipe", "reboot", "apps", "uninstall", "install", "shell", "shell-open", "relaunch", "log", "frames", "media"]);
+const OPS = new Set(["tap", "key", "text", "swipe", "reboot", "apps", "uninstall", "install", "shell", "shell-open", "relaunch", "log", "frames", "media", "wake"]);
 
 async function admin() {
   const session = await requireSession();
@@ -29,7 +29,7 @@ export async function GET(request: Request) {
     if (!newer) {
       await prisma.remoteDesk.upsert({
         where: { screenId },
-        update: { watchedAt: new Date(0) },
+        update: { watchedAt: new Date(0), wakeUntil: null },
         create: { screenId, watchedAt: new Date(0) },
       });
     }
@@ -114,6 +114,15 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "locked" }, { status: 401 });
     }
     await prisma.shellAudit.create({ data: { screenId, email, command: raw.slice(0, 240) } });
+  }
+  if (op === "wake") {
+    const until = new Date(Date.now() + 5 * 60 * 1000);
+    await prisma.remoteDesk.upsert({
+      where: { screenId },
+      update: { wakeUntil: until },
+      create: { screenId, wakeUntil: until },
+    });
+    return NextResponse.json({ ok: true });
   }
   const num = (value: number | undefined) => Math.max(0, Math.min(8000, Math.round(Number(value) || 0)));
   await prisma.remoteCommand.create({

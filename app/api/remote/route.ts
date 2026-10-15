@@ -89,7 +89,7 @@ export async function GET(request: Request) {
     const basic = await prisma.remoteDesk.findUnique({ where: { screenId: id }, select: { watchedAt: true, frameAt: true } });
     desk = basic ? { watchedAt: basic.watchedAt, frameAt: basic.frameAt, keeperAt: null } : null;
   }
-  const keeperFresh = !!desk?.keeperAt && Date.now() - desk.keeperAt.getTime() < 12000;
+  const keeperFresh = !!desk?.keeperAt && Date.now() - desk.keeperAt.getTime() < 75000;
   const watching = !!desk && Date.now() - desk.watchedAt.getTime() < 20000;
   const watch = watching && (who === "keeper" || !keeperFresh);
   const needFrame = watch && (!desk?.frameAt || Date.now() - desk.frameAt.getTime() > 2500);

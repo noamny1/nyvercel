@@ -20,7 +20,7 @@ export function Ping({ code, revision }: { code: number; revision: number }) {
       }
     };
     void send();
-    const timer = setInterval(() => void send(), 12_000);
+    const timer = setInterval(() => void send(), 5 * 60 * 1000);
     return () => clearInterval(timer);
   }, [code, revision]);
   return null;

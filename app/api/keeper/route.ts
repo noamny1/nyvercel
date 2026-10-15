@@ -28,10 +28,16 @@ export async function GET(request: Request) {
   } catch {
     return NextResponse.json({ upgrade: "", restore: "" });
   }
-  const desk = await prisma.remoteDesk.findUnique({ where: { screenId: id }, select: { upgradeUrl: true, lastApk: true } });
+  const desk = await prisma.remoteDesk.findUnique({
+    where: { screenId: id },
+    select: { upgradeUrl: true, lastApk: true, wakeUntil: true, watchedAt: true },
+  });
+  const wake = (!!desk?.wakeUntil && desk.wakeUntil.getTime() > Date.now())
+    || (!!desk?.watchedAt && Date.now() - desk.watchedAt.getTime() < 20000);
   return NextResponse.json({
     upgrade: desk?.upgradeUrl || "",
     restore: desk?.lastApk || "",
+    wake,
   }, { headers: { "Cache-Control": "no-store" } });
 }
 

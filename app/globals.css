@@ -495,14 +495,14 @@ body:has(.admin) { background: #F4F1ED; overflow-x: hidden; }
 .bulk-frame > p { margin: 0; color: #6d625c; font-size: 13px; }
 .admin .remote-keys {
   display: grid;
-  grid-template-columns: repeat(9, minmax(0, 1fr));
+  grid-template-columns: repeat(10, minmax(0, 1fr));
   gap: 6px;
   margin: 12px 0;
 }
 .admin .remote-keys button {
   min-height: 36px;
-  padding: 6px 4px;
-  font-size: 12px;
+  padding: 6px 2px;
+  font-size: 11px;
   line-height: 1.2;
   white-space: nowrap;
 }

@@ -129,6 +129,7 @@ model RemoteDesk {
   lastApk    String   @default("")
   keeperAt   DateTime?
   mediaPausedUntil DateTime?
+  wakeUntil  DateTime?
 }
 
 model DeviceStatus {

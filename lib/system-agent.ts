@@ -47,7 +47,7 @@ export async function runSystemAgent(): Promise<AgentReport> {
       slides: { where: { active: true }, select: { kind: true, imageUrl: true } },
     },
   });
-  const stale = screens.filter((screen) => !screen.heartbeat || now - screen.heartbeat.at.getTime() > 3 * 60 * 1000);
+  const stale = screens.filter((screen) => !screen.heartbeat || now - screen.heartbeat.at.getTime() > 12 * 60 * 1000);
   const noCode = screens.filter((screen) => !screen.code);
   const noLogo = screens.filter((screen) => !screen.logoUrl);
   const noUser = screens.filter((screen) => screen.users.length === 0);
@@ -57,7 +57,7 @@ export async function runSystemAgent(): Promise<AgentReport> {
   const heavyNews = screens.filter((screen) => screen.newsCount > 12);
 
   if (stale.length === 0) {
-    findings.push({ area: "מסכי לקוח", level: "ok", title: "כל המסכים הפעילים מחוברים", detail: `${screens.length} מסכים דיווחו דופק ב־3 הדקות האחרונות.` });
+    findings.push({ area: "מסכי לקוח", level: "ok", title: "כל המסכים הפעילים מחוברים", detail: `${screens.length} מסכים דיווחו דופק ב־12 הדקות האחרונות.` });
   } else {
     const names = stale.slice(0, 6).map(place).join(", ");
     findings.push({

@@ -72,11 +72,11 @@ export default async function ControlPage({ searchParams }: { searchParams: Prom
                   width: 14,
                   height: 14,
                   margin: 0,
-                  background: screen.remoteDesk?.keeperAt && now - screen.remoteDesk.keeperAt.getTime() < 12000 ? "#1faa4a" : "#d12626",
-                  boxShadow: `0 0 8px ${screen.remoteDesk?.keeperAt && now - screen.remoteDesk.keeperAt.getTime() < 12000 ? "#1faa4a" : "#d12626"}`,
+                  background: screen.remoteDesk?.keeperAt && now - screen.remoteDesk.keeperAt.getTime() < 75000 ? "#1faa4a" : "#d12626",
+                  boxShadow: `0 0 8px ${screen.remoteDesk?.keeperAt && now - screen.remoteDesk.keeperAt.getTime() < 75000 ? "#1faa4a" : "#d12626"}`,
                 }}
               />
-              {screen.remoteDesk?.keeperAt && now - screen.remoteDesk.keeperAt.getTime() < 12000 ? "גישה פעילה" : "אין גישה"}
+              {screen.remoteDesk?.keeperAt && now - screen.remoteDesk.keeperAt.getTime() < 75000 ? "גישה פעילה" : "אין גישה"}
             </span>
             <span>
               {screen.group?.building?.name || screen.group?.name || "בלי קבוצה"}

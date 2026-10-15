@@ -11,6 +11,8 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
   const [note, setNote] = useState("");
   const [busy, setBusy] = useState("");
   const [keeperOn, setKeeperOn] = useState(false);
+  const [keeperAt, setKeeperAt] = useState(0);
+  const [wakeAt, setWakeAt] = useState(0);
   const [keeperChecked, setKeeperChecked] = useState(false);
   const [live, setLive] = useState(false);
 
@@ -25,6 +27,7 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
             if (!stop) {
               if (data.note) setNote(data.note);
               setKeeperOn(!!data.keeperOn);
+              setKeeperAt(Number(data.keeperAt) || 0);
               setKeeperChecked(true);
             }
           }
@@ -121,6 +124,15 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
         <button type="button" onClick={() => send("key", { text: "3" })}>מסך הבית</button>
         <button type="button" onClick={() => send("key", { text: "24" })}>ווליום למעלה</button>
         <button type="button" onClick={() => send("key", { text: "25" })}>ווליום למטה</button>
+        <button
+          type="button"
+          onClick={() => {
+            setWakeAt(Date.now());
+            void send("wake");
+          }}
+        >
+          {wakeAt && keeperAt > wakeAt ? "המכשיר מוכן" : wakeAt ? "ממתין למכשיר" : "הער גישה"}
+        </button>
         <button
           type="button"
           onClick={() => {

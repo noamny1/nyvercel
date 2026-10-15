@@ -265,23 +265,6 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
     <script dangerouslySetInnerHTML={{ __html: `
 (function () {
   function start() {
-  function beat() {
-    var stage = document.querySelector(".stage");
-    var code = stage ? stage.getAttribute("data-code") : "";
-    if (!code) return;
-    var xhr = new XMLHttpRequest();
-    xhr.open("POST", "/api/ping?code=" + code + "&beat=1", true);
-    xhr.onreadystatechange = function () {
-      if (xhr.readyState !== 4 || xhr.status !== 200) return;
-      var revision = stage.getAttribute("data-rev") || "";
-      var data = null;
-      try { data = JSON.parse(xhr.responseText); } catch (err) { data = null; }
-      if (data && data.r && revision && String(data.r) !== String(revision)) location.replace(location.pathname + "?v=" + data.r);
-    };
-    xhr.send();
-  }
-  beat();
-  window.setInterval(beat, 12000);
   function hushPromo() {
     var clips = document.querySelectorAll("video[data-silent]");
     var i;

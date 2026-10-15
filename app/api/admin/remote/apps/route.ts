@@ -29,12 +29,14 @@ export async function GET(request: Request) {
     screenOn = false;
   }
   let keeperOn = false;
+  let keeperAt = 0;
   try {
     const link = await prisma.remoteDesk.findUnique({ where: { screenId }, select: { seenAt: true, frameAt: true, keeperAt: true } });
     const now = Date.now();
     remoteOn = (!!link?.seenAt && now - link.seenAt.getTime() < 30000)
       || (!!link?.frameAt && now - link.frameAt.getTime() < 20000);
-    keeperOn = !!link?.keeperAt && now - link.keeperAt.getTime() < 12000;
+    keeperOn = !!link?.keeperAt && now - link.keeperAt.getTime() < 75000;
+    keeperAt = link?.keeperAt?.getTime() || 0;
   } catch {
     remoteOn = false;
   }
@@ -47,5 +49,6 @@ export async function GET(request: Request) {
     screenOn,
     remoteOn,
     keeperOn,
+    keeperAt,
   }, { headers: { "Cache-Control": "no-store" } });
 }
