@@ -116,7 +116,7 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
         <b>{live ? "חיבור פתוח" : "חיבור סגור"}</b>
       </p>
       <p>זה המסך של {title}. לחיצה על התמונה לוחצת באותו מקום בסטרימר.</p>
-      <div style={{ display: "flex", gap: 8, margin: "12px 0", flexWrap: "wrap" }}>
+      <div className="remote-keys">
         <button type="button" onClick={() => send("key", { text: "4" })}>אחורה</button>
         <button type="button" onClick={() => send("key", { text: "3" })}>מסך הבית</button>
         <button type="button" onClick={() => send("key", { text: "24" })}>ווליום למעלה</button>

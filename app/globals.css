@@ -493,6 +493,19 @@ body:has(.admin) { background: #F4F1ED; overflow-x: hidden; }
   gap: 12px;
 }
 .bulk-frame > p { margin: 0; color: #6d625c; font-size: 13px; }
+.admin .remote-keys {
+  display: grid;
+  grid-template-columns: repeat(9, minmax(0, 1fr));
+  gap: 6px;
+  margin: 12px 0;
+}
+.admin .remote-keys button {
+  min-height: 36px;
+  padding: 6px 4px;
+  font-size: 12px;
+  line-height: 1.2;
+  white-space: nowrap;
+}
 .bulk-switch { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
 .bulk-switch button { min-height: 40px; border-radius: 12px; background: #5A1F2B; color: #F4F1ED; padding: 8px 8px; font-size: 14px; line-height: 1.25; }
 .bulk-switch button.is-on { box-shadow: inset 0 0 0 2px #e6d3ae; }
@@ -561,6 +574,8 @@ body:has(.admin) { background: #F4F1ED; overflow-x: hidden; }
 .bulk-thumb { width: 84px; height: 52px; object-fit: cover; border-radius: 6px; background: #1c1c1c; flex: 0 0 auto; }
 .bulk-thumb.is-pdf { display: grid; place-items: center; color: #F4F1ED; font-size: 12px; }
 @media (max-width: 800px) {
+  .admin .remote-keys { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .admin .remote-keys button { white-space: normal; font-size: 13px; }
   .bulk-switch { grid-template-columns: 1fr; }
 }
 .client-home.is-many { gap: 8px; margin-top: 12px; }
