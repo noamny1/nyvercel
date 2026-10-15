@@ -2,6 +2,7 @@ import { createCipheriv, createHash, randomBytes } from "crypto";
 import { del, list, put } from "@vercel/blob";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { cleanUnusedBlobs } from "@/lib/blob-cleanup";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -77,5 +78,6 @@ export async function GET(request: Request) {
     addRandomSuffix: false,
     contentType: "application/octet-stream",
   });
-  return NextResponse.json({ ok: true, screens: screens.length, bytes: packed.length, url: blob.pathname });
+  const cleaned = await cleanUnusedBlobs().catch(() => ({ deleted: 0, skipped: true }));
+  return NextResponse.json({ ok: true, screens: screens.length, bytes: packed.length, url: blob.pathname, deleted: cleaned.deleted });
 }
