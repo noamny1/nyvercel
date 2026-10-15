@@ -6,6 +6,7 @@ import { NEWS_SOURCES } from "@/lib/news-sources";
 import { PLAYLISTS } from "@/lib/music-catalog";
 import { bulkAddNotice, bulkAddSlide, bulkRemoveNotice, bulkRemoveSlide, bulkSettings } from "@/app/admin/bulk/actions";
 import { ReadyLibrary, type SlideDraft } from "@/components/admin/ReadyLibrary";
+import { FIXED_VIDEOS, READY_SLIDES } from "@/lib/ready-slides";
 
 type Row = {
   id: number;
@@ -28,6 +29,19 @@ function placeOf(screen: Row) {
 function slideName(slide: { title?: string; templateId?: string }) {
   if (slide.templateId === "group-promo") return "סרטון תדמית";
   return slide.title || "שקף";
+}
+
+function slideThumb(slide: { imageUrl: string; templateId?: string }) {
+  const official = FIXED_VIDEOS.find((item) => item.id === slide.templateId || item.url === slide.imageUrl);
+  if (official) return { kind: "image" as const, src: official.poster };
+  const ready = READY_SLIDES.find((item) => item.id === slide.templateId);
+  if (ready?.image) return { kind: "image" as const, src: ready.image };
+  const url = slide.imageUrl;
+  const youtube = url.match(/(?:v=|youtu\.be\/|embed\/)([A-Za-z0-9_-]{11})/);
+  if (youtube) return { kind: "image" as const, src: `https://i.ytimg.com/vi/${youtube[1]}/hqdefault.jpg` };
+  if (/\.pdf(\?|$)/i.test(url)) return { kind: "pdf" as const, src: "" };
+  if (/\.(mp4|webm|mov)(\?|$)/i.test(url)) return { kind: "video" as const, src: url };
+  return { kind: "image" as const, src: url };
 }
 
 export function GroupBulk({ rows, themes }: { rows: Row[]; themes: { id: string; name: string }[] }) {
@@ -299,7 +313,15 @@ export function GroupBulk({ rows, themes }: { rows: Row[]; themes: { id: string;
                 <div className="bulk-list">
                   {slides.map((slide) => (
                     <article key={slide.imageUrl}>
-                      <span>{slide.name} · ב-{slide.count} מסכים</span>
+                      <div className="bulk-slide">
+                        {(() => {
+                          const thumb = slideThumb(slide);
+                          if (thumb.kind === "pdf") return <span className="bulk-thumb is-pdf">PDF</span>;
+                          if (thumb.kind === "video") return <video className="bulk-thumb" src={thumb.src} muted playsInline preload="metadata" />;
+                          return <img className="bulk-thumb" src={thumb.src} alt="" />;
+                        })()}
+                        <span>{slide.name} · ב-{slide.count} מסכים</span>
+                      </div>
                       <button
                         className="light"
                         type="button"
