@@ -517,6 +517,12 @@ body:has(.admin) { background: #F4F1ED; overflow-x: hidden; }
   border: 0;
   border-radius: 8px;
 }
+.bulk-pop { display: grid; gap: 12px; text-align: center; }
+.bulk-pop strong { font-size: 22px; font-weight: 500; }
+.bulk-pop.is-ok strong { color: #2f6b45; }
+.bulk-pop.is-bad strong { color: #5A1F2B; }
+.bulk-pop p { margin: 0; }
+.bulk-pop button { width: 100%; min-height: 46px; }
 .admin .bulk-frame .bulk-all {
   display: inline-flex;
   flex-direction: row;

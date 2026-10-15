@@ -45,6 +45,7 @@ export function GroupBulk({ rows, themes }: { rows: Row[]; themes: { id: string;
   const [seconds, setSeconds] = useState(8);
   const [slideTitle, setSlideTitle] = useState("");
   const [message, setMessage] = useState("");
+  const [popup, setPopup] = useState<{ ok: boolean; text: string } | null>(null);
 
   const selected = rows.filter((screen) => picked.includes(screen.id));
   const allOn = rows.length > 0 && picked.length === rows.length;
@@ -95,15 +96,16 @@ export function GroupBulk({ rows, themes }: { rows: Row[]; themes: { id: string;
     try {
       const result = await work();
       if (!result.ok) {
-        setError(result.error || "העדכון נכשל");
-        return false;
+        const text = result.error || "העדכון נכשל";
+        setError(text);
+        return { ok: false, text };
       }
       setNote(`עודכן ב-${result.count || picked.length} מסכים`);
       router.refresh();
-      return true;
+      return { ok: true, text: "", count: result.count || picked.length };
     } catch {
       setError("העדכון נכשל");
-      return false;
+      return { ok: false, text: "העדכון נכשל" };
     } finally {
       setBusy(false);
     }
@@ -111,15 +113,33 @@ export function GroupBulk({ rows, themes }: { rows: Row[]; themes: { id: string;
 
   async function uploadSlide(file: File) {
     const title = slideTitle.trim();
-    if (!title) throw new Error("חסר שם שקף");
-    const body = new FormData();
-    body.set("file", file);
-    body.set("kind", "slide");
-    const response = await fetch("/api/upload", { method: "POST", body });
-    const data = (await response.json()) as { url?: string; error?: string };
-    if (!response.ok || !data.url) throw new Error(data.error || "ההעלאה נכשלה");
-    if (await run(() => bulkAddSlide({ screenIds: picked, imageUrl: data.url || "", duration: seconds, title }))) {
-      setSlideTitle("");
+    if (!title) {
+      setPopup({ ok: false, text: "חסר שם שקף. כותבים שם ואז מעלים." });
+      return;
+    }
+    if (!picked.length) {
+      setPopup({ ok: false, text: "לא נבחרו מסכים." });
+      return;
+    }
+    try {
+      const body = new FormData();
+      body.set("file", file);
+      body.set("kind", "slide");
+      const response = await fetch("/api/upload", { method: "POST", body });
+      const data = (await response.json()) as { url?: string; error?: string };
+      if (!response.ok || !data.url) {
+        setPopup({ ok: false, text: data.error || "ההעלאה נכשלה" });
+        return;
+      }
+      const result = await run(() => bulkAddSlide({ screenIds: picked, imageUrl: data.url || "", duration: seconds, title }));
+      if (result.ok) {
+        setSlideTitle("");
+        setPopup({ ok: true, text: `השקף "${title}" עלה ל-${result.count || picked.length} מסכים.` });
+      } else {
+        setPopup({ ok: false, text: result.text || "ההעלאה נכשלה" });
+      }
+    } catch {
+      setPopup({ ok: false, text: "ההעלאה נכשלה" });
     }
   }
 
@@ -251,7 +271,7 @@ export function GroupBulk({ rows, themes }: { rows: Row[]; themes: { id: string;
                     onChange={(event) => {
                       const file = event.target.files?.[0];
                       event.target.value = "";
-                      if (file) void uploadSlide(file).catch((reason) => setError(reason instanceof Error ? reason.message : "ההעלאה נכשלה"));
+                      if (file) void uploadSlide(file);
                     }}
                   />
                 </label>
@@ -322,6 +342,15 @@ export function GroupBulk({ rows, themes }: { rows: Row[]; themes: { id: string;
           ) : null}
           {error ? <p className="error">{error}</p> : null}
           {note ? <p>{note}</p> : null}
+        </div>
+      ) : null}
+      {popup ? (
+        <div className="modal" role="dialog" aria-modal="true">
+          <div className={`card bulk-pop ${popup.ok ? "is-ok" : "is-bad"}`}>
+            <strong>{popup.ok ? "השקף עלה" : "ההעלאה נכשלה"}</strong>
+            <p>{popup.text}</p>
+            <button type="button" onClick={() => setPopup(null)}>סגירה</button>
+          </div>
         </div>
       ) : null}
     </section>
