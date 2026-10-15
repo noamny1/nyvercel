@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 
 type Draft = { kind: "youtube"; imageUrl: string; title: string; duration: number };
 type Line = { from: "agent" | "user"; text: string };
 
-export function SlideAgent({ onAdd, onClose }: { onAdd: (draft: Draft) => Promise<void>; onClose: () => void }) {
+export function SlideAgent({ onAdd, onClose, extra }: { onAdd: (draft: Draft) => Promise<void>; onClose: () => void; extra?: ReactNode }) {
   const [lines, setLines] = useState<Line[]>([{ from: "agent", text: "מה הקישור לסרטון?" }]);
   const [text, setText] = useState("");
   const [video, setVideo] = useState<{ url: string; title: string } | null>(null);
@@ -57,6 +57,7 @@ export function SlideAgent({ onAdd, onClose }: { onAdd: (draft: Draft) => Promis
         </div>
         {video ? (
           <div className="slide-modal-actions">
+            {extra}
             <button type="button" disabled={busy} onClick={() => void approve()}>{busy ? "שומר..." : "אישור והעלאה"}</button>
             <button type="button" className="light" onClick={() => { setVideo(null); setLines((items) => [...items, { from: "agent", text: "מה הקישור האחר?" }]); }}>קישור אחר</button>
           </div>

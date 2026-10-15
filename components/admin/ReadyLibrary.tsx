@@ -5,7 +5,7 @@ import { SlideAgent } from "@/components/admin/SlideAgent";
 import { ParashaSlide } from "@/components/player/ParashaSlide";
 import { KnowledgeSlide } from "@/components/player/KnowledgeSlide";
 import { isDeckId, type DeckId } from "@/lib/decks";
-import { fillLine, FIXED_VIDEOS, READY_SLIDES, WEEKDAYS, clientSetsDuration, readMeta, templateSeconds, type ReadySlide, type SlideMeta } from "@/lib/ready-slides";
+import { fillLine, FIXED_VIDEOS, READY_SLIDES, WEEKDAYS, clientSetsDuration, defaultWeekdays, readMeta, templateSeconds, type ReadySlide, type SlideMeta } from "@/lib/ready-slides";
 import { PestVideo, QrSlide } from "@/components/player/SpecialSlides";
 import "@/components/player/player.css";
 
@@ -18,6 +18,9 @@ export type SlideDraft = {
   detail?: string;
   meta?: string;
   duration?: number;
+  weekdays?: string;
+  startsOn?: string;
+  endsOn?: string;
 };
 
 function todayInIsrael() {
@@ -109,6 +112,78 @@ function sourceText(saved: string, templateText: string | undefined, meta: Slide
   return saved;
 }
 
+type Extra = { name: string; seconds: number; full: boolean; days: string; startsOn: string; endsOn: string };
+
+function freshExtra(partial: Partial<Extra> = {}): Extra {
+  return {
+    name: "",
+    seconds: 8,
+    full: false,
+    days: "01234",
+    startsOn: todayInIsrael(),
+    endsOn: "",
+    ...partial,
+  };
+}
+
+function withFull(base: Record<string, unknown>, full: boolean) {
+  return JSON.stringify({ ...base, full });
+}
+
+function ExtraFields({
+  extra,
+  setExtra,
+  name = false,
+  seconds = false,
+  lockSeconds = false,
+}: {
+  extra: Extra;
+  setExtra: (value: Extra) => void;
+  name?: boolean;
+  seconds?: boolean;
+  lockSeconds?: boolean;
+}) {
+  function toggleDay(index: number) {
+    const mark = String(index);
+    const days = extra.days.includes(mark) ? extra.days.replace(mark, "") : `${extra.days}${mark}`;
+    setExtra({ ...extra, days });
+  }
+  return (
+    <>
+      {name ? (
+        <label>שם השקף
+          <input value={extra.name} maxLength={80} onChange={(event) => setExtra({ ...extra, name: event.target.value })} />
+        </label>
+      ) : null}
+      {seconds ? (
+        <label>שניות
+          <input type="number" min={3} value={extra.seconds} readOnly={lockSeconds} onChange={(event) => setExtra({ ...extra, seconds: Number(event.target.value) || 3 })} />
+        </label>
+      ) : null}
+      <fieldset className="day-picks">
+        <legend>גודל התצוגה</legend>
+        <div>
+          <button type="button" className={extra.full ? "light" : "is-on"} onClick={() => setExtra({ ...extra, full: false })}>רגיל</button>
+          <button type="button" className={extra.full ? "is-on" : "light"} onClick={() => setExtra({ ...extra, full: true })}>כל המסך</button>
+        </div>
+      </fieldset>
+      <fieldset className="day-picks">
+        <legend>ימים בשבוע</legend>
+        <div>
+          {WEEKDAYS.map((day, index) => (
+            <button type="button" key={day} className={extra.days.includes(String(index)) ? "is-on" : "light"} onClick={() => toggleDay(index)}>{day}</button>
+          ))}
+        </div>
+      </fieldset>
+      <div className="row">
+        <label>מתאריך<input type="date" value={extra.startsOn} onChange={(event) => setExtra({ ...extra, startsOn: event.target.value })} /></label>
+        <label>עד תאריך<input type="date" value={extra.endsOn} onChange={(event) => setExtra({ ...extra, endsOn: event.target.value })} /></label>
+      </div>
+      <p>אם לא בוחרים תאריך סיום, השקף נשאר לעד.</p>
+    </>
+  );
+}
+
 export function ReadyLibrary({ onAdd, city = "", addLabel = "הוספה למסך" }: { onAdd: (draft: SlideDraft) => Promise<void>; city?: string; addLabel?: string }) {
   const [preview, setPreview] = useState<(typeof FIXED_VIDEOS)[number] | null>(null);
   const [open, setOpen] = useState<ReadySlide | null>(null);
@@ -130,6 +205,8 @@ export function ReadyLibrary({ onAdd, city = "", addLabel = "הוספה למסך
   const [qrSeconds, setQrSeconds] = useState(20);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [extra, setExtra] = useState<Extra>(freshExtra());
+  const [imageFile, setImageFile] = useState<File | null>(null);
 
   function choose(slide: ReadySlide) {
     setError("");
@@ -138,6 +215,20 @@ export function ReadyLibrary({ onAdd, city = "", addLabel = "הוספה למסך
     setMeta(readMeta("", slide.defaults));
     setHeading(slide.title);
     setBody(slide.line);
+    const named = slide.id === "weekly-parasha" || isDeckId(slide.id);
+    setExtra(freshExtra({
+      name: named ? slide.title : "",
+      seconds: templateSeconds(slide.id),
+      days: defaultWeekdays(slide.id, slide.title),
+    }));
+  }
+
+  function scheduleOf(extraValue: Extra) {
+    return {
+      weekdays: extraValue.days,
+      startsOn: extraValue.startsOn,
+      endsOn: extraValue.endsOn,
+    };
   }
 
   async function saveTemplate() {
@@ -145,14 +236,17 @@ export function ReadyLibrary({ onAdd, city = "", addLabel = "הוספה למסך
     setBusy(true);
     setError("");
     try {
+      const named = open.id === "weekly-parasha" || isDeckId(open.id);
+      const stored = open.id === "weekly-parasha" ? { ...meta, flow: meta.flow || "scroll" } : { ...meta };
       await onAdd({
         kind: "template",
         imageUrl: open.image,
         templateId: open.id,
-        title: fillLine(heading, meta),
+        title: fillLine(named ? (extra.name.trim() || heading) : heading, meta),
         detail: fillLine(body, meta),
-        meta: JSON.stringify(open.id === "weekly-parasha" ? { ...meta, flow: meta.flow || "scroll" } : meta),
-        duration: templateSeconds(open.id),
+        meta: withFull(stored, extra.full),
+        duration: open.id === "weekly-parasha" ? Math.max(180, extra.seconds || 180) : Math.max(3, extra.seconds || templateSeconds(open.id)),
+        ...scheduleOf(extra),
       });
       setOpen(null);
     } catch (reason) {
@@ -170,9 +264,11 @@ export function ReadyLibrary({ onAdd, city = "", addLabel = "הוספה למסך
         kind: "youtube",
         imageUrl: video.url,
         templateId: video.id,
-        title: video.title,
+        title: extra.name.trim() || video.title,
         detail: video.line,
         duration: video.duration,
+        meta: withFull({}, extra.full),
+        ...scheduleOf(extra),
       });
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "השמירה נכשלה");
@@ -193,8 +289,9 @@ export function ReadyLibrary({ onAdd, city = "", addLabel = "הוספה למסך
         templateId: video.id,
         title: pestTitle.trim() || "הדברה",
         detail: pestLine.trim(),
-        meta: JSON.stringify({ day: pestDay, from: pestFrom }),
+        meta: withFull({ day: pestDay, from: pestFrom }, extra.full),
         duration: Math.max(5, pestSeconds || 15),
+        ...scheduleOf(extra),
       });
       setPest(false);
     } catch (reason) {
@@ -228,8 +325,9 @@ export function ReadyLibrary({ onAdd, city = "", addLabel = "הוספה למסך
         templateId: "file-qr",
         title: qrTitle.trim() || "מסמך לדיירים",
         detail: qrNote.trim(),
-        meta: JSON.stringify({ token: qrToken, name: qrName, full: true }),
+        meta: withFull({ token: qrToken, name: qrName, full: extra.full }, extra.full),
         duration: Math.max(8, qrSeconds || 20),
+        ...scheduleOf(extra),
       });
       setQrOpen(false);
       setQrToken("");
@@ -244,19 +342,19 @@ export function ReadyLibrary({ onAdd, city = "", addLabel = "הוספה למסך
   return (
     <div className="ready-library">
       <div className="ready-grid">
-        <button type="button" className="ready-card add-card" onClick={() => { setOpen(null); setMode("image"); setError(""); }}>
+        <button type="button" className="ready-card add-card" onClick={() => { setOpen(null); setImageFile(null); setExtra(freshExtra()); setMode("image"); setError(""); }}>
           <span className="slide-label">שקף תמונה חדש</span>
           <span className="thumb add-thumb">
             <KindMark />
           </span>
         </button>
-        <button type="button" className="ready-card add-card" onClick={() => { setOpen(null); setMode("youtube"); setError(""); }}>
+        <button type="button" className="ready-card add-card" onClick={() => { setOpen(null); setExtra(freshExtra({ seconds: 30 })); setMode("youtube"); setError(""); }}>
           <span className="slide-label">סרטון יוטיוב חדש</span>
           <span className="thumb add-thumb">
             <KindMark video />
           </span>
         </button>
-        <button type="button" className="ready-card add-card" onClick={() => { setOpen(null); setPest(false); setPreview(null); setMode(""); setQrOpen(true); setQrToken(""); setError(""); }}>
+        <button type="button" className="ready-card add-card" onClick={() => { setOpen(null); setPest(false); setPreview(null); setMode(""); setQrOpen(true); setQrToken(""); setExtra(freshExtra({ seconds: 20, full: true })); setError(""); }}>
           <span className="slide-label">ברקוד לקובץ</span>
           <span className="thumb add-thumb">
             <img src="/ready-slides/file-qr.svg" alt="" />
@@ -270,10 +368,12 @@ export function ReadyLibrary({ onAdd, city = "", addLabel = "הוספה למסך
               if (video.id === "fixed-pest") {
                 setPreview(null);
                 setPest(true);
+                setExtra(freshExtra({ days: defaultWeekdays(video.id, "הדברה") }));
                 setError("");
                 return;
               }
               setPest(false);
+              setExtra(freshExtra({ name: video.title, seconds: video.duration, days: defaultWeekdays(video.id, video.title) }));
               setPreview(video);
             }}>
               <span className="slide-label">{video.title}</span>
@@ -299,7 +399,7 @@ export function ReadyLibrary({ onAdd, city = "", addLabel = "הוספה למסך
             <div className="slide-modal-actions">
               <strong>{preview.title}</strong>
               <p>{preview.line}</p>
-              <p>{preview.duration} שניות, לפי אורך הסרטון.</p>
+              <ExtraFields extra={extra} setExtra={setExtra} name seconds lockSeconds />
               <button type="button" disabled={busy} onClick={() => void addFixed(preview).then(() => setPreview(null))}>{busy ? "שומר..." : addLabel}</button>
               <button type="button" className="light" onClick={() => setPreview(null)}>סגירה</button>
               {error ? <p className="error">{error}</p> : null}
@@ -341,6 +441,7 @@ export function ReadyLibrary({ onAdd, city = "", addLabel = "הוספה למסך
               ) : null}
               {open.from ? <label>משעה<input type="time" value={meta.from || ""} onChange={(event) => setMeta({ ...meta, from: event.target.value })} /></label> : null}
               {open.to ? <label>עד שעה<input type="time" value={meta.to || ""} onChange={(event) => setMeta({ ...meta, to: event.target.value })} /></label> : null}
+              <ExtraFields extra={extra} setExtra={setExtra} name={open.id === "weekly-parasha" || isDeckId(open.id)} seconds />
               <button type="button" disabled={busy} onClick={() => void saveTemplate()}>{busy ? "שומר..." : addLabel}</button>
               <button type="button" className="light" onClick={() => setOpen(null)}>סגירה</button>
               {error ? <p className="error">{error}</p> : null}
@@ -365,6 +466,7 @@ export function ReadyLibrary({ onAdd, city = "", addLabel = "הוספה למסך
               <label>שעה<input type="time" value={pestFrom} onChange={(event) => setPestFrom(event.target.value)} /></label>
               <label>שניות<input type="number" min={5} max={180} value={pestSeconds} onChange={(event) => setPestSeconds(Number(event.target.value))} /></label>
               <p>הסרטון חוזר על עצמו לפי מספר השניות. היום והשעה מופיעים על הכרטיס.</p>
+              <ExtraFields extra={extra} setExtra={setExtra} />
               <button type="button" disabled={busy} onClick={() => void addPest()}>{busy ? "שומר..." : addLabel}</button>
               <button type="button" className="light" onClick={() => setPest(false)}>סגירה</button>
               {error ? <p className="error">{error}</p> : null}
@@ -396,6 +498,7 @@ export function ReadyLibrary({ onAdd, city = "", addLabel = "הוספה למסך
                 }} />
               </label>
               {qrName ? <p>הקובץ מוכן: {qrName}</p> : null}
+              <ExtraFields extra={extra} setExtra={setExtra} />
               <button type="button" disabled={busy || !qrToken} onClick={() => void saveQr()}>{busy ? "שומר..." : addLabel}</button>
               <button type="button" className="light" onClick={() => setQrOpen(false)}>סגירה</button>
               {error ? <p className="error">{error}</p> : null}
@@ -407,20 +510,45 @@ export function ReadyLibrary({ onAdd, city = "", addLabel = "הוספה למסך
         <div className="slide-modal" role="dialog" aria-modal="true" onClick={() => setMode("")}>
           <div className="slide-modal-card" onClick={(event) => event.stopPropagation()}>
             <h3>שקף תמונה חדש</h3>
+            <div className="slide-modal-actions">
             <p>מעלים תמונה, GIF או PDF.</p>
             <label>קובץ
-              <input type="file" accept="image/*,.gif,.pdf,application/pdf" onChange={(event) => {
-                const file = event.target.files?.[0];
-                if (!file) return;
-                void onAdd({ kind: "image", file, duration: 8 }).then(() => setMode("")).catch((reason) => setError(reason instanceof Error ? reason.message : "השמירה נכשלה"));
-              }} />
+              <input type="file" accept="image/*,.gif,.pdf,application/pdf" onChange={(event) => setImageFile(event.target.files?.[0] || null)} />
             </label>
+            {imageFile ? <p>{imageFile.name}</p> : null}
+            <ExtraFields extra={extra} setExtra={setExtra} name seconds />
+            <button type="button" disabled={busy || !imageFile} onClick={() => {
+              if (!imageFile) return;
+              setBusy(true);
+              setError("");
+              void onAdd({
+                kind: "image",
+                file: imageFile,
+                title: extra.name.trim(),
+                duration: Math.max(3, extra.seconds || 8),
+                meta: withFull({}, extra.full),
+                ...scheduleOf(extra),
+              }).then(() => { setMode(""); setImageFile(null); }).catch((reason) => setError(reason instanceof Error ? reason.message : "השמירה נכשלה")).finally(() => setBusy(false));
+            }}>{busy ? "שומר..." : addLabel}</button>
             {error ? <p className="error">{error}</p> : null}
             <button type="button" className="light" onClick={() => setMode("")}>סגירה</button>
+            </div>
           </div>
         </div>
       ) : null}
-      {mode === "youtube" ? <SlideAgent onAdd={onAdd} onClose={() => setMode("")} /> : null}
+      {mode === "youtube" ? (
+        <SlideAgent
+          extra={<ExtraFields extra={extra} setExtra={setExtra} name seconds />}
+          onAdd={async (draft) => onAdd({
+            ...draft,
+            title: extra.name.trim() || draft.title,
+            duration: Math.max(3, extra.seconds || draft.duration || 30),
+            meta: withFull({}, extra.full),
+            ...scheduleOf(extra),
+          })}
+          onClose={() => setMode("")}
+        />
+      ) : null}
     </div>
   );
 }
@@ -485,6 +613,7 @@ export function SavedSlideEditor({
       ...(!locked ? { duration: slide.templateId === "weekly-parasha" ? Math.max(180, seconds) : Math.max(qr ? 8 : pest ? 5 : 3, seconds) } : {}),
       ...((editable || pest) ? { title: fillLine(heading, meta), detail: fillLine(body, meta) } : {}),
       ...(qr ? { title: heading, detail: body } : {}),
+      ...(!(editable || pest || qr) ? { title: heading } : {}),
       ...(kind === "youtube" && !fixed ? { imageUrl: url, detail: fallback } : {}),
       ...(kind === "image" && picture !== slide.imageUrl ? { imageUrl: picture } : {}),
     });
@@ -562,6 +691,11 @@ export function SavedSlideEditor({
               {fileName ? <p>הקובץ: {fileName}</p> : null}
               {note ? <p className="error">{note}</p> : null}
             </>
+          ) : null}
+          {!(editable || pest || qr) ? (
+            <label>שם השקף
+              <input value={heading} maxLength={80} onChange={(event) => setHeading(event.target.value)} />
+            </label>
           ) : null}
           <fieldset className="day-picks">
             <legend>גודל התצוגה</legend>

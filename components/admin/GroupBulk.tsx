@@ -143,6 +143,9 @@ export function GroupBulk({ rows, themes }: { rows: Row[]; themes: { id: string;
         meta: pending.meta || "",
         kind: pending.kind,
         templateId: pending.templateId || "",
+        weekdays: pending.weekdays,
+        startsOn: pending.startsOn,
+        endsOn: pending.endsOn,
       }));
       if (result.ok) {
         setPending(null);

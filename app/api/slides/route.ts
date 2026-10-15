@@ -19,7 +19,7 @@ export async function POST(request: Request) {
   if (!session) return NextResponse.json({ error: "נדרשת כניסה" }, { status: 401 });
   const body = (await request.json()) as {
     screenId?: number; groupId?: number; imageUrl?: string; duration?: number;
-    kind?: string; templateId?: string; title?: string; detail?: string; meta?: string; startsOn?: string;
+    kind?: string; templateId?: string; title?: string; detail?: string; meta?: string; startsOn?: string; endsOn?: string; weekdays?: string;
   };
   const owner = body.groupId ? { groupId: body.groupId } : body.screenId ? { screenId: body.screenId } : null;
   if (!owner || !body.imageUrl) {
@@ -39,8 +39,9 @@ export async function POST(request: Request) {
       title: body.title || "",
       detail: body.detail || "",
       meta: body.meta || "",
-      weekdays: defaultWeekdays(body.templateId || "", body.title || ""),
+      weekdays: String(body.weekdays || "").replace(/[^0-6]/g, "") || defaultWeekdays(body.templateId || "", body.title || ""),
       startsOn: dateOrEmpty(body.startsOn) || todayInIsrael(),
+      endsOn: dateOrEmpty(body.endsOn),
       sort: (last?.sort ?? 0) + 1,
     },
   });

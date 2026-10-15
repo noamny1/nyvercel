@@ -157,6 +157,9 @@ export function ScreenEditor({
         title: draft.title || "",
         detail: draft.detail || "",
         meta: draft.meta || "",
+        weekdays: draft.weekdays,
+        startsOn: draft.startsOn,
+        endsOn: draft.endsOn,
       }),
     });
     if (!response.ok) throw new Error("שמירת השקף נכשלה");

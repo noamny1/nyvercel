@@ -76,6 +76,9 @@ export async function bulkAddSlide(input: {
   meta?: string;
   kind?: string;
   templateId?: string;
+  weekdays?: string;
+  startsOn?: string;
+  endsOn?: string;
 }) {
   const owned = await managerScreens(input.screenIds);
   if (owned.error) return { ok: false, error: owned.error };
@@ -87,7 +90,11 @@ export async function bulkAddSlide(input: {
   const templateId = (input.templateId || "").trim().slice(0, 80);
   const kind = input.kind === "template" || input.kind === "youtube" ? input.kind : "image";
   const duration = Math.max(3, Math.round(Number(input.duration) || 8));
-  const startsOn = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Jerusalem" }).format(new Date());
+  const days = String(input.weekdays || "").replace(/[^0-6]/g, "");
+  const startsOn = /^\d{4}-\d{2}-\d{2}$/.test(String(input.startsOn || ""))
+    ? String(input.startsOn)
+    : new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Jerusalem" }).format(new Date());
+  const endsOn = /^\d{4}-\d{2}-\d{2}$/.test(String(input.endsOn || "")) ? String(input.endsOn) : "";
   const lasts = await prisma.slide.groupBy({
     by: ["screenId"],
     where: { screenId: { in: owned.ids } },
@@ -104,8 +111,9 @@ export async function bulkAddSlide(input: {
       kind,
       templateId,
       duration,
-      weekdays: defaultWeekdays(templateId, title),
+      weekdays: days || defaultWeekdays(templateId, title),
       startsOn,
+      endsOn,
       sort: (sortOf.get(screenId) || 0) + 1,
       active: true,
     })),
