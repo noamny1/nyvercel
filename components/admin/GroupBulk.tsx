@@ -132,7 +132,7 @@ export function GroupBulk({ rows, themes }: { rows: Row[]; themes: { id: string;
               checked={allOn}
               onChange={() => setPicked(allOn ? [] : rows.map((screen) => screen.id))}
             />
-            כל המסכים ({picked.length} מתוך {rows.length})
+            סמן את כל המסכים
           </label>
           <div className="bulk-picks">
             {rows.map((screen) => (
