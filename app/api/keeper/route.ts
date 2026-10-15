@@ -18,12 +18,13 @@ function apk(url: string) {
 export async function GET(request: Request) {
   const id = await screenId(request);
   if (!id) return NextResponse.json({ upgrade: "", restore: "" });
+  const keeper2 = new URL(request.url).searchParams.get("who") === "keeper2";
   const now = new Date();
   try {
     await prisma.remoteDesk.upsert({
       where: { screenId: id },
-      update: { keeperAt: now },
-      create: { screenId: id, keeperAt: now },
+      update: keeper2 ? { keeperAt: now, keeper2At: now } : { keeperAt: now },
+      create: keeper2 ? { screenId: id, keeperAt: now, keeper2At: now } : { screenId: id, keeperAt: now },
     });
   } catch {
     return NextResponse.json({ upgrade: "", restore: "" });

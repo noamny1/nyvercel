@@ -128,6 +128,7 @@ model RemoteDesk {
   upgradeUrl String   @default("")
   lastApk    String   @default("")
   keeperAt   DateTime?
+  keeper2At  DateTime?
   mediaPausedUntil DateTime?
   wakeUntil  DateTime?
 }

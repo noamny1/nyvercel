@@ -11,6 +11,7 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
   const [note, setNote] = useState("");
   const [busy, setBusy] = useState("");
   const [keeperOn, setKeeperOn] = useState(false);
+  const [keeper2On, setKeeper2On] = useState(false);
   const [keeperAt, setKeeperAt] = useState(0);
   const [wakeAt, setWakeAt] = useState(0);
   const [keeperChecked, setKeeperChecked] = useState(false);
@@ -27,6 +28,7 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
             if (!stop) {
               if (data.note) setNote(data.note);
               setKeeperOn(!!data.keeperOn);
+              setKeeper2On(!!data.keeper2On);
               setKeeperAt(Number(data.keeperAt) || 0);
               setKeeperChecked(true);
             }
@@ -112,6 +114,17 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
             height: 18,
             borderRadius: "50%",
             display: "inline-block",
+            background: !keeperChecked ? "#cfc8bf" : keeper2On ? "#1faa4a" : "#d12626",
+            boxShadow: keeperChecked ? `0 0 12px ${keeper2On ? "#1faa4a" : "#d12626"}` : "none",
+          }}
+        />
+        <b>{!keeperChecked ? "בודקים NYKEEPER2…" : keeper2On ? "NYKEEPER2 פעיל" : "אין NYKEEPER2"}</b>
+        <span
+          style={{
+            width: 18,
+            height: 18,
+            borderRadius: "50%",
+            display: "inline-block",
             background: live ? "#1faa4a" : "#d12626",
             boxShadow: `0 0 12px ${live ? "#1faa4a" : "#d12626"}`,
           }}
@@ -152,6 +165,20 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
           }}
         >
           מחיקת NYMEDIA
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            if (!keeper2On) {
+              window.alert("NYKEEPER2 עדיין לא פעיל. לא מוחקים את הישן.");
+              return;
+            }
+            if (window.confirm("למחוק רק את NYKEEPER הישן? NYKEEPER2 לא יימחק.")) {
+              void send("uninstall", { text: "com.example.nymediakeeper" });
+            }
+          }}
+        >
+          מחיקת NYKEEPER
         </button>
         <button
           type="button"

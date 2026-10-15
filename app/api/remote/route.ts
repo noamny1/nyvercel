@@ -8,7 +8,7 @@ function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-async function hold(id: number) {
+async function hold(id: number, keeper2: boolean) {
   const started = Date.now();
   let touched = 0;
   while (Date.now() - started < 8000) {
@@ -18,8 +18,8 @@ async function hold(id: number) {
       try {
         await prisma.remoteDesk.upsert({
           where: { screenId: id },
-          update: { seenAt: now, keeperAt: now },
-          create: { screenId: id, seenAt: now, keeperAt: now },
+          update: keeper2 ? { seenAt: now, keeperAt: now, keeper2At: now } : { seenAt: now, keeperAt: now },
+          create: keeper2 ? { screenId: id, seenAt: now, keeperAt: now, keeper2At: now } : { screenId: id, seenAt: now, keeperAt: now },
         });
       } catch {
         // A missing column must not stop the live command channel.
@@ -59,14 +59,15 @@ export async function GET(request: Request) {
   const id = await screenId(request);
   if (!id) return NextResponse.json({ found: false, watch: false, needFrame: false, commands: [] });
   const who = new URL(request.url).searchParams.get("who");
-  if (who === "keeper" && new URL(request.url).searchParams.get("wait") === "1") return hold(id);
+  const device = who === "keeper" || who === "keeper2";
+  if (device && new URL(request.url).searchParams.get("wait") === "1") return hold(id, who === "keeper2");
   const now = new Date();
-  if (who === "keeper") {
+  if (device) {
     try {
       await prisma.remoteDesk.upsert({
         where: { screenId: id },
-        update: { seenAt: now, keeperAt: now },
-        create: { screenId: id, seenAt: now, keeperAt: now },
+        update: who === "keeper2" ? { seenAt: now, keeperAt: now, keeper2At: now } : { seenAt: now, keeperAt: now },
+        create: who === "keeper2" ? { screenId: id, seenAt: now, keeperAt: now, keeper2At: now } : { screenId: id, seenAt: now, keeperAt: now },
       });
     } catch {
       // A missing column must not stop the screenshot channel.
@@ -91,27 +92,28 @@ export async function GET(request: Request) {
   }
   const keeperFresh = !!desk?.keeperAt && Date.now() - desk.keeperAt.getTime() < 75000;
   const watching = !!desk && Date.now() - desk.watchedAt.getTime() < 20000;
-  const watch = watching && (who === "keeper" || !keeperFresh);
+  const watch = watching && (device || !keeperFresh);
   const needFrame = watch && (!desk?.frameAt || Date.now() - desk.frameAt.getTime() > 2500);
   const take = new URL(request.url).searchParams.get("take") === "1";
-  const commands = take && who === "keeper" ? await takeCommands(id) : [];
+  const commands = take && device ? await takeCommands(id) : [];
   return NextResponse.json({ found: true, watch, needFrame, commands }, { headers: { "Cache-Control": "no-store" } });
 }
 
 export async function POST(request: Request) {
   const id = await screenId(request);
   if (!id) return NextResponse.json({ commands: [] }, { status: 404 });
-  if (new URL(request.url).searchParams.get("who") !== "keeper") {
+  const who = new URL(request.url).searchParams.get("who");
+  if (who !== "keeper" && who !== "keeper2") {
     return NextResponse.json({ ok: true });
   }
-  const type = request.headers.get("content-type") || "";
+  const stamp = who === "keeper2" ? { keeper2At: new Date() } : {};
   if (type.includes("application/json")) {
     const body = await request.json().catch(() => null) as { note?: string } | null;
     const note = String(body?.note || "").replace(/[^\p{L}\p{N} .:_-]/gu, "").slice(0, 160);
     await prisma.remoteDesk.upsert({
       where: { screenId: id },
-      update: { note },
-      create: { screenId: id, note },
+      update: { note, ...stamp },
+      create: { screenId: id, note, ...stamp },
     });
     return NextResponse.json({ ok: true });
   }
@@ -121,8 +123,8 @@ export async function POST(request: Request) {
   if (bytes.length < 32 || bytes.length > 900000) return NextResponse.json({ commands: [] });
   await prisma.remoteDesk.upsert({
     where: { screenId: id },
-    update: { frame: bytes, frameAt: new Date(), width, height },
-    create: { screenId: id, frame: bytes, frameAt: new Date(), width, height },
+    update: { frame: bytes, frameAt: new Date(), width, height, ...stamp },
+    create: { screenId: id, frame: bytes, frameAt: new Date(), width, height, ...stamp },
   });
   return NextResponse.json({ ok: true }, { headers: { "Cache-Control": "no-store" } });
 }

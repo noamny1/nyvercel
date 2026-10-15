@@ -43,7 +43,7 @@ export default async function ControlPage({ searchParams }: { searchParams: Prom
       where: { AND: [where, statusWhere] },
       orderBy: { id: "desc" },
       ...(filter === "all" ? { take: 40 } : {}),
-      include: { heartbeat: true, deviceStatus: true, remoteDesk: { select: { keeperAt: true } }, group: { include: { building: true } } },
+      include: { heartbeat: true, deviceStatus: true, remoteDesk: { select: { keeperAt: true, keeper2At: true } }, group: { include: { building: true } } },
     }),
   ]);
   const rows = screens.map((screen) => ({ screen, state: stateOf(screen, now) }));
@@ -77,6 +77,18 @@ export default async function ControlPage({ searchParams }: { searchParams: Prom
                 }}
               />
               {screen.remoteDesk?.keeperAt && now - screen.remoteDesk.keeperAt.getTime() < 75000 ? "גישה פעילה" : "אין גישה"}
+              {" · "}
+              <i
+                className="dot"
+                style={{
+                  width: 14,
+                  height: 14,
+                  margin: 0,
+                  background: screen.remoteDesk?.keeper2At && now - screen.remoteDesk.keeper2At.getTime() < 75000 ? "#1faa4a" : "#d12626",
+                  boxShadow: `0 0 8px ${screen.remoteDesk?.keeper2At && now - screen.remoteDesk.keeper2At.getTime() < 75000 ? "#1faa4a" : "#d12626"}`,
+                }}
+              />
+              {screen.remoteDesk?.keeper2At && now - screen.remoteDesk.keeper2At.getTime() < 75000 ? "NYKEEPER2" : "בלי NYKEEPER2"}
             </span>
             <span>
               {screen.group?.building?.name || screen.group?.name || "בלי קבוצה"}

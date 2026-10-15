@@ -495,7 +495,7 @@ body:has(.admin) { background: #F4F1ED; overflow-x: hidden; }
 .bulk-frame > p { margin: 0; color: #6d625c; font-size: 13px; }
 .admin .remote-keys {
   display: grid;
-  grid-template-columns: repeat(10, minmax(0, 1fr));
+  grid-template-columns: repeat(11, minmax(0, 1fr));
   gap: 6px;
   margin: 12px 0;
 }
