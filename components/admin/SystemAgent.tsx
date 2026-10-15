@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { closeOpenLink, listOpenLinks, runSystemAgentAction, type OpenLink } from "@/app/admin/agent/actions";
+import { closeOpenLink, listOpenLinks, runResourceCheckAction, runSystemAgentAction, type OpenLink } from "@/app/admin/agent/actions";
 import type { AgentReport } from "@/lib/system-agent";
 
 const LEVEL = { high: "חשוב", mid: "שיפור", ok: "תקין" };
@@ -10,6 +10,10 @@ export function SystemAgent() {
   const [report, setReport] = useState<AgentReport | null>(null);
   const [error, setError] = useState("");
   const [pending, start] = useTransition();
+  const [resources, setResources] = useState<string[]>([]);
+  const [resourceNote, setResourceNote] = useState("");
+  const [resourceError, setResourceError] = useState("");
+  const [checkingResources, setCheckingResources] = useState(false);
   const [links, setLinks] = useState<OpenLink[] | null>(null);
   const [linkError, setLinkError] = useState("");
   const [checking, setChecking] = useState(false);
@@ -71,6 +75,37 @@ export function SystemAgent() {
               <p>{item.detail}</p>
             </article>
           ))}
+        </div>
+      ) : null}
+      <h2>משאבי שרת ואחסון</h2>
+      <p>אותה בדיקה שרצה כל יום בשעה 10:00. נשלח גם מייל עם הסטטוס וההמלצה.</p>
+      <button
+        type="button"
+        disabled={checkingResources}
+        onClick={() => {
+          setResourceError("");
+          setResourceNote("");
+          setCheckingResources(true);
+          void runResourceCheckAction()
+            .then((result) => {
+              setResources(result.lines);
+              setResourceNote(result.mailed ? "המייל נשלח." : result.mailError || "המייל לא נשלח.");
+            })
+            .catch((reason) => setResourceError(reason instanceof Error ? reason.message : "הבדיקה נכשלה"))
+            .finally(() => setCheckingResources(false));
+        }}
+      >
+        {checkingResources ? "בודק משאבים..." : "בדיקת משאבי שרת ואחסון"}
+      </button>
+      {resourceError ? <p className="error">{resourceError}</p> : null}
+      {resources.length ? (
+        <div className="agent-report">
+          {resources.map((line) => (
+            <article key={line} className="agent-finding is-ok">
+              <p>{line}</p>
+            </article>
+          ))}
+          {resourceNote ? <p className="agent-meta">{resourceNote}</p> : null}
         </div>
       ) : null}
       <h2>חיבורי שליטה מרחוק</h2>

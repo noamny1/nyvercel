@@ -2,11 +2,19 @@
 
 import { prisma } from "@/lib/prisma";
 import { isSystemAdmin, requireSession } from "@/lib/session";
+import { checkResources, mailResourceReport, type ResourceReport } from "@/lib/resource-check";
 import { runSystemAgent, type AgentReport } from "@/lib/system-agent";
 
 async function admin() {
   const session = await requireSession();
   if (!session || !isSystemAdmin(session)) throw new Error("רק מנהל המערכת יכול להפעיל את הסוכן.");
+}
+
+export async function runResourceCheckAction(): Promise<ResourceReport & { mailed: boolean; mailError: string }> {
+  await admin();
+  const report = await checkResources();
+  const mail = await mailResourceReport(report);
+  return { ...report, mailed: mail.ok, mailError: mail.ok ? "" : mail.error };
 }
 
 export async function runSystemAgentAction(): Promise<AgentReport> {

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { sendAdviceMail } from "@/lib/mail";
+import { mailResourceReport, checkResources } from "@/lib/resource-check";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -36,7 +37,14 @@ export async function GET(request: Request) {
   }
 
   const hour = jerusalemHour();
-  if (hour !== 8 && hour !== 9) return NextResponse.json({ ok: true, skipped: true, hour });
+  if (hour !== 8 && hour !== 9 && hour !== 10) return NextResponse.json({ ok: true, skipped: true, hour });
+
+  if (hour === 10) {
+    const report = await checkResources();
+    const mailed = await mailResourceReport(report);
+    if (!mailed.ok) return NextResponse.json({ ok: false, error: mailed.error }, { status: 500 });
+    return NextResponse.json({ ok: true, hour, subject: report.subject });
+  }
 
   const now = Date.now();
   const screens = await prisma.screen.findMany({
