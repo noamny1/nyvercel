@@ -107,6 +107,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true });
   }
   const stamp = who === "keeper2" ? { keeper2At: new Date() } : {};
+  const type = request.headers.get("content-type") || "";
   if (type.includes("application/json")) {
     const body = await request.json().catch(() => null) as { note?: string } | null;
     const note = String(body?.note || "").replace(/[^\p{L}\p{N} .:_-]/gu, "").slice(0, 160);
