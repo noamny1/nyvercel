@@ -127,5 +127,12 @@ export async function POST(request: Request) {
       text: raw.slice(0, op === "install" ? 500 : 240),
     },
   });
+  if (op === "media") {
+    await prisma.remoteDesk.upsert({
+      where: { screenId },
+      update: { mediaPausedUntil: raw === "0" ? new Date(Date.now() + 6 * 60 * 60 * 1000) : null },
+      create: { screenId, mediaPausedUntil: raw === "0" ? new Date(Date.now() + 6 * 60 * 60 * 1000) : null },
+    });
+  }
   return NextResponse.json({ ok: true });
 }
