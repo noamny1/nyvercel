@@ -66,11 +66,13 @@ export async function bulkSettings(input: {
   return { ok: true, count: owned.ids.length };
 }
 
-export async function bulkAddSlide(input: { screenIds: number[]; imageUrl: string; duration: number }) {
+export async function bulkAddSlide(input: { screenIds: number[]; imageUrl: string; duration: number; title?: string }) {
   const owned = await managerScreens(input.screenIds);
   if (owned.error) return { ok: false, error: owned.error };
   const imageUrl = input.imageUrl.trim();
   if (!imageUrl.startsWith("https://")) return { ok: false, error: "חסר קובץ שקף" };
+  const title = (input.title || "").trim().slice(0, 60);
+  if (!title) return { ok: false, error: "חסר שם שקף" };
   const duration = Math.max(3, Math.min(120, Math.round(Number(input.duration) || 8)));
   const lasts = await prisma.slide.groupBy({
     by: ["screenId"],
@@ -82,6 +84,7 @@ export async function bulkAddSlide(input: { screenIds: number[]; imageUrl: strin
     data: owned.ids.map((screenId) => ({
       screenId,
       imageUrl,
+      title,
       duration,
       kind: "image",
       weekdays: "0123456",

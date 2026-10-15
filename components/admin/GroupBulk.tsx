@@ -43,6 +43,7 @@ export function GroupBulk({ rows, themes }: { rows: Row[]; themes: { id: string;
   const [news, setNews] = useState<string[]>(["ynet"]);
   const [music, setMusic] = useState<string[]>([]);
   const [seconds, setSeconds] = useState(8);
+  const [slideTitle, setSlideTitle] = useState("");
   const [message, setMessage] = useState("");
 
   const selected = rows.filter((screen) => picked.includes(screen.id));
@@ -95,25 +96,31 @@ export function GroupBulk({ rows, themes }: { rows: Row[]; themes: { id: string;
       const result = await work();
       if (!result.ok) {
         setError(result.error || "העדכון נכשל");
-        return;
+        return false;
       }
       setNote(`עודכן ב-${result.count || picked.length} מסכים`);
       router.refresh();
+      return true;
     } catch {
       setError("העדכון נכשל");
+      return false;
     } finally {
       setBusy(false);
     }
   }
 
   async function uploadSlide(file: File) {
+    const title = slideTitle.trim();
+    if (!title) throw new Error("חסר שם שקף");
     const body = new FormData();
     body.set("file", file);
     body.set("kind", "slide");
     const response = await fetch("/api/upload", { method: "POST", body });
     const data = (await response.json()) as { url?: string; error?: string };
     if (!response.ok || !data.url) throw new Error(data.error || "ההעלאה נכשלה");
-    await run(() => bulkAddSlide({ screenIds: picked, imageUrl: data.url || "", duration: seconds }));
+    if (await run(() => bulkAddSlide({ screenIds: picked, imageUrl: data.url || "", duration: seconds, title }))) {
+      setSlideTitle("");
+    }
   }
 
   return (
@@ -228,21 +235,27 @@ export function GroupBulk({ rows, themes }: { rows: Row[]; themes: { id: string;
           ) : null}
           {tool === "slides" ? (
             <div className="bulk-form">
-              <h3>הוספת שקף</h3>
-              <label>שניות<input type="number" min={3} max={120} value={seconds} onChange={(event) => setSeconds(Number(event.target.value) || 8)} /></label>
-              <label className="file-pick">
-                {busy ? "מעלה..." : "העלאת שקף למסכים שנבחרו"}
-                <input
-                  type="file"
-                  accept="image/*,.gif,.pdf,application/pdf"
-                  disabled={busy}
-                  onChange={(event) => {
-                    const file = event.target.files?.[0];
-                    event.target.value = "";
-                    if (file) void uploadSlide(file).catch((reason) => setError(reason instanceof Error ? reason.message : "ההעלאה נכשלה"));
-                  }}
-                />
-              </label>
+              <div className="bulk-add">
+                <h3>הוספת שקף</h3>
+                <label>
+                  שם השקף
+                  <input value={slideTitle} maxLength={60} placeholder="לדוגמה: ברוכים הבאים" onChange={(event) => setSlideTitle(event.target.value)} />
+                </label>
+                <label>שניות<input type="number" min={3} max={120} value={seconds} onChange={(event) => setSeconds(Number(event.target.value) || 8)} /></label>
+                <label className="file-pick">
+                  {busy ? "מעלה..." : "העלאת שקף למסכים שנבחרו"}
+                  <input
+                    type="file"
+                    accept="image/*,.gif,.pdf,application/pdf"
+                    disabled={busy}
+                    onChange={(event) => {
+                      const file = event.target.files?.[0];
+                      event.target.value = "";
+                      if (file) void uploadSlide(file).catch((reason) => setError(reason instanceof Error ? reason.message : "ההעלאה נכשלה"));
+                    }}
+                  />
+                </label>
+              </div>
               <h3>מחיקת שקף מהמסכים שנבחרו</h3>
               {slides.length ? (
                 <div className="bulk-list">
