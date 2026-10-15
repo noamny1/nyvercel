@@ -36,6 +36,14 @@ export default async function BuildingsPage({ searchParams }: { searchParams: Pr
   const query = q.trim();
   const id = Number(query);
   const email = session.user?.email?.trim().toLowerCase();
+  if (owner) {
+    await prisma.$executeRaw`
+      UPDATE "Screen"
+      SET name = btrim(concat_ws(', ', NULLIF(btrim(concat_ws(' ', street, number)), ''), NULLIF(btrim(city), '')), ', ')
+      WHERE btrim(concat_ws(' ', street, number, city)) <> ''
+        AND name IS DISTINCT FROM btrim(concat_ws(', ', NULLIF(btrim(concat_ws(' ', street, number)), ''), NULLIF(btrim(city), '')), ', ')
+    `.catch(() => 0);
+  }
   const [screens, groups, manager] = await Promise.all([
     prisma.screen.findMany({
       where: {
@@ -48,7 +56,7 @@ export default async function BuildingsPage({ searchParams }: { searchParams: Pr
                   { street: { contains: query, mode: "insensitive" } },
                   { number: { contains: query, mode: "insensitive" } },
                   { city: { contains: query, mode: "insensitive" } },
-                  { name: { contains: query, mode: "insensitive" } },
+                  { floor: { contains: query, mode: "insensitive" } },
                 ],
               }
             : {},

@@ -51,15 +51,19 @@ export async function updateScreen(formData: FormData) {
   const current = await prisma.screen.findFirst({ where: { id, ...(await screenWhere(session)) } });
   if (!current) redirect("/admin/buildings");
   const owner = isSystemAdmin(session);
+  const street = owner ? String(formData.get("street") || "") : current.street;
+  const number = owner ? String(formData.get("number") || "") : current.number;
+  const city = owner ? String(formData.get("city") || "") : current.city;
+  const place = [street, number].filter(Boolean).join(" ");
   const incomingLogo = String(formData.get("logoUrl") || "");
   const music = formData.get("musicForm") ? normalizePlaylists(formData.getAll("music").map(String)) : current.musicPlaylist;
   await prisma.screen.update({
     where: { id },
     data: {
-      name: current.name,
-      street: owner ? String(formData.get("street") || "") : current.street,
-      number: owner ? String(formData.get("number") || "") : current.number,
-      city: owner ? String(formData.get("city") || "") : current.city,
+      name: [place, city].filter(Boolean).join(", ") || current.name,
+      street,
+      number,
+      city,
       floor: owner && formData.has("floor") ? (String(formData.get("floor") || "").trim().slice(0, 40) || "לובי") : current.floor,
       theme: await savedTheme(String(formData.get("theme") || "modern"), current.theme, owner),
       newsSource: chosenNews(formData),
