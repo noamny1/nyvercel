@@ -6,6 +6,7 @@ import { requireSession, isSystemAdmin } from "@/lib/session";
 import { touchScreen } from "@/lib/publish";
 import { normalizePlaylists } from "@/lib/music-catalog";
 import { savedTheme } from "@/lib/themes";
+import { defaultWeekdays } from "@/lib/ready-slides";
 
 async function managerScreens(ids: number[]) {
   const session = await requireSession();
@@ -66,14 +67,27 @@ export async function bulkSettings(input: {
   return { ok: true, count: owned.ids.length };
 }
 
-export async function bulkAddSlide(input: { screenIds: number[]; imageUrl: string; duration: number; title?: string }) {
+export async function bulkAddSlide(input: {
+  screenIds: number[];
+  imageUrl: string;
+  duration: number;
+  title?: string;
+  detail?: string;
+  meta?: string;
+  kind?: string;
+  templateId?: string;
+}) {
   const owned = await managerScreens(input.screenIds);
   if (owned.error) return { ok: false, error: owned.error };
   const imageUrl = input.imageUrl.trim();
-  if (!imageUrl.startsWith("https://")) return { ok: false, error: "חסר קובץ שקף" };
-  const title = (input.title || "").trim().slice(0, 60);
-  if (!title) return { ok: false, error: "חסר שם שקף" };
-  const duration = Math.max(3, Math.min(120, Math.round(Number(input.duration) || 8)));
+  if (!imageUrl.startsWith("https://") && !imageUrl.startsWith("/")) return { ok: false, error: "חסר קובץ שקף" };
+  const title = (input.title || "").trim().slice(0, 120);
+  const detail = (input.detail || "").trim().slice(0, 2000);
+  const meta = (input.meta || "").slice(0, 4000);
+  const templateId = (input.templateId || "").trim().slice(0, 80);
+  const kind = input.kind === "template" || input.kind === "youtube" ? input.kind : "image";
+  const duration = Math.max(3, Math.round(Number(input.duration) || 8));
+  const startsOn = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Jerusalem" }).format(new Date());
   const lasts = await prisma.slide.groupBy({
     by: ["screenId"],
     where: { screenId: { in: owned.ids } },
@@ -85,9 +99,13 @@ export async function bulkAddSlide(input: { screenIds: number[]; imageUrl: strin
       screenId,
       imageUrl,
       title,
+      detail,
+      meta,
+      kind,
+      templateId,
       duration,
-      kind: "image",
-      weekdays: "0123456",
+      weekdays: defaultWeekdays(templateId, title),
+      startsOn,
       sort: (sortOf.get(screenId) || 0) + 1,
       active: true,
     })),

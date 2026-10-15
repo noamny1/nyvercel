@@ -109,7 +109,7 @@ function sourceText(saved: string, templateText: string | undefined, meta: Slide
   return saved;
 }
 
-export function ReadyLibrary({ onAdd, city = "" }: { onAdd: (draft: SlideDraft) => Promise<void>; city?: string }) {
+export function ReadyLibrary({ onAdd, city = "", addLabel = "הוספה למסך" }: { onAdd: (draft: SlideDraft) => Promise<void>; city?: string; addLabel?: string }) {
   const [preview, setPreview] = useState<(typeof FIXED_VIDEOS)[number] | null>(null);
   const [open, setOpen] = useState<ReadySlide | null>(null);
   const [meta, setMeta] = useState<SlideMeta>({});
@@ -300,7 +300,7 @@ export function ReadyLibrary({ onAdd, city = "" }: { onAdd: (draft: SlideDraft) 
               <strong>{preview.title}</strong>
               <p>{preview.line}</p>
               <p>{preview.duration} שניות, לפי אורך הסרטון.</p>
-              <button type="button" disabled={busy} onClick={() => void addFixed(preview).then(() => setPreview(null))}>{busy ? "שומר..." : "הוספה למסך"}</button>
+              <button type="button" disabled={busy} onClick={() => void addFixed(preview).then(() => setPreview(null))}>{busy ? "שומר..." : addLabel}</button>
               <button type="button" className="light" onClick={() => setPreview(null)}>סגירה</button>
               {error ? <p className="error">{error}</p> : null}
             </div>
@@ -341,7 +341,7 @@ export function ReadyLibrary({ onAdd, city = "" }: { onAdd: (draft: SlideDraft) 
               ) : null}
               {open.from ? <label>משעה<input type="time" value={meta.from || ""} onChange={(event) => setMeta({ ...meta, from: event.target.value })} /></label> : null}
               {open.to ? <label>עד שעה<input type="time" value={meta.to || ""} onChange={(event) => setMeta({ ...meta, to: event.target.value })} /></label> : null}
-              <button type="button" disabled={busy} onClick={() => void saveTemplate()}>{busy ? "שומר..." : "הוספה למסך"}</button>
+              <button type="button" disabled={busy} onClick={() => void saveTemplate()}>{busy ? "שומר..." : addLabel}</button>
               <button type="button" className="light" onClick={() => setOpen(null)}>סגירה</button>
               {error ? <p className="error">{error}</p> : null}
             </div>
@@ -365,7 +365,7 @@ export function ReadyLibrary({ onAdd, city = "" }: { onAdd: (draft: SlideDraft) 
               <label>שעה<input type="time" value={pestFrom} onChange={(event) => setPestFrom(event.target.value)} /></label>
               <label>שניות<input type="number" min={5} max={180} value={pestSeconds} onChange={(event) => setPestSeconds(Number(event.target.value))} /></label>
               <p>הסרטון חוזר על עצמו לפי מספר השניות. היום והשעה מופיעים על הכרטיס.</p>
-              <button type="button" disabled={busy} onClick={() => void addPest()}>{busy ? "שומר..." : "הוספה למסך"}</button>
+              <button type="button" disabled={busy} onClick={() => void addPest()}>{busy ? "שומר..." : addLabel}</button>
               <button type="button" className="light" onClick={() => setPest(false)}>סגירה</button>
               {error ? <p className="error">{error}</p> : null}
             </div>
@@ -396,7 +396,7 @@ export function ReadyLibrary({ onAdd, city = "" }: { onAdd: (draft: SlideDraft) 
                 }} />
               </label>
               {qrName ? <p>הקובץ מוכן: {qrName}</p> : null}
-              <button type="button" disabled={busy || !qrToken} onClick={() => void saveQr()}>{busy ? "שומר..." : "הוספה למסך"}</button>
+              <button type="button" disabled={busy || !qrToken} onClick={() => void saveQr()}>{busy ? "שומר..." : addLabel}</button>
               <button type="button" className="light" onClick={() => setQrOpen(false)}>סגירה</button>
               {error ? <p className="error">{error}</p> : null}
             </div>

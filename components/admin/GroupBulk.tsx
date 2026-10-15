@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { NEWS_SOURCES } from "@/lib/news-sources";
 import { PLAYLISTS } from "@/lib/music-catalog";
 import { bulkAddNotice, bulkAddSlide, bulkRemoveNotice, bulkRemoveSlide, bulkSettings } from "@/app/admin/bulk/actions";
+import { ReadyLibrary, type SlideDraft } from "@/components/admin/ReadyLibrary";
 
 type Row = {
   id: number;
@@ -42,10 +43,11 @@ export function GroupBulk({ rows, themes }: { rows: Row[]; themes: { id: string;
   const [feedMode, setFeedMode] = useState("both");
   const [news, setNews] = useState<string[]>(["ynet"]);
   const [music, setMusic] = useState<string[]>([]);
-  const [seconds, setSeconds] = useState(8);
-  const [slideTitle, setSlideTitle] = useState("");
   const [message, setMessage] = useState("");
   const [popup, setPopup] = useState<{ ok: boolean; text: string } | null>(null);
+  const [catalog, setCatalog] = useState(false);
+  const [pending, setPending] = useState<SlideDraft | null>(null);
+  const [assignIds, setAssignIds] = useState<number[]>([]);
 
   const selected = rows.filter((screen) => picked.includes(screen.id));
   const allOn = rows.length > 0 && picked.length === rows.length;
@@ -86,7 +88,72 @@ export function GroupBulk({ rows, themes }: { rows: Row[]; themes: { id: string;
   function open(next: Tool) {
     setError("");
     setNote("");
-    setTool((current) => (current === next ? null : next));
+    const opening = tool !== next;
+    setTool(opening ? next : null);
+    if (!opening || next !== "slides") {
+      setCatalog(false);
+      setPending(null);
+    }
+    if (opening && next === "slides") {
+      setPending(null);
+      setCatalog(true);
+    }
+  }
+
+  async function stageSlide(draft: SlideDraft) {
+    setPending(draft);
+    setAssignIds(rows.map((screen) => screen.id));
+  }
+
+  function toggleAssign(id: number) {
+    setAssignIds((current) => (current.includes(id) ? current.filter((item) => item !== id) : [...current, id]));
+  }
+
+  async function commitSlide() {
+    if (!pending) return;
+    if (!assignIds.length) {
+      setPopup({ ok: false, text: "לא נבחרו מסכים." });
+      return;
+    }
+    try {
+      let imageUrl = pending.imageUrl || "";
+      if (pending.file) {
+        const body = new FormData();
+        body.set("file", pending.file);
+        body.set("kind", "slide");
+        const response = await fetch("/api/upload", { method: "POST", body });
+        const data = (await response.json()) as { url?: string; error?: string };
+        if (!response.ok || !data.url) {
+          setPopup({ ok: false, text: data.error || "ההעלאה נכשלה" });
+          return;
+        }
+        imageUrl = data.url;
+      }
+      if (!imageUrl) {
+        setPopup({ ok: false, text: "חסר קובץ שקף" });
+        return;
+      }
+      const title = pending.title || "";
+      const result = await run(() => bulkAddSlide({
+        screenIds: assignIds,
+        imageUrl,
+        duration: pending.duration || 8,
+        title,
+        detail: pending.detail || "",
+        meta: pending.meta || "",
+        kind: pending.kind,
+        templateId: pending.templateId || "",
+      }));
+      if (result.ok) {
+        setPending(null);
+        setCatalog(false);
+        setPopup({ ok: true, text: `${title || "השקף"} עלה ל-${result.count || assignIds.length} מסכים.` });
+      } else {
+        setPopup({ ok: false, text: result.text || "ההעלאה נכשלה" });
+      }
+    } catch {
+      setPopup({ ok: false, text: "ההעלאה נכשלה" });
+    }
   }
 
   async function run(work: () => Promise<{ ok: boolean; error?: string; count?: number }>) {
@@ -108,38 +175,6 @@ export function GroupBulk({ rows, themes }: { rows: Row[]; themes: { id: string;
       return { ok: false, text: "העדכון נכשל" };
     } finally {
       setBusy(false);
-    }
-  }
-
-  async function uploadSlide(file: File) {
-    const title = slideTitle.trim();
-    if (!title) {
-      setPopup({ ok: false, text: "חסר שם שקף. כותבים שם ואז מעלים." });
-      return;
-    }
-    if (!picked.length) {
-      setPopup({ ok: false, text: "לא נבחרו מסכים." });
-      return;
-    }
-    try {
-      const body = new FormData();
-      body.set("file", file);
-      body.set("kind", "slide");
-      const response = await fetch("/api/upload", { method: "POST", body });
-      const data = (await response.json()) as { url?: string; error?: string };
-      if (!response.ok || !data.url) {
-        setPopup({ ok: false, text: data.error || "ההעלאה נכשלה" });
-        return;
-      }
-      const result = await run(() => bulkAddSlide({ screenIds: picked, imageUrl: data.url || "", duration: seconds, title }));
-      if (result.ok) {
-        setSlideTitle("");
-        setPopup({ ok: true, text: `השקף "${title}" עלה ל-${result.count || picked.length} מסכים.` });
-      } else {
-        setPopup({ ok: false, text: result.text || "ההעלאה נכשלה" });
-      }
-    } catch {
-      setPopup({ ok: false, text: "ההעלאה נכשלה" });
     }
   }
 
@@ -255,27 +290,7 @@ export function GroupBulk({ rows, themes }: { rows: Row[]; themes: { id: string;
           ) : null}
           {tool === "slides" ? (
             <div className="bulk-form">
-              <div className="bulk-add">
-                <h3>הוספת שקף</h3>
-                <label>
-                  שם השקף
-                  <input value={slideTitle} maxLength={60} placeholder="לדוגמה: ברוכים הבאים" onChange={(event) => setSlideTitle(event.target.value)} />
-                </label>
-                <label>שניות<input type="number" min={3} max={120} value={seconds} onChange={(event) => setSeconds(Number(event.target.value) || 8)} /></label>
-                <label className="file-pick">
-                  {busy ? "מעלה..." : "העלאת שקף למסכים שנבחרו"}
-                  <input
-                    type="file"
-                    accept="image/*,.gif,.pdf,application/pdf"
-                    disabled={busy}
-                    onChange={(event) => {
-                      const file = event.target.files?.[0];
-                      event.target.value = "";
-                      if (file) void uploadSlide(file);
-                    }}
-                  />
-                </label>
-              </div>
+              <button type="button" onClick={() => { setPending(null); setCatalog(true); }}>בחירת שקף להוספה</button>
               <h3>מחיקת שקף מהמסכים שנבחרו</h3>
               {slides.length ? (
                 <div className="bulk-list">
@@ -342,6 +357,45 @@ export function GroupBulk({ rows, themes }: { rows: Row[]; themes: { id: string;
           ) : null}
           {error ? <p className="error">{error}</p> : null}
           {note ? <p>{note}</p> : null}
+        </div>
+      ) : null}
+      {catalog ? (
+        <div className="modal" role="dialog" aria-modal="true">
+          <div className={`card ${pending ? "bulk-assign" : "bulk-library"}`}>
+            {pending ? (
+              <>
+                <h3>לאיזה מסכים לשייך</h3>
+                <p>{pending.title || "השקף שנבחר"}</p>
+                <label className="bulk-all">
+                  <input
+                    type="checkbox"
+                    checked={rows.length > 0 && assignIds.length === rows.length}
+                    onChange={() => setAssignIds(assignIds.length === rows.length ? [] : rows.map((screen) => screen.id))}
+                  />
+                  <span>סמן את כל המסכים</span>
+                </label>
+                <div className="bulk-picks">
+                  {rows.map((screen) => (
+                    <label key={screen.id}>
+                      <input type="checkbox" checked={assignIds.includes(screen.id)} onChange={() => toggleAssign(screen.id)} />
+                      <span>{placeOf(screen)} · {screen.floor || "לובי"}</span>
+                    </label>
+                  ))}
+                </div>
+                <button type="button" disabled={busy} onClick={() => void commitSlide()}>
+                  {busy ? "מוסיף..." : "הוספה למסכים שנבחרו"}
+                </button>
+                <button type="button" className="light" onClick={() => setPending(null)}>חזרה לשקפים</button>
+              </>
+            ) : (
+              <>
+                <h3>בחירת שקף</h3>
+                <p>אותם שקפים כמו במסך בודד. שקף חדש שנוסיף למערכת יופיע כאן.</p>
+                <ReadyLibrary city={rows[0]?.city || ""} addLabel="המשך לבחירת מסכים" onAdd={stageSlide} />
+                <button type="button" className="light" onClick={() => setCatalog(false)}>סגירה</button>
+              </>
+            )}
+          </div>
         </div>
       ) : null}
       {popup ? (
