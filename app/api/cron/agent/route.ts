@@ -6,7 +6,7 @@ import { mailResourceReport, checkResources } from "@/lib/resource-check";
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
-const THEME_MS = 25 * 60 * 1000;
+const THEME_MS = 18 * 60 * 1000;
 const ACCESS_MS = 2 * 60 * 1000;
 
 function jerusalemClock() {
@@ -35,24 +35,28 @@ async function reviveThemes() {
   const screens = await prisma.screen.findMany({
     where: {
       active: true,
-      remoteDesk: { keeperAt: { gte: new Date(now - ACCESS_MS) } },
       OR: [
         { heartbeat: { is: null } },
         { heartbeat: { is: { at: { lt: new Date(now - THEME_MS) } } } },
       ],
     },
-    select: { id: true, remoteDesk: { select: { mediaPausedUntil: true } } },
+    select: { id: true, remoteDesk: { select: { keeperAt: true, keeper2At: true, mediaPausedUntil: true, revivedAt: true } } },
   });
   let started = 0;
   for (const screen of screens) {
-    const paused = screen.remoteDesk?.mediaPausedUntil?.getTime() || 0;
-    if (paused > now) continue;
+    const desk = screen.remoteDesk;
+    const keeper = Math.max(desk?.keeperAt?.getTime() || 0, desk?.keeper2At?.getTime() || 0);
+    if (now - keeper > ACCESS_MS) continue;
+    if ((desk?.mediaPausedUntil?.getTime() || 0) > now) continue;
+    if ((desk?.revivedAt?.getTime() || 0) > now - 2 * 60 * 60 * 1000) continue;
     const pending = await prisma.remoteCommand.findFirst({
-      where: { screenId: screen.id, op: "media", text: "1" },
+      where: { screenId: screen.id, op: "media" },
       select: { id: true },
     });
     if (pending) continue;
+    await prisma.remoteCommand.create({ data: { screenId: screen.id, op: "media", text: "0" } });
     await prisma.remoteCommand.create({ data: { screenId: screen.id, op: "media", text: "1" } });
+    await prisma.remoteDesk.update({ where: { screenId: screen.id }, data: { revivedAt: new Date() } });
     started += 1;
   }
   return started;
