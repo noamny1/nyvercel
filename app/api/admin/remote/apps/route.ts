@@ -24,7 +24,7 @@ export async function GET(request: Request) {
   let remoteOn = false;
   try {
     const beat = await prisma.heartbeat.findUnique({ where: { screenId } });
-    screenOn = !!beat && Date.now() - beat.at.getTime() < 8 * 60 * 1000;
+    screenOn = !!beat && Date.now() - beat.at.getTime() < 18 * 60 * 1000;
   } catch {
     screenOn = false;
   }

@@ -11,7 +11,7 @@ import { clientThemes } from "@/lib/themes";
 
 export const dynamic = "force-dynamic";
 
-const ONLINE_MS = 8 * 60 * 1000;
+const ONLINE_MS = 18 * 60 * 1000;
 
 function assignedUsers(users: { name: string; email: string; role: string }[]) {
   const admin = process.env.ADMIN_EMAIL?.trim().toLowerCase();

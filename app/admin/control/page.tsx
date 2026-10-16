@@ -7,7 +7,7 @@ import { isSystemAdmin, requireSession } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 
-const ONLINE_MS = 8 * 60 * 1000;
+const ONLINE_MS = 18 * 60 * 1000;
 
 function stateOf(screen: { active: boolean; heartbeat: { at: Date } | null }, now: number) {
   if (!screen.active) return "inactive";
@@ -54,7 +54,7 @@ export default async function ControlPage({ searchParams }: { searchParams: Prom
     <main className="admin">
       <AdminNav />
       <h1>לוח בקרה</h1>
-      <p>מסך תקין אם שלח אות ב-8 הדקות האחרונות. המסך שואל כל 3 דקות אם משהו השתנה, ורק אז נטען מחדש.</p>
+      <p>מסך תקין אם שלח אות ב-18 הדקות האחרונות. התימה שולחת אות כל 5 דקות, אז אות אחד שנכשל לא מסמן תקלה.</p>
       <div className="stats">
         <Link className={filter === "all" ? "stat on" : "stat"} href="/admin/control"><span>סה״כ</span><b>{counts.total}</b></Link>
         <Link className={filter === "online" ? "stat on" : "stat"} href="/admin/control?status=online"><span>תקין</span><b>{counts.online}</b></Link>

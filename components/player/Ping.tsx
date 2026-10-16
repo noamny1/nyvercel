@@ -5,10 +5,13 @@ import { useEffect } from "react";
 export function Ping({ code, revision }: { code: number; revision: number }) {
   useEffect(() => {
     let current = revision;
-    const send = async () => {
+    const send = async (retry = true) => {
       try {
         const response = await fetch(`/api/ping?code=${code}&beat=1`, { method: "POST", cache: "no-store" });
-        if (!response.ok) return;
+        if (!response.ok) {
+          if (retry) window.setTimeout(() => void send(false), 20000);
+          return;
+        }
         const data = (await response.json()) as { r?: number };
         if (typeof data.r === "number" && data.r !== current) {
           current = data.r;
@@ -16,7 +19,7 @@ export function Ping({ code, revision }: { code: number; revision: number }) {
           location.replace(next);
         }
       } catch {
-        /* the last slide stays on screen */
+        if (retry) window.setTimeout(() => void send(false), 20000);
       }
     };
     void send();

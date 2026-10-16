@@ -62,7 +62,7 @@ export async function checkResources(): Promise<ResourceReport> {
     prisma.screen.count({ where: { active: true } }),
     prisma.slide.count(),
     prisma.notice.count(),
-    prisma.heartbeat.count({ where: { at: { gt: new Date(Date.now() - 8 * 60 * 1000) } } }),
+    prisma.heartbeat.count({ where: { at: { gt: new Date(Date.now() - 18 * 60 * 1000) } } }),
   ]);
   let storage = { bytes: 0, files: 0, partial: false, missing: false };
   let storageError = "";
