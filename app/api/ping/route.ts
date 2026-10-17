@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
-export async function POST(request: Request) {
+async function beat(request: Request) {
   const params = new URL(request.url).searchParams;
   const key = Number(params.get("code") || params.get("id"));
   if (!key) return NextResponse.json({ status: "error" }, { status: 400 });
@@ -21,4 +21,12 @@ export async function POST(request: Request) {
   return NextResponse.json({ status: "success", r: screen.revision }, {
     headers: { "Cache-Control": "no-store" },
   });
+}
+
+export async function GET(request: Request) {
+  return beat(request);
+}
+
+export async function POST(request: Request) {
+  return beat(request);
 }
