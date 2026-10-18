@@ -42,7 +42,6 @@ export default async function ControlPage({ searchParams }: { searchParams: Prom
     prisma.screen.findMany({
       where: { AND: [where, statusWhere] },
       orderBy: { id: "desc" },
-      ...(filter === "all" ? { take: 40 } : {}),
       include: { heartbeat: true, deviceStatus: true, remoteDesk: { select: { keeperAt: true, keeper2At: true } }, group: { include: { building: true } } },
     }),
   ]);
