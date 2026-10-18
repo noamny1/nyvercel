@@ -64,7 +64,10 @@ export default async function ControlPage({ searchParams }: { searchParams: Prom
       <div className="screens">
         {visible.map(({ screen, state }) => (
           <div key={screen.id} className={state}>
-            <span><i className="dot" />{state === "online" ? "תקין" : state === "offline" ? "לא תקין" : "כבוי"} · {screen.name} · {screen.floor || "לובי"}</span>
+            <span>
+              <span className={`status ${state === "online" ? "online" : "offline"}`} title={state === "online" ? "תקין" : state === "offline" ? "לא תקין" : "כבוי"} aria-label={state === "online" ? "תקין" : state === "offline" ? "לא תקין" : "כבוי"}><i /></span>
+              {" "}{state === "online" ? "תקין" : state === "offline" ? "לא תקין" : "כבוי"} · {screen.name} · {screen.floor || "לובי"}
+            </span>
             <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
               <i
                 className="dot"
@@ -97,11 +100,11 @@ export default async function ControlPage({ searchParams }: { searchParams: Prom
               {" · "}
               <a href={`/s/${screen.code || screen.id}`} target="_blank">/s/{screen.code || screen.id}</a>
             </span>
-            <span>
-              {screen.deviceStatus
-                ? `${screen.deviceStatus.version || "—"} · ${screen.deviceStatus.resolution || "—"} · ${screen.deviceStatus.ip || "—"} · ${screen.deviceStatus.freeMb}MB פנוי · עלה ${screen.deviceStatus.bootedAt ? screen.deviceStatus.bootedAt.toLocaleString("he-IL", { timeZone: "Asia/Jerusalem" }) : "—"}`
-                : "אין דיווח מהאפליקציה"}
-            </span>
+            {screen.deviceStatus ? (
+              <span>
+                {`${screen.deviceStatus.version || "—"} · ${screen.deviceStatus.resolution || "—"} · ${screen.deviceStatus.ip || "—"} · ${screen.deviceStatus.freeMb}MB פנוי · עלה ${screen.deviceStatus.bootedAt ? screen.deviceStatus.bootedAt.toLocaleString("he-IL", { timeZone: "Asia/Jerusalem" }) : "—"}`}
+              </span>
+            ) : null}
           </div>
         ))}
       </div>
