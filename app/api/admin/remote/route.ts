@@ -124,6 +124,14 @@ export async function POST(request: Request) {
     });
     return NextResponse.json({ ok: true });
   }
+  if (op === "frames" && raw === "1") {
+    const desk = await prisma.remoteDesk.findUnique({ where: { screenId }, select: { wakeUntil: true, keeper2At: true } });
+    const until = desk?.wakeUntil?.getTime() || 0;
+    const seen = desk?.keeper2At?.getTime() || 0;
+    if (until < Date.now() || seen < until - 5 * 60 * 1000) {
+      return NextResponse.json({ error: "sleeping" }, { status: 409 });
+    }
+  }
   const num = (value: number | undefined) => Math.max(0, Math.min(8000, Math.round(Number(value) || 0)));
   await prisma.remoteCommand.create({
     data: {

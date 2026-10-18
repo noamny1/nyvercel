@@ -30,15 +30,19 @@ export async function GET(request: Request) {
   }
   let keeperOn = false;
   let keeper2On = false;
-  let keeperAt = 0;
+  let waking = false;
+  let wakeReady = false;
   try {
-    const link = await prisma.remoteDesk.findUnique({ where: { screenId }, select: { seenAt: true, frameAt: true, keeperAt: true, keeper2At: true } });
+    const link = await prisma.remoteDesk.findUnique({ where: { screenId }, select: { seenAt: true, frameAt: true, keeperAt: true, keeper2At: true, wakeUntil: true } });
     const now = Date.now();
     remoteOn = (!!link?.seenAt && now - link.seenAt.getTime() < 30000)
       || (!!link?.frameAt && now - link.frameAt.getTime() < 20000);
     keeperOn = !!link?.keeperAt && now - link.keeperAt.getTime() < 75000;
     keeper2On = !!link?.keeper2At && now - link.keeper2At.getTime() < 75000;
-    keeperAt = link?.keeperAt?.getTime() || 0;
+    const until = link?.wakeUntil?.getTime() || 0;
+    const seen = link?.keeper2At?.getTime() || 0;
+    waking = until > now;
+    wakeReady = waking && seen >= until - 5 * 60 * 1000;
   } catch {
     remoteOn = false;
   }
@@ -52,6 +56,7 @@ export async function GET(request: Request) {
     remoteOn,
     keeperOn,
     keeper2On,
-    keeperAt,
+    waking,
+    wakeReady,
   }, { headers: { "Cache-Control": "no-store" } });
 }

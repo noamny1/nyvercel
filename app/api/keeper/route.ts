@@ -33,8 +33,7 @@ export async function GET(request: Request) {
     where: { screenId: id },
     select: { upgradeUrl: true, lastApk: true, wakeUntil: true, watchedAt: true },
   });
-  const wake = (!!desk?.wakeUntil && desk.wakeUntil.getTime() > Date.now())
-    || (!!desk?.watchedAt && Date.now() - desk.watchedAt.getTime() < 20000);
+  const wake = !!desk?.wakeUntil && desk.wakeUntil.getTime() > Date.now();
   return NextResponse.json({
     upgrade: desk?.upgradeUrl || "",
     restore: desk?.lastApk || "",

@@ -12,10 +12,11 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
   const [busy, setBusy] = useState("");
   const [keeperOn, setKeeperOn] = useState(false);
   const [keeper2On, setKeeper2On] = useState(false);
-  const [keeperAt, setKeeperAt] = useState(0);
-  const [wakeAt, setWakeAt] = useState(0);
+  const [waking, setWaking] = useState(false);
+  const [wakeReady, setWakeReady] = useState(false);
   const [keeperChecked, setKeeperChecked] = useState(false);
   const [live, setLive] = useState(false);
+  const ready = wakeReady;
 
   useEffect(() => {
     let stop = false;
@@ -29,7 +30,8 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
               if (data.note) setNote(data.note);
               setKeeperOn(!!data.keeperOn);
               setKeeper2On(!!data.keeper2On);
-              setKeeperAt(Number(data.keeperAt) || 0);
+              setWaking(!!data.waking);
+              setWakeReady(!!data.wakeReady);
               setKeeperChecked(true);
             }
           }
@@ -139,16 +141,25 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
         <button type="button" onClick={() => send("key", { text: "25" })}>ווליום למטה</button>
         <button
           type="button"
+          style={ready ? { background: "#1faa4a" } : waking ? { background: "#d12626" } : undefined}
           onClick={() => {
-            setWakeAt(Date.now());
+            if (ready) return;
+            setWaking(true);
+            setWakeReady(false);
             void send("wake");
           }}
         >
-          {wakeAt && keeperAt > wakeAt ? "המכשיר מוכן" : wakeAt ? "ממתין למכשיר" : "הער גישה"}
+          {ready ? "המכשיר מוכן" : waking ? "ממתין למכשיר" : "הער גישה"}
         </button>
         <button
           type="button"
+          disabled={!live && !ready}
+          style={!live && !ready ? { opacity: 0.45 } : undefined}
           onClick={() => {
+            if (!live && !ready) {
+              setNote("קודם לוחצים הער גישה. כשהכפתור ירוק אפשר לפתוח חיבור.");
+              return;
+            }
             const next = !live;
             setLive(next);
             void send("frames", { text: next ? "1" : "0" });
