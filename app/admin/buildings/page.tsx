@@ -105,7 +105,7 @@ export default async function BuildingsPage({ searchParams }: { searchParams: Pr
         })
       : Promise.resolve(null),
   ]);
-  const rank = { online: "0", offline: "1", inactive: "2" };
+  const rank: Record<string, string> = { online: "0", offline: "1", inactive: "2" };
   const listed = screens
     .map((screen) => {
       const state = stateOf(screen, now);
