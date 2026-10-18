@@ -17,6 +17,7 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
   const [keeperChecked, setKeeperChecked] = useState(false);
   const [live, setLive] = useState(false);
   const ready = wakeReady;
+  const legacy = keeperChecked && keeperOn && !keeper2On;
 
   useEffect(() => {
     let stop = false;
@@ -141,22 +142,22 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
         <button type="button" onClick={() => send("key", { text: "25" })}>ווליום למטה</button>
         <button
           type="button"
-          style={ready ? { background: "#1faa4a" } : waking ? { background: "#d12626" } : undefined}
+          style={!legacy && ready ? { background: "#1faa4a" } : !legacy && waking ? { background: "#d12626" } : undefined}
           onClick={() => {
-            if (ready) return;
+            if (legacy || ready) return;
             setWaking(true);
             setWakeReady(false);
             void send("wake");
           }}
         >
-          {ready ? "המכשיר מוכן" : waking ? "ממתין למכשיר" : "הער גישה"}
+          {legacy || !waking ? "הער גישה" : ready ? "המכשיר מוכן" : "ממתין למכשיר"}
         </button>
         <button
           type="button"
-          disabled={!live && !ready}
-          style={!live && !ready ? { opacity: 0.45 } : undefined}
+          disabled={!live && !ready && !legacy}
+          style={!live && !ready && !legacy ? { opacity: 0.45 } : undefined}
           onClick={() => {
-            if (!live && !ready) {
+            if (!live && !ready && !legacy) {
               setNote("קודם לוחצים הער גישה. כשהכפתור ירוק אפשר לפתוח חיבור.");
               return;
             }
