@@ -42,7 +42,7 @@ export default async function ControlPage({ searchParams }: { searchParams: Prom
     prisma.screen.findMany({
       where: { AND: [where, statusWhere] },
       orderBy: { id: "desc" },
-      include: { heartbeat: true, deviceStatus: true, remoteDesk: { select: { keeperAt: true, keeper2At: true } }, group: { include: { building: true } } },
+      include: { heartbeat: true, deviceStatus: true, remoteDesk: { select: { keeperAt: true, keeper2At: true, k2Beat: true } }, group: { include: { building: true } } },
     }),
   ]);
   const rows = screens.map((screen) => ({ screen, state: stateOf(screen, now) }));
@@ -61,7 +61,10 @@ export default async function ControlPage({ searchParams }: { searchParams: Prom
         <Link className={filter === "inactive" ? "stat on" : "stat"} href="/admin/control?status=inactive"><span>כבוי</span><b>{counts.inactive}</b></Link>
       </div>
       <div className="screens">
-        {visible.map(({ screen, state }) => (
+        {visible.map(({ screen, state }) => {
+          const keeper2 = !!screen.remoteDesk?.keeper2At && now - screen.remoteDesk.keeper2At.getTime() < 75000
+            || !!screen.remoteDesk?.k2Beat && now - screen.remoteDesk.k2Beat.getTime() < 16 * 60 * 1000;
+          return (
           <div key={screen.id} className={state}>
             <span>
               <span className={`status ${state === "online" ? "online" : "offline"}`} title={state === "online" ? "תקין" : state === "offline" ? "לא תקין" : "כבוי"} aria-label={state === "online" ? "תקין" : state === "offline" ? "לא תקין" : "כבוי"}><i /></span>
@@ -86,11 +89,11 @@ export default async function ControlPage({ searchParams }: { searchParams: Prom
                   width: 14,
                   height: 14,
                   margin: 0,
-                  background: screen.remoteDesk?.keeper2At && now - screen.remoteDesk.keeper2At.getTime() < 75000 ? "#1faa4a" : "#d12626",
-                  boxShadow: `0 0 8px ${screen.remoteDesk?.keeper2At && now - screen.remoteDesk.keeper2At.getTime() < 75000 ? "#1faa4a" : "#d12626"}`,
+                  background: keeper2 ? "#1faa4a" : "#d12626",
+                  boxShadow: `0 0 8px ${keeper2 ? "#1faa4a" : "#d12626"}`,
                 }}
               />
-              {screen.remoteDesk?.keeper2At && now - screen.remoteDesk.keeper2At.getTime() < 75000 ? "NYKEEPER2" : "בלי NYKEEPER2"}
+              {keeper2 ? "NYKEEPER2" : "בלי NYKEEPER2"}
             </span>
             <span>
               {screen.group?.building?.name || screen.group?.name || "בלי קבוצה"}
@@ -105,7 +108,8 @@ export default async function ControlPage({ searchParams }: { searchParams: Prom
               </span>
             ) : null}
           </div>
-        ))}
+          );
+        })}
       </div>
     </main>
   );

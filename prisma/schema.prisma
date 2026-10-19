@@ -132,6 +132,7 @@ model RemoteDesk {
   mediaPausedUntil DateTime?
   wakeUntil  DateTime?
   revivedAt  DateTime?
+  k2Beat    DateTime?
 }
 
 model DeviceStatus {

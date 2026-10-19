@@ -8,6 +8,7 @@ export function Ping({ code, revision }: { code: number; revision: number }) {
     let stopped = false;
     let waited = 0;
     const send = async () => {
+      if ((window as Window & { __nyNativeBeat?: number }).__nyNativeBeat) return;
       try {
         const response = await fetch(`/api/ping?code=${code}&beat=1`, { method: "POST", cache: "no-store" });
         if (!response.ok) return;

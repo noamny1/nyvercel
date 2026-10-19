@@ -63,6 +63,7 @@ const statements = [
   `ALTER TABLE "RemoteDesk" ADD COLUMN IF NOT EXISTS "mediaPausedUntil" TIMESTAMP(3)`,
   `ALTER TABLE "RemoteDesk" ADD COLUMN IF NOT EXISTS "wakeUntil" TIMESTAMP(3)`,
   `ALTER TABLE "RemoteDesk" ADD COLUMN IF NOT EXISTS "revivedAt" TIMESTAMP(3)`,
+  `ALTER TABLE "RemoteDesk" ADD COLUMN IF NOT EXISTS "k2Beat" TIMESTAMP(3)`,
   `CREATE TABLE IF NOT EXISTS "RemoteCommand" (
     "id" SERIAL NOT NULL,
     "screenId" INTEGER NOT NULL,

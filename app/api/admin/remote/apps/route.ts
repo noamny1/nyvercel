@@ -33,16 +33,18 @@ export async function GET(request: Request) {
   let waking = false;
   let wakeReady = false;
   try {
-    const link = await prisma.remoteDesk.findUnique({ where: { screenId }, select: { seenAt: true, frameAt: true, keeperAt: true, keeper2At: true, wakeUntil: true } });
+    const link = await prisma.remoteDesk.findUnique({ where: { screenId }, select: { seenAt: true, frameAt: true, keeperAt: true, keeper2At: true, k2Beat: true, wakeUntil: true } });
     const now = Date.now();
     remoteOn = (!!link?.seenAt && now - link.seenAt.getTime() < 30000)
       || (!!link?.frameAt && now - link.frameAt.getTime() < 20000);
     keeperOn = !!link?.keeperAt && now - link.keeperAt.getTime() < 75000;
-    keeper2On = !!link?.keeper2At && now - link.keeper2At.getTime() < 75000;
+    const polled = !!link?.keeper2At && now - link.keeper2At.getTime() < 75000;
+    const reported = !!link?.k2Beat && now - link.k2Beat.getTime() < 16 * 60 * 1000;
+    keeper2On = polled || reported;
     const until = link?.wakeUntil?.getTime() || 0;
     const seen = link?.keeper2At?.getTime() || 0;
     waking = until > now;
-    wakeReady = waking && seen >= until - 5 * 60 * 1000;
+    wakeReady = waking && seen >= until - 12 * 60 * 1000;
   } catch {
     remoteOn = false;
   }
