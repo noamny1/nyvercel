@@ -70,7 +70,7 @@ export default async function ControlPage({ searchParams }: { searchParams: Prom
           <div key={screen.id} className={state}>
             <span>
               <span className={`status ${state === "online" ? "online" : "offline"}`} title={state === "online" ? "תקין" : state === "offline" ? "לא תקין" : "כבוי"} aria-label={state === "online" ? "תקין" : state === "offline" ? "לא תקין" : "כבוי"}><i /></span>
-              {" "}{state === "online" ? "תקין" : state === "offline" ? "לא תקין" : "כבוי"} · {screen.name} · {screen.floor || "לובי"}
+              {" "}{state === "online" ? "תקין" : state === "offline" ? "לא תקין" : "כבוי"} · <Link href={`/admin/screens/${screen.id}`}>{screen.name} · {screen.floor || "לובי"}</Link>
             </span>
             <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
               <i
