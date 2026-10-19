@@ -17,6 +17,7 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
   const [wakeReady, setWakeReady] = useState(false);
   const [keeperChecked, setKeeperChecked] = useState(false);
   const [live, setLive] = useState(false);
+  const [screenCode, setScreenCode] = useState("");
   const ready = wakeReady;
   const legacy = keeperChecked && keeperOn && !keeper2On && !nykOn;
 
@@ -212,6 +213,31 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
           }}
         >
           אתחול סטרימר
+        </button>
+        <input
+          value={screenCode}
+          onChange={(event) => setScreenCode(event.target.value.replace(/\D/g, "").slice(0, 12))}
+          placeholder="מספר מסך"
+          inputMode="numeric"
+          style={{ width: 120 }}
+        />
+        <button
+          type="button"
+          onClick={() => {
+            if (!/^\d{1,12}$/.test(screenCode)) {
+              setNote("צריך להכניס מספר מסך.");
+              return;
+            }
+            if (!keeperOn && !keeper2On && !nykOn) {
+              setNote("אין אפליקציה מחוברת שתוכל לבצע את השדרוג.");
+              return;
+            }
+            if (!window.confirm("למחוק את NYKEEPER הישן, להחליף את NYMEDIA ב־NYM ואת NYKEEPER2 ב־NYK, עם מספר המסך " + screenCode + "?")) return;
+            void send("upgrade", { text: screenCode });
+            setNote("השדרוג נשלח. NYK מורידה ומתקינה. אם מחוברת רק אפליקציה ישנה, קודם מתקינים את NYK 1.0.6.");
+          }}
+        >
+          שדרוג ל־NYM ו־NYK
         </button>
       </div>
       {shot ? (

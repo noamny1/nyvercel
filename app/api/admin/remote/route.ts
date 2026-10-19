@@ -5,7 +5,7 @@ import { isSystemAdmin, requireSession } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 
-const OPS = new Set(["tap", "key", "text", "swipe", "reboot", "apps", "uninstall", "install", "shell", "shell-open", "relaunch", "log", "frames", "media", "wake"]);
+const OPS = new Set(["tap", "key", "text", "swipe", "reboot", "apps", "uninstall", "install", "shell", "shell-open", "relaunch", "log", "frames", "media", "wake", "upgrade"]);
 
 async function admin() {
   const session = await requireSession();
@@ -91,6 +91,9 @@ export async function POST(request: Request) {
   }
   if (op === "uninstall" && (raw === "android" || raw.startsWith("com.android."))) {
     return NextResponse.json({ error: "protected" }, { status: 400 });
+  }
+  if (op === "upgrade" && !/^\d{1,12}$/.test(raw)) {
+    return NextResponse.json({ error: "bad screen" }, { status: 400 });
   }
   if (op === "shell-open" || op === "shell") {
     const email = session.user?.email?.trim().toLowerCase() || "";
