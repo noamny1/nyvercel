@@ -128,10 +128,12 @@ async function metNo(point: Point) {
   return { temp: Math.round(temp), label };
 }
 
+const TEL_AVIV: Point = { latitude: 32.0853, longitude: 34.7818 };
+
 export async function weatherFor(city: string) {
   const name = city.trim();
-  if (!name) return null;
-  const point = knownCity(name) || await geocode(name).catch(() => null);
-  if (!point) return null;
-  return await openMeteo(point).catch(() => null) || await metNo(point).catch(() => null);
+  const point = name ? knownCity(name) || await geocode(name).catch(() => null) : null;
+  const weather = point ? await openMeteo(point).catch(() => null) || await metNo(point).catch(() => null) : null;
+  if (weather) return weather;
+  return await openMeteo(TEL_AVIV).catch(() => null) || await metNo(TEL_AVIV).catch(() => null);
 }
