@@ -39,7 +39,7 @@ export async function GET(request: Request) {
     remoteOn = (!!link?.seenAt && now - link.seenAt.getTime() < 30000)
       || (!!link?.frameAt && now - link.frameAt.getTime() < 20000);
     keeperOn = !!link?.keeperAt && now - link.keeperAt.getTime() < 75000;
-    const nykPolled = !!link?.nykAt && now - link.nykAt.getTime() < 75000;
+    const nykPolled = !!link?.nykAt && now - link.nykAt.getTime() < 16 * 60 * 1000;
     const nykReported = !!link?.nykBeat && now - link.nykBeat.getTime() < 16 * 60 * 1000;
     nykOn = nykPolled || nykReported;
     const polled = !!link?.keeper2At && now - link.keeper2At.getTime() < 75000;

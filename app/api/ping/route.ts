@@ -20,15 +20,19 @@ async function beat(request: Request) {
     if (params.get("nyk") === "1") {
       await prisma.remoteDesk.upsert({
         where: { screenId: screen.id },
-        update: { nykBeat: at },
+        update: { nykBeat: at, k2Beat: null },
         create: { screenId: screen.id, nykBeat: at },
       }).catch(() => null);
     } else if (params.get("k2") === "1") {
-      await prisma.remoteDesk.upsert({
-        where: { screenId: screen.id },
-        update: { k2Beat: at },
-        create: { screenId: screen.id, k2Beat: at },
-      }).catch(() => null);
+      const link = await prisma.remoteDesk.findUnique({ where: { screenId: screen.id }, select: { nykAt: true, nykBeat: true } }).catch(() => null);
+      const recent = Math.max(link?.nykAt?.getTime() || 0, link?.nykBeat?.getTime() || 0);
+      if (Date.now() - recent > 16 * 60 * 1000) {
+        await prisma.remoteDesk.upsert({
+          where: { screenId: screen.id },
+          update: { k2Beat: at, nykBeat: null },
+          create: { screenId: screen.id, k2Beat: at },
+        }).catch(() => null);
+      }
     }
     const desk = await prisma.remoteDesk.findUnique({ where: { screenId: screen.id }, select: { wakeUntil: true } }).catch(() => null);
     const wake = !!desk?.wakeUntil && desk.wakeUntil.getTime() > Date.now();
