@@ -99,7 +99,7 @@ export function LuxuryRail({
         <div className="lux-hebrew">{hebrew}</div>
         <div className="lux-weather">
           <i className="lux-sun" />
-          <span>{temp === null ? "—" : `${temp}°`}</span>
+          <b>{temp === null ? "—" : `${temp}°`}</b>
           <span>{weatherLabel}</span>
         </div>
         <hr className="lux-rule" />
