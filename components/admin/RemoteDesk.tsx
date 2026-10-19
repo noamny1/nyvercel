@@ -19,6 +19,7 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
   const [live, setLive] = useState(false);
   const ready = wakeReady;
   const legacy = keeperChecked && keeperOn && !keeper2On && !nykOn;
+  const wasWaking = useRef(false);
 
   useEffect(() => {
     let stop = false;
@@ -49,6 +50,18 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
       stop = true;
     };
   }, [screenId]);
+
+  useEffect(() => {
+    if (wasWaking.current && !waking && live) {
+      setLive(false);
+      void fetch("/api/admin/remote", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ screenId, op: "frames", text: "0" }),
+      });
+    }
+    wasWaking.current = waking;
+  }, [waking, live, screenId]);
 
   useEffect(() => {
     if (!live) return;
@@ -155,15 +168,15 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
         <button type="button" onClick={() => send("key", { text: "25" })}>ווליום למטה</button>
         <button
           type="button"
-          style={!legacy && ready ? { background: "#1faa4a" } : !legacy && waking ? { background: "#d12626" } : undefined}
+          style={!legacy && ready ? { background: "#1faa4a" } : waking && !ready ? { background: "#d12626" } : undefined}
           onClick={() => {
-            if (legacy || ready) return;
+            if (waking) return;
             setWaking(true);
             setWakeReady(false);
             void send("wake");
           }}
         >
-          {legacy || !waking ? "הער גישה" : ready ? "המכשיר מוכן" : "ממתין למכשיר"}
+          {!waking ? "הער גישה" : ready ? "מכשיר" : "ממתין למכשיר"}
         </button>
         <button
           type="button"

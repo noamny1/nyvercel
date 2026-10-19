@@ -119,7 +119,7 @@ export async function POST(request: Request) {
     await prisma.shellAudit.create({ data: { screenId, email, command: raw.slice(0, 240) } });
   }
   if (op === "wake") {
-    const until = new Date(Date.now() + 12 * 60 * 1000);
+    const until = new Date(Date.now() + 7 * 60 * 1000);
     await prisma.remoteDesk.upsert({
       where: { screenId },
       update: { wakeUntil: until },
@@ -137,13 +137,19 @@ export async function POST(request: Request) {
     const keeper2On = seen2 > 0 && now - seen2 < 75000;
     const nykOn = seenNyk > 0 && now - seenNyk < 75000;
     const oldOnly = !keeper2On && !nykOn && seen > 0 && now - seen < 75000;
-    const answered = Math.max(seen2, seenNyk);
-    const wakeReady = until > now && answered >= until - 12 * 60 * 1000;
+    const answered = Math.max(seen, seen2, seenNyk);
+    const wakeReady = until > now && answered > now - 75000;
     if (!oldOnly && !wakeReady) {
       return NextResponse.json({ error: "sleeping" }, { status: 409 });
     }
   }
   const num = (value: number | undefined) => Math.max(0, Math.min(8000, Math.round(Number(value) || 0)));
+  if (op === "tap" || op === "key" || op === "swipe" || op === "text" || (op === "frames" && raw === "1")) {
+    const desk = await prisma.remoteDesk.findUnique({ where: { screenId }, select: { wakeUntil: true } });
+    if (desk?.wakeUntil && desk.wakeUntil.getTime() > Date.now()) {
+      await prisma.remoteDesk.update({ where: { screenId }, data: { wakeUntil: new Date(Date.now() + 7 * 60 * 1000) } });
+    }
+  }
   await prisma.remoteCommand.create({
     data: {
       screenId,

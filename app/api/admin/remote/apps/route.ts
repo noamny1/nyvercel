@@ -46,9 +46,9 @@ export async function GET(request: Request) {
     const reported = !!link?.k2Beat && now - link.k2Beat.getTime() < 16 * 60 * 1000;
     keeper2On = !nykOn && (polled || reported);
     const until = link?.wakeUntil?.getTime() || 0;
-    const seen = Math.max(link?.keeper2At?.getTime() || 0, link?.nykAt?.getTime() || 0);
+    const seen = Math.max(link?.keeperAt?.getTime() || 0, link?.keeper2At?.getTime() || 0, link?.nykAt?.getTime() || 0);
     waking = until > now;
-    wakeReady = waking && seen >= until - 12 * 60 * 1000;
+    wakeReady = waking && seen > now - 75000;
   } catch {
     remoteOn = false;
   }
