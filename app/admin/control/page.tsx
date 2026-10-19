@@ -42,7 +42,7 @@ export default async function ControlPage({ searchParams }: { searchParams: Prom
     prisma.screen.findMany({
       where: { AND: [where, statusWhere] },
       orderBy: { id: "desc" },
-      include: { heartbeat: true, deviceStatus: true, remoteDesk: { select: { keeperAt: true, keeper2At: true, k2Beat: true } }, group: { include: { building: true } } },
+      include: { heartbeat: true, deviceStatus: true, remoteDesk: { select: { keeperAt: true, keeper2At: true, k2Beat: true, nykAt: true, nykBeat: true } }, group: { include: { building: true } } },
     }),
   ]);
   const rows = screens.map((screen) => ({ screen, state: stateOf(screen, now) }));
@@ -62,8 +62,10 @@ export default async function ControlPage({ searchParams }: { searchParams: Prom
       </div>
       <div className="screens">
         {visible.map(({ screen, state }) => {
-          const keeper2 = !!screen.remoteDesk?.keeper2At && now - screen.remoteDesk.keeper2At.getTime() < 75000
-            || !!screen.remoteDesk?.k2Beat && now - screen.remoteDesk.k2Beat.getTime() < 16 * 60 * 1000;
+          const nyk = !!screen.remoteDesk?.nykAt && now - screen.remoteDesk.nykAt.getTime() < 75000
+            || !!screen.remoteDesk?.nykBeat && now - screen.remoteDesk.nykBeat.getTime() < 16 * 60 * 1000;
+          const keeper2 = !nyk && (!!screen.remoteDesk?.keeper2At && now - screen.remoteDesk.keeper2At.getTime() < 75000
+            || !!screen.remoteDesk?.k2Beat && now - screen.remoteDesk.k2Beat.getTime() < 16 * 60 * 1000);
           return (
           <div key={screen.id} className={state}>
             <span>
@@ -94,6 +96,18 @@ export default async function ControlPage({ searchParams }: { searchParams: Prom
                 }}
               />
               {keeper2 ? "NYKEEPER2" : "בלי NYKEEPER2"}
+              {" · "}
+              <i
+                className="dot"
+                style={{
+                  width: 14,
+                  height: 14,
+                  margin: 0,
+                  background: nyk ? "#1faa4a" : "#d12626",
+                  boxShadow: `0 0 8px ${nyk ? "#1faa4a" : "#d12626"}`,
+                }}
+              />
+              {nyk ? "NYK" : "בלי NYK"}
             </span>
             <span>
               {screen.group?.building?.name || screen.group?.name || "בלי קבוצה"}

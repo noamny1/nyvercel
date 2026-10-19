@@ -17,7 +17,13 @@ async function beat(request: Request) {
       update: { at },
       create: { screenId: screen.id, at },
     });
-    if (params.get("k2") === "1") {
+    if (params.get("nyk") === "1") {
+      await prisma.remoteDesk.upsert({
+        where: { screenId: screen.id },
+        update: { nykBeat: at },
+        create: { screenId: screen.id, nykBeat: at },
+      }).catch(() => null);
+    } else if (params.get("k2") === "1") {
       await prisma.remoteDesk.upsert({
         where: { screenId: screen.id },
         update: { k2Beat: at },

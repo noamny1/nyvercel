@@ -125,14 +125,17 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true });
   }
   if (op === "frames" && raw === "1") {
-    const desk = await prisma.remoteDesk.findUnique({ where: { screenId }, select: { wakeUntil: true, keeperAt: true, keeper2At: true } });
+    const desk = await prisma.remoteDesk.findUnique({ where: { screenId }, select: { wakeUntil: true, keeperAt: true, keeper2At: true, nykAt: true } });
     const now = Date.now();
     const until = desk?.wakeUntil?.getTime() || 0;
     const seen2 = desk?.keeper2At?.getTime() || 0;
+    const seenNyk = desk?.nykAt?.getTime() || 0;
     const seen = desk?.keeperAt?.getTime() || 0;
     const keeper2On = seen2 > 0 && now - seen2 < 75000;
-    const oldOnly = !keeper2On && seen > 0 && now - seen < 75000;
-    const wakeReady = until > now && seen2 >= until - 12 * 60 * 1000;
+    const nykOn = seenNyk > 0 && now - seenNyk < 75000;
+    const oldOnly = !keeper2On && !nykOn && seen > 0 && now - seen < 75000;
+    const answered = Math.max(seen2, seenNyk);
+    const wakeReady = until > now && answered >= until - 12 * 60 * 1000;
     if (!oldOnly && !wakeReady) {
       return NextResponse.json({ error: "sleeping" }, { status: 409 });
     }

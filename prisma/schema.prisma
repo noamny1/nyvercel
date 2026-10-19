@@ -133,6 +133,8 @@ model RemoteDesk {
   wakeUntil  DateTime?
   revivedAt  DateTime?
   k2Beat    DateTime?
+  nykAt     DateTime?
+  nykBeat   DateTime?
 }
 
 model DeviceStatus {

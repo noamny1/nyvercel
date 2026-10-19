@@ -8,18 +8,19 @@ function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-async function hold(id: number, keeper2: boolean) {
+async function hold(id: number, who: string) {
   const started = Date.now();
   let touched = 0;
   while (Date.now() - started < 8000) {
     const now = new Date();
     if (Date.now() - touched > 4000) {
       touched = Date.now();
+      const mark = who === "nyk" ? { nykAt: now } : who === "keeper2" ? { keeper2At: now } : { keeperAt: now };
       try {
         await prisma.remoteDesk.upsert({
           where: { screenId: id },
-          update: keeper2 ? { seenAt: now, keeperAt: now, keeper2At: now } : { seenAt: now, keeperAt: now },
-          create: keeper2 ? { screenId: id, seenAt: now, keeperAt: now, keeper2At: now } : { screenId: id, seenAt: now, keeperAt: now },
+          update: { seenAt: now, ...mark },
+          create: { screenId: id, seenAt: now, ...mark },
         });
       } catch {
         // A missing column must not stop the live command channel.
@@ -59,15 +60,16 @@ export async function GET(request: Request) {
   const id = await screenId(request);
   if (!id) return NextResponse.json({ found: false, watch: false, needFrame: false, commands: [] });
   const who = new URL(request.url).searchParams.get("who");
-  const device = who === "keeper" || who === "keeper2";
-  if (device && new URL(request.url).searchParams.get("wait") === "1") return hold(id, who === "keeper2");
+  const device = who === "keeper" || who === "keeper2" || who === "nyk";
+  if (device && new URL(request.url).searchParams.get("wait") === "1") return hold(id, who || "keeper");
   const now = new Date();
   if (device) {
+    const mark = who === "nyk" ? { nykAt: now } : who === "keeper2" ? { keeper2At: now } : { keeperAt: now };
     try {
       await prisma.remoteDesk.upsert({
         where: { screenId: id },
-        update: who === "keeper2" ? { seenAt: now, keeperAt: now, keeper2At: now } : { seenAt: now, keeperAt: now },
-        create: who === "keeper2" ? { screenId: id, seenAt: now, keeperAt: now, keeper2At: now } : { screenId: id, seenAt: now, keeperAt: now },
+        update: { seenAt: now, ...mark },
+        create: { screenId: id, seenAt: now, ...mark },
       });
     } catch {
       // A missing column must not stop the screenshot channel.
@@ -103,10 +105,11 @@ export async function POST(request: Request) {
   const id = await screenId(request);
   if (!id) return NextResponse.json({ commands: [] }, { status: 404 });
   const who = new URL(request.url).searchParams.get("who");
-  if (who !== "keeper" && who !== "keeper2") {
+  if (who !== "keeper" && who !== "keeper2" && who !== "nyk") {
     return NextResponse.json({ ok: true });
   }
-  const stamp = who === "keeper2" ? { keeper2At: new Date() } : {};
+  const now = new Date();
+  const stamp = who === "nyk" ? { nykAt: now } : who === "keeper2" ? { keeper2At: now } : {};
   const type = request.headers.get("content-type") || "";
   if (type.includes("application/json")) {
     const body = await request.json().catch(() => null) as { note?: string } | null;

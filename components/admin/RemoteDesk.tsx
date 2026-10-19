@@ -12,12 +12,13 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
   const [busy, setBusy] = useState("");
   const [keeperOn, setKeeperOn] = useState(false);
   const [keeper2On, setKeeper2On] = useState(false);
+  const [nykOn, setNykOn] = useState(false);
   const [waking, setWaking] = useState(false);
   const [wakeReady, setWakeReady] = useState(false);
   const [keeperChecked, setKeeperChecked] = useState(false);
   const [live, setLive] = useState(false);
   const ready = wakeReady;
-  const legacy = keeperChecked && keeperOn && !keeper2On;
+  const legacy = keeperChecked && keeperOn && !keeper2On && !nykOn;
 
   useEffect(() => {
     let stop = false;
@@ -31,6 +32,7 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
               if (data.note) setNote(data.note);
               setKeeperOn(!!data.keeperOn);
               setKeeper2On(!!data.keeper2On);
+              setNykOn(!!data.nykOn);
               setWaking(!!data.waking);
               setWakeReady(!!data.wakeReady);
               setKeeperChecked(true);
@@ -128,6 +130,17 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
             height: 18,
             borderRadius: "50%",
             display: "inline-block",
+            background: !keeperChecked ? "#cfc8bf" : nykOn ? "#1faa4a" : "#d12626",
+            boxShadow: keeperChecked ? `0 0 12px ${nykOn ? "#1faa4a" : "#d12626"}` : "none",
+          }}
+        />
+        <b>{!keeperChecked ? "בודקים NYK…" : nykOn ? "NYK פעיל" : "אין NYK"}</b>
+        <span
+          style={{
+            width: 18,
+            height: 18,
+            borderRadius: "50%",
+            display: "inline-block",
             background: live ? "#1faa4a" : "#d12626",
             boxShadow: `0 0 12px ${live ? "#1faa4a" : "#d12626"}`,
           }}
@@ -181,7 +194,7 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
         <button
           type="button"
           onClick={() => {
-            if (!keeper2On) {
+            if (!keeper2On && !nykOn) {
               window.alert("NYKEEPER2 עדיין לא פעיל. לא מוחקים את הישן.");
               return;
             }
