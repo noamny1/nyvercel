@@ -243,11 +243,11 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
         העברת קובץ
         <input
           type="file"
-          disabled={!keeperOn || busy !== ""}
+          disabled={(!keeperOn && !keeper2On && !nykOn) || busy !== ""}
           onChange={(event) => {
             const file = event.target.files?.[0];
             event.target.value = "";
-            if (!file || !keeperOn) return;
+            if (!file || (!keeperOn && !keeper2On && !nykOn)) return;
             setBusy("מעלים את הקובץ…");
             void import("@vercel/blob/client").then(async ({ upload }) => {
               const blob = await upload(file.name, file, {
