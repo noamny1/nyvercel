@@ -92,7 +92,7 @@ export async function POST(request: Request) {
   if (op === "uninstall" && (raw === "android" || raw.startsWith("com.android."))) {
     return NextResponse.json({ error: "protected" }, { status: 400 });
   }
-  if (op === "upgrade" && !/^\d{1,12}$/.test(raw)) {
+  if (op === "upgrade" && raw !== "1") {
     return NextResponse.json({ error: "bad screen" }, { status: 400 });
   }
   if (op === "shell-open" || op === "shell") {
