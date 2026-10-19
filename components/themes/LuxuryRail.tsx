@@ -97,10 +97,11 @@ export function LuxuryRail({
         <strong className="lux-clock">{time}</strong>
         <div className="lux-civil">{civil}</div>
         <div className="lux-hebrew">{hebrew}</div>
-        <div className="lux-weather">
-          <i className="lux-sun" />
-          <b>{temp === null ? "—" : `${temp}°`}</b>
-          <span>{weatherLabel}</span>
+        <div
+          className="lux-weather"
+          style={{ display: "block", width: "100%", marginTop: 10, color: "#F4F1ED", fontSize: 22, fontWeight: 400, lineHeight: "28px", textAlign: "center", whiteSpace: "normal" }}
+        >
+          {temp === null ? "מזג אוויר לא זמין" : `${temp}° ${weatherLabel}`}
         </div>
         <hr className="lux-rule" />
         <div className="lux-chips">
