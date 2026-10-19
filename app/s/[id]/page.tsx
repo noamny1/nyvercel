@@ -88,7 +88,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
       : (screen.newsCount || 8);
 
   const [weather, shabbat, headlines, rates, silenced, takeover] = await Promise.all([
-    weatherFor(city).catch(() => null),
+    weatherFor([city, screen.name, source.name].filter(Boolean).join(" ")).catch(() => null),
     shabbatFor(city).catch(() => null),
     liveHeadlines(newsSource, newsTake).catch(() => []),
     markets().catch(() => []),
