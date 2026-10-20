@@ -33,6 +33,19 @@ async function beat(request: Request) {
           create: { screenId: screen.id, k2Beat: at },
         }).catch(() => null);
       }
+    } else {
+      const link = await prisma.remoteDesk.findUnique({
+        where: { screenId: screen.id },
+        select: { nykAt: true, nykBeat: true, keeper2At: true, k2Beat: true },
+      }).catch(() => null);
+      const nykStamp = Math.max(link?.nykAt?.getTime() || 0, link?.nykBeat?.getTime() || 0);
+      const keeper2Stamp = Math.max(link?.keeper2At?.getTime() || 0, link?.k2Beat?.getTime() || 0);
+      if (nykStamp > 0 && nykStamp >= keeper2Stamp) {
+        await prisma.remoteDesk.update({
+          where: { screenId: screen.id },
+          data: { nykBeat: at },
+        }).catch(() => null);
+      }
     }
     const desk = await prisma.remoteDesk.findUnique({ where: { screenId: screen.id }, select: { wakeUntil: true } }).catch(() => null);
     const wake = !!desk?.wakeUntil && desk.wakeUntil.getTime() > Date.now();

@@ -62,8 +62,9 @@ export default async function ControlPage({ searchParams }: { searchParams: Prom
       </div>
       <div className="screens">
         {visible.map(({ screen, state }) => {
-          const nyk = !!screen.remoteDesk?.nykAt && now - screen.remoteDesk.nykAt.getTime() < 16 * 60 * 1000
-            || !!screen.remoteDesk?.nykBeat && now - screen.remoteDesk.nykBeat.getTime() < 16 * 60 * 1000;
+          const nykStamp = Math.max(screen.remoteDesk?.nykAt?.getTime() || 0, screen.remoteDesk?.nykBeat?.getTime() || 0);
+          const keeper2Stamp = Math.max(screen.remoteDesk?.keeper2At?.getTime() || 0, screen.remoteDesk?.k2Beat?.getTime() || 0);
+          const nyk = nykStamp > 0 && (now - nykStamp < 16 * 60 * 1000 || (state === "online" && nykStamp >= keeper2Stamp));
           const keeper2 = !nyk && (!!screen.remoteDesk?.keeper2At && now - screen.remoteDesk.keeper2At.getTime() < 75000
             || !!screen.remoteDesk?.k2Beat && now - screen.remoteDesk.k2Beat.getTime() < 16 * 60 * 1000);
           return (

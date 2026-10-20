@@ -39,9 +39,9 @@ export async function GET(request: Request) {
     remoteOn = (!!link?.seenAt && now - link.seenAt.getTime() < 30000)
       || (!!link?.frameAt && now - link.frameAt.getTime() < 20000);
     keeperOn = !!link?.keeperAt && now - link.keeperAt.getTime() < 75000;
-    const nykPolled = !!link?.nykAt && now - link.nykAt.getTime() < 16 * 60 * 1000;
-    const nykReported = !!link?.nykBeat && now - link.nykBeat.getTime() < 16 * 60 * 1000;
-    nykOn = nykPolled || nykReported;
+    const nykStamp = Math.max(link?.nykAt?.getTime() || 0, link?.nykBeat?.getTime() || 0);
+    const keeper2Stamp = Math.max(link?.keeper2At?.getTime() || 0, link?.k2Beat?.getTime() || 0);
+    nykOn = nykStamp > 0 && (now - nykStamp < 16 * 60 * 1000 || (screenOn && nykStamp >= keeper2Stamp));
     const polled = !!link?.keeper2At && now - link.keeper2At.getTime() < 75000;
     const reported = !!link?.k2Beat && now - link.k2Beat.getTime() < 16 * 60 * 1000;
     keeper2On = !nykOn && (polled || reported);
