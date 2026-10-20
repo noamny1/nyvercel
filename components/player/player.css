@@ -225,6 +225,7 @@
   bottom: 0;
   left: 0;
   z-index: 5;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -232,17 +233,19 @@
   gap: 14px;
   width: auto;
   max-width: none;
-  padding: 7% 6%;
+  padding: 48px 64px 48px 80px;
   border: 0;
   border-radius: 0;
   background: rgba(12, 10, 10, 0.28);
   color: #F4F1ED;
   box-shadow: none;
+  overflow: hidden;
 }
 .slide-copy.is-bubble strong,
 .layout-luxury .slide-copy.is-bubble strong {
-  max-width: 78%;
-  font-size: 68px;
+  max-width: 100%;
+  min-width: 0;
+  font-size: 64px;
   font-weight: 800;
   line-height: 1.05;
   color: #fff;
@@ -250,7 +253,8 @@
 }
 .slide-copy.is-bubble span,
 .layout-luxury .slide-copy.is-bubble span {
-  max-width: 72%;
+  max-width: 100%;
+  min-width: 0;
   font-size: 28px;
   font-weight: 400;
   color: #fff;
