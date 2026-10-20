@@ -278,12 +278,23 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
   window.setInterval(hushPromo, 1000);
   var stage = document.querySelector("main.stage");
   var code = stage ? stage.getAttribute("data-code") : "";
-  var mini = stage && (stage.className.indexOf("luxury720") >= 0 || (window.innerWidth <= 1300 && window.innerHeight <= 800));
-  if (code && mini) {
+  window.__nyPageBeat = 1;
+  if (code) {
+    var revision = stage.getAttribute("data-rev") || "";
     var beat = function () {
       try {
         var xhr = new XMLHttpRequest();
         xhr.open("GET", "/api/ping?code=" + encodeURIComponent(code) + "&beat=1", true);
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState !== 4 || xhr.status < 200 || xhr.status >= 300) return;
+          try {
+            var data = JSON.parse(xhr.responseText);
+            if (data && data.r && String(data.r) !== String(revision)) {
+              revision = String(data.r);
+              location.replace(location.pathname + "?v=" + data.r);
+            }
+          } catch (err) {}
+        };
         xhr.send();
       } catch (err) {}
     };
