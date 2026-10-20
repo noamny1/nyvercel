@@ -299,6 +299,12 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
       if (video.getAttribute("data-silent") === "1") video.volume = 0;
       try { video.play(); } catch (err) {}
     }
+    var pictures = node.getElementsByTagName("img");
+    for (i = 0; i < pictures.length; i++) {
+      var picture = pictures[i];
+      var pic = picture.getAttribute("data-media");
+      if (pic && !picture.getAttribute("src")) picture.setAttribute("src", pic);
+    }
     for (i = 0; i < frames.length; i++) {
       var frame = frames[i];
       var src = frame.getAttribute("data-media");

@@ -195,7 +195,11 @@ function SlideFace({ slide, onReady, live = true }: { slide: PlaySlide; onReady?
   }
   const pdf = (slide.imageUrl || "").toLowerCase().includes(".pdf");
   if (slide.templateId === "file-qr") return <QrSlide title={slide.title} note={slide.detail} token={slide.token} />;
-  if (pdf) return <iframe className="slide-image" src={`${slide.imageUrl}#toolbar=0&navpanes=0`} title="שקף" onLoad={onReady} />;
+  if (pdf) {
+    const file = `${slide.imageUrl}#toolbar=0&navpanes=0`;
+    if (!live) return <iframe className="slide-image" data-media={file} title="שקף" />;
+    return <iframe className="slide-image" src={file} title="שקף" onLoad={onReady} />;
+  }
   if (slide.templateId === "weekly-parasha") {
     return <ParashaSlide name={slide.title || ""} candles={slide.candles || ""} havdalah={slide.havdalah || ""} city={slide.city || ""} verses={slide.verses || []} seconds={slide.duration} still={slide.still} />;
   }
@@ -206,7 +210,7 @@ function SlideFace({ slide, onReady, live = true }: { slide: PlaySlide; onReady?
     const bubble = /general-clean|greet-welcome/.test(`${slide.templateId || ""} ${slide.imageUrl || ""}`);
     return (
       <div className={bubble ? "slide-frame is-overlay" : "slide-frame"}>
-        <img className="slide-image" src={slide.imageUrl} alt="" onLoad={onReady} onError={onReady} />
+        <img className="slide-image" src={live ? slide.imageUrl : undefined} data-media={slide.imageUrl} alt="" onLoad={onReady} onError={onReady} />
         <div className={bubble ? "slide-copy is-bubble" : "slide-copy"}>
           <strong>{slide.title}</strong>
           {slide.detail ? <span>{slide.detail}</span> : null}
@@ -219,7 +223,7 @@ function SlideFace({ slide, onReady, live = true }: { slide: PlaySlide; onReady?
     if (!live) return <video className="slide-video" data-media={slide.imageUrl} muted playsInline preload="none" />;
     return <video className="slide-video" src={slide.imageUrl} autoPlay muted loop playsInline preload="auto" onCanPlay={onReady} onError={onReady} />;
   }
-  return <img className="slide-image" src={slide.imageUrl} alt="" onLoad={onReady} onError={onReady} />;
+  return <img className="slide-image" src={live ? slide.imageUrl : undefined} data-media={slide.imageUrl} alt="" onLoad={onReady} onError={onReady} />;
 }
 
 function preloadSlide(slide: PlaySlide | undefined) {
@@ -261,7 +265,10 @@ export function Player({ slides }: { slides: PlaySlide[] }) {
   }, [index, seconds, slides.length]);
 
   useEffect(() => {
-    preloadSlide(slides[(index + 1) % slides.length]);
+    const next = slides[(index + 1) % slides.length];
+    const weak = window.innerWidth <= 1280 && window.innerHeight <= 760;
+    if (weak && next && (isVideoFile(next.imageUrl) || isVideoFile(next.detail || ""))) return;
+    preloadSlide(next);
   }, [index, slides]);
 
   useEffect(() => {
