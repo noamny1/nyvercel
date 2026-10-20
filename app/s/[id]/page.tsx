@@ -276,6 +276,20 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
   }
   hushPromo();
   window.setInterval(hushPromo, 1000);
+  var stage = document.querySelector("main.stage");
+  var code = stage ? stage.getAttribute("data-code") : "";
+  var mini = stage && (stage.className.indexOf("luxury720") >= 0 || (window.innerWidth <= 1300 && window.innerHeight <= 800));
+  if (code && mini) {
+    var beat = function () {
+      try {
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", "/api/ping?code=" + encodeURIComponent(code) + "&beat=1", true);
+        xhr.send();
+      } catch (err) {}
+    };
+    beat();
+    window.setInterval(beat, 5 * 60 * 1000);
+  }
   var root = document.getElementById("slide-stack");
   if (!root) return;
   var nodes = root.getElementsByClassName("slide-pane");

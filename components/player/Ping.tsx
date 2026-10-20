@@ -8,6 +8,9 @@ export function Ping({ code, revision }: { code: number; revision: number }) {
     let stopped = false;
     let waited = 0;
     const send = async () => {
+      const stage = document.querySelector("main.stage");
+      const mini = !!stage && (stage.className.includes("luxury720") || (window.innerWidth <= 1300 && window.innerHeight <= 800));
+      if (mini) return;
       if ((window as Window & { __nyNativeBeat?: number }).__nyNativeBeat) return;
       try {
         const response = await fetch(`/api/ping?code=${code}&beat=1`, { method: "POST", cache: "no-store" });
