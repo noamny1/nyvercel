@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { clientPassword, issueClientPassword } from "@/app/admin/users/actions";
 
 type Client = { id: number; name: string; email: string };
 type Member = { id: number; email: string };
@@ -33,6 +34,36 @@ export function GroupTools({
   const [open, setOpen] = useState(false);
   const [picked, setPicked] = useState("");
   const [promoNote, setPromoNote] = useState("");
+  const [secret, setSecret] = useState<{ id: number; email: string; password: string; missing: boolean } | null>(null);
+  const [copyNote, setCopyNote] = useState("");
+  const [busy, setBusy] = useState(false);
+  async function showPassword(id: number) {
+    setCopyNote("");
+    const result = await clientPassword(id);
+    if (!result.ok) return;
+    setSecret({ id, email: result.email, password: result.password, missing: result.missing });
+  }
+
+  async function renewPassword() {
+    if (!secret) return;
+    setBusy(true);
+    const result = await issueClientPassword(secret.id);
+    setBusy(false);
+    if (!result.ok) return;
+    setCopyNote("");
+    setSecret({ id: secret.id, email: result.email, password: result.password, missing: false });
+  }
+
+  async function copyPassword() {
+    if (!secret?.password) return;
+    try {
+      await navigator.clipboard.writeText(secret.password);
+      setCopyNote("הועתק");
+    } catch {
+      setCopyNote("סמן את הסיסמה והעתק");
+    }
+  }
+
   const taken = new Set(members.map((member) => member.id));
   const needle = query.trim().toLowerCase();
   const hits = needle
@@ -126,7 +157,7 @@ export function GroupTools({
           <form action={removeUser} key={member.id}>
             <input type="hidden" name="id" value={groupId} />
             <input type="hidden" name="userId" value={member.id} />
-            <span>{member.email}</span>
+            <button type="button" className="mail-link" onClick={() => void showPassword(member.id)}>{member.email}</button>
             <button type="submit" aria-label="הסרת משתמש">×</button>
           </form>
         )) : <span className="none">לא משוייך משתמש</span>}
@@ -156,6 +187,27 @@ export function GroupTools({
           </span>
         ) : null}
       </form>
+      {secret ? (
+        <span className="pass-pop" role="dialog" aria-modal="true">
+          <span className="pass-card">
+            <b>{secret.email}</b>
+            {secret.missing ? (
+              <p>הסיסמה הוגדרה לפני שהמערכת שמרה עותק, ואי אפשר לשחזר אותה. הנפקה תחליף אותה בסיסמה חדשה.</p>
+            ) : (
+              <input readOnly value={secret.password} aria-label="סיסמה" onFocus={(event) => event.currentTarget.select()} />
+            )}
+            <span className="pass-actions">
+              {secret.missing ? (
+                <button type="button" disabled={busy} onClick={() => void renewPassword()}>{busy ? "מכין…" : "הנפקת סיסמה חדשה"}</button>
+              ) : (
+                <button type="button" onClick={() => void copyPassword()}>העתקה</button>
+              )}
+              <button type="button" className="quiet" onClick={() => setSecret(null)}>סגירה</button>
+            </span>
+            {copyNote ? <small>{copyNote}</small> : null}
+          </span>
+        </span>
+      ) : null}
     </span>
   );
 }

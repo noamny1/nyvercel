@@ -11,6 +11,7 @@ model User {
   id           Int      @id @default(autoincrement())
   email        String   @unique
   passwordHash String
+  passwordCopy String   @default("")
   name         String   @default("")
   role         String   @default("client")
   totpSecret   String   @default("")

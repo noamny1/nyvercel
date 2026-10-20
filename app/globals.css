@@ -198,6 +198,15 @@ body:has(.admin) { background: #F4F1ED; overflow-x: hidden; }
 .admin .group-members { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; max-width: 520px; }
 .admin .group-members form { display: flex; gap: 4px; align-items: center; background: #F4F1ED; border-radius: 999px; padding: 4px 8px 4px 4px; }
 .admin .group-members button { padding: 0 6px; line-height: 1.4; background: transparent; color: #5A1F2B; border: 0; }
+.admin .group-members .mail-link { text-decoration: underline; cursor: pointer; }
+.admin .pass-pop { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; background: rgba(20, 16, 16, 0.35); }
+.admin .pass-card { width: min(420px, calc(100% - 32px)); display: grid; gap: 12px; padding: 22px; border-radius: 16px; background: #fff; color: #241c1c; }
+.admin .pass-card b { font-size: 16px; word-break: break-all; }
+.admin .pass-card p { margin: 0; line-height: 1.5; }
+.admin .pass-card input { width: 100%; font-size: 22px; padding: 10px 12px; border: 1px solid #d9d0c8; border-radius: 10px; }
+.admin .pass-actions { display: flex; gap: 8px; }
+.admin .pass-actions button { background: #5A1F2B; color: #fff; border: 0; border-radius: 999px; padding: 8px 14px; }
+.admin .pass-actions .quiet { background: #F4F1ED; color: #241c1c; }
 .admin .group-members .none, .admin .user-hits .none { color: #5c5854; font-size: 13px; padding: 8px 10px; }
 .admin .file-pick {
   position: relative;

@@ -31,6 +31,7 @@ const statements = [
   `CREATE INDEX IF NOT EXISTS "Heartbeat_at_idx" ON "Heartbeat"("at")`,
   `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "totpSecret" TEXT NOT NULL DEFAULT ''`,
   `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "totpPending" TEXT NOT NULL DEFAULT ''`,
+  `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "passwordCopy" TEXT NOT NULL DEFAULT ''`,
   `CREATE TABLE IF NOT EXISTS "RemoteDesk" (
     "screenId" INTEGER NOT NULL,
     "watchedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,

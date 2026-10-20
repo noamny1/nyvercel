@@ -31,6 +31,7 @@ export async function createClientUser(formData: FormData) {
       email,
       name,
       passwordHash: await bcrypt.hash(password, 10),
+      passwordCopy: password,
       role: "client",
       screens: { connect: ids.map((id) => ({ id })) },
     },
@@ -57,6 +58,7 @@ export async function saveAndSendUser(formData: FormData) {
     where: { id: userId },
     data: {
       passwordHash: await bcrypt.hash(password, 10),
+      passwordCopy: password,
       screens: { set: ids.map((id) => ({ id })) },
     },
     include: { screens: true },
@@ -69,6 +71,26 @@ export async function saveAndSendUser(formData: FormData) {
   };
   const mail = await sendClientMail(card);
   return { ok: true as const, card, sent: mail.ok, mailError: mail.ok ? "" : mail.error };
+}
+
+export async function clientPassword(userId: number) {
+  await ownerGate();
+  const user = await prisma.user.findUnique({ where: { id: userId }, select: { email: true, role: true, passwordCopy: true } });
+  if (!user || user.role !== "client") return { ok: false as const, error: "אין משתמש כזה." };
+  return { ok: true as const, email: user.email, password: user.passwordCopy, missing: !user.passwordCopy };
+}
+
+export async function issueClientPassword(userId: number) {
+  await ownerGate();
+  const current = await prisma.user.findUnique({ where: { id: userId }, select: { role: true } });
+  if (!current || current.role !== "client") return { ok: false as const, error: "אין משתמש כזה." };
+  const password = randomBytes(6).toString("base64url");
+  const user = await prisma.user.update({
+    where: { id: userId },
+    data: { passwordHash: await bcrypt.hash(password, 10), passwordCopy: password },
+    select: { email: true },
+  });
+  return { ok: true as const, email: user.email, password, missing: false as const };
 }
 
 export async function assignScreens(formData: FormData) {
