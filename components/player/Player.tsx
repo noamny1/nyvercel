@@ -261,7 +261,10 @@ export function Player({ slides }: { slides: PlaySlide[] }) {
   }, [index, seconds, slides.length]);
 
   useEffect(() => {
-    preloadSlide(slides[(index + 1) % slides.length]);
+    const next = slides[(index + 1) % slides.length];
+    const weak = window.innerWidth <= 1280 && window.innerHeight <= 760;
+    if (weak && next && (isVideoFile(next.imageUrl) || isVideoFile(next.detail || ""))) return;
+    preloadSlide(next);
   }, [index, slides]);
 
   useEffect(() => {
@@ -271,11 +274,12 @@ export function Player({ slides }: { slides: PlaySlide[] }) {
   }, [hold, index]);
 
   if (!slides.length) return <div className="empty">אין שקפים</div>;
+  const shown = [hold, index].filter((item, place, list): item is number => item != null && list.indexOf(item) === place);
   return (
     <div className="slide-stack" id="slide-stack">
-      {slides.map((slide, item) => (
-        <div key={`${slide.templateId || slide.kind || "slide"}-${item}`} className={item === index ? "slide-pane" : "slide-pane is-off"} data-sec={Math.max(3, Number(slide.duration) || 8)}>
-          <SlideFace slide={slide} live={item === index || item === hold} />
+      {shown.map((item) => (
+        <div key={`${slides[item].templateId || slides[item].kind || "slide"}-${item}`} className={item === index ? "slide-pane" : "slide-pane is-off"} data-sec={Math.max(3, Number(slides[item].duration) || 8)}>
+          <SlideFace slide={slides[item]} live={item === index || item === hold} />
         </div>
       ))}
     </div>
