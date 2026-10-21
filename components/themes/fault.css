@@ -76,7 +76,7 @@
 
 .layout-luxury.fault-bar .lux-address {
   display: grid;
-  grid-template-columns: auto 1px minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) 1px auto;
   align-items: center;
   gap: 18px;
   padding: 0 22px;

@@ -251,9 +251,9 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
       {theme === "fault-bar" ? (
         <footer className="luxury-foot">
           <div className="lux-address">
-            <FaultCopy qr={qr} phone={faultPhone} />
-            <i className="fault-split" />
             <WelcomeLine line={greet.line} city={greet.city} />
+            <i className="fault-split" />
+            <FaultCopy qr={qr} phone={faultPhone} />
           </div>
           <div className={`lux-logo${logoUrl ? " is-photo" : " is-empty"}`}>
             {logoUrl ? <img src={logoUrl} alt="" /> : <span>לוגו הלקוח<small>הבניין</small></span>}
