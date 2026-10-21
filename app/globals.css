@@ -831,6 +831,9 @@ body:has(.admin) { background: #F4F1ED; overflow-x: hidden; }
 .admin .music-hours { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 12px; }
 .admin .music-hours label { flex: 1 1 140px; }
 .admin .music-hours input { min-height: 42px; }
+.admin .choices.is-locked > label:has(input:disabled),
+.admin .music-hours.is-locked { opacity: 0.4; }
+.admin .music-hours.is-locked input { background: #f3f1ee; }
 .admin .choice-apply {
   display: flex;
   flex-direction: row;

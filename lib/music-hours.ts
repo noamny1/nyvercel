@@ -29,6 +29,7 @@ function minutes(value: string) {
 }
 
 export function musicOnNow(days: string, from: string, until: string, date = new Date()) {
+  if (days.trim() === "24/7") return true;
   const picked = new Set(days.split(",").map((day) => day.trim()).filter((day) => /^[0-6]$/.test(day)));
   if (!picked.size) return false;
   const wall = israelWall(date);

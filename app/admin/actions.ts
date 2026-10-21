@@ -57,10 +57,12 @@ export async function updateScreen(formData: FormData) {
   const city = owner ? String(formData.get("city") || "") : current.city;
   const place = [street, number].filter(Boolean).join(" ");
   const incomingLogo = String(formData.get("logoUrl") || "");
-  const music = formData.get("musicForm") ? normalizePlaylists(formData.getAll("music").map(String)) : current.musicPlaylist;
-  const musicDays = formData.get("musicForm") ? musicDaysField(formData.getAll("musicDay").map(String)) : current.musicDays;
-  const musicFrom = formData.get("musicForm") ? musicClock(String(formData.get("musicFrom") || ""), "07:00") : current.musicFrom;
-  const musicUntil = formData.get("musicForm") ? musicClock(String(formData.get("musicUntil") || ""), "22:30") : current.musicUntil;
+  const musicForm = Boolean(formData.get("musicForm"));
+  const musicAlways = musicForm && formData.get("musicAlways") === "1";
+  const music = musicForm ? normalizePlaylists(formData.getAll("music").map(String)) : current.musicPlaylist;
+  const musicDays = !musicForm ? current.musicDays : musicAlways ? "24/7" : musicDaysField(formData.getAll("musicDay").map(String));
+  const musicFrom = musicForm && !musicAlways ? musicClock(String(formData.get("musicFrom") || ""), "07:00") : current.musicFrom;
+  const musicUntil = musicForm && !musicAlways ? musicClock(String(formData.get("musicUntil") || ""), "22:30") : current.musicUntil;
   await prisma.screen.update({
     where: { id },
     data: {

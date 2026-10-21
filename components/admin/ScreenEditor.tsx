@@ -101,6 +101,7 @@ export function ScreenEditor({
     const picked = (screen.newsSource || "ynet").split(",").map((item) => item.trim()).filter(Boolean);
     return picked.slice(0, 4);
   });
+  const [musicAlways, setMusicAlways] = useState((screen.musicDays || "") === "24/7");
   useEffect(() => {
     if (panel) setTab(panel);
   }, [panel]);
@@ -324,17 +325,21 @@ export function ScreenEditor({
               ))}
             </div>
             <p>מתי לנגן. ברירת מחדל: ראשון עד חמישי, 7:00 עד 22:30. שישי ושבת כבויים עד שמסמנים אותם.</p>
-            <div className="choices">
+            <div className={`choices${musicAlways ? " is-locked" : ""}`}>
               {MUSIC_DAYS.map(([id, name]) => (
                 <label key={id}>
-                  <input type="checkbox" name="musicDay" value={id} defaultChecked={(screen.musicDays ?? DEFAULT_MUSIC_DAYS).split(",").includes(id)} />
+                  <input type="checkbox" name="musicDay" value={id} defaultChecked={(screen.musicDays ?? DEFAULT_MUSIC_DAYS).split(",").includes(id)} disabled={musicAlways} />
                   {name}
                 </label>
               ))}
+              <label>
+                <input type="checkbox" name="musicAlways" value="1" checked={musicAlways} onChange={(event) => setMusicAlways(event.target.checked)} />
+                24/7
+              </label>
             </div>
-            <div className="music-hours">
-              <label>משעה<input type="time" name="musicFrom" defaultValue={screen.musicFrom || DEFAULT_MUSIC_FROM} /></label>
-              <label>עד שעה<input type="time" name="musicUntil" defaultValue={screen.musicUntil || DEFAULT_MUSIC_UNTIL} /></label>
+            <div className={`music-hours${musicAlways ? " is-locked" : ""}`}>
+              <label>משעה<input type="time" name="musicFrom" defaultValue={screen.musicFrom || DEFAULT_MUSIC_FROM} disabled={musicAlways} /></label>
+              <label>עד שעה<input type="time" name="musicUntil" defaultValue={screen.musicUntil || DEFAULT_MUSIC_UNTIL} disabled={musicAlways} /></label>
             </div>
             {musicPeers > 1 ? <label className="choice-apply"><input type="checkbox" name="applyMusic" value="1" /> החל על כל המסכים שלי</label> : null}
           </fieldset>
