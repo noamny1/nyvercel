@@ -38,6 +38,9 @@ export function ScreenEditor({
     floor?: string;
     theme: string;
     logoUrl: string;
+    faultPhone?: string;
+    faultLink?: string;
+    faultQrUrl?: string;
     newsSource: string;
     newsCount?: number;
     tickerSeconds?: number;
@@ -68,8 +71,11 @@ export function ScreenEditor({
   const ownerField = scope === "group" ? "groupId" : "screenId";
   const [logoUrl, setLogoUrl] = useState(screen.logoUrl);
   const [logoPreview, setLogoPreview] = useState(screen.logoUrl);
+  const [faultQrUrl, setFaultQrUrl] = useState(screen.faultQrUrl || "");
+  const [faultQrPreview, setFaultQrPreview] = useState(screen.faultQrUrl || "");
   const [uploading, setUploading] = useState(false);
   const [clearLogo, setClearLogo] = useState(false);
+  const [clearFaultQr, setClearFaultQr] = useState(false);
   const [message, setMessage] = useState("");
   const [editing, setEditing] = useState<number | null>(null);
   const [openSlide, setOpenSlide] = useState<number | null>(null);
@@ -141,6 +147,22 @@ export function ScreenEditor({
     }
   }
 
+  async function onFaultQr(file: File) {
+    setMessage("");
+    setClearFaultQr(false);
+    setUploading(true);
+    setFaultQrPreview(URL.createObjectURL(file));
+    try {
+      const url = await upload(file, "image");
+      setFaultQrUrl(url);
+      setFaultQrPreview(url);
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "ההעלאה נכשלה");
+    } finally {
+      setUploading(false);
+    }
+  }
+
   async function onSlide(draft: SlideDraft) {
     setMessage("");
     const imageUrl = draft.file ? await upload(draft.file, "slide") : draft.imageUrl || "";
@@ -200,6 +222,8 @@ export function ScreenEditor({
         {returnTo ? <input type="hidden" name="returnTo" value={returnTo} /> : null}
         <input type="hidden" name="logoUrl" value={logoUrl.startsWith("http") ? logoUrl : screen.logoUrl} />
         <input type="hidden" name="clearLogo" value={clearLogo ? "1" : ""} />
+        <input type="hidden" name="faultQrUrl" value={faultQrUrl.startsWith("http") ? faultQrUrl : ""} />
+        <input type="hidden" name="clearFaultQr" value={clearFaultQr ? "1" : ""} />
         <div className="row">
           <label>רחוב<input name="street" defaultValue={screen.street} readOnly={lockAddress} /></label>
           <label>מספר<input name="number" defaultValue={screen.number} readOnly={lockAddress} /></label>
@@ -320,6 +344,37 @@ export function ScreenEditor({
               </label>
               {logoPreview ? (
                 <button className="light" type="button" onClick={() => { setLogoUrl(""); setLogoPreview(""); setClearLogo(true); }}>מחיקה</button>
+              ) : null}
+            </div>
+          </div>
+        </div>
+        <div className="logo-panel">
+          <div className="logo-well">
+            {faultQrPreview ? <img src={faultQrPreview} alt="" /> : <span>ברקוד אוטומטי</span>}
+          </div>
+          <div className="logo-copy">
+            <strong>פתיחת תקלה</strong>
+            <p>{scope === "group" ? "חל על כל המסכים בקבוצה. מסך עם ערך משלו גובר." : "אפשר להחליף את מלל הטלפון ואת הברקוד. אם ריק, נשאר מהקבוצה."}</p>
+            <div className="row">
+              <label>מלל הטלפון<input name="faultPhone" defaultValue={screen.faultPhone || ""} placeholder="08-6744430" maxLength={40} /></label>
+              <label>קישור לברקוד<input name="faultLink" defaultValue={screen.faultLink || ""} placeholder="טלפון או כתובת אתר" maxLength={300} /></label>
+            </div>
+            <div className="logo-actions">
+              <label className="file-pill">
+                <input
+                  type="file"
+                  accept="image/*,.gif"
+                  disabled={uploading}
+                  onChange={(event) => {
+                    const file = event.target.files?.[0];
+                    event.target.value = "";
+                    if (file) void onFaultQr(file);
+                  }}
+                />
+                {uploading ? "מעלה..." : faultQrPreview ? "החלפת ברקוד" : "העלאת ברקוד"}
+              </label>
+              {faultQrPreview ? (
+                <button className="light" type="button" onClick={() => { setFaultQrUrl(""); setFaultQrPreview(""); setClearFaultQr(true); }}>מחיקת ברקוד</button>
               ) : null}
             </div>
           </div>

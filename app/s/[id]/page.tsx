@@ -17,7 +17,7 @@ import { Shabbat } from "@/components/widgets/Shabbat";
 import { Weather } from "@/components/widgets/Weather";
 import { ModernRail } from "@/components/themes/ModernRail";
 import { LuxuryRail } from "@/components/themes/LuxuryRail";
-import { FaultCopy, WelcomeLine, faultQrSrc } from "@/components/themes/FaultParts";
+import { FaultCopy, WelcomeLine, DEFAULT_FAULT_PHONE, faultPayload, faultQrSrc } from "@/components/themes/FaultParts";
 import { CinemaBoard, GlassBoard } from "@/components/themes/MotionBoard";
 import { markets } from "@/lib/markets";
 import { liveHeadlines } from "@/lib/news";
@@ -118,7 +118,12 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
     );
   }
 
-  const qr = fault ? await faultQrSrc(theme === "fault-logo" ? 480 : 240) : "";
+  const faultPhone = (screen.faultPhone || source.faultPhone || DEFAULT_FAULT_PHONE).trim() || DEFAULT_FAULT_PHONE;
+  const faultLink = (screen.faultLink || source.faultLink || "").trim();
+  const faultImage = (screen.faultQrUrl || source.faultQrUrl || "").trim();
+  const qr = fault
+    ? (faultImage || await faultQrSrc(faultPayload(faultPhone, faultLink), theme === "fault-logo" ? 480 : 240))
+    : "";
   const logoUrl = screen.logoUrl || source.logoUrl;
 
   return (
@@ -194,7 +199,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
               initialCivil={clock.civil}
               initialHebrew={clock.hebrew}
             />
-            {theme === "fault-column" ? <div className="fault-dock"><FaultCopy qr={qr} /></div> : null}
+            {theme === "fault-column" ? <div className="fault-dock"><FaultCopy qr={qr} phone={faultPhone} /></div> : null}
           </>
         ) : modern ? (
           <ModernRail
@@ -245,7 +250,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
       {theme === "fault-card" ? (
         <footer className="luxury-foot">
           <div className="lux-address">
-            <div className="fault-stamp"><FaultCopy qr={qr} /></div>
+            <div className="fault-stamp"><FaultCopy qr={qr} phone={faultPhone} /></div>
             <WelcomeLine line={greet.line} city={greet.city} />
           </div>
           <div className={`lux-logo${logoUrl ? " is-photo" : " is-empty"}`}>
@@ -256,7 +261,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
       {theme === "fault-bar" || theme === "fault-night" ? (
         <footer className="luxury-foot">
           <div className="lux-address">
-            <FaultCopy qr={qr} />
+            <FaultCopy qr={qr} phone={faultPhone} />
             {theme === "fault-bar" ? <i className="fault-split" /> : null}
             <WelcomeLine line={greet.line} city={greet.city} />
           </div>
@@ -274,7 +279,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
             <img src={qr} alt="" />
             <b>פתיחת תקלה</b>
             <small>סריקה מהנייד</small>
-            <strong>08-6744430</strong>
+            <strong>{faultPhone}</strong>
           </div>
           <footer className="luxury-foot">
             <div className="lux-address">

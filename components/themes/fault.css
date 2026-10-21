@@ -11,6 +11,7 @@
   flex: none;
   border-radius: 8px;
   background: #F4F1ED;
+  object-fit: contain;
 }
 .fault-copy b,
 .fault-copy small,

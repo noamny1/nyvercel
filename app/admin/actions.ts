@@ -73,6 +73,9 @@ export async function updateScreen(formData: FormData) {
       ...( ["news", "notices", "both"].includes(String(formData.get("feedMode"))) ? { feedMode: String(formData.get("feedMode")) } : {}),
       musicPlaylist: music,
       logoUrl: String(formData.get("clearLogo") || "") === "1" ? "" : incomingLogo.startsWith("http") ? incomingLogo : current.logoUrl,
+      faultPhone: String(formData.get("faultPhone") || "").trim().slice(0, 40),
+      faultLink: String(formData.get("faultLink") || "").trim().slice(0, 300),
+      faultQrUrl: String(formData.get("clearFaultQr") || "") === "1" ? "" : String(formData.get("faultQrUrl") || "").startsWith("http") ? String(formData.get("faultQrUrl") || "") : current.faultQrUrl,
     },
   });
   if (String(formData.get("applyMusic") || "") === "1") {
@@ -291,6 +294,9 @@ export async function updateGroup(formData: FormData) {
       theme: await savedTheme(String(formData.get("theme") || "modern"), current.theme, isSystemAdmin(session)),
       newsSource: chosenNews(formData),
       logoUrl: String(formData.get("logoUrl") || ""),
+      faultPhone: String(formData.get("faultPhone") || "").trim().slice(0, 40),
+      faultLink: String(formData.get("faultLink") || "").trim().slice(0, 300),
+      faultQrUrl: String(formData.get("clearFaultQr") || "") === "1" ? "" : String(formData.get("faultQrUrl") || "").startsWith("http") ? String(formData.get("faultQrUrl") || "") : current.faultQrUrl,
       musicUrl: String(formData.get("musicUrl") || ""),
       buildingId: Number(formData.get("buildingId")) || null,
     },

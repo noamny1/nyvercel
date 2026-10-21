@@ -1,10 +1,22 @@
 import QRCode from "qrcode";
 
-export const FAULT_PHONE = "08-6744430";
-const FAULT_TEL = "tel:086744430";
+export const DEFAULT_FAULT_PHONE = "08-6744430";
 
-export async function faultQrSrc(size: number) {
-  return QRCode.toDataURL(FAULT_TEL, {
+export function faultPayload(phone: string, link: string) {
+  const target = link.trim();
+  if (target) {
+    if (/^https?:\/\//i.test(target) || /^tel:/i.test(target)) return target;
+    const digits = target.replace(/[^\d+]/g, "");
+    if (digits.length >= 7) return `tel:${digits}`;
+    return target;
+  }
+  const digits = phone.replace(/[^\d+]/g, "");
+  if (digits.length >= 7) return `tel:${digits}`;
+  return "tel:086744430";
+}
+
+export async function faultQrSrc(payload: string, size: number) {
+  return QRCode.toDataURL(payload, {
     margin: 1,
     width: size,
     errorCorrectionLevel: "M",
@@ -12,14 +24,14 @@ export async function faultQrSrc(size: number) {
   });
 }
 
-export function FaultCopy({ qr, phone = true }: { qr: string; phone?: boolean }) {
+export function FaultCopy({ qr, phone }: { qr: string; phone: string }) {
   return (
     <div className="fault-copy">
       <img src={qr} alt="" />
       <div>
         <b>פתיחת תקלה</b>
         <small>סריקה מהנייד</small>
-        {phone ? <strong>{FAULT_PHONE}</strong> : null}
+        {phone ? <strong>{phone}</strong> : null}
       </div>
     </div>
   );

@@ -17,6 +17,9 @@ type Row = {
   floor?: string;
   theme: string;
   logoUrl: string;
+  faultPhone?: string;
+  faultLink?: string;
+  faultQrUrl?: string;
   newsSource: string;
   newsCount: number;
   tickerSeconds: number;
