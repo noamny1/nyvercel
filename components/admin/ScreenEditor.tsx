@@ -332,7 +332,7 @@ export function ScreenEditor({
                   {name}
                 </label>
               ))}
-              <label>
+              <label className="is-always">
                 <input type="checkbox" name="musicAlways" value="1" checked={musicAlways} onChange={(event) => setMusicAlways(event.target.checked)} />
                 24/7
               </label>

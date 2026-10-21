@@ -815,6 +815,17 @@ body:has(.admin) { background: #F4F1ED; overflow-x: hidden; }
   color: #252525;
   cursor: pointer;
 }
+.admin .choice-card .choices > label.is-always {
+  border: 2px solid #c4a574;
+  background: #fff8ee;
+  box-shadow: 0 0 0 1px #c4a574;
+}
+.admin .choice-card .choices > label.is-always:has(input:checked) {
+  background: #5A1F2B;
+  border-color: #e6d3ae;
+  box-shadow: 0 0 0 2px #c4a574;
+  color: #F4F1ED;
+}
 .admin .choice-card .choices > label:has(input:checked) {
   background: #5A1F2B;
   border-color: #5A1F2B;
