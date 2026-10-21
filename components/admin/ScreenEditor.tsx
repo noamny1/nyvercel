@@ -372,15 +372,9 @@ export function ScreenEditor({
           </div>
         </div>
         <div className="logo-panel">
-          <div className="logo-well">
-            {faultQrPreview ? <img src={faultQrPreview} alt="" /> : <span>ברקוד אוטומטי</span>}
-          </div>
-          <div className="logo-copy">
-            <strong>פתיחת תקלה</strong>
-            <p>{scope === "group" ? "חל על כל המסכים בקבוצה. מסך עם ערך משלו גובר." : "אפשר להחליף את מלל הטלפון ואת הברקוד. אם ריק, נשאר מהקבוצה."}</p>
-            <div className="row">
-              <label>מלל הטלפון<input name="faultPhone" defaultValue={screen.faultPhone || ""} placeholder="08-6744430" maxLength={40} /></label>
-              <label>קישור לברקוד<input name="faultLink" defaultValue={screen.faultLink || ""} placeholder="טלפון או כתובת אתר" maxLength={300} /></label>
+          <div className="fault-qr-side">
+            <div className="logo-well">
+              {faultQrPreview ? <img src={faultQrPreview} alt="" /> : <span>ברקוד אוטומטי</span>}
             </div>
             <div className="logo-actions">
               <label className="file-pill">
@@ -399,6 +393,14 @@ export function ScreenEditor({
               {faultQrPreview ? (
                 <button className="light" type="button" onClick={() => { setFaultQrUrl(""); setFaultQrPreview(""); setClearFaultQr(true); }}>מחיקת ברקוד</button>
               ) : null}
+            </div>
+          </div>
+          <div className="logo-copy">
+            <strong>פתיחת תקלה</strong>
+            <p>{scope === "group" ? "חל על כל המסכים בקבוצה. מסך עם ערך משלו גובר." : "אפשר להחליף את מלל הטלפון ואת הברקוד. אם ריק, נשאר מהקבוצה."}</p>
+            <div className="row">
+              <label>מלל הטלפון<input name="faultPhone" defaultValue={screen.faultPhone || ""} maxLength={40} /></label>
+              <label>קישור לברקוד<input name="faultLink" defaultValue={screen.faultLink || ""} placeholder="טלפון או כתובת אתר" maxLength={300} /></label>
             </div>
           </div>
         </div>

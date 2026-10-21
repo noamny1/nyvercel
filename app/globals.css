@@ -328,6 +328,11 @@ body:has(.admin) { background: #F4F1ED; overflow-x: hidden; }
   border-radius: 14px;
   background: #F4F1ED;
 }
+.admin .fault-qr-side { display: grid; gap: 8px; align-content: start; width: 132px; }
+.admin .logo-panel:has(.fault-qr-side) { align-items: start; }
+.admin .fault-qr-side .logo-actions { display: grid; }
+.admin .fault-qr-side .file-pill,
+.admin .fault-qr-side button { width: 100%; min-height: 40px; justify-content: center; text-align: center; }
 .admin .logo-well {
   width: 132px;
   height: 88px;

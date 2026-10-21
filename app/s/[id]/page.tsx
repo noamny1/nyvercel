@@ -17,7 +17,7 @@ import { Shabbat } from "@/components/widgets/Shabbat";
 import { Weather } from "@/components/widgets/Weather";
 import { ModernRail } from "@/components/themes/ModernRail";
 import { LuxuryRail } from "@/components/themes/LuxuryRail";
-import { FaultCopy, WelcomeLine, DEFAULT_FAULT_PHONE, faultPayload, faultQrSrc } from "@/components/themes/FaultParts";
+import { FaultCopy, WelcomeLine, faultPayload, faultQrSrc } from "@/components/themes/FaultParts";
 import { CinemaBoard, GlassBoard } from "@/components/themes/MotionBoard";
 import { markets } from "@/lib/markets";
 import { liveHeadlines } from "@/lib/news";
@@ -119,11 +119,12 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
     );
   }
 
-  const faultPhone = (screen.faultPhone || source.faultPhone || DEFAULT_FAULT_PHONE).trim() || DEFAULT_FAULT_PHONE;
+  const faultPhone = (screen.faultPhone || source.faultPhone || "").trim();
   const faultLink = (screen.faultLink || source.faultLink || "").trim();
   const faultImage = (screen.faultQrUrl || source.faultQrUrl || "").trim();
+  const faultTarget = faultPayload(faultPhone, faultLink);
   const qr = fault
-    ? (faultImage || await faultQrSrc(faultPayload(faultPhone, faultLink), theme === "fault-logo" ? 480 : 240))
+    ? (faultImage || (faultTarget ? await faultQrSrc(faultTarget, theme === "fault-logo" ? 480 : 240) : ""))
     : "";
   const logoUrl = screen.logoUrl || source.logoUrl;
 
@@ -266,10 +267,10 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
             {logoUrl ? <img src={logoUrl} alt="" /> : <span>לוגו הלקוח<small>הבניין</small></span>}
           </div>
           <div className="fault-side">
-            <img src={qr} alt="" />
+            {qr ? <img src={qr} alt="" /> : null}
             <b>פתיחת תקלה</b>
             <small>סריקה מהנייד</small>
-            <strong>{faultPhone}</strong>
+            {faultPhone ? <strong>{faultPhone}</strong> : null}
           </div>
           <footer className="luxury-foot">
             <div className="lux-address">
