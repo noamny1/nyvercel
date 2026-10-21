@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useFreshHeadlines, type Headline } from "@/components/player/useFreshHeadlines";
 import { useNewsOn } from "@/components/player/useNewsOn";
 import { israelCivil, israelClock, israelWall } from "@/lib/israel-time";
+import { chipLabel, HEALTH_NOTE } from "@/lib/news-sources";
 
 type Item = { tag: string; text: string; chip: string };
 
