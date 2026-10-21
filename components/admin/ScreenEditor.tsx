@@ -6,6 +6,7 @@ import { KindMark, ReadyLibrary, SavedSlideEditor, type SlideDraft } from "@/com
 import { NEWS_SOURCES } from "@/lib/news-sources";
 import { THEMES } from "@/lib/themes";
 import { PLAYLISTS } from "@/lib/music-catalog";
+import { DEFAULT_MUSIC_DAYS, DEFAULT_MUSIC_FROM, DEFAULT_MUSIC_UNTIL, MUSIC_DAYS } from "@/lib/music-hours";
 import { scheduleLabel, slideStatus } from "@/lib/schedule";
 import { addGroupNotice, addNotice, deleteGroupNotice, deleteNotice, toggleGroupNotice, toggleNotice, updateGroup, updateGroupNotice, updateNotice, updateScreen } from "@/app/admin/actions";
 
@@ -47,6 +48,9 @@ export function ScreenEditor({
     newsTicker?: string;
     feedMode?: string;
     musicPlaylist?: string;
+    musicDays?: string;
+    musicFrom?: string;
+    musicUntil?: string;
     musicUrl?: string;
     buildingId?: number | null;
   };
@@ -318,6 +322,19 @@ export function ScreenEditor({
                   {playlist.name}
                 </label>
               ))}
+            </div>
+            <p>מתי לנגן. ברירת מחדל: ראשון עד חמישי, 7:00 עד 22:30. שישי ושבת כבויים עד שמסמנים אותם.</p>
+            <div className="choices">
+              {MUSIC_DAYS.map(([id, name]) => (
+                <label key={id}>
+                  <input type="checkbox" name="musicDay" value={id} defaultChecked={(screen.musicDays ?? DEFAULT_MUSIC_DAYS).split(",").includes(id)} />
+                  {name}
+                </label>
+              ))}
+            </div>
+            <div className="music-hours">
+              <label>משעה<input type="time" name="musicFrom" defaultValue={screen.musicFrom || DEFAULT_MUSIC_FROM} /></label>
+              <label>עד שעה<input type="time" name="musicUntil" defaultValue={screen.musicUntil || DEFAULT_MUSIC_UNTIL} /></label>
             </div>
             {musicPeers > 1 ? <label className="choice-apply"><input type="checkbox" name="applyMusic" value="1" /> החל על כל המסכים שלי</label> : null}
           </fieldset>

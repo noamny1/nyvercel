@@ -94,6 +94,9 @@ model Screen {
   code       Int?         @unique
   revision   Int          @default(1)
   musicPlaylist String    @default("")
+  musicDays     String    @default("0,1,2,3,4")
+  musicFrom     String    @default("07:00")
+  musicUntil    String    @default("22:30")
   heartbeat  Heartbeat?
   remoteDesk RemoteDesk?
   deviceStatus DeviceStatus?

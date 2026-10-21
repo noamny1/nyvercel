@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { put } from "@vercel/blob";
 import { prisma } from "@/lib/prisma";
+import { musicClock, musicDaysField } from "@/lib/music-hours";
 import { screenWhere } from "@/lib/access";
 import { requireSession, isSystemAdmin } from "@/lib/session";
 import { nextCode, touchGroup, touchScreen } from "@/lib/publish";
@@ -57,6 +58,9 @@ export async function updateScreen(formData: FormData) {
   const place = [street, number].filter(Boolean).join(" ");
   const incomingLogo = String(formData.get("logoUrl") || "");
   const music = formData.get("musicForm") ? normalizePlaylists(formData.getAll("music").map(String)) : current.musicPlaylist;
+  const musicDays = formData.get("musicForm") ? musicDaysField(formData.getAll("musicDay").map(String)) : current.musicDays;
+  const musicFrom = formData.get("musicForm") ? musicClock(String(formData.get("musicFrom") || ""), "07:00") : current.musicFrom;
+  const musicUntil = formData.get("musicForm") ? musicClock(String(formData.get("musicUntil") || ""), "22:30") : current.musicUntil;
   await prisma.screen.update({
     where: { id },
     data: {
@@ -72,6 +76,9 @@ export async function updateScreen(formData: FormData) {
       newsTicker: ["on", "weekend", "off"].includes(String(formData.get("newsTicker"))) ? String(formData.get("newsTicker")) : "on",
       ...( ["news", "notices", "both"].includes(String(formData.get("feedMode"))) ? { feedMode: String(formData.get("feedMode")) } : {}),
       musicPlaylist: music,
+      musicDays,
+      musicFrom,
+      musicUntil,
       logoUrl: String(formData.get("clearLogo") || "") === "1" ? "" : incomingLogo.startsWith("http") ? incomingLogo : current.logoUrl,
       faultPhone: String(formData.get("faultPhone") || "").trim().slice(0, 40),
       faultLink: String(formData.get("faultLink") || "").trim().slice(0, 300),
@@ -87,7 +94,7 @@ export async function updateScreen(formData: FormData) {
     });
     const ids = peers.map((screen) => screen.id).filter((peer) => peer !== id);
     if (ids.length) {
-      await prisma.screen.updateMany({ where: { id: { in: ids } }, data: { musicPlaylist: music } });
+      await prisma.screen.updateMany({ where: { id: { in: ids } }, data: { musicPlaylist: music, musicDays, musicFrom, musicUntil } });
       for (const peer of ids) await touchScreen(peer);
     }
   }
