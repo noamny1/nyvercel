@@ -168,8 +168,6 @@
 .layout-luxury.fault-logo.stage.no-ticker .rail {
   grid-column: 1;
   grid-row: 1 / span 3;
-  background: #5A1F2B;
-  border-color: #e6d3ae;
 }
 .layout-luxury.fault-logo .slide {
   grid-column: 2;
@@ -221,6 +219,5 @@
   grid-template-columns: minmax(0, 1fr);
 }
 .layout-luxury.fault-logo .lux-address { background: #5A1F2B; }
-.layout-luxury.fault-logo .lux-chips .is-on { background: #F4F1ED; color: #5A1F2B; border-color: #F4F1ED; }
 .layout-luxury.stage.slide-full.fault-logo .fault-logo-card,
 .layout-luxury.stage.slide-full.fault-logo .fault-side { display: none; }
