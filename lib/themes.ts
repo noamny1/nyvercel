@@ -7,9 +7,7 @@ export const THEMES = [
   { id: "glass", name: "זכוכית", note: "תמונה על כל המסך, כרטיס שקוף והודעה מתחלפת" },
   { id: "cinema", name: "קולנוע", note: "שקף רחב, שעון והודעה בשורה למטה" },
   { id: "fault-column", name: "התקלה בעמוד החדשות", note: "ברקוד בתחתית העמודה, למטה רק ברכה ולוגו" },
-  { id: "fault-card", name: "כרטיס אחד", note: "הברקוד בתוך כרטיס ברוכים הבאים" },
   { id: "fault-bar", name: "פס תחתון אחד", note: "ברכה ופתיחת תקלה על רקע בורדו, בשורה אחת" },
-  { id: "fault-night", name: "לילה וזהב", note: "מסך כהה, תקלה כשורה דקה ליד הברכה" },
   { id: "fault-logo", name: "התקלה ליד הלוגו", note: "ברקוד בעמודת הלוגו, ברכה בורדו למטה" },
 ] as const;
 
@@ -45,6 +43,7 @@ export async function editorThemes(owner: boolean) {
 }
 
 export async function savedTheme(requested: string, current: string, owner = false) {
+  if (requested === "fault-card" || requested === "fault-night") return "luxury";
   if (owner && (requested === "luxury" || requested === "luxury720" || isFaultTheme(requested))) return requested;
   if (!owner && requested === "luxury" && current === "luxury720") return "luxury720";
   const ids = await clientThemeIds();

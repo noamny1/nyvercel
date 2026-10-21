@@ -86,7 +86,8 @@ export function ScreenEditor({
   const [tab, setTab] = useState<"details" | "slides" | "notices">(panel || "slides");
   const clientFacing = themes.filter((theme) => theme.id !== "luxury720");
   const offered = newsTuning ? [...clientFacing, { id: "luxury720", name: "יוקרתי720" }] : clientFacing;
-  const shown = !newsTuning && screen.theme === "luxury720" ? "luxury" : screen.theme;
+  const stored = screen.theme === "fault-card" || screen.theme === "fault-night" ? "luxury" : screen.theme;
+  const shown = !newsTuning && stored === "luxury720" ? "luxury" : stored;
   const themeChoices = offered.some((theme) => theme.id === shown)
     ? offered
     : [...offered, THEMES.find((theme) => theme.id === shown)].filter((theme): theme is { id: string; name: string } => Boolean(theme));

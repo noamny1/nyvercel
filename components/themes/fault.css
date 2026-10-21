@@ -74,31 +74,6 @@
 .layout-luxury.fault-column .fault-copy small { color: #e6d3ae; }
 .layout-luxury.stage.slide-full .fault-dock { display: none; }
 
-.layout-luxury.fault-card .lux-address {
-  display: grid;
-  grid-template-columns: 292px minmax(0, 1fr);
-  align-items: center;
-  gap: 8px;
-  padding: 10px;
-}
-.layout-luxury.fault-card .fault-stamp {
-  display: flex;
-  align-items: center;
-  height: 100%;
-  min-width: 0;
-  padding: 8px 12px;
-  border-radius: 12px;
-  background: #F4F1ED;
-}
-.layout-luxury.fault-card .fault-stamp .fault-copy b,
-.layout-luxury.fault-card .fault-stamp .fault-copy strong { color: #5A1F2B; }
-.layout-luxury.fault-card .fault-stamp .fault-copy small { color: #8a5360; }
-.layout-luxury.fault-card .fault-copy img { width: 78px; height: 78px; }
-.layout-luxury.fault-card .fault-copy b,
-.layout-luxury.fault-card .fault-copy strong { font-size: 17px; }
-.layout-luxury.fault-card .fault-greet small { font-size: 20px; }
-.layout-luxury.fault-card .fault-greet strong { font-size: 26px; }
-
 .layout-luxury.fault-bar .lux-address {
   display: grid;
   grid-template-columns: auto 1px minmax(0, 1fr);
@@ -117,47 +92,6 @@
 }
 .layout-luxury.fault-bar .fault-greet small { font-size: 20px; }
 .layout-luxury.fault-bar .fault-greet strong { font-size: 26px; }
-
-.layout-luxury.fault-night.stage,
-.layout-luxury.fault-night.stage.no-ticker { background: #0c0c0e; }
-.layout-luxury.fault-night .rail,
-.layout-luxury.fault-night.stage.no-ticker .rail {
-  background: #0c0c0e;
-  border-color: #d4b483;
-}
-.layout-luxury.fault-night .lux-rule,
-.layout-luxury.fault-night .lux-item { border-color: #3a3328; }
-.layout-luxury.fault-night .lux-chips span { border-color: #d4b483; color: #f4efe4; }
-.layout-luxury.fault-night .lux-chips .is-on { background: transparent; border-color: #d4b483; color: #d4b483; }
-.layout-luxury.fault-night .luxury-foot {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  padding: 0 0 0 4px;
-  border-top: 1px solid #d4b483;
-}
-.layout-luxury.fault-night .lux-address {
-  display: flex;
-  flex: 1;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  background: transparent;
-  padding: 0 8px;
-}
-.layout-luxury.fault-night .lux-logo,
-.layout-luxury.fault-night .lux-logo.is-photo,
-.layout-luxury.fault-night .lux-logo.is-empty {
-  flex: 0 0 240px;
-  width: 240px;
-  height: 116px;
-}
-.layout-luxury.fault-night .fault-copy b,
-.layout-luxury.fault-night .fault-copy strong { color: #f4efe4; }
-.layout-luxury.fault-night .fault-copy small,
-.layout-luxury.fault-night .fault-greet small { color: #d4b483; }
-.layout-luxury.fault-night .fault-greet strong { color: #f4efe4; font-size: 28px; }
-.layout-luxury.fault-night .lux-logo { background: #f7f4ef; }
 
 .layout-luxury.fault-logo.stage,
 .layout-luxury.fault-logo.stage.no-ticker {
