@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { israelCivil, israelClock } from "@/lib/israel-time";
 
 export function Clock() {
   const [now, setNow] = useState<Date | null>(null);
@@ -9,12 +10,8 @@ export function Clock() {
     const timer = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
-  const time = now
-    ? now.toLocaleTimeString("he-IL", { hour: "2-digit", minute: "2-digit" })
-    : "";
-  const date = now
-    ? now.toLocaleDateString("he-IL", { weekday: "long", day: "numeric", month: "long" })
-    : "";
+  const time = now ? israelClock(now) : "";
+  const date = now ? israelCivil(now, false) : "";
   return (
     <div className="widget">
       <div className="clock">{time}</div>

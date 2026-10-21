@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useNewsOn } from "@/components/player/useNewsOn";
+import { israelCivil, israelClock, israelHour, israelWall } from "@/lib/israel-time";
 
 type Story = { title: string };
 
@@ -97,11 +98,11 @@ function useClock() {
     const timer = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
-  const time = now ? now.toLocaleTimeString("he-IL", { hour: "2-digit", minute: "2-digit" }) : "";
-  const weekday = now ? now.toLocaleDateString("he-IL", { weekday: "long" }) : "";
-  const hour = now ? now.getHours() : 9;
+  const time = now ? israelClock(now) : "";
+  const weekday = now ? israelCivil(now, false).split(",")[0] : "";
+  const hour = now ? israelHour(now) : 9;
   const hello = hour < 12 ? "בוקר טוב" : hour < 17 ? "צהריים טובים" : hour < 21 ? "ערב טוב" : "לילה טוב";
-  return { time, weekday, hebrew: now ? hebrewDate(now) : "", hello };
+  return { time, weekday, hebrew: now ? hebrewDate(israelWall(now)) : "", hello };
 }
 
 function useLine(notices: string[], headlines: Story[]) {
@@ -125,7 +126,10 @@ function useLine(notices: string[], headlines: Story[]) {
 }
 
 function hebrewDate(date: Date) {
-  const parts = new Intl.DateTimeFormat("he-IL-u-ca-hebrew", { day: "numeric", month: "long" }).formatToParts(date);
+  const day = date.getUTCDate();
+  const month = date.getUTCMonth();
+  const year = date.getUTCFullYear();
+  const parts = new Intl.DateTimeFormat("he-IL-u-ca-hebrew", { timeZone: "UTC", day: "numeric", month: "long" }).formatToParts(new Date(Date.UTC(year, month, day, 12)));
   const day = Number(parts.find((part) => part.type === "day")?.value || "");
   const month = parts.find((part) => part.type === "month")?.value || "";
   if (!day || !month) return "";

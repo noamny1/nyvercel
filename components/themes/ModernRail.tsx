@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useFreshHeadlines, type Headline } from "@/components/player/useFreshHeadlines";
 import { useNewsOn } from "@/components/player/useNewsOn";
 import { chipLabel, HEALTH_NOTE } from "@/lib/news-sources";
+import { israelCivil, israelClock, israelWall } from "@/lib/israel-time";
 
 type Page = { chip: string; headlines: string[]; notes: string[] };
 
@@ -41,9 +42,9 @@ export function ModernRail({
     const timer = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
-  const time = now ? now.toLocaleTimeString("he-IL", { hour: "2-digit", minute: "2-digit" }) : "";
-  const civil = now ? now.toLocaleDateString("he-IL", { weekday: "long", day: "numeric", month: "long" }) : "";
-  const hebrew = now ? hebrewDate(now) : "";
+  const time = now ? israelClock(now) : "";
+  const civil = now ? israelCivil(now, false) : "";
+  const hebrew = now ? hebrewDate(israelWall(now)) : "";
   const shown = rates.slice(0, 2);
   const fresh = useFreshHeadlines(sourceId || "ynet", newsCount, headlines);
   const newsOn = useNewsOn(newsMode);
@@ -197,11 +198,17 @@ function pageChips(pages: Page[]) {
 }
 
 function hebrewDate(date: Date) {
-  const parts = new Intl.DateTimeFormat("he-IL-u-ca-hebrew", { day: "numeric", month: "long" }).formatToParts(date);
-  const day = Number(parts.find((part) => part.type === "day")?.value || "");
-  const month = parts.find((part) => part.type === "month")?.value || "";
-  if (!day || !month) return "";
-  return `${hebrewNumber(day)} ב${month}`;
+  const day = date.getUTCDate();
+  const month = date.getUTCMonth();
+  const year = date.getUTCFullYear();
+  try {
+    const format = new Intl.DateTimeFormat("he-IL-u-ca-hebrew", { timeZone: "UTC", day: "numeric", month: "long" });
+    const parts = format.formatToParts(new Date(Date.UTC(year, month, day, 12)));
+    const hDay = Number(parts.find((part) => part.type === "day")?.value || "");
+    const hMonth = parts.find((part) => part.type === "month")?.value || "";
+    if (hDay && hMonth) return `${hebrewNumber(hDay)} ב${hMonth}`;
+  } catch { /* old Android has no Hebrew calendar */ }
+  return "";
 }
 
 function hebrewNumber(value: number) {

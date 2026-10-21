@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useFreshHeadlines, type Headline } from "@/components/player/useFreshHeadlines";
 import { useNewsOn } from "@/components/player/useNewsOn";
-import { chipLabel, HEALTH_NOTE } from "@/lib/news-sources";
+import { israelCivil, israelClock, israelWall } from "@/lib/israel-time";
 
 type Item = { tag: string; text: string; chip: string };
 
@@ -179,37 +179,20 @@ function blocks(news: Item[], notes: Item[], take = 4) {
   return mixed;
 }
 
-const WEEKDAYS = ["יום ראשון", "יום שני", "יום שלישי", "יום רביעי", "יום חמישי", "יום שישי", "יום שבת"];
-const MONTHS = ["ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני", "יולי", "אוגוסט", "ספטמבר", "אוקטובר", "נובמבר", "דצמבר"];
-
 function clockText(date: Date) {
-  const hours = date.getHours();
-  const minutes = date.getMinutes();
-  return `${hours < 10 ? "0" : ""}${hours}:${minutes < 10 ? "0" : ""}${minutes}`;
+  return israelClock(date);
 }
 
 function civilDate(date: Date) {
-  return `${WEEKDAYS[date.getDay()]}, ${date.getDate()} ב${MONTHS[date.getMonth()]} ${date.getFullYear()}`;
+  return israelCivil(date);
 }
 
 function hebrewDate(date: Date) {
-  try {
-    const format = new Intl.DateTimeFormat("he-IL-u-ca-hebrew", { day: "numeric", month: "long", year: "numeric" });
-    if (typeof format.formatToParts === "function") {
-      const parts = format.formatToParts(date);
-      const day = Number(parts.find((part) => part.type === "day")?.value || "");
-      const month = parts.find((part) => part.type === "month")?.value || "";
-      const year = Number(parts.find((part) => part.type === "year")?.value || "");
-      if (day && month) return `${hebrewNumber(day)} ב${month}${year ? ` ${hebrewYear(year)}` : ""}`;
-    }
-    const text = format.format(date).replace(/^ה׳\s*/, "").replace(/^ה'\s*/, "");
-    if (["תשרי", "חשוון", "חשון", "כסלו", "טבת", "שבט", "אדר", "ניסן", "אייר", "סיון", "סיוון", "תמוז", "אב", "אלול"].some((month) => text.includes(month))) return text;
-  } catch { /* old Android has no Hebrew calendar parts */ }
-  return hebrewFallback(date);
+  return hebrewFallback(israelWall(date));
 }
 
 function hebrewFallback(date: Date) {
-  const abs = julianDay(date.getFullYear(), date.getMonth() + 1, date.getDate());
+  const abs = julianDay(date.getUTCFullYear(), date.getUTCMonth() + 1, date.getUTCDate());
   let year = 5780;
   while (hebrewNewYear(year) > abs) year -= 1;
   while (hebrewNewYear(year + 1) <= abs) year += 1;
