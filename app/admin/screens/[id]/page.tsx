@@ -5,7 +5,7 @@ import { ScreenEditor } from "@/components/admin/ScreenEditor";
 import { prisma } from "@/lib/prisma";
 import { screenWhere } from "@/lib/access";
 import { isSystemAdmin, requireSession } from "@/lib/session";
-import { clientThemes } from "@/lib/themes";
+import { editorThemes } from "@/lib/themes";
 
 export const dynamic = "force-dynamic";
 
@@ -42,7 +42,7 @@ export default async function ScreenPage({ params }: { params: Promise<{ id: str
       <h1>{line(screen)}</h1>
       <p>כתובת למכשיר: nytv.app/s/{screen.code || screen.id}</p>
       {isSystemAdmin(session) ? <p><Link href={`/admin/screens/${screen.id}/remote`}>שליטה מרחוק על הסטרימר</Link></p> : null}
-      <ScreenEditor screen={screen} slides={screen.slides} notices={screen.notices} lockAddress={!isSystemAdmin(session)} musicPeers={musicPeers} newsTuning={isSystemAdmin(session)} themes={await clientThemes()} />
+      <ScreenEditor screen={screen} slides={screen.slides} notices={screen.notices} lockAddress={!isSystemAdmin(session)} musicPeers={musicPeers} newsTuning={isSystemAdmin(session)} themes={await editorThemes(isSystemAdmin(session))} />
     </main>
   );
 }

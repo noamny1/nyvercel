@@ -8,7 +8,7 @@ import { prisma } from "@/lib/prisma";
 import { screenWhere } from "@/lib/access";
 import { NEWS_SOURCES } from "@/lib/news-sources";
 import { isSystemAdmin, requireSession } from "@/lib/session";
-import { clientThemes } from "@/lib/themes";
+import { editorThemes } from "@/lib/themes";
 
 export const dynamic = "force-dynamic";
 
@@ -85,7 +85,7 @@ export default async function GroupPage({
         />
       </section>
       <p><Link href={edit ? `/admin/groups/${group.id}` : `/admin/groups/${group.id}?edit=1`}>{edit ? "סגירת עריכת התוכן" : "עריכת תוכן הקבוצה"}</Link></p>
-      {edit ? <ScreenEditor screen={group} slides={group.slides} notices={group.notices} scope="group" buildings={buildings} feeds={[...NEWS_SOURCES, ...feeds.filter((feed) => !NEWS_SOURCES.some((item) => item.id === feed.id))]} newsTuning={owner} themes={await clientThemes()} /> : null}
+      {edit ? <ScreenEditor screen={group} slides={group.slides} notices={group.notices} scope="group" buildings={buildings} feeds={[...NEWS_SOURCES, ...feeds.filter((feed) => !NEWS_SOURCES.some((item) => item.id === feed.id))]} newsTuning={owner} themes={await editorThemes(owner)} /> : null}
     </main>
   );
 }

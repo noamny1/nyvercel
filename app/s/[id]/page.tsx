@@ -17,6 +17,7 @@ import { Shabbat } from "@/components/widgets/Shabbat";
 import { Weather } from "@/components/widgets/Weather";
 import { ModernRail } from "@/components/themes/ModernRail";
 import { LuxuryRail } from "@/components/themes/LuxuryRail";
+import { FaultCopy, WelcomeLine, faultQrSrc } from "@/components/themes/FaultParts";
 import { CinemaBoard, GlassBoard } from "@/components/themes/MotionBoard";
 import { markets } from "@/lib/markets";
 import { liveHeadlines } from "@/lib/news";
@@ -25,11 +26,12 @@ import { musicSilenced, screenTakeover } from "@/lib/flags";
 import { FIXED_VIDEOS, clientSetsDuration, fillLine } from "@/lib/ready-slides";
 import { newsTickerOn, slideIsOn } from "@/lib/schedule";
 import { shabbatFor } from "@/lib/shabbat";
-import { isThemeId } from "@/lib/themes";
+import { isThemeId, isFaultTheme } from "@/lib/themes";
 import { weatherFor } from "@/lib/weather";
 import "@/components/player/player.css";
 import "@/components/themes/modern.css";
 import "@/components/themes/luxury.css";
+import "@/components/themes/fault.css";
 import "@/components/themes/motion.css";
 
 const heebo = Heebo({ subsets: ["hebrew", "latin"], weight: ["300", "400", "500"], display: "swap" });
@@ -75,13 +77,14 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
   const chosen = screen.theme || source.theme || "modern";
   const theme = isThemeId(chosen) ? chosen : "modern";
   const luxury = theme === "luxury" || theme === "luxury720";
+  const fault = isFaultTheme(theme);
   const wide = theme === "luxury720";
   const clock = lobbyClock();
   const cinematic = theme === "glass" || theme === "cinema";
   const newsSource = screen.newsSource || source.newsSource || "ynet";
   const sourceCount = newsSource.split(",").map((item) => item.trim()).filter(Boolean).length || 1;
   const modern = theme === "modern";
-  const newsTake = luxury
+  const newsTake = luxury || fault
     ? Math.min(20, Math.max(screen.newsCount || 8, sourceCount * 4))
     : modern
       ? Math.min(20, sourceCount * 3)
@@ -115,9 +118,12 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
     );
   }
 
+  const qr = fault ? await faultQrSrc(theme === "fault-logo" ? 480 : 240) : "";
+  const logoUrl = screen.logoUrl || source.logoUrl;
+
   return (
     <>
-    <FitStage width={wide ? 1280 : 1366} height={wide ? 720 : 768} fill={wide ? 1 : 0.97} code={screen.code || screen.id} revision={screen.revision} className={`stage theme-${theme}${luxury ? ` layout-luxury ${heebo.className}` : ""}${wide ? " layout-luxury720" : ""}${modern ? " layout-modern" : ""}${cinematic ? ` layout-${theme} ${heebo.className}` : ""}${tickerOn && !luxury && !modern && !cinematic ? "" : " no-ticker"}`}>
+    <FitStage width={wide ? 1280 : 1366} height={wide ? 720 : 768} fill={wide ? 1 : 0.97} code={screen.code || screen.id} revision={screen.revision} className={`stage theme-${theme}${luxury ? ` layout-luxury ${heebo.className}` : ""}${fault ? ` layout-luxury ${theme} ${heebo.className}` : ""}${wide ? " layout-luxury720" : ""}${modern ? " layout-modern" : ""}${cinematic ? ` layout-${theme} ${heebo.className}` : ""}${tickerOn && !luxury && !modern && !cinematic && !fault ? "" : " no-ticker"}`}>
       <Music playlist={silenced ? "off" : screen.musicPlaylist || ""} url={silenced ? "" : screen.group?.musicUrl || ""} start={screen.id} />
       <NewsGate mode={newsMode} />
       <Wake />
@@ -172,21 +178,24 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
         )}
       </section>
       <aside className="rail">
-        {luxury ? (
-          <LuxuryRail
-            temp={weather?.temp ?? null}
-            weatherLabel={weather?.label || ""}
-            mode={feedMode}
-            headlines={stories}
-            notices={notices.map((notice) => notice.text)}
-            sourceId={newsSource}
-            newsCount={wide ? 3 : newsTake}
-            newsMode={newsMode}
-            compact={wide}
-            initialTime={clock.time}
-            initialCivil={clock.civil}
-            initialHebrew={clock.hebrew}
-          />
+        {(luxury || fault) ? (
+          <>
+            <LuxuryRail
+              temp={weather?.temp ?? null}
+              weatherLabel={weather?.label || ""}
+              mode={feedMode}
+              headlines={stories}
+              notices={notices.map((notice) => notice.text)}
+              sourceId={newsSource}
+              newsCount={wide ? 3 : newsTake}
+              newsMode={newsMode}
+              compact={wide}
+              initialTime={clock.time}
+              initialCivil={clock.civil}
+              initialHebrew={clock.hebrew}
+            />
+            {theme === "fault-column" ? <div className="fault-dock"><FaultCopy qr={qr} /></div> : null}
+          </>
         ) : modern ? (
           <ModernRail
             address={address(street, number, city)}
@@ -216,7 +225,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
           </>
         )}
       </aside>
-      {luxury ? (
+      {(luxury || theme === "fault-column") ? (
         <footer className="luxury-foot">
           <div className="lux-address">
             <small>ברוכים הבאים</small>
@@ -228,12 +237,53 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
               </strong>
             ) : null}
           </div>
-          <div className={`lux-logo${(screen.logoUrl || source.logoUrl) ? " is-photo" : " is-empty"}`}>
-            {(screen.logoUrl || source.logoUrl) ? <img src={screen.logoUrl || source.logoUrl} alt="" /> : <span>לוגו הלקוח<small>הבניין</small></span>}
+          <div className={`lux-logo${logoUrl ? " is-photo" : " is-empty"}`}>
+            {logoUrl ? <img src={logoUrl} alt="" /> : <span>לוגו הלקוח<small>הבניין</small></span>}
           </div>
         </footer>
       ) : null}
-      {!luxury && !modern && !cinematic ? <NewsTicker titles={stories} seconds={screen.tickerSeconds || 12} sourceId={newsSource} take={screen.newsCount || 8} mode={newsMode} /> : null}
+      {theme === "fault-card" ? (
+        <footer className="luxury-foot">
+          <div className="lux-address">
+            <div className="fault-stamp"><FaultCopy qr={qr} /></div>
+            <WelcomeLine line={greet.line} city={greet.city} />
+          </div>
+          <div className={`lux-logo${logoUrl ? " is-photo" : " is-empty"}`}>
+            {logoUrl ? <img src={logoUrl} alt="" /> : <span>לוגו הלקוח<small>הבניין</small></span>}
+          </div>
+        </footer>
+      ) : null}
+      {theme === "fault-bar" || theme === "fault-night" ? (
+        <footer className="luxury-foot">
+          <div className="lux-address">
+            <FaultCopy qr={qr} />
+            {theme === "fault-bar" ? <i className="fault-split" /> : null}
+            <WelcomeLine line={greet.line} city={greet.city} />
+          </div>
+          <div className={`lux-logo${logoUrl ? " is-photo" : " is-empty"}`}>
+            {logoUrl ? <img src={logoUrl} alt="" /> : <span>לוגו הלקוח<small>הבניין</small></span>}
+          </div>
+        </footer>
+      ) : null}
+      {theme === "fault-logo" ? (
+        <>
+          <div className={`fault-logo-card lux-logo${logoUrl ? " is-photo" : " is-empty"}`}>
+            {logoUrl ? <img src={logoUrl} alt="" /> : <span>לוגו הלקוח<small>הבניין</small></span>}
+          </div>
+          <div className="fault-side">
+            <img src={qr} alt="" />
+            <b>פתיחת תקלה</b>
+            <small>סריקה מהנייד</small>
+            <strong>08-6744430</strong>
+          </div>
+          <footer className="luxury-foot">
+            <div className="lux-address">
+              <WelcomeLine line={greet.line} city={greet.city} />
+            </div>
+          </footer>
+        </>
+      ) : null}
+      {!luxury && !fault && !modern && !cinematic ? <NewsTicker titles={stories} seconds={screen.tickerSeconds || 12} sourceId={newsSource} take={screen.newsCount || 8} mode={newsMode} /> : null}
       {theme === "glass" ? (
         <GlassBoard
           temp={weather?.temp ?? null}

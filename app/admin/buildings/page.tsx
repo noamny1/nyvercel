@@ -7,7 +7,7 @@ import { createListedScreen, deleteListedScreen } from "@/app/admin/actions";
 import { prisma } from "@/lib/prisma";
 import { screenWhere } from "@/lib/access";
 import { isSystemAdmin, requireSession } from "@/lib/session";
-import { clientThemes } from "@/lib/themes";
+import { editorThemes } from "@/lib/themes";
 
 export const dynamic = "force-dynamic";
 
@@ -272,7 +272,7 @@ export default async function BuildingsPage({ searchParams }: { searchParams: Pr
         <ClientScreens
           manager={Boolean(manager)}
           musicPeers={screens.length}
-          themes={await clientThemes()}
+          themes={await editorThemes(isSystemAdmin(session))}
           returnTo={query ? `/admin/buildings?q=${encodeURIComponent(query)}` : "/admin/buildings"}
           rows={[...screens].sort((a, b) => (a.groupId || 0) - (b.groupId || 0) || a.listSort - b.listSort || a.id - b.id).map((screen) => ({
             id: screen.id,
