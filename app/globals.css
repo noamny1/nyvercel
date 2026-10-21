@@ -162,16 +162,17 @@ body:has(.admin) { background: #F4F1ED; overflow-x: hidden; }
 }
 .admin .screen-title { display: grid; gap: 2px; }
 .admin .screen-title small { color: #5c5854; font-size: 13px; }
-.admin .group-row { align-items: center; }
-.admin .group-tools { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: flex-end; }
-.admin .group-tools form { display: flex; gap: 8px; align-items: center; }
-.admin .group-tools img { width: 72px; height: 36px; object-fit: contain; background: #252525; border-radius: 6px; }
+.admin .group-row { align-items: center; flex-wrap: nowrap; }
+.admin .group-tools { display: flex; flex-wrap: nowrap; gap: 6px; align-items: center; justify-content: flex-end; }
+.admin .group-tools form { display: flex; gap: 6px; align-items: center; }
+.admin .group-tools img { width: 52px; height: 28px; object-fit: contain; background: #252525; border-radius: 6px; }
 .admin .group-tools .logo-size { color: #6d625c; font-size: 11px; line-height: 1; white-space: nowrap; }
-.admin .group-tools video { width: 72px; height: 36px; object-fit: cover; background: #252525; border-radius: 6px; }
+.admin .group-tools video { width: 52px; height: 28px; object-fit: cover; background: #252525; border-radius: 6px; }
 .admin .group-tools select { width: 180px; padding: 8px 10px; }
-.admin .group-tools button { padding: 8px 12px; }
+.admin .group-tools button,
+.admin .group-tools .file-pick { padding: 4px 8px; font-size: 12px; line-height: 1.2; border-radius: 6px; }
 .admin .user-find { position: relative; }
-.admin .user-find input { width: 220px; padding: 8px 10px; }
+.admin .user-find input { width: 148px; padding: 4px 8px; font-size: 12px; }
 .admin .user-hits {
   position: absolute;
   z-index: 8;
@@ -195,7 +196,7 @@ body:has(.admin) { background: #F4F1ED; overflow-x: hidden; }
   font-weight: 400;
   padding: 8px 10px;
 }
-.admin .group-members { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; max-width: 520px; }
+.admin .group-members { display: flex; flex-wrap: nowrap; gap: 6px; align-items: center; }
 .admin .group-members form { display: flex; gap: 4px; align-items: center; background: #F4F1ED; border-radius: 999px; padding: 4px 8px 4px 4px; }
 .admin .group-members button { padding: 0 6px; line-height: 1.4; background: transparent; color: #5A1F2B; border: 0; }
 .admin .group-members .mail-link { text-decoration: underline; cursor: pointer; }
