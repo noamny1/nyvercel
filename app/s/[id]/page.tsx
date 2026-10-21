@@ -264,6 +264,38 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
     </FitStage>
     <script dangerouslySetInnerHTML={{ __html: `
 (function () {
+  function lastSunday(year, month) {
+    var last = new Date(Date.UTC(year, month + 1, 0));
+    return last.getUTCDate() - last.getUTCDay();
+  }
+  function israelText() {
+    var now = new Date();
+    var year = now.getUTCFullYear();
+    var start = Date.UTC(year, 2, lastSunday(year, 2) - 2, 0, 0, 0);
+    var end = Date.UTC(year, 9, lastSunday(year, 9) - 1, 23, 0, 0);
+    var time = now.getTime();
+    var off = time >= start && time < end ? 3 : 2;
+    var dayMin = Math.floor((time + off * 3600000) / 60000) % 1440;
+    if (dayMin < 0) dayMin += 1440;
+    var hours = Math.floor(dayMin / 60);
+    var minutes = dayMin % 60;
+    return (hours < 10 ? "0" : "") + hours + ":" + (minutes < 10 ? "0" : "") + minutes;
+  }
+  function paintClock() {
+    var text = israelText();
+    var nodes = document.getElementsByClassName("lux-clock");
+    var i;
+    for (i = 0; i < nodes.length; i++) if (nodes[i].textContent !== text) nodes[i].textContent = text;
+    nodes = document.getElementsByClassName("clock");
+    for (i = 0; i < nodes.length; i++) if (nodes[i].textContent !== text) nodes[i].textContent = text;
+    var boards = document.getElementsByClassName("modern-clock");
+    for (i = 0; i < boards.length; i++) {
+      var strong = boards[i].getElementsByTagName("strong")[0];
+      if (strong && strong.textContent !== text) strong.textContent = text;
+    }
+  }
+  paintClock();
+  window.setInterval(paintClock, 250);
   function start() {
   function hushPromo() {
     var clips = document.querySelectorAll("video[data-silent]");

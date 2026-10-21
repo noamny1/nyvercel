@@ -130,10 +130,10 @@ function hebrewDate(date: Date) {
   const month = date.getUTCMonth();
   const year = date.getUTCFullYear();
   const parts = new Intl.DateTimeFormat("he-IL-u-ca-hebrew", { timeZone: "UTC", day: "numeric", month: "long" }).formatToParts(new Date(Date.UTC(year, month, day, 12)));
-  const day = Number(parts.find((part) => part.type === "day")?.value || "");
-  const month = parts.find((part) => part.type === "month")?.value || "";
-  if (!day || !month) return "";
-  return `${hebrewNumber(day)} ב${month}`;
+  const hDay = Number(parts.find((part) => part.type === "day")?.value || "");
+  const hMonth = parts.find((part) => part.type === "month")?.value || "";
+  if (!hDay || !hMonth) return "";
+  return `${hebrewNumber(hDay)} ב${hMonth}`;
 }
 
 function hebrewNumber(value: number) {
