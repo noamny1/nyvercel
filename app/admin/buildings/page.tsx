@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { AdminNav } from "@/components/admin/AdminNav";
 import { ClientScreens } from "@/components/admin/ClientScreens";
 import { GroupMove } from "@/components/admin/GroupMove";
+import { CityField } from "@/components/admin/CityField";
 import { createListedScreen, deleteListedScreen } from "@/app/admin/actions";
 import { prisma } from "@/lib/prisma";
 import { screenWhere } from "@/lib/access";
@@ -199,7 +200,7 @@ export default async function BuildingsPage({ searchParams }: { searchParams: Pr
           <div className="row">
             <label>רחוב<input name="street" required /></label>
             <label>מספר<input name="number" required /></label>
-            <label>עיר<input name="city" required /></label>
+            <label>עיר<CityField required /></label>
             <label>קומה<input name="floor" defaultValue="לובי" /></label>
             <label>קבוצה
               <select name="groupId" defaultValue="">

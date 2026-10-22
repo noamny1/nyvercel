@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { put } from "@vercel/blob";
 import { prisma } from "@/lib/prisma";
+import { officialCity } from "@/lib/cities";
 import { musicClock, musicDaysField } from "@/lib/music-hours";
 import { screenWhere } from "@/lib/access";
 import { requireSession, isSystemAdmin } from "@/lib/session";
@@ -39,7 +40,7 @@ export async function createScreen(formData: FormData) {
       name: String(formData.get("name") || "מסך חדש"),
       street: String(formData.get("street") || ""),
       number: String(formData.get("number") || ""),
-      city: String(formData.get("city") || ""),
+      city: officialCity(String(formData.get("city") || "")),
       code: await nextCode(),
     },
   });
@@ -54,7 +55,7 @@ export async function updateScreen(formData: FormData) {
   const owner = isSystemAdmin(session);
   const street = owner ? String(formData.get("street") || "") : current.street;
   const number = owner ? String(formData.get("number") || "") : current.number;
-  const city = owner ? String(formData.get("city") || "") : current.city;
+  const city = owner ? officialCity(String(formData.get("city") || "")) : current.city;
   const place = [street, number].filter(Boolean).join(" ");
   const incomingLogo = String(formData.get("logoUrl") || "");
   const musicForm = Boolean(formData.get("musicForm"));
@@ -154,7 +155,7 @@ export async function createGroup(formData: FormData) {
       name: String(formData.get("name") || "קבוצה חדשה"),
       street: String(formData.get("street") || ""),
       number: String(formData.get("number") || ""),
-      city: String(formData.get("city") || ""),
+      city: officialCity(String(formData.get("city") || "")),
       logoUrl: await fallbackLogo(),
     },
   });
@@ -299,7 +300,7 @@ export async function updateGroup(formData: FormData) {
       name: String(formData.get("name") || ""),
       street: String(formData.get("street") || ""),
       number: String(formData.get("number") || ""),
-      city: String(formData.get("city") || ""),
+      city: officialCity(String(formData.get("city") || "")),
       theme: await savedTheme(String(formData.get("theme") || "modern"), current.theme, isSystemAdmin(session)),
       newsSource: chosenNews(formData),
       logoUrl: String(formData.get("logoUrl") || ""),
@@ -319,7 +320,7 @@ export async function addAddress(formData: FormData) {
   const groupId = Number(formData.get("groupId"));
   const street = String(formData.get("street") || "").trim();
   const number = String(formData.get("number") || "").trim();
-  const city = String(formData.get("city") || "").trim();
+  const city = officialCity(String(formData.get("city") || ""));
   if (!street && !city) redirect(`/admin/groups/${groupId}`);
   const place = [street, number].filter(Boolean).join(" ");
   const name = [place, city].filter(Boolean).join(", ");
@@ -370,7 +371,7 @@ export async function moveAddress(formData: FormData) {
   if (!fromGroup || !target) redirect(`/admin/groups/${from}`);
   const street = String(formData.get("street") || fromGroup.street);
   const number = String(formData.get("number") || fromGroup.number);
-  const city = String(formData.get("city") || fromGroup.city);
+  const city = officialCity(String(formData.get("city") || fromGroup.city));
   if (screenId) {
     await adoptGroup(screenId, to);
   } else {
@@ -554,7 +555,7 @@ export async function createListedScreen(formData: FormData) {
   await gate();
   const street = String(formData.get("street") || "").trim();
   const number = String(formData.get("number") || "").trim();
-  const city = String(formData.get("city") || "").trim();
+  const city = officialCity(String(formData.get("city") || ""));
   const floor = String(formData.get("floor") || "").trim().slice(0, 40) || "לובי";
   const groupId = Number(formData.get("groupId")) || null;
   const place = [street, number].filter(Boolean).join(" ");

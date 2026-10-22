@@ -8,6 +8,7 @@ import { THEMES } from "@/lib/themes";
 import { PLAYLISTS } from "@/lib/music-catalog";
 import { DEFAULT_MUSIC_DAYS, DEFAULT_MUSIC_FROM, DEFAULT_MUSIC_UNTIL, MUSIC_DAYS } from "@/lib/music-hours";
 import { scheduleLabel, slideStatus } from "@/lib/schedule";
+import { CityField } from "@/components/admin/CityField";
 import { addGroupNotice, addNotice, deleteGroupNotice, deleteNotice, toggleGroupNotice, toggleNotice, updateGroup, updateGroupNotice, updateNotice, updateScreen } from "@/app/admin/actions";
 
 type Slide = { id: number; imageUrl: string; duration: number; sort: number; weekdays?: string; startsOn?: string; endsOn?: string; active?: boolean; kind?: string; templateId?: string; title?: string; detail?: string; meta?: string };
@@ -233,7 +234,7 @@ export function ScreenEditor({
         <div className="row">
           <label>רחוב<input name="street" defaultValue={screen.street} readOnly={lockAddress} /></label>
           <label>מספר<input name="number" defaultValue={screen.number} readOnly={lockAddress} /></label>
-          <label>עיר<input name="city" defaultValue={screen.city} readOnly={lockAddress} /></label>
+          <label>עיר<CityField defaultValue={screen.city} disabled={lockAddress} /></label>
           {scope === "screen" ? <label>קומה<input name="floor" defaultValue={screen.floor || "לובי"} readOnly={lockAddress} /></label> : null}
           <label>תמה
             <select name="theme" defaultValue={themePick} onChange={(event) => setThemePick(event.target.value)}>
