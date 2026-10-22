@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 const OWNER_LINKS = [
   ["/admin", "קבוצות"],
   ["/admin/buildings", "בניינים"],
+  ["/admin/search", "חיפוש"],
   ["/admin/music", "מוזיקה"],
   ["/admin/news", "חדשות"],
   ["/admin/directory", "קומות"],
