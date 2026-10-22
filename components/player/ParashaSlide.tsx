@@ -1,6 +1,6 @@
 "use client";
 
-import { useLayoutEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 
 export function ParashaSlide({
   name,
@@ -36,6 +36,55 @@ export function ParashaSlide({
     }
   }, [still, verses, columns]);
 
+  useEffect(() => {
+    if (still) return;
+    const box = body.current;
+    const node = text.current;
+    if (!box || !node) return;
+    let frame = 0;
+    let started = false;
+    let running = false;
+    let start = 0;
+    let distance = 0;
+    const step = (now: number) => {
+      if (!running) return;
+      const elapsed = (now - start) / 1000;
+      const t = Math.min(1, elapsed / pace);
+      const y = Math.round(-distance * t);
+      node.style.transform = `translate3d(0, ${y}px, 0)`;
+      if (t < 1) frame = requestAnimationFrame(step);
+    };
+    const arm = () => {
+      const view = box.clientHeight;
+      if (view < 20) {
+        started = false;
+        running = false;
+        cancelAnimationFrame(frame);
+        node.style.transform = "translate3d(0, 0, 0)";
+        return;
+      }
+      if (started) return;
+      const full = node.scrollHeight;
+      if (full <= view + 8) return;
+      distance = full - view;
+      start = performance.now();
+      started = true;
+      running = true;
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(step);
+    };
+    arm();
+    const timer = window.setInterval(arm, 400);
+    const observer = typeof ResizeObserver === "function" ? new ResizeObserver(arm) : null;
+    observer?.observe(box);
+    return () => {
+      running = false;
+      cancelAnimationFrame(frame);
+      window.clearInterval(timer);
+      observer?.disconnect();
+    };
+  }, [still, verses, pace]);
+
   return (
     <div className={still ? "parasha-slide is-still" : "parasha-slide"}>
       <header>
@@ -53,7 +102,7 @@ export function ParashaSlide({
         </em>
       </header>
       <div className={still ? "parasha-body is-still" : "parasha-body"} ref={body}>
-        <p ref={text} style={still ? { columnCount: columns } : verses.length > 6 ? { animationDuration: `${pace}s` } : undefined}>
+        <p ref={text} style={still ? { columnCount: columns } : undefined}>
           {verses.length ? verses.map((verse, index) => <span key={index}>{verse}</span>) : <span>הפרשה המלאה תופיע במסך לפי השבת הקרובה.</span>}
         </p>
       </div>

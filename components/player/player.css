@@ -298,10 +298,9 @@
   margin: 15px auto 0;
   background: rgba(230, 211, 174, 0.7);
 }
-.parasha-body { overflow: hidden; min-height: 0; container-type: size; }
+.parasha-body { overflow: hidden; min-height: 0; }
 .parasha-body p {
   margin: 0;
-  animation: parasha-rise linear forwards;
 }
 .parasha-body span {
   display: block;
@@ -313,12 +312,8 @@
 .parasha-slide.is-still header strong { font-size: 46px; }
 .parasha-slide.is-still header em { font-size: 22px; }
 .parasha-slide.is-still header em img { width: 68px; height: 54px; }
-.parasha-body.is-still p { animation: none; height: 100%; column-gap: 16px; font-size: 22px; }
+.parasha-body.is-still p { height: 100%; column-gap: 16px; font-size: 22px; }
 .parasha-body.is-still span { margin-bottom: 0.02em; line-height: 1.18; font-size: inherit; break-inside: avoid; }
-@keyframes parasha-rise {
-  from { transform: translateY(0); }
-  to { transform: translateY(calc(-100% + 100cqh)); }
-}
 .parasha-preview { height: 280px; overflow: hidden; border-radius: 12px; }
 .parasha-preview .parasha-slide { height: 280px; padding: 16px; }
 .parasha-preview .parasha-slide header strong { font-size: 28px; }
