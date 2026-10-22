@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { SiteChrome } from "@/components/site/SiteChrome";
 
 export default function ContactPage() {
@@ -28,7 +29,7 @@ export default function ContactPage() {
           <label>הודעה<textarea name="message" required rows={5} /></label>
           <label className="row">
             <input type="checkbox" checked={agreed} onChange={(event) => setAgreed(event.target.checked)} />
-            <span>קראתי את מדיניות הפרטיות ואני מסכים שתחזרו אליי בעניין הפנייה הזו בלבד.</span>
+            <span>קראתי את <Link href="/privacy">מדיניות הפרטיות</Link> ואני מסכים שתחזרו אליי בעניין הפנייה הזו בלבד.</span>
           </label>
           <button type="submit" disabled={!agreed}>שליחה</button>
         </form>

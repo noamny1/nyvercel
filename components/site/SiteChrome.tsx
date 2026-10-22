@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Heebo } from "next/font/google";
+import { CookieNotice } from "@/components/site/CookieNotice";
 import "@/app/marketing.css";
 
 const heebo = Heebo({
@@ -32,12 +33,13 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
           <img src="/logo-nymedia.png" alt="" />
         </Link>
       </header>
-      <div id="content">{children}</div>
+      <main id="content">{children}</main>
       <footer className="foot">
         <Link href="/privacy">מדיניות פרטיות</Link>
         <Link href="/terms">תנאי שימוש</Link>
         <Link href="/accessibility">הצהרת נגישות</Link>
       </footer>
+      <CookieNotice />
     </div>
   );
 }

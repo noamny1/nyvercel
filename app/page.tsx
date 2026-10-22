@@ -14,7 +14,7 @@ export default function Home() {
         <div className="intro-actions">
           <a className="solid" href="#projects">לצפייה בפרויקטים ‹</a>
           <Link className="ghost" href="/contact">דברו איתנו ‹</Link>
-          <a className="down" href="#solutions" aria-label="למטה">↓</a>
+          <a className="down" href="#solutions" aria-label="להמשך העמוד">↓</a>
         </div>
       </section>
       <section className="band" id="solutions">
