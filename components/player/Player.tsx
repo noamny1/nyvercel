@@ -200,6 +200,10 @@ function SlideFace({ slide, onReady, live = true }: { slide: PlaySlide; onReady?
     if (!live) return <iframe className="slide-image" data-media={file} title="שקף" />;
     return <iframe className="slide-image" src={file} title="שקף" onLoad={onReady} />;
   }
+  if (slide.templateId === "rule-smoke-gif") {
+    if (!live) return <img className="slide-image" data-media={slide.imageUrl} alt="" />;
+    return <img className="slide-image" src={slide.imageUrl} alt="" onLoad={onReady} onError={onReady} />;
+  }
   if (slide.templateId === "weekly-parasha") {
     return <ParashaSlide name={slide.title || ""} candles={slide.candles || ""} havdalah={slide.havdalah || ""} city={slide.city || ""} verses={slide.verses || []} seconds={slide.duration} still={slide.still} />;
   }

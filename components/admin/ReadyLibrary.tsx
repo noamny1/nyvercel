@@ -57,7 +57,7 @@ function SlidePeek({ url, title }: { url: string; title?: string }) {
 }
 function showsCopy(kind?: string, templateId?: string) {
   if (kind === "youtube" || templateId?.startsWith("fixed-") || templateId === "file-qr") return false;
-  if (templateId === "weekly-parasha" || isDeckId(templateId)) return false;
+  if (templateId === "weekly-parasha" || templateId === "rule-smoke-gif" || isDeckId(templateId)) return false;
   return kind === "template" || kind === "image";
 }
 
@@ -410,7 +410,7 @@ export function ReadyLibrary({ onAdd, city = "", addLabel = "הוספה למסך
       {open ? (
         <div className="slide-modal" role="dialog" aria-modal="true" onClick={() => setOpen(null)}>
           <div className="slide-modal-card" onClick={(event) => event.stopPropagation()}>
-            {open.id === "weekly-parasha" ? <LiveParasha city={city} still={meta.flow === "static"} /> : isDeckId(open.id) ? <DeckPreview id={open.id} /> : <Photo slide={open} meta={meta} title={heading} line={body} />}
+            {open.id === "weekly-parasha" ? <LiveParasha city={city} still={meta.flow === "static"} /> : isDeckId(open.id) ? <DeckPreview id={open.id} /> : <Photo slide={open} meta={meta} title={heading} line={body} overlay={open.id !== "rule-smoke-gif"} />}
             <div className="slide-modal-actions">
               {open.id === "weekly-parasha" ? (
                 <FlowPick flow={meta.flow} onPick={(flow) => setMeta({ ...meta, flow })} />
