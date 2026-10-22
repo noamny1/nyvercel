@@ -317,7 +317,7 @@
 .parasha-body.is-still span { margin-bottom: 0.02em; line-height: 1.18; font-size: inherit; break-inside: avoid; }
 @keyframes parasha-rise {
   from { transform: translateY(0); }
-  to { transform: translateY(calc(-100% + 399px)); }
+  to { transform: translateY(calc(-100% + 100cqh)); }
 }
 .parasha-preview { height: 280px; overflow: hidden; border-radius: 12px; }
 .parasha-preview .parasha-slide { height: 280px; padding: 16px; }

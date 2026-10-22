@@ -59,21 +59,22 @@ function versesFrom(value: unknown, out: string[]) {
 export async function shabbatFor(city: string): Promise<ShabbatReading | null> {
   const name = city.trim() || "ירושלים";
   const place = await locate(name);
-  if (!place) return null;
   const saturday = upcomingSaturday();
   const stamp = `${saturday.year}-${saturday.month}-${saturday.day}`;
-  const base = `cfg=json&lg=he&tzid=Asia/Jerusalem&latitude=${place.latitude}&longitude=${place.longitude}&gy=${saturday.year}&gm=${saturday.month}&gd=${saturday.day}`;
+  const timesUrl = place
+    ? `https://www.hebcal.com/shabbat?cfg=json&lg=he&tzid=Asia/Jerusalem&latitude=${place.latitude}&longitude=${place.longitude}&gy=${saturday.year}&gm=${saturday.month}&gd=${saturday.day}&M=on`
+    : "";
   const [timesResponse, readingResponse] = await Promise.all([
-    fetch(`https://www.hebcal.com/shabbat?${base}&M=on`, { next: { revalidate: 21600 } }),
+    timesUrl ? fetch(timesUrl, { next: { revalidate: 21600 } }) : Promise.resolve(null),
     fetch(`https://www.hebcal.com/leyning?cfg=json&i=on&date=${stamp}`, { next: { revalidate: 21600 } }),
   ]);
-  if (!timesResponse.ok) return null;
-  const times = (await timesResponse.json()) as {
-    items?: { category: string; title: string; hebrew?: string }[];
-  };
-  const candles = times.items?.find((item) => item.category === "candles");
-  const havdalah = times.items?.find((item) => item.category === "havdalah");
-  const parsha = times.items?.find((item) => item.category === "parashat");
+  if ((!timesResponse || !timesResponse.ok) && !readingResponse.ok) return null;
+  const times = timesResponse?.ok
+    ? ((await timesResponse.json()) as { items?: { category: string; title: string; hebrew?: string }[] })
+    : null;
+  const candles = times?.items?.find((item) => item.category === "candles");
+  const havdalah = times?.items?.find((item) => item.category === "havdalah");
+  const parsha = times?.items?.find((item) => item.category === "parashat");
   const reading = readingResponse.ok
     ? ((await readingResponse.json()) as { items?: { summary?: string; name?: { he?: string } }[] })
     : null;
@@ -91,7 +92,7 @@ export async function shabbatFor(city: string): Promise<ShabbatReading | null> {
   return {
     candles: candles?.title.match(/(\d{1,2}:\d{2})/)?.[1] || "",
     havdalah: havdalah?.title.match(/(\d{1,2}:\d{2})/)?.[1] || "",
-    parsha: (parsha?.hebrew || reading?.items?.[0]?.name?.he || parsha?.title || "").replace(/^פרשת\s*/, "").replace(/[֑-֯]/g, ""),
+    parsha: (parsha?.hebrew || reading?.items?.[0]?.name?.he || parsha?.title || "").replace(/^פרשת\s*/, "").replace(/[\u0591-\u05BD\u05BF-\u05C7]/g, ""),
     city: name,
     verses,
   };
