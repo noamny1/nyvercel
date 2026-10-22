@@ -35,7 +35,7 @@ export const READY_SLIDES: ReadySlide[] = [
   { id: "general-hours", category: "הודעות כלליות", title: "קבלת קהל", line: "הוועד זמין בימים {day} עד {from}", image: "/ready-slides/general-hours.jpg", day: "text", from: true, defaults: { day: "א׳–ה׳", from: "19:00" } },
   { id: "general-cameras", category: "הודעות כלליות", title: "אבטחה", line: "הלובי והחניה מצולמים", image: "/ready-slides/general-cameras.jpg", defaults: {} },
   { id: "rule-smoke", category: "הודעות כלליות", title: "איסור עישון", line: "העישון אסור בלובי, במדרגות ובמעלית.\nתודה ששומרים על אוויר נקי לכל הדיירים.", image: "/ready-slides/rule-smoke.jpg", defaults: {} },
-  { id: "rule-smoke-gif", category: "הודעות כלליות", title: "אין לעשן", line: "אין לעשן בלובי הבניין ובחדרי המדרגות !", image: "/ready-slides/rule-smoke.gif", defaults: {} },
+  { id: "rule-smoke-gif", category: "הודעות כלליות", title: "אין לעשן", line: "אין לעשן בלובי הבניין ובחדרי המדרגות !", image: "/ready-slides/no-smoke.gif", defaults: {} },
   { id: "rule-bikes", category: "הודעות כלליות", title: "אופניים וקורקינט", line: "אופניים וקורקינט לא משאירים במעבר.\nהלובי, המדרגות והמסדרון נשארים פנויים.", image: "/ready-slides/rule-bikes.jpg", defaults: {} },
   { id: "rule-guests", category: "הודעות כלליות", title: "חניות אורחים", line: "חניות האורחים מיועדות לאורחים בלבד.\nדיירים מחנים בחניה השמורה להם.", image: "/ready-slides/rule-guests.jpg", defaults: {} },
   { id: "rule-packages", category: "הודעות כלליות", title: "איסוף חבילות", line: "חבילה מחכה בלובי? אפשר לאסוף אותה אצל הוועד.\nלא משאירים קרטונים וחבילות במעבר.", image: "/ready-slides/rule-packages.jpg", defaults: {} },
