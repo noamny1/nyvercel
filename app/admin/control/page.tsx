@@ -15,12 +15,13 @@ function stateOf(screen: { active: boolean; heartbeat: { at: Date } | null }, no
   return "offline";
 }
 
-export default async function ControlPage({ searchParams }: { searchParams: Promise<{ status?: string }> }) {
+export default async function ControlPage({ searchParams }: { searchParams: Promise<{ status?: string; q?: string }> }) {
   const session = await requireSession();
   if (!session) redirect("/admin/login");
   if (!isSystemAdmin(session)) redirect("/admin/buildings");
-  const { status } = await searchParams;
+  const { status, q } = await searchParams;
   const filter = status || "all";
+  const query = (q || "").trim();
   const now = Date.now();
   const where = await screenWhere(session);
   const cutoff = new Date(now - ONLINE_MS);
@@ -47,20 +48,55 @@ export default async function ControlPage({ searchParams }: { searchParams: Prom
   ]);
   const rows = screens.map((screen) => ({ screen, state: stateOf(screen, now) }));
   const counts = { total, inactive, online, offline: Math.max(0, total - inactive - online) };
-  const visible = rows;
+  const needle = query.toLowerCase();
+  const visible = needle
+    ? rows.filter(({ screen }) => {
+        const hay = [
+          screen.name,
+          screen.street,
+          screen.number,
+          screen.city,
+          screen.floor,
+          screen.code ? String(screen.code) : "",
+          String(screen.id),
+          screen.group?.name,
+          screen.group?.street,
+          screen.group?.number,
+          screen.group?.city,
+          screen.group?.building?.name,
+        ].filter(Boolean).join(" ").toLowerCase();
+        return hay.includes(needle);
+      })
+    : rows;
+  const link = (next: string) => {
+    const params = new URLSearchParams();
+    if (next !== "all") params.set("status", next);
+    if (query) params.set("q", query);
+    const value = params.toString();
+    return value ? `/admin/control?${value}` : "/admin/control";
+  };
 
   return (
     <main className="admin">
       <AdminNav />
       <h1>לוח בקרה</h1>
+      <form className="card search-jump" action="/admin/control">
+        {filter !== "all" ? <input type="hidden" name="status" value={filter} /> : null}
+        <label>
+          חיפוש מסך
+          <input name="q" defaultValue={query} placeholder="כתובת, עיר, קומה או מספר מסך" autoFocus />
+        </label>
+        <button type="submit">חיפוש</button>
+      </form>
       <p>מסך תקין אם שלח אות ב-18 הדקות האחרונות. התימה שולחת אות כל 5 דקות, אז אות אחד שנכשל לא מסמן תקלה.</p>
       <div className="stats">
-        <Link className={filter === "all" ? "stat on" : "stat"} href="/admin/control"><span>סה״כ</span><b>{counts.total}</b></Link>
-        <Link className={filter === "online" ? "stat on" : "stat"} href="/admin/control?status=online"><span>תקין</span><b>{counts.online}</b></Link>
-        <Link className={filter === "offline" ? "stat on" : "stat"} href="/admin/control?status=offline"><span>לא תקין</span><b>{counts.offline}</b></Link>
-        <Link className={filter === "inactive" ? "stat on" : "stat"} href="/admin/control?status=inactive"><span>כבוי</span><b>{counts.inactive}</b></Link>
+        <Link className={filter === "all" ? "stat on" : "stat"} href={link("all")}><span>סה״כ</span><b>{counts.total}</b></Link>
+        <Link className={filter === "online" ? "stat on" : "stat"} href={link("online")}><span>תקין</span><b>{counts.online}</b></Link>
+        <Link className={filter === "offline" ? "stat on" : "stat"} href={link("offline")}><span>לא תקין</span><b>{counts.offline}</b></Link>
+        <Link className={filter === "inactive" ? "stat on" : "stat"} href={link("inactive")}><span>כבוי</span><b>{counts.inactive}</b></Link>
       </div>
       <div className="screens">
+        {visible.length === 0 ? <p>אין מסך שמתאים לחיפוש.</p> : null}
         {visible.map(({ screen, state }) => {
           const nykStamp = Math.max(screen.remoteDesk?.nykAt?.getTime() || 0, screen.remoteDesk?.nykBeat?.getTime() || 0);
           const keeper2Stamp = Math.max(screen.remoteDesk?.keeper2At?.getTime() || 0, screen.remoteDesk?.k2Beat?.getTime() || 0);
