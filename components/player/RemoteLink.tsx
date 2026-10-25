@@ -1,3 +1,1 @@
-export function RemoteLink(_props: { code: number }) {
-  return null;
-}
+export * from "@/modules/player/RemoteLink";

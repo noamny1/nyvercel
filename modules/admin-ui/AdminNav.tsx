@@ -1,0 +1,47 @@
+"use client";
+
+import Link from "next/link";
+import { signOut, useSession } from "next-auth/react";
+import { usePathname } from "next/navigation";
+
+const OWNER_LINKS = [
+  ["/admin", "קבוצות"],
+  ["/admin/buildings", "בניינים"],
+  ["/admin/search", "חיפוש"],
+  ["/admin/music", "מוזיקה"],
+  ["/admin/news", "חדשות"],
+  ["/admin/directory", "קומות"],
+  ["/admin/control", "לוח בקרה"],
+  ["/admin/themes", "תימות"],
+  ["/admin/users", "משתמשים"],
+  ["/admin/manage", "ניהול"],
+  ["/admin/agent", "סוכן"],
+];
+
+export function AdminNav() {
+  const path = usePathname();
+  const { data } = useSession();
+  const owner = data?.user?.name === "owner" || data?.user?.email?.toLowerCase() === "noam6683@gmail.com";
+  return (
+    <>
+      <header className="admin-bar">
+        <div className="admin-bar-inner">
+          <Link className="admin-brand" href={owner ? "/admin" : "/admin/buildings"} aria-label="דף הניהול">
+            <img src="/logo-white.png" alt="NYmedia" />
+          </Link>
+          <button className="admin-exit" type="button" onClick={() => signOut({ callbackUrl: "/admin/login" })}>יציאה</button>
+        </div>
+      </header>
+      {owner ? (
+        <nav className="admin-menu" aria-label="ניהול">
+          {OWNER_LINKS.map(([href, label]) => {
+            const on = href === "/admin" ? path === "/admin" : path.startsWith(href);
+            return (
+              <Link key={href} href={href} className={on ? "is-on" : undefined}>{label}</Link>
+            );
+          })}
+        </nav>
+      ) : null}
+    </>
+  );
+}
