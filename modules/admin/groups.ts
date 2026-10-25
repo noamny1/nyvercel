@@ -1,5 +1,3 @@
-"use server";
-
 import { redirect } from "next/navigation";
 import { put } from "@vercel/blob";
 import { prisma } from "@/modules/data/prisma";

@@ -7,7 +7,7 @@ import { KnowledgeSlide } from "@/modules/player/KnowledgeSlide";
 import { isDeckId, type DeckId } from "@/modules/slides/decks";
 import { fillLine, FIXED_VIDEOS, READY_SLIDES, WEEKDAYS, clientSetsDuration, defaultWeekdays, readMeta, templateSeconds, type ReadySlide, type SlideMeta } from "@/modules/slides/ready";
 import { PestVideo, QrSlide } from "@/modules/player/SpecialSlides";
-import "@/modules/player/player.css";
+import "@/components/player/player.css";
 
 export type SlideDraft = {
   kind: "image" | "template" | "youtube";

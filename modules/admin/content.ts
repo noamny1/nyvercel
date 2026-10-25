@@ -1,5 +1,3 @@
-"use server";
-
 import { redirect } from "next/navigation";
 import { prisma } from "@/modules/data/prisma";
 import { screenWhere } from "@/modules/identity/access";
