@@ -110,6 +110,7 @@ export async function updateGroup(formData: FormData) {
   const id = Number(formData.get("id"));
   const current = await prisma.screenGroup.findUnique({ where: { id } });
   if (!current) redirect("/admin");
+  const theme = await savedTheme(String(formData.get("theme") || "modern"), current.theme, isSystemAdmin(session));
   await prisma.screenGroup.update({
     where: { id },
     data: {
@@ -117,7 +118,7 @@ export async function updateGroup(formData: FormData) {
       street: String(formData.get("street") || ""),
       number: String(formData.get("number") || ""),
       city: officialCity(String(formData.get("city") || "")),
-      theme: await savedTheme(String(formData.get("theme") || "modern"), current.theme, isSystemAdmin(session)),
+      theme,
       newsSource: chosenNews(formData),
       logoUrl: String(formData.get("logoUrl") || ""),
       faultPhone: String(formData.get("faultPhone") || "").trim().slice(0, 40),
@@ -127,6 +128,7 @@ export async function updateGroup(formData: FormData) {
       buildingId: Number(formData.get("buildingId")) || null,
     },
   });
+  if (theme === "azorim") await prisma.screen.updateMany({ where: { groupId: id }, data: { theme: "azorim" } });
   await touchGroup(id);
   redirect(`/admin/groups/${id}`);
 }

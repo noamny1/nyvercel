@@ -19,6 +19,7 @@ import { ModernRail } from "@/components/themes/ModernRail";
 import { LuxuryRail } from "@/components/themes/LuxuryRail";
 import { FaultCopy, WelcomeLine, faultPayload, faultQrSrc } from "@/components/themes/FaultParts";
 import { CinemaBoard, GlassBoard } from "@/components/themes/MotionBoard";
+import { AzorimBar, AzorimFeed } from "@/components/themes/AzorimBoard";
 import { markets } from "@/lib/markets";
 import { liveHeadlines } from "@/lib/news";
 import { prisma } from "@/lib/prisma";
@@ -33,6 +34,7 @@ import "@/components/themes/modern.css";
 import "@/components/themes/luxury.css";
 import "@/components/themes/fault.css";
 import "@/components/themes/motion.css";
+import "@/components/themes/azorim.css";
 
 const heebo = Heebo({ subsets: ["hebrew", "latin"], weight: ["300", "400", "500"], display: "swap" });
 
@@ -74,7 +76,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
   const pool = screen.slides.length > 0 ? screen.slides : source.slides;
   const visible = pool.filter((slide) => slideIsOn(slide));
   const notices = screen.notices.length > 0 ? screen.notices : source.notices;
-  const picked = screen.theme || source.theme || "modern";
+  const picked = source.theme === "azorim" && (!screen.theme || screen.theme === "modern") ? "azorim" : (screen.theme || source.theme || "modern");
   const chosen = picked === "fault-card" || picked === "fault-night" ? "luxury" : picked;
   const theme = isThemeId(chosen) ? chosen : "modern";
   const luxury = theme === "luxury" || theme === "luxury720";
@@ -84,6 +86,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
   const cinematic = theme === "glass" || theme === "cinema";
   const newsSource = screen.newsSource || source.newsSource || "ynet";
   const sourceCount = newsSource.split(",").map((item) => item.trim()).filter(Boolean).length || 1;
+  const azorim = theme === "azorim";
   const modern = theme === "modern";
   const newsTake = luxury || fault
     ? Math.min(20, Math.max(screen.newsCount || 8, sourceCount * 4))
@@ -130,7 +133,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
 
   return (
     <>
-    <FitStage width={wide ? 1280 : 1366} height={wide ? 720 : 768} fill={wide ? 1 : 0.97} code={screen.code || screen.id} revision={screen.revision} className={`stage theme-${theme}${luxury ? ` layout-luxury ${heebo.className}` : ""}${fault ? ` layout-luxury ${theme} ${heebo.className}` : ""}${wide ? " layout-luxury720" : ""}${modern ? " layout-modern" : ""}${cinematic ? ` layout-${theme} ${heebo.className}` : ""}${tickerOn && !luxury && !modern && !cinematic && !fault ? "" : " no-ticker"}`}>
+    <FitStage width={wide ? 1280 : 1366} height={wide ? 720 : 768} fill={wide ? 1 : 0.97} code={screen.code || screen.id} revision={screen.revision} className={`stage theme-${theme}${luxury ? ` layout-luxury ${heebo.className}` : ""}${fault ? ` layout-luxury ${theme} ${heebo.className}` : ""}${wide ? " layout-luxury720" : ""}${modern ? " layout-modern" : ""}${azorim ? ` layout-azorim ${heebo.className}` : ""}${cinematic ? ` layout-${theme} ${heebo.className}` : ""}${tickerOn && !luxury && !modern && !cinematic && !fault && !azorim ? "" : " no-ticker"}`}>
       <Music playlist={silenced ? "off" : screen.musicPlaylist || ""} url={silenced ? "" : screen.group?.musicUrl || ""} start={screen.id} days={screen.musicDays} from={screen.musicFrom} until={screen.musicUntil} />
       <NewsGate mode={newsMode} />
       <Wake />
@@ -203,6 +206,14 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
             />
             {theme === "fault-column" ? <div className="fault-dock"><FaultCopy qr={qr} phone={faultPhone} /></div> : null}
           </>
+        ) : azorim ? (
+          <AzorimFeed
+            headlines={stories}
+            notices={notices.map((notice) => notice.text)}
+            sourceId={newsSource}
+            newsCount={newsTake}
+            newsMode={newsMode}
+          />
         ) : modern ? (
           <ModernRail
             address={address(street, number, city)}
@@ -232,6 +243,17 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
           </>
         )}
       </aside>
+      {theme === "azorim" ? (
+        <footer className="az-foot">
+          <AzorimBar
+            line={greet.line}
+            city={greet.city}
+            temp={weather?.temp ?? null}
+            weatherLabel={weather?.label || ""}
+            initialTime={clock.time}
+          />
+        </footer>
+      ) : null}
       {(luxury || theme === "fault-column") ? (
         <footer className="luxury-foot">
           <div className="lux-address">
@@ -279,7 +301,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
           </footer>
         </>
       ) : null}
-      {!luxury && !fault && !modern && !cinematic ? <NewsTicker titles={stories} seconds={screen.tickerSeconds || 12} sourceId={newsSource} take={screen.newsCount || 8} mode={newsMode} /> : null}
+      {!luxury && !fault && !modern && !cinematic && !azorim ? <NewsTicker titles={stories} seconds={screen.tickerSeconds || 12} sourceId={newsSource} take={screen.newsCount || 8} mode={newsMode} /> : null}
       {theme === "glass" ? (
         <GlassBoard
           temp={weather?.temp ?? null}

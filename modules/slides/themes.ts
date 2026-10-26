@@ -9,6 +9,7 @@ export const THEMES = [
   { id: "fault-column", name: "התקלה בעמוד החדשות", note: "ברקוד בתחתית העמודה, למטה רק ברכה ולוגו" },
   { id: "fault-bar", name: "פס תחתון אחד", note: "ברכה ופתיחת תקלה על רקע בורדו, בשורה אחת" },
   { id: "fault-logo", name: "התקלה ליד הלוגו", note: "ברקוד בעמודת הלוגו, ברכה בורדו למטה" },
+  { id: "azorim", name: "אזורים", note: "רק לקבוצה שמנהל המערכת משייך. רקע אזורים, שקף כמו ביוקרתי" },
 ] as const;
 
 export type ThemeId = (typeof THEMES)[number]["id"];
@@ -26,7 +27,7 @@ export function isFaultTheme(value: string): value is ThemeId {
 export async function clientThemeIds(): Promise<ThemeId[]> {
   const row = await prisma.systemFlag.findUnique({ where: { id: "clientThemes" } }).catch(() => null);
   if (!row) return DEFAULT_CLIENT_IDS;
-  const picked = row.value.split(",").map((item) => item.trim()).filter((id): id is ThemeId => isThemeId(id) && id !== "luxury720");
+  const picked = row.value.split(",").map((item) => item.trim()).filter((id): id is ThemeId => isThemeId(id) && id !== "luxury720" && id !== "azorim");
   return picked.length > 0 ? picked : DEFAULT_CLIENT_IDS;
 }
 
@@ -38,12 +39,13 @@ export async function clientThemes() {
 export async function editorThemes(owner: boolean) {
   const shown = await clientThemes();
   if (!owner) return shown;
-  const extra = THEMES.filter((theme) => isFaultTheme(theme.id) && !shown.some((item) => item.id === theme.id));
+  const extra = THEMES.filter((theme) => (isFaultTheme(theme.id) || theme.id === "azorim") && !shown.some((item) => item.id === theme.id));
   return [...shown, ...extra.map(({ id, name }) => ({ id, name }))];
 }
 
 export async function savedTheme(requested: string, current: string, owner = false) {
   if (requested === "fault-card" || requested === "fault-night") return "luxury";
+  if (requested === "azorim") return owner || current === "azorim" ? "azorim" : current;
   if (owner && (requested === "luxury" || requested === "luxury720" || isFaultTheme(requested))) return requested;
   if (!owner && requested === "luxury" && current === "luxury720") return "luxury720";
   const ids = await clientThemeIds();
