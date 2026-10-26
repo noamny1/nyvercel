@@ -160,7 +160,8 @@ body:has(.admin) { background: #F4F1ED; overflow-x: hidden; }
   color: #252525;
   border: 1px solid rgba(37, 37, 37, 0.22);
 }
-.admin .screen-title { display: grid; gap: 2px; }
+.admin .screen-title { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; flex: 0 0 auto; min-width: max-content; text-decoration: none; color: inherit; }
+.admin .screen-title b { font-size: 16px; font-weight: 500; line-height: 1.3; }
 .admin .screen-title small { color: #5c5854; font-size: 13px; }
 .admin .group-row { align-items: center; flex-wrap: nowrap; }
 .admin .group-tools { display: flex; flex-wrap: nowrap; gap: 6px; align-items: center; justify-content: flex-end; }

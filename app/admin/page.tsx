@@ -75,10 +75,10 @@ export default async function AdminHome() {
       <div className="screens">
         {groups.map((group) => (
             <div className="group-row" key={group.id}>
-              <span className="screen-title">
-                <Link href={`/admin/groups/${group.id}`}>{group.name}</Link>
+              <Link className="screen-title" href={`/admin/groups/${group.id}`}>
+                <b>{group.name || "קבוצה ללא שם"}</b>
                 <small>{group._count.screens} מסכים</small>
-              </span>
+              </Link>
               {owner ? (
                 <span className="group-tools">
                   <GroupTools

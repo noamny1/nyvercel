@@ -226,6 +226,7 @@ export function ScreenEditor({
       {tab === "details" ? (
       <form className="card" action={save}>
         <input type="hidden" name="id" value={screen.id} />
+        {scope === "group" ? <input type="hidden" name="name" value={screen.name} /> : null}
         {returnTo ? <input type="hidden" name="returnTo" value={returnTo} /> : null}
         <input type="hidden" name="logoUrl" value={logoUrl.startsWith("http") ? logoUrl : screen.logoUrl} />
         <input type="hidden" name="clearLogo" value={clearLogo ? "1" : ""} />

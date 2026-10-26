@@ -114,7 +114,7 @@ export async function updateGroup(formData: FormData) {
   await prisma.screenGroup.update({
     where: { id },
     data: {
-      name: String(formData.get("name") || ""),
+      name: String(formData.get("name") || "").trim() || current.name,
       street: String(formData.get("street") || ""),
       number: String(formData.get("number") || ""),
       city: officialCity(String(formData.get("city") || "")),
