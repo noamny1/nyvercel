@@ -46,7 +46,7 @@
   padding: 12px 14px 8px;
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.96);
-  border: 2px solid #F0486C;
+  border: 2px solid #FC446C;
   box-shadow: 0 10px 22px rgba(120, 20, 50, 0.16);
   overflow: hidden;
   direction: rtl;
@@ -60,15 +60,15 @@
   margin-bottom: 8px;
 }
 .layout-azorim .az-chips span {
-  border: 1px solid #F0486C;
+  border: 1px solid #FC446C;
   border-radius: 999px;
   padding: 3px 10px;
-  color: #F0486C;
+  color: #FC446C;
   font-size: 12px;
   font-weight: 400;
 }
 .layout-azorim .az-chips .is-on {
-  background: #F0486C;
+  background: #FC446C;
   color: #fff;
 }
 .layout-azorim .az-scroll {
@@ -78,8 +78,8 @@
   mask-image: linear-gradient(to bottom, transparent, #000 8%, #000 92%, transparent);
 }
 .layout-azorim .az-track { animation: az-rise linear infinite; }
-.layout-azorim .az-item { padding: 10px 0; border-bottom: 1px solid rgba(240, 72, 108, 0.28); }
-.layout-azorim .az-item small { display: block; margin-bottom: 3px; color: #F0486C; font-size: 13px; }
+.layout-azorim .az-item { padding: 10px 0; border-bottom: 1px solid rgba(252, 68, 108, 0.28); }
+.layout-azorim .az-item small { display: block; margin-bottom: 3px; color: #FC446C; font-size: 13px; }
 .layout-azorim .az-item p {
   margin: 0;
   max-width: 100%;
@@ -96,12 +96,12 @@
 .layout-azorim .az-item em {
   display: block;
   margin-top: 4px;
-  color: #F0486C;
+  color: #FC446C;
   font-size: 11px;
   font-style: normal;
   font-weight: 300;
 }
-.layout-azorim .az-empty { margin: 24px 0; color: #F0486C; font-weight: 300; }
+.layout-azorim .az-empty { margin: 24px 0; color: #FC446C; font-weight: 300; }
 @keyframes az-rise {
   from { transform: translateY(0); }
   to { transform: translateY(-50%); }
