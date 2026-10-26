@@ -41,38 +41,76 @@
   flex: 1;
   min-height: 0;
   box-sizing: border-box;
-  padding: 16px 16px 12px;
+  display: flex;
+  flex-direction: column;
+  padding: 12px 14px 8px;
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.96);
   border: 2px solid #F0486C;
+  box-shadow: 0 10px 22px rgba(120, 20, 50, 0.16);
   overflow: hidden;
   direction: rtl;
   text-align: right;
 }
-.layout-azorim .az-feed h2 {
-  margin: 0 0 8px;
-  color: #F0486C;
-  font-size: 18px;
-  font-weight: 500;
+.layout-azorim .az-chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 6px;
+  margin-bottom: 8px;
 }
-.layout-azorim .az-feed p {
-  margin: 0 0 10px;
-  font-size: 17px;
+.layout-azorim .az-chips span {
+  border: 1px solid #F0486C;
+  border-radius: 999px;
+  padding: 3px 10px;
+  color: #F0486C;
+  font-size: 12px;
+  font-weight: 400;
+}
+.layout-azorim .az-chips .is-on {
+  background: #F0486C;
+  color: #fff;
+}
+.layout-azorim .az-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  mask-image: linear-gradient(to bottom, transparent, #000 8%, #000 92%, transparent);
+}
+.layout-azorim .az-track { animation: az-rise linear infinite; }
+.layout-azorim .az-item { padding: 10px 0; border-bottom: 1px solid rgba(240, 72, 108, 0.28); }
+.layout-azorim .az-item small { display: block; margin-bottom: 3px; color: #F0486C; font-size: 13px; }
+.layout-azorim .az-item p {
+  margin: 0;
+  max-width: 100%;
+  color: #481020;
+  font-size: 16px;
   font-weight: 400;
   line-height: 1.35;
-  color: #481020;
+  overflow-wrap: break-word;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
-.layout-azorim .az-feed hr {
-  height: 0;
-  border: 0;
-  border-top: 2px solid #F0486C;
-  margin: 6px 0 12px;
+.layout-azorim .az-item em {
+  display: block;
+  margin-top: 4px;
+  color: #F0486C;
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 300;
+}
+.layout-azorim .az-empty { margin: 24px 0; color: #F0486C; font-weight: 300; }
+@keyframes az-rise {
+  from { transform: translateY(0); }
+  to { transform: translateY(-50%); }
 }
 .layout-azorim .az-foot {
   grid-column: 2;
   grid-row: 2;
   display: grid;
-  grid-template-columns: 500px minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) 460px;
   gap: 12px;
   min-width: 0;
   direction: ltr;
@@ -83,50 +121,19 @@
   display: flex;
   align-items: center;
   border-radius: 16px;
-}
-.layout-azorim .az-info {
-  justify-content: space-between;
-  gap: 12px;
-  padding: 0 16px;
-  background: #fff;
-  border: 2px solid #F0486C;
-  direction: ltr;
-}
-.layout-azorim .az-info img {
-  display: block;
-  height: 58px;
-  width: auto;
-  max-width: 200px;
-  object-fit: contain;
-}
-.layout-azorim .az-time { text-align: right; }
-.layout-azorim .az-time strong {
-  display: block;
-  font-size: 40px;
-  font-weight: 500;
-  line-height: 1;
-  color: #481020;
-  direction: ltr;
-}
-.layout-azorim .az-time span {
-  display: block;
-  margin-top: 4px;
-  color: #F0486C;
-  font-size: 18px;
-  font-weight: 400;
-  direction: rtl;
+  box-shadow: 0 10px 18px rgba(110, 16, 42, 0.28);
 }
 .layout-azorim .az-hello {
   flex-direction: column;
   justify-content: center;
   padding: 0 18px;
-  background: #F0486C;
+  background: #ff8aa8;
   color: #fff;
   direction: rtl;
   text-align: center;
 }
 .layout-azorim .az-hello small {
-  color: #ffe2e8;
+  color: #fff4f7;
   font-size: 20px;
   font-weight: 300;
 }
@@ -135,6 +142,38 @@
   font-size: 30px;
   font-weight: 500;
   line-height: 1.2;
+}
+.layout-azorim .az-info {
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 16px;
+  background: #d42758;
+  direction: rtl;
+}
+.layout-azorim .az-info img {
+  display: block;
+  height: 58px;
+  width: auto;
+  max-width: 190px;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+}
+.layout-azorim .az-time { text-align: right; color: #fff; }
+.layout-azorim .az-time strong {
+  display: block;
+  font-size: 40px;
+  font-weight: 500;
+  line-height: 1;
+  color: #fff;
+  direction: ltr;
+}
+.layout-azorim .az-time span {
+  display: block;
+  margin-top: 4px;
+  color: #ffe3eb;
+  font-size: 18px;
+  font-weight: 400;
+  direction: rtl;
 }
 .layout-azorim .ticker,
 .layout-azorim .brand-bar { display: none; }
