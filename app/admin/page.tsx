@@ -55,15 +55,24 @@ export default async function AdminHome() {
     }
   }
   for (const group of groups) {
-    const members = group.groupLinks.map((link) => link.user);
-    const known = new Set(members.map((user) => user.id));
-    const extra = [...new Set(group.screens.flatMap((screen) => screen.users.map((user) => user.id)))].filter((id) => !known.has(id));
-    if (extra.length) {
-      await prisma.groupManager.createMany({ data: extra.map((userId) => ({ groupId: group.id, userId })), skipDuplicates: true }).catch(() => null);
-      members.push(...clients.filter((user) => extra.includes(user.id)));
+    const coverage = new Map<number, number>();
+    for (const screen of group.screens) {
+      for (const user of screen.users) coverage.set(user.id, (coverage.get(user.id) || 0) + 1);
     }
-    members.sort((a, b) => memberName(a).localeCompare(memberName(b), "he"));
-    group.groupLinks.splice(0, group.groupLinks.length, ...members.map((user) => ({ user })));
+    const members = group.groupLinks.map((link) => link.user);
+    const widest = Math.max(0, ...members.map((user) => coverage.get(user.id) || 0));
+    const drop = widest > 0
+      ? members.filter((user) => {
+          const count = coverage.get(user.id) || 0;
+          return count > 0 && count < widest;
+        }).map((user) => user.id)
+      : [];
+    if (drop.length) {
+      await prisma.groupManager.deleteMany({ where: { groupId: group.id, userId: { in: drop } } });
+      const gone = new Set(drop);
+      group.groupLinks.splice(0, group.groupLinks.length, ...group.groupLinks.filter((link) => !gone.has(link.user.id)));
+    }
+    group.groupLinks.sort((a, b) => memberName(a.user).localeCompare(memberName(b.user), "he"));
   }
   await syncGroupLogos(groups.map((group) => ({ id: group.id, logoUrl: group.logoUrl })));
 
