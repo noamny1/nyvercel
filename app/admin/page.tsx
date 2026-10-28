@@ -55,17 +55,18 @@ export default async function AdminHome() {
     }
   }
   for (const group of groups) {
+    const total = group.screens.length;
     const coverage = new Map<number, number>();
     for (const screen of group.screens) {
       for (const user of screen.users) coverage.set(user.id, (coverage.get(user.id) || 0) + 1);
     }
-    const members = group.groupLinks.map((link) => link.user);
-    const widest = Math.max(0, ...members.map((user) => coverage.get(user.id) || 0));
-    const drop = widest > 0
-      ? members.filter((user) => {
-          const count = coverage.get(user.id) || 0;
-          return count > 0 && count < widest;
-        }).map((user) => user.id)
+    const drop = total > 1
+      ? group.groupLinks
+          .filter((link) => {
+            const count = coverage.get(link.user.id) || 0;
+            return count > 0 && count < total;
+          })
+          .map((link) => link.user.id)
       : [];
     if (drop.length) {
       await prisma.groupManager.deleteMany({ where: { groupId: group.id, userId: { in: drop } } });
