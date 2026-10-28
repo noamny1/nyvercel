@@ -47,7 +47,7 @@ export async function updateScreen(formData: FormData) {
       number,
       city,
       floor: owner && formData.has("floor") ? (String(formData.get("floor") || "").trim().slice(0, 40) || "לובי") : current.floor,
-      theme: await savedTheme(String(formData.get("theme") || "modern"), current.theme, owner),
+      theme: owner ? await savedTheme(String(formData.get("theme") || current.theme), current.theme, true) : current.theme,
       newsSource: chosenNews(formData),
       newsCount: owner ? Math.min(20, Math.max(1, Number(formData.get("newsCount")) || current.newsCount || 8)) : current.newsCount,
       tickerSeconds: owner ? Math.min(40, Math.max(6, Number(formData.get("tickerSeconds")) || current.tickerSeconds || 12)) : current.tickerSeconds,

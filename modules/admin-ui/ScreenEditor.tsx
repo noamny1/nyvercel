@@ -26,6 +26,7 @@ export function ScreenEditor({
   panel,
   returnTo,
   newsTuning = false,
+  canTheme = false,
   themes = [
     { id: "modern", name: "מודרני" },
     { id: "luxury", name: "יוקרתי" },
@@ -65,6 +66,7 @@ export function ScreenEditor({
   panel?: "details" | "slides" | "notices";
   returnTo?: string;
   newsTuning?: boolean;
+  canTheme?: boolean;
   themes?: { id: string; name: string }[];
 }) {
   const router = useRouter();
@@ -237,6 +239,7 @@ export function ScreenEditor({
           <label>מספר<input name="number" defaultValue={screen.number} readOnly={lockAddress} /></label>
           <label>עיר<CityField defaultValue={screen.city} disabled={lockAddress} /></label>
           {scope === "screen" ? <label>קומה<input name="floor" defaultValue={screen.floor || "לובי"} readOnly={lockAddress} /></label> : null}
+          {canTheme ? (
           <label>תמה
             <select name="theme" defaultValue={themePick} onChange={(event) => setThemePick(event.target.value)}>
               {themeChoices.map((theme) => (
@@ -244,6 +247,7 @@ export function ScreenEditor({
               ))}
             </select>
           </label>
+          ) : null}
           {newsTuning ? (
             <>
               <label>כמות כתבות<input name="newsCount" type="number" min={1} max={20} defaultValue={screen.newsCount ?? 8} /></label>

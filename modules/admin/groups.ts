@@ -110,7 +110,8 @@ export async function updateGroup(formData: FormData) {
   const id = Number(formData.get("id"));
   const current = await prisma.screenGroup.findUnique({ where: { id } });
   if (!current) redirect("/admin");
-  const theme = await savedTheme(String(formData.get("theme") || "modern"), current.theme, isSystemAdmin(session));
+  const owner = isSystemAdmin(session);
+  const theme = owner ? await savedTheme(String(formData.get("theme") || current.theme), current.theme, true) : current.theme;
   await prisma.screenGroup.update({
     where: { id },
     data: {

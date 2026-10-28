@@ -2,7 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { screenWhere } from "@/lib/access";
-import { requireSession } from "@/lib/session";
+import { requireSession, isSystemAdmin } from "@/lib/session";
 import { touchScreen } from "@/lib/publish";
 import { normalizePlaylists } from "@/lib/music-catalog";
 import { savedTheme } from "@/lib/themes";
@@ -45,7 +45,7 @@ export async function bulkSettings(input: {
     newsSource?: string;
     musicPlaylist?: string;
   } = {};
-  if (input.apply.theme && input.theme) data.theme = await savedTheme(input.theme, input.theme, false);
+  if (input.apply.theme && input.theme && isSystemAdmin(await requireSession())) data.theme = await savedTheme(input.theme, input.theme, true);
   if (input.apply.newsTicker && ["on", "weekend", "off"].includes(String(input.newsTicker))) data.newsTicker = String(input.newsTicker);
   if (input.apply.feedMode && ["news", "notices", "both"].includes(String(input.feedMode))) data.feedMode = String(input.feedMode);
   if (input.apply.news) {

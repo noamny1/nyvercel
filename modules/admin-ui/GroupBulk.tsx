@@ -226,13 +226,6 @@ export function GroupBulk({ rows, themes }: { rows: Row[]; themes: { id: string;
           {tool === "settings" ? (
             <div className="bulk-form">
               <label className="bulk-line">
-                <input type="checkbox" checked={apply.theme} onChange={() => setApply((current) => ({ ...current, theme: !current.theme }))} />
-                <span>תמה</span>
-                <select value={theme} onChange={(event) => setTheme(event.target.value)}>
-                  {themes.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
-                </select>
-              </label>
-              <label className="bulk-line">
                 <input type="checkbox" checked={apply.newsTicker} onChange={() => setApply((current) => ({ ...current, newsTicker: !current.newsTicker }))} />
                 <span>חדשות</span>
                 <select value={newsTicker} onChange={(event) => setNewsTicker(event.target.value)}>
