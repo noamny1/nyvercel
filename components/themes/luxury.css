@@ -387,3 +387,35 @@
   from { transform: translateY(0); }
   to { transform: translateY(-50%); }
 }
+.layout-luxury.layout-lux-light.stage,
+.layout-luxury.layout-lux-light.stage.no-ticker {
+  background: #F4F1ED;
+  color: #252525;
+}
+.layout-luxury.layout-lux-light .slide-image { background: #F4F1ED; }
+.layout-luxury.layout-lux-light .rail,
+.layout-luxury.layout-lux-light.stage.no-ticker .rail {
+  color: #252525;
+  background: #F4F1ED;
+  border-color: #d9d0c8;
+}
+.layout-luxury.layout-lux-light .lux-brand img { filter: brightness(0); }
+.layout-luxury.layout-lux-light .lux-clock,
+.layout-luxury.layout-lux-light .lux-civil { color: #252525; }
+.layout-luxury.layout-lux-light .lux-hebrew { color: #5A1F2B; }
+.layout-luxury.layout-lux-light .lux-rule { background: #5A1F2B; }
+.layout-luxury.layout-lux-light .lux-chips span {
+  border-color: #5A1F2B;
+  color: #252525;
+}
+.layout-luxury.layout-lux-light .lux-chips .is-on {
+  background: #5A1F2B;
+  border-color: #5A1F2B;
+  color: #F4F1ED;
+}
+.layout-luxury.layout-lux-light .lux-item { border-bottom-color: #e4ddd4; }
+.layout-luxury.layout-lux-light .lux-item p { color: #252525; }
+.layout-luxury.layout-lux-light .lux-item small,
+.layout-luxury.layout-lux-light .health-note,
+.layout-luxury.layout-lux-light .lux-empty { color: #5A1F2B; }
+

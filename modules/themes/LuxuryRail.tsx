@@ -8,22 +8,22 @@ import { chipLabel, HEALTH_NOTE } from "@/modules/broadcast/news-sources";
 
 type Item = { tag: string; text: string; chip: string };
 
-function WeatherMark({ label }: { label: string }) {
+function WeatherMark({ label, color }: { label: string; color: string }) {
   const rain = /גשם|ממטר|טפטוף|שלג|רעמים/.test(label);
   const cloud = /מעונן|ערפל/.test(label);
   return (
     <svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true" style={{ display: "inline-block", verticalAlign: "middle", marginLeft: 8 }}>
       {rain ? (
         <>
-          <path d="M7 15h10a4 4 0 0 0 0-8 5 5 0 0 0-9.5-1A3.5 3.5 0 0 0 7 15z" fill="#e6d3ae" />
-          <path d="M8 17.5l-1 3M12 17.5l-1 3M16 17.5l-1 3" stroke="#e6d3ae" strokeWidth="1.4" strokeLinecap="round" />
+          <path d="M7 15h10a4 4 0 0 0 0-8 5 5 0 0 0-9.5-1A3.5 3.5 0 0 0 7 15z" fill={color} />
+          <path d="M8 17.5l-1 3M12 17.5l-1 3M16 17.5l-1 3" stroke={color} strokeWidth="1.4" strokeLinecap="round" />
         </>
       ) : cloud ? (
-        <path d="M7 17h10a4 4 0 0 0 0-8 5 5 0 0 0-9.5-1A3.5 3.5 0 0 0 7 17z" fill="#e6d3ae" />
+        <path d="M7 17h10a4 4 0 0 0 0-8 5 5 0 0 0-9.5-1A3.5 3.5 0 0 0 7 17z" fill={color} />
       ) : (
         <>
-          <circle cx="12" cy="12" r="4" fill="#e6d3ae" />
-          <g stroke="#e6d3ae" strokeWidth="1.6" strokeLinecap="round">
+          <circle cx="12" cy="12" r="4" fill={color} />
+          <g stroke={color} strokeWidth="1.6" strokeLinecap="round">
             <path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.1 5.1l1.6 1.6M17.3 17.3l1.6 1.6M18.9 5.1l-1.6 1.6M6.7 17.3l-1.6 1.6" />
           </g>
         </>
@@ -44,6 +44,7 @@ export function LuxuryRail({
   initialTime = "",
   initialCivil = "",
   initialHebrew = "",
+  light = false,
 }: {
   temp: number | null;
   weatherLabel: string;
@@ -57,6 +58,7 @@ export function LuxuryRail({
   initialTime?: string;
   initialCivil?: string;
   initialHebrew?: string;
+  light?: boolean;
 }) {
   const [time, setTime] = useState(initialTime);
   const [civil, setCivil] = useState(initialCivil);
@@ -124,11 +126,11 @@ export function LuxuryRail({
         <div className="lux-hebrew">{hebrew}</div>
         <div
           className="lux-weather"
-          style={{ display: "block", width: "100%", marginTop: 10, color: "#F4F1ED", fontSize: 22, fontWeight: 400, lineHeight: "28px", textAlign: "center", whiteSpace: "normal" }}
+          style={{ display: "block", width: "100%", marginTop: 10, color: light ? "#252525" : "#F4F1ED", fontSize: 22, fontWeight: 400, lineHeight: "28px", textAlign: "center", whiteSpace: "normal" }}
         >
-          <WeatherMark label={weatherLabel} />
-          <span style={{ color: "#F4F1ED" }}>{temp === null ? "—" : `${temp}°`}</span>
-          <span style={{ color: "#e6d3ae", marginRight: 10 }}>{weatherLabel}</span>
+          <WeatherMark label={weatherLabel} color={light ? "#252525" : "#e6d3ae"} />
+          <span style={{ color: light ? "#252525" : "#F4F1ED" }}>{temp === null ? "—" : `${temp}°`}</span>
+          <span style={{ color: light ? "#5A1F2B" : "#e6d3ae", marginRight: 10 }}>{weatherLabel}</span>
         </div>
         <hr className="lux-rule" />
         <div className="lux-chips">

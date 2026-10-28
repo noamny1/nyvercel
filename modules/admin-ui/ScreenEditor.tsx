@@ -259,7 +259,7 @@ export function ScreenEditor({
               </select>
             </label>
           ) : null}
-          {scope === "screen" && (themePick === "luxury" || themePick === "luxury720") ? (
+          {scope === "screen" && (themePick === "luxury" || themePick === "luxury720" || themePick === "luxury-light") ? (
             <label>תוכן העמודה
               <select name="feedMode" defaultValue={screen.feedMode || "both"}>
                 <option value="news">חדשות</option>
