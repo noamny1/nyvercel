@@ -201,7 +201,7 @@ function UserAssign({ user }: { user: UserRow }) {
     <form className="card" action={assignScreens}>
       {dialog ? <ResultDialog dialog={dialog} onClose={() => setDialog(null)} /> : null}
       <h2>{user.name || user.email}</h2>
-      <p>{user.email}</p>
+      <p><a href={`/admin/as/${user.id}`} target="_blank" rel="noreferrer">{user.email}</a></p>
       <input type="hidden" name="userId" value={user.id} />
       <input type="hidden" name="q" value={user.email} />
       {selected.map((screen) => <input key={screen.id} type="hidden" name="screenId" value={screen.id} />)}

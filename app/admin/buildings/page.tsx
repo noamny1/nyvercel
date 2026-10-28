@@ -33,7 +33,7 @@ function compareText(a: string, b: string) {
   return a.localeCompare(b, "he", { numeric: true, sensitivity: "base" });
 }
 
-function assignedUsers(users: { name: string; email: string; role: string }[]) {
+function assignedUsers(users: { id: number; name: string; email: string; role: string }[]) {
   const admin = process.env.ADMIN_EMAIL?.trim().toLowerCase();
   return users.filter((user) => {
     const email = user.email.trim().toLowerCase();
@@ -93,7 +93,7 @@ export default async function BuildingsPage({ searchParams }: { searchParams: Pr
       include: {
         group: true,
         heartbeat: true,
-        users: { select: { name: true, email: true, role: true }, orderBy: { email: "asc" } },
+        users: { select: { id: true, name: true, email: true, role: true }, orderBy: { email: "asc" } },
         slides: { orderBy: { sort: "asc" } },
         notices: { orderBy: { id: "desc" } },
       },
@@ -251,7 +251,7 @@ export default async function BuildingsPage({ searchParams }: { searchParams: Pr
                     </td>
                   ) : null}
                   <td data-label="משתמשים">
-                    {people.length ? people.map((user) => <span key={user.email} className="assigned-user">{user.email}</span>) : "—"}
+                    {people.length ? people.map((user) => <a key={user.id} className="assigned-user" href={`/admin/as/${user.id}`} target="_blank" rel="noreferrer">{user.email}</a>) : "—"}
                   </td>
                   <td data-label="פעולות" className="acts">
                     <a className="icon-btn" href={`/s/${screen.code || screen.id}`} target="_blank">פתיחה</a>

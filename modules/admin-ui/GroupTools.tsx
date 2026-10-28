@@ -157,7 +157,8 @@ export function GroupTools({
           <form action={removeUser} key={member.id}>
             <input type="hidden" name="id" value={groupId} />
             <input type="hidden" name="userId" value={member.id} />
-            <button type="button" className="mail-link" onClick={() => void showPassword(member.id)}>{member.email}</button>
+            <a className="mail-link" href={`/admin/as/${member.id}`} target="_blank" rel="noreferrer">{member.email}</a>
+            <button type="button" onClick={() => void showPassword(member.id)}>סיסמה</button>
             <button type="submit" aria-label="הסרת משתמש">×</button>
           </form>
         )) : <span className="none">לא משוייך משתמש</span>}

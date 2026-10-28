@@ -17,7 +17,7 @@ export function chosenNews(formData: FormData) {
 
 export function safeReturn(formData: FormData, fallback: string) {
   const back = String(formData.get("returnTo") || "");
-  return back.startsWith("/admin/buildings") ? back : fallback;
+  return back.startsWith("/admin/buildings") || /^\/admin\/as\/\d+$/.test(back) ? back : fallback;
 }
 
 export async function ownerGate() {
