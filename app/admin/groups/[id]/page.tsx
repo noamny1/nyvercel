@@ -34,7 +34,6 @@ export default async function GroupPage({
       where: { id: Number(id) },
       include: {
         screens: { orderBy: [{ listSort: "asc" }, { id: "asc" }] },
-        memberships: { include: { screen: true }, orderBy: { screenId: "asc" } },
         slides: { orderBy: { sort: "asc" } },
         notices: { orderBy: { id: "desc" } },
       },
@@ -45,14 +44,7 @@ export default async function GroupPage({
   ]);
   if (!group) notFound();
   const allowed = owner ? null : new Set((await prisma.screen.findMany({ where: await screenWhere(session), select: { id: true } })).map((screen) => screen.id));
-  const primaryIds = new Set(group.screens.map((screen) => screen.id));
-  const attached = [
-    ...group.screens.map((screen) => ({ screen, shared: false })),
-    ...group.memberships
-      .filter((link) => !primaryIds.has(link.screen.id))
-      .map((link) => ({ screen: link.screen, shared: true })),
-  ];
-  const screens = owner ? attached : attached.filter((item) => allowed?.has(item.screen.id));
+  const screens = owner ? group.screens : group.screens.filter((screen) => allowed?.has(screen.id));
   if (!owner && screens.length === 0) notFound();
   const others = groups.filter((item) => item.id !== group.id);
 
@@ -76,7 +68,7 @@ export default async function GroupPage({
           moveAddress={moveAddress}
           deleteAddress={deleteAddress}
           saveOrder={reorderGroupScreens}
-          rows={screens.map(({ screen, shared }) => {
+          rows={screens.map((screen) => {
             const street = screen.street || group.street;
             const number = screen.number || group.number;
             const city = screen.city || group.city;
@@ -88,7 +80,6 @@ export default async function GroupPage({
               city,
               floor: screen.floor || "לובי",
               label: addressOf(street, number, city) || screen.name,
-              shared,
             };
           })}
         />

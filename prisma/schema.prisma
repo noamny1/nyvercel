@@ -56,7 +56,6 @@ model ScreenGroup {
   notices    Notice[]
   tickers    Ticker[]
   floors     Floor[]
-  memberships ScreenMembership[]
   createdAt  DateTime @default(now())
 }
 
@@ -68,16 +67,6 @@ model GroupManager {
 
   @@id([groupId, userId])
   @@index([userId])
-}
-
-model ScreenMembership {
-  screenId Int
-  groupId  Int
-  screen   Screen      @relation(fields: [screenId], references: [id], onDelete: Cascade)
-  group    ScreenGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
-
-  @@id([screenId, groupId])
-  @@index([groupId])
 }
 
 model Screen {
@@ -113,7 +102,6 @@ model Screen {
   deviceStatus DeviceStatus?
   remoteCommands RemoteCommand[]
   users      User[]
-  memberships ScreenMembership[]
   slides     Slide[]
   notices    Notice[]
   updates    Update[]

@@ -922,43 +922,6 @@ body:has(.admin) { background: #F4F1ED; overflow-x: hidden; }
 .admin table.screen-table td:first-child { border-right: 1px solid rgba(37, 37, 37, 0.1); border-radius: 0 12px 12px 0; }
 .admin table.screen-table td:last-child { border-left: 1px solid rgba(37, 37, 37, 0.1); border-radius: 12px 0 0 12px; }
 .admin .group-move { display: flex; gap: 4px; align-items: center; }
-.admin .share-pick { min-width: 148px; }
-.admin .share-summary {
-  width: 100%;
-  text-align: right;
-  background: #fff;
-  color: #252525;
-  border: 1px solid rgba(37, 37, 37, 0.16);
-  border-radius: 8px;
-  padding: 4px 8px;
-  font-size: 12px;
-  line-height: 1.4;
-}
-.admin .share-menu {
-  display: grid;
-  gap: 6px;
-  margin-top: 6px;
-  padding: 8px;
-  background: #fff;
-  border: 1px solid rgba(37, 37, 37, 0.16);
-  border-radius: 8px;
-  max-height: 240px;
-  overflow: auto;
-}
-.admin .share-menu p { margin: 0; color: #5c5854; font-size: 12px; }
-.admin .share-menu label { display: flex; gap: 6px; align-items: center; font-size: 13px; }
-.admin .share-menu label span { flex: 1; }
-.admin .share-menu > div { display: flex; align-items: center; gap: 8px; }
-.admin .share-menu > div > label:first-child { flex: 1; }
-.admin .share-main { color: #5c5854; font-size: 12px; white-space: nowrap; }
-.admin .share-menu input[type="text"],
-.admin .share-menu input:not([type]) {
-  width: 100%;
-  padding: 4px 6px;
-  font-size: 13px;
-}
-.admin .share-menu button.ready { background: #2f6b45; color: #F4F1ED; border: 0; }
-.admin .share-menu button:disabled { opacity: 0.45; cursor: default; }
 .admin .group-move button.ready { background: #2f6b45; color: #F4F1ED; border: 0; }
 .admin .group-move button:disabled { opacity: 0.45; cursor: default; }
 .admin table.screen-table .group-move select {

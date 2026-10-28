@@ -123,26 +123,6 @@ const statements = [
     CONSTRAINT "GroupManager_pkey" PRIMARY KEY ("groupId", "userId")
   )`,
   `CREATE INDEX IF NOT EXISTS "GroupManager_userId_idx" ON "GroupManager"("userId")`,
-  `CREATE TABLE IF NOT EXISTS "ScreenMembership" (
-    "screenId" INTEGER NOT NULL,
-    "groupId" INTEGER NOT NULL,
-    CONSTRAINT "ScreenMembership_pkey" PRIMARY KEY ("screenId", "groupId")
-  )`,
-  `CREATE INDEX IF NOT EXISTS "ScreenMembership_groupId_idx" ON "ScreenMembership"("groupId")`,
-  `DO $$ BEGIN
-    ALTER TABLE "ScreenMembership"
-      ADD CONSTRAINT "ScreenMembership_screenId_fkey"
-      FOREIGN KEY ("screenId") REFERENCES "Screen"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-  EXCEPTION
-    WHEN duplicate_object THEN NULL;
-  END $$`,
-  `DO $$ BEGIN
-    ALTER TABLE "ScreenMembership"
-      ADD CONSTRAINT "ScreenMembership_groupId_fkey"
-      FOREIGN KEY ("groupId") REFERENCES "ScreenGroup"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-  EXCEPTION
-    WHEN duplicate_object THEN NULL;
-  END $$`,
   `DO $$ BEGIN
     ALTER TABLE "GroupManager"
       ADD CONSTRAINT "GroupManager_groupId_fkey"

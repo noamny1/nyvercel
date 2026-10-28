@@ -10,7 +10,6 @@ type Row = {
   number: string;
   city: string;
   floor: string;
-  shared?: boolean;
 };
 
 export function GroupScreenList({
@@ -89,7 +88,7 @@ export function GroupScreenList({
             </span>
             <span className="screen-actions">
               <a href={`/s/${screen.code || screen.id}`} target="_blank">פתיחה</a>
-              {owner && others.length > 0 && !screen.shared ? (
+              {owner && others.length > 0 ? (
                 <form action={moveAddress}>
                   <input type="hidden" name="screenId" value={screen.id} />
                   <input type="hidden" name="groupId" value={groupId} />
@@ -111,8 +110,7 @@ export function GroupScreenList({
                   <input type="hidden" name="screenId" value={screen.id} />
                   <input type="hidden" name="groupId" value={groupId} />
                   <input type="hidden" name="label" value={screen.label} />
-                  {screen.shared ? <input type="hidden" name="unlink" value="1" /> : null}
-                  <button className="light" type="submit">{screen.shared ? "הסרה" : "מחיקה"}</button>
+                  <button className="light" type="submit">מחיקה</button>
                 </form>
               ) : null}
             </span>

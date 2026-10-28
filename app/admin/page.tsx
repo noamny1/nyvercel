@@ -24,7 +24,7 @@ export default async function AdminHome() {
       where,
       orderBy: { id: "asc" },
       include: {
-        _count: { select: { screens: true, memberships: true } },
+        _count: { select: { screens: true } },
         screens: { select: { users: { where: { role: "client" }, select: { id: true } } } },
         groupLinks: {
           where: { user: { role: "client" } },
@@ -45,7 +45,7 @@ export default async function AdminHome() {
       _count: { select: { screens: true } },
       screens: { select: { users: { where: { role: "client" }, select: { id: true } } } },
     },
-  })).map((group) => ({ ...group, groupLinks: [] as { user: { id: number; name: string; email: string } }[], _count: { ...group._count, memberships: 0 } }));
+  })).map((group) => ({ ...group, groupLinks: [] as { user: { id: number; name: string; email: string } }[] }));
   const fallback = starter?.logoUrl || starter?.group?.logoUrl || "";
   if (fallback) {
     const missing = groups.filter((group) => !group.logoUrl).map((group) => group.id);
@@ -77,7 +77,7 @@ export default async function AdminHome() {
             <div className="group-row" key={group.id}>
               <Link className="screen-title" href={`/admin/groups/${group.id}`}>
                 <b>{group.name || "קבוצה ללא שם"}</b>
-                <small>{group._count.screens + (group._count.memberships || 0)} מסכים</small>
+                <small>{group._count.screens} מסכים</small>
               </Link>
               {owner ? (
                 <span className="group-tools">

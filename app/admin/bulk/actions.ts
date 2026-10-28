@@ -2,7 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { screenWhere } from "@/lib/access";
-import { requireSession, isSystemAdmin } from "@/lib/session";
+import { requireSession } from "@/lib/session";
 import { touchScreen } from "@/lib/publish";
 import { normalizePlaylists } from "@/lib/music-catalog";
 import { savedTheme } from "@/lib/themes";
@@ -13,13 +13,6 @@ async function managerScreens(ids: number[]) {
   if (!session) return { error: "נדרשת כניסה", ids: [] as number[] };
   const email = session.user?.email?.trim().toLowerCase();
   if (!email) return { error: "נדרשת כניסה", ids: [] as number[] };
-  if (!isSystemAdmin(session)) {
-    const link = await prisma.groupManager.findFirst({
-      where: { user: { email: { equals: email, mode: "insensitive" } } },
-      select: { groupId: true },
-    });
-    if (!link) return { error: "הפעולה זמינה רק לאחראי קבוצה", ids: [] as number[] };
-  }
   const wanted = [...new Set(ids.filter((id) => Number.isInteger(id) && id > 0))];
   if (!wanted.length) return { error: "בחרו לפחות מסך אחד", ids: [] as number[] };
   const rows = await prisma.screen.findMany({

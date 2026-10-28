@@ -2,53 +2,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/modules/data/prisma";
 import { officialCity } from "@/modules/place/cities";
 import { nextCode, touchGroup, touchScreen } from "@/modules/data/publish";
-import { adoptGroup, gate, ownerGate, safeReturn, starterScreen } from "@/modules/admin/gate";
-
-function chosenIds(formData: FormData, key: string) {
-  return [...new Set(formData.getAll(key).map((item) => Number(item)).filter((id) => Number.isInteger(id) && id > 0))];
-}
-
-export async function assignScreenGroups(formData: FormData) {
-  await ownerGate();
-  const id = Number(formData.get("id"));
-  const back = safeReturn(formData, "/admin/buildings");
-  const screen = id ? await prisma.screen.findUnique({ where: { id }, select: { groupId: true } }) : null;
-  if (!screen) redirect(back);
-  const requested = chosenIds(formData, "groupId");
-  const known = requested.length
-    ? await prisma.screenGroup.findMany({ where: { id: { in: requested } }, select: { id: true } })
-    : [];
-  const ids = known.map((group) => group.id);
-  const asked = Number(formData.get("primaryGroup")) || 0;
-  const primary = ids.includes(asked) ? asked : screen.groupId && ids.includes(screen.groupId) ? screen.groupId : (ids[0] ?? null);
-  const extras = ids.filter((groupId) => groupId !== primary);
-  await prisma.$transaction([
-    prisma.screen.update({ where: { id }, data: { groupId: primary } }),
-    prisma.screenMembership.deleteMany({ where: { screenId: id } }),
-    ...(extras.length ? [prisma.screenMembership.createMany({ data: extras.map((groupId) => ({ screenId: id, groupId })) })] : []),
-  ]);
-  redirect(back);
-}
-
-export async function assignScreenUsers(formData: FormData) {
-  await ownerGate();
-  const id = Number(formData.get("id"));
-  const back = safeReturn(formData, "/admin/buildings");
-  if (!id) redirect(back);
-  const requested = chosenIds(formData, "userId");
-  const clients = requested.length
-    ? await prisma.user.findMany({ where: { id: { in: requested }, role: "client" }, select: { id: true } })
-    : [];
-  const keep = await prisma.user.findMany({
-    where: { role: "owner", screens: { some: { id } } },
-    select: { id: true },
-  });
-  await prisma.screen.update({
-    where: { id },
-    data: { users: { set: [...keep, ...clients].map((user) => ({ id: user.id })) } },
-  });
-  redirect(back);
-}
+import { adoptGroup, gate, ownerGate, starterScreen } from "@/modules/admin/gate";
 
 export async function createListedScreen(formData: FormData) {
   await gate();

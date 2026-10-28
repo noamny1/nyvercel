@@ -14,10 +14,5 @@ export async function groupWhere(session: Session) {
   if (isSystemAdmin(session)) return {};
   const email = session?.user?.email?.trim().toLowerCase();
   if (!email) return { id: -1 };
-  return {
-    OR: [
-      { screens: { some: { users: { some: { email } } } } },
-      { memberships: { some: { screen: { users: { some: { email } } } } } },
-    ],
-  };
+  return { screens: { some: { users: { some: { email } } } } };
 }
