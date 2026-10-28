@@ -2,9 +2,9 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AdminNav } from "@/components/admin/AdminNav";
 import { ClientScreens } from "@/components/admin/ClientScreens";
-import { GroupMove } from "@/components/admin/GroupMove";
+import { SharePick } from "@/components/admin/SharePick";
 import { CityField } from "@/components/admin/CityField";
-import { createListedScreen, deleteListedScreen } from "@/app/admin/actions";
+import { createListedScreen, deleteListedScreen, assignScreenGroups, assignScreenUsers } from "@/app/admin/actions";
 import { prisma } from "@/lib/prisma";
 import { screenWhere } from "@/lib/access";
 import { isSystemAdmin, requireSession } from "@/lib/session";
@@ -33,7 +33,7 @@ function compareText(a: string, b: string) {
   return a.localeCompare(b, "he", { numeric: true, sensitivity: "base" });
 }
 
-function assignedUsers(users: { name: string; email: string; role: string }[]) {
+function assignedUsers(users: { id: number; name: string; email: string; role: string }[]) {
   const admin = process.env.ADMIN_EMAIL?.trim().toLowerCase();
   return users.filter((user) => {
     const email = user.email.trim().toLowerCase();
@@ -67,12 +67,16 @@ export default async function BuildingsPage({ searchParams }: { searchParams: Pr
         AND name IS DISTINCT FROM btrim(concat_ws(', ', NULLIF(btrim(concat_ws(' ', street, number)), ''), NULLIF(btrim(city), '')), ', ')
     `.catch(() => 0);
   }
-  const [screens, groups, manager] = await Promise.all([
+  const [screens, groups, clients, manager] = await Promise.all([
     prisma.screen.findMany({
       where: {
         AND: [
           await screenWhere(session),
-          group === "none" ? { groupId: null } : Number.isInteger(groupId) && groupId > 0 ? { groupId } : {},
+          group === "none"
+            ? { groupId: null, memberships: { none: {} } }
+            : Number.isInteger(groupId) && groupId > 0
+              ? { OR: [{ groupId }, { memberships: { some: { groupId } } }] }
+              : {},
           query
             ? {
                 OR: [
@@ -83,6 +87,7 @@ export default async function BuildingsPage({ searchParams }: { searchParams: Pr
                   { floor: { contains: query, mode: "insensitive" as const } },
                   { name: { contains: query, mode: "insensitive" as const } },
                   { group: { name: { contains: query, mode: "insensitive" as const } } },
+                  { memberships: { some: { group: { name: { contains: query, mode: "insensitive" as const } } } } },
                   { users: { some: { email: { contains: query, mode: "insensitive" as const } } } },
                 ],
               }
@@ -92,13 +97,17 @@ export default async function BuildingsPage({ searchParams }: { searchParams: Pr
       orderBy: { id: "asc" },
       include: {
         group: true,
+        memberships: { select: { groupId: true, group: { select: { id: true, name: true } } } },
         heartbeat: true,
-        users: { select: { name: true, email: true, role: true }, orderBy: { email: "asc" } },
+        users: { select: { id: true, name: true, email: true, role: true }, orderBy: { email: "asc" } },
         slides: { orderBy: { sort: "asc" } },
         notices: { orderBy: { id: "desc" } },
       },
     }),
     prisma.screenGroup.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
+    owner
+      ? prisma.user.findMany({ where: { role: "client" }, orderBy: { email: "asc" }, select: { id: true, email: true } })
+      : Promise.resolve([]),
     !owner && email
       ? prisma.groupManager.findFirst({
           where: { user: { email: { equals: email, mode: "insensitive" } } },
@@ -117,7 +126,7 @@ export default async function BuildingsPage({ searchParams }: { searchParams: Pr
         number: screen.number || screen.group?.number || "",
         city: screen.city || screen.group?.city || "",
         floor: screen.floor || "לובי",
-        groupName: screen.group?.name || "",
+        groupName: [screen.group?.name, ...screen.memberships.map((link) => link.group.name)].filter(Boolean).join(" "),
         people: assignedUsers(screen.users),
       };
     })
@@ -144,6 +153,9 @@ export default async function BuildingsPage({ searchParams }: { searchParams: Pr
   if (query) listQuery.set("q", query);
   if (status === "online" || status === "offline") listQuery.set("status", status);
   if (group) listQuery.set("group", group);
+  if (sortParam) listQuery.set("sort", sort);
+  if (dirParam === "desc") listQuery.set("dir", "desc");
+  const returnTo = `/admin/buildings${listQuery.toString() ? `?${listQuery}` : ""}`;
   const columnHref = (column: SortKey) => {
     const next = new URLSearchParams(listQuery);
     next.set("sort", column);
@@ -242,7 +254,16 @@ export default async function BuildingsPage({ searchParams }: { searchParams: Pr
                   <td data-label="קומה">{screen.floor || "לובי"}</td>
                   {owner ? (
                     <td data-label="קבוצה">
-                      <GroupMove screenId={screen.id} groupId={screen.groupId} groups={groups} />
+                      <SharePick
+                        screenId={screen.id}
+                        field="groupId"
+                        options={groups.map((item) => ({ id: item.id, label: item.name }))}
+                        selected={[...new Set([...(screen.groupId ? [screen.groupId] : []), ...screen.memberships.map((link) => link.groupId)])]}
+                        primary={screen.groupId}
+                        empty="בלי קבוצה"
+                        action={assignScreenGroups}
+                        returnTo={returnTo}
+                      />
                     </td>
                   ) : null}
                   {owner ? (
@@ -251,7 +272,17 @@ export default async function BuildingsPage({ searchParams }: { searchParams: Pr
                     </td>
                   ) : null}
                   <td data-label="משתמשים">
-                    {people.length ? people.map((user) => <span key={user.email} className="assigned-user">{user.email}</span>) : "—"}
+                    {owner ? (
+                      <SharePick
+                        screenId={screen.id}
+                        field="userId"
+                        options={clients.map((user) => ({ id: user.id, label: user.email }))}
+                        selected={people.map((user) => user.id)}
+                        empty="בלי משתמש"
+                        action={assignScreenUsers}
+                        returnTo={returnTo}
+                      />
+                    ) : people.length ? people.map((user) => <span key={user.email} className="assigned-user">{user.email}</span>) : "—"}
                   </td>
                   <td data-label="פעולות" className="acts">
                     <a className="icon-btn" href={`/s/${screen.code || screen.id}`} target="_blank">פתיחה</a>

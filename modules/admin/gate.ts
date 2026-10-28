@@ -98,6 +98,7 @@ export async function adoptGroup(screenId: number, groupId: number) {
   ]);
   const slides = starter && starter.slides.length > 0 ? starter.slides : starter?.group?.slides || [];
   const last = await prisma.screen.aggregate({ where: { groupId }, _max: { listSort: true } });
+  await prisma.screenMembership.deleteMany({ where: { screenId, groupId } });
   await prisma.$transaction([
     prisma.slide.deleteMany({ where: { screenId } }),
     prisma.notice.deleteMany({ where: { screenId } }),

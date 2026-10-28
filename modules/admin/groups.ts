@@ -60,7 +60,10 @@ export async function setGroupUser(formData: FormData) {
   if (!id || !userId) redirect("/admin");
   const user = await prisma.user.findFirst({ where: { id: userId, role: "client" }, select: { id: true } });
   if (!user) redirect("/admin");
-  const screens = await prisma.screen.findMany({ where: { groupId: id }, select: { id: true } });
+  const screens = await prisma.screen.findMany({
+    where: { OR: [{ groupId: id }, { memberships: { some: { groupId: id } } }] },
+    select: { id: true },
+  });
   await prisma.groupManager.upsert({
     where: { groupId_userId: { groupId: id, userId: user.id } },
     create: { groupId: id, userId: user.id },
@@ -79,12 +82,21 @@ export async function removeGroupUser(formData: FormData) {
   const id = Number(formData.get("id"));
   const userId = Number(formData.get("userId")) || 0;
   if (!id || !userId) redirect("/admin");
-  const screens = await prisma.screen.findMany({ where: { groupId: id }, select: { id: true } });
+  const screens = await prisma.screen.findMany({
+    where: { OR: [{ groupId: id }, { memberships: { some: { groupId: id } } }] },
+    select: { id: true, groupId: true, memberships: { select: { groupId: true } } },
+  });
   await prisma.groupManager.deleteMany({ where: { groupId: id, userId } });
-  if (screens.length) {
+  const covered = screens.flatMap((screen) => [screen.groupId, ...screen.memberships.map((link) => link.groupId)]).filter((groupId): groupId is number => !!groupId && groupId !== id);
+  const still = covered.length
+    ? await prisma.groupManager.findMany({ where: { userId, groupId: { in: covered } }, select: { groupId: true } })
+    : [];
+  const keep = new Set(still.map((link) => link.groupId));
+  const drop = screens.filter((screen) => ![screen.groupId, ...screen.memberships.map((link) => link.groupId)].some((groupId) => groupId && keep.has(groupId)));
+  if (drop.length) {
     await prisma.user.update({
       where: { id: userId },
-      data: { screens: { disconnect: screens.map((screen) => ({ id: screen.id })) } },
+      data: { screens: { disconnect: drop.map((screen) => ({ id: screen.id })) } },
     });
   }
   redirect("/admin");
@@ -153,6 +165,17 @@ export async function deleteAddress(formData: FormData) {
   const label = String(formData.get("label") || "");
   const group = await prisma.screenGroup.findUnique({ where: { id: groupId } });
   if (!group) redirect("/admin");
+  if (screenId && formData.get("unlink") === "1") {
+    const linked = await prisma.screen.findUnique({ where: { id: screenId }, select: { groupId: true } });
+    if (linked?.groupId === groupId) {
+      const next = await prisma.screenMembership.findFirst({ where: { screenId }, select: { groupId: true } });
+      await prisma.screen.update({ where: { id: screenId }, data: { groupId: next?.groupId ?? null } });
+      if (next) await prisma.screenMembership.delete({ where: { screenId_groupId: { screenId, groupId: next.groupId } } });
+    } else {
+      await prisma.screenMembership.deleteMany({ where: { screenId, groupId } });
+    }
+    redirect(`/admin/groups/${groupId}`);
+  }
   if (screenId) {
     const screen = await prisma.screen.findUnique({ where: { id: screenId } });
     if (screen && (screen.street || screen.number || screen.city)) {
@@ -184,6 +207,7 @@ export async function moveAddress(formData: FormData) {
   const city = officialCity(String(formData.get("city") || fromGroup.city));
   if (screenId) {
     await adoptGroup(screenId, to);
+    await prisma.screenMembership.deleteMany({ where: { screenId, groupId: from } });
   } else {
     await prisma.screen.create({
       data: { groupId: to, street, number, city, name: label || "כתובת", code: await nextCode() },
