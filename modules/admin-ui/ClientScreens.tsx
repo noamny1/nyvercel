@@ -5,7 +5,7 @@ import { ScreenEditor } from "@/modules/admin-ui/ScreenEditor";
 import { GroupBulk } from "@/modules/admin-ui/GroupBulk";
 import { sendAdvice } from "@/app/admin/advice";
 
-type Panel = "slides" | "details" | "notices" | "advice";
+type Panel = "slides" | "details" | "notices" | "advice" | "floors";
 
 type Row = {
   id: number;
@@ -32,6 +32,7 @@ type Row = {
   people: string[];
   slides: { id: number; imageUrl: string; duration: number; sort: number; weekdays?: string; startsOn?: string; endsOn?: string; active?: boolean; kind?: string; templateId?: string; title?: string; detail?: string; meta?: string }[];
   notices: { id: number; text: string; active: boolean }[];
+  floors?: { id: number; name: string; rooms: { id: number; name: string; detail: string; logoUrl: string }[] }[];
 };
 
 export function ClientScreens({ rows, musicPeers, returnTo, themes, manager = false }: { rows: Row[]; musicPeers: number; returnTo: string; themes?: { id: string; name: string }[]; manager?: boolean }) {
@@ -74,8 +75,14 @@ export function ClientScreens({ rows, musicPeers, returnTo, themes, manager = fa
             </header>
             <div className="client-actions">
               <button type="button" className={tab === "details" ? "is-on" : ""} onClick={() => pick(screen.id, "details")}>הגדרות מסך</button>
-              <button type="button" className={tab === "slides" ? "is-on" : ""} onClick={() => pick(screen.id, "slides")}>שקפים</button>
-              <button type="button" className={tab === "notices" ? "is-on" : ""} onClick={() => pick(screen.id, "notices")}>הודעות</button>
+              {screen.theme === "floors" ? (
+                <button type="button" className={tab === "floors" ? "is-on" : ""} onClick={() => pick(screen.id, "floors")}>קומות</button>
+              ) : (
+                <>
+                  <button type="button" className={tab === "slides" ? "is-on" : ""} onClick={() => pick(screen.id, "slides")}>שקפים</button>
+                  <button type="button" className={tab === "notices" ? "is-on" : ""} onClick={() => pick(screen.id, "notices")}>הודעות</button>
+                </>
+              )}
               <button type="button" className={tab === "advice" ? "is-on" : ""} onClick={() => pick(screen.id, "advice")}>הצעות לשיפור</button>
               <a href={`/s/${screen.code || screen.id}`} target="_blank">הצגת המסך</a>
             </div>
@@ -112,6 +119,7 @@ export function ClientScreens({ rows, musicPeers, returnTo, themes, manager = fa
                   screen={screen}
                   slides={screen.slides}
                   notices={screen.notices}
+                  floors={screen.floors || []}
                   lockAddress
                   musicPeers={musicPeers}
                   panel={tab}

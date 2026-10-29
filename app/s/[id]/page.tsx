@@ -57,6 +57,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
   const key = Number(id);
   if (!Number.isInteger(key) || key <= 0) notFound();
   const include = {
+    floors: { include: { rooms: { orderBy: { id: "asc" as const } } }, orderBy: { id: "asc" as const } },
     slides: { orderBy: { sort: "asc" as const } },
     notices: { where: { active: true }, orderBy: { id: "desc" as const }, take: 4 },
     updates: { where: { active: true }, orderBy: { id: "desc" as const } },
@@ -113,7 +114,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
   const tickerOn = newsTickerOn(newsMode);
 
   const indexTheme = theme.startsWith("index");
-  const floors = screen.group?.floors ?? [];
+  const floors = floorsOn ? screen.floors : (screen.group?.floors ?? []);
 
   if (takeover.on && takeover.image) {
     return (

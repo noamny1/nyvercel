@@ -128,6 +128,11 @@ body:has(.admin) { background: #F4F1ED; overflow-x: hidden; }
 .admin p { color: #252525; line-height: 1.6; }
 .admin .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: end; }
 .admin .row > label, .admin .card > label { flex: 1 1 160px; }
+.admin .floors-admin .floor-admin { margin-top: 16px; padding-top: 12px; border-top: 1px solid #e6e0da; }
+.admin .floors-admin .room-line { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 8px 0; }
+.admin .floors-admin .room-line img { width: 72px; height: 40px; object-fit: contain; background: #fff; border: 1px solid #e6e0da; border-radius: 6px; }
+.admin .floors-admin .room-logo-empty { color: #6d625c; font-size: 12px; }
+.admin .floors-admin .room-line form { display: flex; }
 .admin .card {
   background: #fff;
   border: 1px solid rgba(37, 37, 37, 0.1);

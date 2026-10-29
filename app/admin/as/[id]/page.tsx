@@ -25,6 +25,7 @@ export default async function ViewAsClient({ params }: { params: Promise<{ id: s
         users: { select: { name: true, email: true, role: true }, orderBy: { email: "asc" } },
         slides: { orderBy: { sort: "asc" } },
         notices: { orderBy: { id: "desc" } },
+        floors: { include: { rooms: { orderBy: { id: "asc" } } }, orderBy: { id: "asc" } },
       },
     }),
     prisma.groupManager.findFirst({ where: { userId: user.id }, select: { groupId: true } }),
@@ -70,6 +71,7 @@ export default async function ViewAsClient({ params }: { params: Promise<{ id: s
             .map((person) => person.email),
           slides: screen.slides,
           notices: screen.notices,
+          floors: screen.floors,
         }))}
       />
     </main>

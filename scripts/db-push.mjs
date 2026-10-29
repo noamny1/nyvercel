@@ -120,6 +120,17 @@ const statements = [
   `ALTER TABLE "Screen" ADD COLUMN IF NOT EXISTS "floorCaption" TEXT NOT NULL DEFAULT 'name'`,
   `ALTER TABLE "ScreenGroup" ADD COLUMN IF NOT EXISTS "floorPace" INTEGER NOT NULL DEFAULT 28`,
   `ALTER TABLE "ScreenGroup" ADD COLUMN IF NOT EXISTS "floorCaption" TEXT NOT NULL DEFAULT 'name'`,
+  `ALTER TABLE "Floor" ALTER COLUMN "groupId" DROP NOT NULL`,
+  `ALTER TABLE "Floor" ADD COLUMN IF NOT EXISTS "screenId" INTEGER`,
+  `ALTER TABLE "Room" ADD COLUMN IF NOT EXISTS "logoUrl" TEXT NOT NULL DEFAULT ''`,
+  `CREATE INDEX IF NOT EXISTS "Floor_screenId_idx" ON "Floor"("screenId")`,
+  `DO $$ BEGIN
+    ALTER TABLE "Floor"
+      ADD CONSTRAINT "Floor_screenId_fkey"
+      FOREIGN KEY ("screenId") REFERENCES "Screen"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+  EXCEPTION
+    WHEN duplicate_object THEN NULL;
+  END $$`,
   `CREATE TABLE IF NOT EXISTS "SchemaNote" ("id" TEXT PRIMARY KEY)`,
   `CREATE TABLE IF NOT EXISTS "GroupManager" (
     "groupId" INTEGER NOT NULL,

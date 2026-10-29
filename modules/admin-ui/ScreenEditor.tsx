@@ -9,6 +9,7 @@ import { PLAYLISTS } from "@/modules/music/catalog";
 import { DEFAULT_MUSIC_DAYS, DEFAULT_MUSIC_FROM, DEFAULT_MUSIC_UNTIL, MUSIC_DAYS } from "@/modules/music/hours";
 import { scheduleLabel, slideStatus } from "@/modules/broadcast/schedule";
 import { CityField } from "@/modules/admin-ui/CityField";
+import { FloorsEditor } from "@/modules/admin-ui/FloorsEditor";
 import { addGroupNotice, addNotice, deleteGroupNotice, deleteNotice, toggleGroupNotice, toggleNotice, updateGroup, updateGroupNotice, updateNotice, updateScreen } from "@/app/admin/actions";
 
 type Slide = { id: number; imageUrl: string; duration: number; sort: number; weekdays?: string; startsOn?: string; endsOn?: string; active?: boolean; kind?: string; templateId?: string; title?: string; detail?: string; meta?: string };
@@ -31,6 +32,7 @@ export function ScreenEditor({
     { id: "modern", name: "מודרני" },
     { id: "luxury", name: "יוקרתי" },
   ],
+  floors = [],
 }: {
   screen: {
     id: number;
@@ -65,11 +67,12 @@ export function ScreenEditor({
   feeds?: { id: string; name: string }[];
   lockAddress?: boolean;
   musicPeers?: number;
-  panel?: "details" | "slides" | "notices";
+  panel?: "details" | "slides" | "notices" | "floors";
   returnTo?: string;
   newsTuning?: boolean;
   canTheme?: boolean;
   themes?: { id: string; name: string }[];
+  floors?: { id: number; name: string; rooms: { id: number; name: string; detail: string; logoUrl: string }[] }[];
 }) {
   const router = useRouter();
   const save = scope === "group" ? updateGroup : updateScreen;
@@ -92,7 +95,7 @@ export function ScreenEditor({
   const [dragId, setDragId] = useState<number | null>(null);
   const [overId, setOverId] = useState<number | null>(null);
   const dragged = useRef(false);
-  const [tab, setTab] = useState<"details" | "slides" | "notices">(panel || "slides");
+  const [tab, setTab] = useState<"details" | "slides" | "notices" | "floors">(panel || (screen.theme === "floors" ? "floors" : "slides"));
   const clientFacing = themes.filter((theme) => theme.id !== "luxury720");
   const offered = newsTuning ? [...clientFacing, { id: "luxury720", name: "יוקרתי720" }] : clientFacing;
   const stored = screen.theme === "fault-card" || screen.theme === "fault-night" ? "luxury" : screen.theme;
@@ -101,6 +104,8 @@ export function ScreenEditor({
     ? offered
     : [...offered, THEMES.find((theme) => theme.id === shown)].filter((theme): theme is { id: string; name: string } => Boolean(theme));
   const [themePick, setThemePick] = useState(themeChoices.some((theme) => theme.id === shown) ? shown : "modern");
+  const directory = themePick === "floors";
+  const view = directory && (tab === "slides" || tab === "notices") ? "floors" : tab;
   const newsCatalog = feeds && feeds.length > 0 ? feeds : NEWS_SOURCES;
   const [newsPick, setNewsPick] = useState(() => {
     const picked = (screen.newsSource || "ynet").split(",").map((item) => item.trim()).filter(Boolean);
@@ -221,13 +226,17 @@ export function ScreenEditor({
     <div>
       {panel ? null : (
       <div className="editor-tabs" role="tablist">
-        <button type="button" className={tab === "slides" ? "is-on" : "light"} onClick={() => setTab("slides")}>שקפים</button>
+        {directory ? (
+          <button type="button" className={view === "floors" ? "is-on" : "light"} onClick={() => setTab("floors")}>קומות</button>
+        ) : (
+          <button type="button" className={tab === "slides" ? "is-on" : "light"} onClick={() => setTab("slides")}>שקפים</button>
+        )}
         <button type="button" className={tab === "details" ? "is-on" : "light"} onClick={() => setTab("details")}>פרטים</button>
-        <button type="button" className={tab === "notices" ? "is-on" : "light"} onClick={() => setTab("notices")}>הודעות</button>
+        {directory ? null : <button type="button" className={tab === "notices" ? "is-on" : "light"} onClick={() => setTab("notices")}>הודעות</button>}
       </div>
       )}
 
-      {tab === "details" ? (
+      {view === "details" ? (
       <form className="card" action={save}>
         <input type="hidden" name="id" value={screen.id} />
         {scope === "group" ? <input type="hidden" name="name" value={screen.name} /> : null}
@@ -243,7 +252,11 @@ export function ScreenEditor({
           {scope === "screen" ? <label>קומה<input name="floor" defaultValue={screen.floor || "לובי"} readOnly={lockAddress} /></label> : null}
           {canTheme ? (
           <label>תמה
-            <select name="theme" defaultValue={themePick} onChange={(event) => setThemePick(event.target.value)}>
+            <select name="theme" defaultValue={themePick} onChange={(event) => {
+              const value = event.target.value;
+              setThemePick(value);
+              if (value === "floors") setTab("floors");
+            }}>
               {themeChoices.map((theme) => (
                 <option key={theme.id} value={theme.id}>{theme.name}</option>
               ))}
@@ -434,7 +447,11 @@ export function ScreenEditor({
       </form>
       ) : null}
 
-      {tab === "slides" ? (
+      {view === "floors" ? (
+        <FloorsEditor floors={floors} screenId={scope === "screen" ? screen.id : 0} groupId={scope === "group" ? screen.id : 0} returnTo={returnTo || (scope === "group" ? `/admin/groups/${screen.id}` : `/admin/screens/${screen.id}`)} />
+      ) : null}
+
+      {view === "slides" ? (
       <>
       <section className="card screen-slides">
         <h2>השקפים שמוצגים במסך</h2>
@@ -506,7 +523,7 @@ export function ScreenEditor({
       </>
       ) : null}
 
-      {tab === "notices" ? (
+      {view === "notices" ? (
       <section className="card">
         <h2>הודעות בניין</h2>
         <form className="notice-add" action={createNotice}>

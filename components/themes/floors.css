@@ -132,13 +132,23 @@
   text-align: right;
 }
 .floor-copy p { margin: 0; }
+.floor-copy p.has-logo { display: flex; align-items: center; }
+.floor-copy p.has-logo img {
+  width: 72px;
+  height: 40px;
+  margin-left: 8px;
+  object-fit: contain;
+  flex: none;
+}
+.floor-copy .floor-line { display: block; min-width: 0; }
 .floor-copy p + p { margin-top: 10px; }
 .floor-copy strong {
   display: block;
   font-size: 22px;
   font-weight: 500;
+  color: #1c1c1c;
 }
-.floor-copy span {
+.floor-copy .floor-line > span {
   display: block;
   margin-top: 2px;
   color: #5a605a;

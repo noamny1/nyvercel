@@ -4,7 +4,7 @@ import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "re
 import { useFreshHeadlines, type Headline } from "@/modules/player/useFreshHeadlines";
 import { useNewsOn } from "@/modules/player/useNewsOn";
 
-type Room = { id: number; name: string; detail: string };
+type Room = { id: number; name: string; detail: string; logoUrl?: string };
 type Floor = { id: number; name: string; rooms: Room[] };
 
 export function FloorsBoard({
@@ -61,9 +61,12 @@ export function FloorsBoard({
               <b className={`floor-num${index % 2 === 0 ? " is-green" : " is-black"}${badge.length > 3 ? " is-long" : ""}`}>{badge}</b>
               <div className="floor-copy">
                 {rooms.length === 0 ? <strong>{badge}</strong> : rooms.map((room) => (
-                  <p key={room.id}>
-                    <strong>{room.name}</strong>
-                    {room.detail ? <span>{room.detail}</span> : null}
+                  <p className={room.logoUrl ? "has-logo" : ""} key={room.id}>
+                    {room.logoUrl ? <img src={room.logoUrl} alt="" /> : null}
+                    <span className="floor-line">
+                      <strong>{room.name}</strong>
+                      {room.detail ? <span>{room.detail}</span> : null}
+                    </span>
                   </p>
                 ))}
               </div>

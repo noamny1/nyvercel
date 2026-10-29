@@ -96,6 +96,7 @@ export default async function BuildingsPage({ searchParams }: { searchParams: Pr
         users: { select: { id: true, name: true, email: true, role: true }, orderBy: { email: "asc" } },
         slides: { orderBy: { sort: "asc" } },
         notices: { orderBy: { id: "desc" } },
+        floors: { include: { rooms: { orderBy: { id: "asc" } } }, orderBy: { id: "asc" } },
       },
     }),
     prisma.screenGroup.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
@@ -300,6 +301,7 @@ export default async function BuildingsPage({ searchParams }: { searchParams: Pr
             people: assignedUsers(screen.users).map((user) => user.email),
             slides: screen.slides,
             notices: screen.notices,
+            floors: screen.floors,
           }))}
         />
       )}

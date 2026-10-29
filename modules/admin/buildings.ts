@@ -3,6 +3,8 @@ import { prisma } from "@/modules/data/prisma";
 import { officialCity } from "@/modules/place/cities";
 import { nextCode, touchGroup, touchScreen } from "@/modules/data/publish";
 import { adoptGroup, gate, ownerGate, starterScreen } from "@/modules/admin/gate";
+import { groupWhere, screenWhere } from "@/modules/identity/access";
+import { isSystemAdmin } from "@/modules/identity/session";
 
 export async function createListedScreen(formData: FormData) {
   await gate();
@@ -103,33 +105,82 @@ export async function deleteBuilding(formData: FormData) {
   redirect("/admin/buildings");
 }
 export async function addFloor(formData: FormData) {
-  await gate();
-  const groupId = Number(formData.get("groupId"));
-  await prisma.floor.create({
-    data: { groupId, name: String(formData.get("name") || "קומה") },
-  });
-  await touchGroup(groupId);
-  redirect("/admin/directory");
+  const session = await gate();
+  const screenId = Number(formData.get("screenId")) || 0;
+  const groupId = Number(formData.get("groupId")) || 0;
+  if (!(await allowedFloors(session, screenId, groupId))) redirect("/admin");
+  const name = String(formData.get("name") || "").trim().slice(0, 40);
+  if (!name) redirect(floorReturn(formData));
+  await prisma.floor.create({ data: { name, ...(screenId ? { screenId } : { groupId }) } });
+  await touchFloors(screenId, groupId);
+  redirect(floorReturn(formData));
 }
 export async function addRoom(formData: FormData) {
-  await gate();
+  const session = await gate();
   const floorId = Number(formData.get("floorId"));
+  const floor = await prisma.floor.findUnique({ where: { id: floorId }, select: { screenId: true, groupId: true } });
+  if (!floor || !(await allowedFloors(session, floor.screenId || 0, floor.groupId || 0))) redirect("/admin");
+  const name = String(formData.get("name") || "").trim().slice(0, 80);
+  if (!name) redirect(floorReturn(formData));
+  const logo = String(formData.get("logoUrl") || "");
   await prisma.room.create({
     data: {
       floorId,
-      name: String(formData.get("name") || "חדר"),
-      detail: String(formData.get("detail") || ""),
+      name,
+      detail: String(formData.get("detail") || "").trim().slice(0, 80),
+      logoUrl: logo.startsWith("http") ? logo : "",
     },
   });
-  const floor = await prisma.floor.findUnique({ where: { id: floorId }, select: { groupId: true } });
-  if (floor) await touchGroup(floor.groupId);
-  redirect("/admin/directory");
+  await touchFloors(floor.screenId || 0, floor.groupId || 0);
+  redirect(floorReturn(formData));
+}
+export async function deleteRoom(formData: FormData) {
+  const session = await gate();
+  const id = Number(formData.get("id"));
+  const room = await prisma.room.findUnique({ where: { id }, include: { floor: { select: { screenId: true, groupId: true } } } });
+  if (!room || !(await allowedFloors(session, room.floor.screenId || 0, room.floor.groupId || 0))) redirect("/admin");
+  await prisma.room.delete({ where: { id } });
+  await touchFloors(room.floor.screenId || 0, room.floor.groupId || 0);
+  redirect(floorReturn(formData));
+}
+export async function setRoomLogo(formData: FormData) {
+  const session = await gate();
+  const id = Number(formData.get("id"));
+  const room = await prisma.room.findUnique({ where: { id }, include: { floor: { select: { screenId: true, groupId: true } } } });
+  if (!room || !(await allowedFloors(session, room.floor.screenId || 0, room.floor.groupId || 0))) redirect("/admin");
+  const incoming = String(formData.get("logoUrl") || "");
+  const clear = String(formData.get("clearLogo") || "") === "1";
+  await prisma.room.update({
+    where: { id },
+    data: { logoUrl: clear ? "" : incoming.startsWith("http") ? incoming : room.logoUrl },
+  });
+  await touchFloors(room.floor.screenId || 0, room.floor.groupId || 0);
+  redirect(floorReturn(formData));
 }
 export async function deleteFloor(formData: FormData) {
-  await gate();
+  const session = await gate();
   const id = Number(formData.get("id"));
-  const floor = await prisma.floor.findUnique({ where: { id }, select: { groupId: true } });
+  const floor = await prisma.floor.findUnique({ where: { id }, select: { screenId: true, groupId: true } });
+  if (!floor || !(await allowedFloors(session, floor.screenId || 0, floor.groupId || 0))) redirect("/admin");
   await prisma.floor.delete({ where: { id } });
-  if (floor) await touchGroup(floor.groupId);
-  redirect("/admin/directory");
+  await touchFloors(floor.screenId || 0, floor.groupId || 0);
+  redirect(floorReturn(formData));
+}
+
+function floorReturn(formData: FormData) {
+  const back = String(formData.get("returnTo") || "");
+  if (/^\/admin\/screens\/\d+$/.test(back) || /^\/admin\/groups\/\d+$/.test(back) || back.startsWith("/admin/buildings") || back.startsWith("/admin/as/") || back === "/admin/directory") return back;
+  return "/admin/directory";
+}
+
+async function allowedFloors(session: Awaited<ReturnType<typeof gate>>, screenId: number, groupId: number) {
+  if (isSystemAdmin(session)) return true;
+  if (screenId) return Boolean(await prisma.screen.findFirst({ where: { id: screenId, ...(await screenWhere(session)) }, select: { id: true } }));
+  if (groupId) return Boolean(await prisma.screenGroup.findFirst({ where: { id: groupId, ...(await groupWhere(session)) }, select: { id: true } }));
+  return false;
+}
+
+async function touchFloors(screenId: number, groupId: number) {
+  if (screenId) await touchScreen(screenId);
+  if (groupId) await touchGroup(groupId);
 }

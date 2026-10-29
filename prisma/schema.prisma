@@ -109,6 +109,7 @@ model Screen {
   slides     Slide[]
   notices    Notice[]
   updates    Update[]
+  floors     Floor[]
   createdAt  DateTime     @default(now())
 
   @@index([groupId])
@@ -252,11 +253,16 @@ model Update {
 }
 
 model Floor {
-  id      Int         @id @default(autoincrement())
-  groupId Int
-  group   ScreenGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  name    String
-  rooms   Room[]
+  id       Int          @id @default(autoincrement())
+  groupId  Int?
+  group    ScreenGroup? @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  screenId Int?
+  screen   Screen?      @relation(fields: [screenId], references: [id], onDelete: Cascade)
+  name     String
+  rooms    Room[]
+
+  @@index([groupId])
+  @@index([screenId])
 }
 
 model SystemFlag {
@@ -278,4 +284,5 @@ model Room {
   floor   Floor  @relation(fields: [floorId], references: [id], onDelete: Cascade)
   name    String
   detail  String @default("")
+  logoUrl String @default("")
 }
