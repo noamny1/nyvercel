@@ -121,31 +121,32 @@
   display: flex;
   align-items: center;
   direction: rtl;
-  margin: 0 22px 14px;
-  padding: 16px 18px;
-  background: rgba(255, 255, 255, 0.88);
-  border-radius: 22px;
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
+  margin: 0 22px 12px;
+  padding: 10px 12px;
+  background: rgba(10, 12, 14, 0.72);
+  border: 1px solid rgba(212, 180, 131, 0.4);
+  border-radius: 14px;
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.28);
 }
 .floor-num {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 74px;
-  height: 92px;
-  border-radius: 16px;
-  font-size: 48px;
+  width: 62px;
+  height: 62px;
+  border-radius: 12px;
+  font-size: 26px;
   font-weight: 500;
   line-height: 1;
   flex: none;
 }
 .floor-num.is-green { background: #5db546; color: #fff; }
-.floor-num.is-black { background: #161616; color: #e6d3ae; }
-.floor-num.is-long { font-size: 18px; padding: 0 6px; text-align: center; }
+.floor-num.is-black { background: #111; color: #e6d3ae; border: 1px solid rgba(212, 180, 131, 0.45); }
+.floor-num.is-long { width: 72px; font-size: 14px; padding: 0 6px; text-align: center; }
 .floor-copy {
   flex: 1;
   min-width: 0;
-  margin-right: 16px;
+  margin-right: 14px;
   text-align: right;
 }
 .floor-room {
@@ -153,33 +154,43 @@
   align-items: center;
   margin: 0;
 }
-.floor-room + .floor-room { margin-top: 10px; }
+.floor-room + .floor-room {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(212, 180, 131, 0.22);
+}
 .floor-who {
   display: flex;
   align-items: center;
   min-width: 0;
 }
 .floor-who img {
-  width: 56px;
-  height: 32px;
+  width: 48px;
+  height: 28px;
   margin-left: 8px;
   object-fit: contain;
   flex: none;
+  background: #fff;
+  border-radius: 4px;
 }
 .floor-who strong,
 .floor-copy > strong {
   display: block;
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 500;
-  color: #1c1c1c;
+  color: #f6f1e8;
+}
+.floor-leader {
+  flex: 1;
+  height: 0;
+  margin: 0 10px;
+  border-bottom: 1px dotted rgba(212, 180, 131, 0.75);
 }
 .floor-room em {
-  margin-right: auto;
-  padding-right: 12px;
   font-style: normal;
   font-size: 20px;
   font-weight: 500;
-  color: #3a3834;
+  color: #e8d7b0;
   flex: none;
 }
 

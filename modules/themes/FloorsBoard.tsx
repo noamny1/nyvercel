@@ -67,6 +67,7 @@ export function FloorsBoard({
                       {room.logoUrl ? <img src={room.logoUrl} alt="" /> : null}
                       <strong>{room.name}</strong>
                     </span>
+                    {room.detail ? <i className="floor-leader" /> : null}
                     {room.detail ? <em>{room.detail}</em> : null}
                   </p>
                 ))}
