@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { KindMark, ReadyLibrary, SavedSlideEditor, type SlideDraft } from "@/modules/admin-ui/ReadyLibrary";
 import { NEWS_SOURCES } from "@/modules/broadcast/news-sources";
-import { THEMES } from "@/modules/slides/themes";
+import { isFloorsTheme, THEMES } from "@/modules/slides/themes";
 import { PLAYLISTS } from "@/modules/music/catalog";
 import { DEFAULT_MUSIC_DAYS, DEFAULT_MUSIC_FROM, DEFAULT_MUSIC_UNTIL, MUSIC_DAYS } from "@/modules/music/hours";
 import { scheduleLabel, slideStatus } from "@/modules/broadcast/schedule";
@@ -95,7 +95,7 @@ export function ScreenEditor({
   const [dragId, setDragId] = useState<number | null>(null);
   const [overId, setOverId] = useState<number | null>(null);
   const dragged = useRef(false);
-  const [tab, setTab] = useState<"details" | "slides" | "notices" | "floors">(panel || (screen.theme === "floors" ? "floors" : "slides"));
+  const [tab, setTab] = useState<"details" | "slides" | "notices" | "floors">(panel || (isFloorsTheme(screen.theme) ? "floors" : "slides"));
   const clientFacing = themes.filter((theme) => theme.id !== "luxury720");
   const offered = newsTuning ? [...clientFacing, { id: "luxury720", name: "יוקרתי720" }] : clientFacing;
   const stored = screen.theme === "fault-card" || screen.theme === "fault-night" ? "luxury" : screen.theme;
@@ -104,7 +104,7 @@ export function ScreenEditor({
     ? offered
     : [...offered, THEMES.find((theme) => theme.id === shown)].filter((theme): theme is { id: string; name: string } => Boolean(theme));
   const [themePick, setThemePick] = useState(themeChoices.some((theme) => theme.id === shown) ? shown : "modern");
-  const directory = themePick === "floors";
+  const directory = isFloorsTheme(themePick);
   const view = directory && (tab === "slides" || tab === "notices") ? "floors" : tab;
   const newsCatalog = feeds && feeds.length > 0 ? feeds : NEWS_SOURCES;
   const [newsPick, setNewsPick] = useState(() => {
@@ -255,7 +255,7 @@ export function ScreenEditor({
             <select name="theme" defaultValue={themePick} onChange={(event) => {
               const value = event.target.value;
               setThemePick(value);
-              if (value === "floors") setTab("floors");
+              if (isFloorsTheme(value)) setTab("floors");
             }}>
               {themeChoices.map((theme) => (
                 <option key={theme.id} value={theme.id}>{theme.name}</option>
@@ -287,7 +287,7 @@ export function ScreenEditor({
               </select>
             </label>
           ) : null}
-          {canTheme && themePick === "floors" ? (
+          {canTheme && directory ? (
             <>
               <label>כותרת
                 <select name="floorCaption" defaultValue={screen.floorCaption === "address" ? "address" : "name"}>

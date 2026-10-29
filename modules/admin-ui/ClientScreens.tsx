@@ -4,6 +4,7 @@ import { useState } from "react";
 import { ScreenEditor } from "@/modules/admin-ui/ScreenEditor";
 import { GroupBulk } from "@/modules/admin-ui/GroupBulk";
 import { sendAdvice } from "@/app/admin/advice";
+import { isFloorsTheme } from "@/modules/slides/themes";
 
 type Panel = "slides" | "details" | "notices" | "advice" | "floors";
 
@@ -75,7 +76,7 @@ export function ClientScreens({ rows, musicPeers, returnTo, themes, manager = fa
             </header>
             <div className="client-actions">
               <button type="button" className={tab === "details" ? "is-on" : ""} onClick={() => pick(screen.id, "details")}>הגדרות מסך</button>
-              {screen.theme === "floors" ? (
+              {isFloorsTheme(screen.theme) ? (
                 <button type="button" className={tab === "floors" ? "is-on" : ""} onClick={() => pick(screen.id, "floors")}>קומות</button>
               ) : (
                 <>

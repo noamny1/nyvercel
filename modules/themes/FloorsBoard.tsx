@@ -87,7 +87,7 @@ export function FloorsBoard({
 function WeatherGlyph({ label }: { label: string }) {
   const rain = /גשם|ממטר|טפטוף|שלג|רעמים/.test(label);
   const cloud = /מעונן|ערפל/.test(label);
-  const color = "#e8d7b0";
+  const color = "currentColor";
   return (
     <svg width="30" height="30" viewBox="0 0 24 24" aria-hidden="true">
       {rain ? (
@@ -178,8 +178,8 @@ function FloorsNews({
 
   return (
     <footer className="floors-news">
-      {source ? <b className="floors-source">{source}</b> : null}
       <span>{item?.title || (newsOn ? "אין חדשות כרגע" : "")}</span>
+      {source ? <b className="floors-source">{source}</b> : null}
     </footer>
   );
 }

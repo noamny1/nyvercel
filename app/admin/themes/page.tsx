@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { AdminNav } from "@/components/admin/AdminNav";
 import { saveClientThemes } from "@/app/admin/themes/actions";
-import { clientThemeIds, THEMES } from "@/lib/themes";
+import { clientThemeIds, isFloorsTheme, THEMES } from "@/lib/themes";
 import { isSystemAdmin, requireSession } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
@@ -21,7 +21,7 @@ export default async function ThemesPage({ searchParams }: { searchParams: Promi
       {done === "1" ? <p>הבחירה נשמרה.</p> : null}
       <form className="card" action={saveClientThemes}>
         <div className="theme-picks">
-          {THEMES.filter((theme) => theme.id !== "luxury720" && theme.id !== "azorim" && theme.id !== "luxury-light" && theme.id !== "floors").map((theme) => (
+          {THEMES.filter((theme) => theme.id !== "luxury720" && theme.id !== "azorim" && theme.id !== "luxury-light" && !isFloorsTheme(theme.id)).map((theme) => (
             <label className="theme-pick" key={theme.id}>
               <input type="checkbox" name="theme" value={theme.id} defaultChecked={enabled.includes(theme.id)} />
               <span>

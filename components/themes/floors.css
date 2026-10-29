@@ -51,9 +51,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 72px;
-  margin: 0 12px;
-  padding: 6px 12px;
+  width: 250px;
+  height: 136px;
+  margin: 0 8px;
+  padding: 8px 12px;
+  box-sizing: border-box;
   background: #fff;
   border-radius: 16px;
   color: #1c1c1c;
@@ -63,9 +65,8 @@
 }
 .floors-logo img {
   display: block;
-  height: 58px;
-  width: auto;
-  max-width: 210px;
+  width: 100%;
+  height: 100%;
   object-fit: contain;
 }
 .floors-logo span {
@@ -89,7 +90,10 @@
 .floors-time {
   display: flex;
   align-items: center;
-  height: 72px;
+  justify-content: center;
+  flex: 1 1 0;
+  min-width: 0;
+  height: 84px;
   padding: 0 12px;
   border: 1px solid rgba(212, 180, 131, 0.75);
   border-radius: 36px;
@@ -107,6 +111,7 @@
   margin-left: 8px;
   border-radius: 20px;
   background: rgba(212, 180, 131, 0.16);
+  color: #e8d7b0;
   flex: none;
 }
 .floors-mark svg { display: block; width: 24px; height: 24px; }
@@ -241,21 +246,22 @@
 .floors-news {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
+  direction: rtl;
   flex: none;
   height: 68px;
   padding: 0 18px;
   background: rgba(16, 14, 12, 0.9);
   color: #f6f1e8;
   border-top: 1px solid #c6a15b;
-  text-align: center;
+  text-align: right;
   font-size: 20px;
   font-weight: 400;
   line-height: 1.2;
 }
 .floors-source {
   flex: none;
-  margin-left: 12px;
+  margin-right: 12px;
   padding: 4px 10px;
   border: 1px solid #d4b483;
   border-radius: 999px;
@@ -270,3 +276,195 @@
   white-space: nowrap;
   text-overflow: ellipsis;
 }
+
+.look-floors-glass .floor-num,
+.look-floors-glass .floor-num.is-green,
+.look-floors-glass .floor-num.is-black { background: #d7e3ec; color: #1a2c3a; }
+
+.look-floors-cream .floors-board { background: #5a1f2b; background-image: none; }
+.look-floors-cream .floors-weather,
+.look-floors-cream .floors-time { background: rgba(255, 246, 240, 0.12); border-color: rgba(246, 230, 214, 0.45); color: #fff6f0; }
+.look-floors-cream .floors-mark { color: #f4d6a0; background: rgba(255, 246, 240, 0.12); }
+.look-floors-cream .floors-temp small { color: #ecd2c4; }
+.look-floors-cream .floor-card { background: #fff8f2; border-color: transparent; }
+.look-floors-cream .floor-num,
+.look-floors-cream .floor-num.is-green,
+.look-floors-cream .floor-num.is-black { background: #5a1f2b; color: #fff8f2; }
+.look-floors-cream .floor-who strong { color: #2a1c20; }
+.look-floors-cream .floor-room em { color: #5a1f2b; }
+.look-floors-cream .floor-leader { border-bottom-color: rgba(90, 31, 43, 0.35); }
+.look-floors-cream .floors-news { background: #3a121c; color: #fff4ec; border-top-color: #fff8f2; }
+.look-floors-cream .floors-source { color: #5a1f2b; background: #fff8f2; border-color: #fff8f2; }
+
+.look-floors-lobby .floors-board { background: #f4f0ea; background-image: none; color: #1c1c1c; }
+.look-floors-lobby .floors-head { text-shadow: none; }
+.look-floors-lobby .floors-weather,
+.look-floors-lobby .floors-time { background: transparent; border: none; box-shadow: none; color: #1c1c1c; }
+.look-floors-lobby .floors-mark { color: #c4922a; background: transparent; }
+.look-floors-lobby .floors-temp small { color: #5c534c; }
+.look-floors-lobby .floor-card { background: #fff; border: 1px solid #e4ddd4; box-shadow: 0 8px 16px rgba(40, 24, 20, 0.06); }
+.look-floors-lobby .floor-num,
+.look-floors-lobby .floor-num.is-green,
+.look-floors-lobby .floor-num.is-black { background: #5a1f2b; color: #fff; }
+.look-floors-lobby .floor-who strong { color: #1c1c1c; }
+.look-floors-lobby .floor-room em { color: #5a1f2b; }
+.look-floors-lobby .floor-leader { border-bottom-color: rgba(90, 31, 43, 0.28); }
+.look-floors-lobby .floors-news { background: #fff; color: #1c1c1c; border-top: 1px solid #e4ddd4; }
+.look-floors-lobby .floors-source { color: #fff; background: #5a1f2b; border-color: #5a1f2b; }
+.look-floors-lobby .floors-empty { color: #1c1c1c; text-shadow: none; }
+
+.look-floors-rail .floors-board {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 278px;
+  grid-template-rows: minmax(0, 1fr) 68px;
+  background: #ece8e2;
+  background-image: none;
+}
+.look-floors-rail .floors-head {
+  grid-column: 2;
+  grid-row: 1;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 18px 10px;
+  background: #122028;
+}
+.look-floors-rail .floors-view { grid-column: 1; grid-row: 1; padding-top: 16px; }
+.look-floors-rail .floors-news { grid-column: 1 / -1; grid-row: 2; background: #122028; border-top: none; }
+.look-floors-rail .floors-logo { margin: 0 0 18px; }
+.look-floors-rail .floors-weather,
+.look-floors-rail .floors-time {
+  flex: none;
+  width: 230px;
+  height: auto;
+  margin-top: 8px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  color: #f4f7fa;
+}
+.look-floors-rail .floors-mark { color: #e8c478; background: transparent; }
+.look-floors-rail .floor-card { background: #fff; border: none; box-shadow: none; }
+.look-floors-rail .floor-num,
+.look-floors-rail .floor-num.is-green,
+.look-floors-rail .floor-num.is-black { width: auto; height: auto; background: transparent; color: #122028; font-size: 22px; }
+.look-floors-rail .floor-who strong { color: #1c1c1c; }
+.look-floors-rail .floor-room em { color: #122028; }
+.look-floors-rail .floor-leader { border-bottom-color: rgba(18, 32, 40, 0.25); }
+.look-floors-rail .floors-empty { color: #122028; text-shadow: none; }
+
+.look-floors-board .floors-board { background: #0e1216; background-image: none; }
+.look-floors-board .floors-weather,
+.look-floors-board .floors-time { background: transparent; border: none; box-shadow: none; }
+.look-floors-board .floor-card { background: transparent; border: none; box-shadow: none; }
+.look-floors-board .floor-card:nth-child(odd) { background: rgba(255, 255, 255, 0.05); }
+.look-floors-board .floor-num,
+.look-floors-board .floor-num.is-green,
+.look-floors-board .floor-num.is-black { width: auto; background: transparent; color: #e8d2aa; }
+.look-floors-board .floor-room em,
+.look-floors-board .floor-leader { color: #e8d2aa; border-bottom-color: rgba(232, 210, 170, 0.45); }
+.look-floors-board .floors-news { background: #080a0c; color: #e8dcc4; border-top-color: #e8d2aa; }
+.look-floors-board .floors-source { color: #14110e; background: #e8d2aa; border-color: #e8d2aa; }
+
+.look-floors-sunset .floors-board { background: #5c2a1c; background-image: linear-gradient(180deg, #5c2a1c, #1c100e); }
+.look-floors-sunset .floors-weather,
+.look-floors-sunset .floors-time { background: rgba(40, 18, 16, 0.55); border-color: rgba(232, 170, 130, 0.7); color: #ffece0; }
+.look-floors-sunset .floors-mark { color: #ffc478; }
+.look-floors-sunset .floors-temp small { color: #e8ba9c; }
+.look-floors-sunset .floor-card { background: rgba(32, 16, 14, 0.82); border-color: rgba(210, 140, 100, 0.4); }
+.look-floors-sunset .floor-num,
+.look-floors-sunset .floor-num.is-green,
+.look-floors-sunset .floor-num.is-black { background: #c46a48; color: #fff4ec; }
+.look-floors-sunset .floor-room em { color: #ffceaa; }
+.look-floors-sunset .floors-news { background: rgba(24, 12, 12, 0.94); color: #ffe4d2; border-top-color: #c46a48; }
+.look-floors-sunset .floors-source { color: #fff4ec; background: #c46a48; border-color: #c46a48; }
+
+.look-floors-forest .floors-board { background: #163028; background-image: linear-gradient(180deg, #1c322c, #0e1a16); }
+.look-floors-forest .floors-weather,
+.look-floors-forest .floors-time { background: rgba(183, 199, 176, 0.12); border-color: rgba(183, 199, 176, 0.55); }
+.look-floors-forest .floors-mark { color: #e8d68c; background: rgba(183, 199, 176, 0.16); }
+.look-floors-forest .floors-temp small { color: #b7c7b0; }
+.look-floors-forest .floor-card { background: rgba(16, 28, 24, 0.86); border-color: rgba(183, 199, 176, 0.35); }
+.look-floors-forest .floor-num,
+.look-floors-forest .floor-num.is-green,
+.look-floors-forest .floor-num.is-black { background: #b7c7b0; color: #14241c; }
+.look-floors-forest .floor-room em { color: #d2dcc8; }
+.look-floors-forest .floors-news { background: #0a1210; color: #dce6d6; border-top-color: #b7c7b0; }
+.look-floors-forest .floors-source { color: #14241c; background: #b7c7b0; border-color: #b7c7b0; }
+
+.look-floors-light .floors-board {
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.42) 0%, rgba(255, 255, 255, 0.18) 40%, rgba(255, 255, 255, 0.28) 100%), url("/themes/floors-tower.jpg");
+}
+.look-floors-light .floors-weather,
+.look-floors-light .floors-time { background: rgba(255, 255, 255, 0.9); border-color: #fff; color: #182430; }
+.look-floors-light .floors-mark { color: #d69a30; background: rgba(214, 154, 48, 0.12); }
+.look-floors-light .floors-temp small { color: #46566a; }
+.look-floors-light .floor-card { background: rgba(255, 255, 255, 0.92); border-color: transparent; }
+.look-floors-light .floor-num,
+.look-floors-light .floor-num.is-green,
+.look-floors-light .floor-num.is-black { background: #243a4a; color: #fff; }
+.look-floors-light .floor-who strong { color: #182028; }
+.look-floors-light .floor-room em { color: #243a4a; }
+.look-floors-light .floor-leader { border-bottom-color: rgba(36, 58, 74, 0.28); }
+.look-floors-light .floors-news { background: rgba(255, 255, 255, 0.94); color: #182028; border-top: none; }
+.look-floors-light .floors-source { color: #fff; background: #243a4a; border-color: #243a4a; }
+.look-floors-light .floors-empty { color: #182028; text-shadow: none; }
+
+.look-floors-hotel .floors-board { background: #f3ead6; background-image: none; border: 2px solid #7a3040; }
+.look-floors-hotel .floors-head { text-shadow: none; }
+.look-floors-hotel .floors-weather,
+.look-floors-hotel .floors-time { background: transparent; border: none; box-shadow: none; color: #281c18; }
+.look-floors-hotel .floors-mark { color: #7a3040; background: transparent; }
+.look-floors-hotel .floors-temp small { color: #6e4840; }
+.look-floors-hotel .floor-card { flex-direction: column; align-items: stretch; background: transparent; border: none; box-shadow: none; margin: 0 40px 6px; }
+.look-floors-hotel .floor-num,
+.look-floors-hotel .floor-num.is-green,
+.look-floors-hotel .floor-num.is-black { width: auto; height: auto; margin: 0 auto 6px; background: transparent; color: #7a3040; font-size: 20px; }
+.look-floors-hotel .floor-copy { margin-right: 0; }
+.look-floors-hotel .floor-who strong { color: #281c18; }
+.look-floors-hotel .floor-room em { color: #7a3040; }
+.look-floors-hotel .floor-leader { border-bottom-color: rgba(122, 48, 64, 0.35); }
+.look-floors-hotel .floors-news { background: #7a3040; color: #f3ead6; border-top: none; }
+.look-floors-hotel .floors-source { color: #7a3040; background: #f3ead6; border-color: #f3ead6; }
+.look-floors-hotel .floors-empty { color: #7a3040; text-shadow: none; }
+
+.look-floors-spine .floors-board { background: #080a0e; background-image: none; }
+.look-floors-spine .floors-weather,
+.look-floors-spine .floors-time { background: transparent; border: none; box-shadow: none; }
+.look-floors-spine .floor-card { position: relative; background: #14181e; border: none; }
+.look-floors-spine .floor-card::before {
+  content: "";
+  position: absolute;
+  top: 12px;
+  bottom: 12px;
+  left: 10px;
+  width: 6px;
+  border-radius: 3px;
+  background: #40c4d6;
+}
+.look-floors-spine .floor-num,
+.look-floors-spine .floor-num.is-green,
+.look-floors-spine .floor-num.is-black { width: auto; height: auto; background: transparent; color: #40c4d6; }
+.look-floors-spine .floor-room em { color: #40c4d6; }
+.look-floors-spine .floor-card:nth-child(7n+2)::before { background: #e8a84a; }
+.look-floors-spine .floor-card:nth-child(7n+2) .floor-num,
+.look-floors-spine .floor-card:nth-child(7n+2) .floor-room em { color: #e8a84a; }
+.look-floors-spine .floor-card:nth-child(7n+3)::before { background: #c470a8; }
+.look-floors-spine .floor-card:nth-child(7n+3) .floor-num,
+.look-floors-spine .floor-card:nth-child(7n+3) .floor-room em { color: #c470a8; }
+.look-floors-spine .floor-card:nth-child(7n+4)::before { background: #78a8dc; }
+.look-floors-spine .floor-card:nth-child(7n+4) .floor-num,
+.look-floors-spine .floor-card:nth-child(7n+4) .floor-room em { color: #78a8dc; }
+.look-floors-spine .floor-card:nth-child(7n+5)::before { background: #e87860; }
+.look-floors-spine .floor-card:nth-child(7n+5) .floor-num,
+.look-floors-spine .floor-card:nth-child(7n+5) .floor-room em { color: #e87860; }
+.look-floors-spine .floor-card:nth-child(7n+6)::before { background: #96c48c; }
+.look-floors-spine .floor-card:nth-child(7n+6) .floor-num,
+.look-floors-spine .floor-card:nth-child(7n+6) .floor-room em { color: #96c48c; }
+.look-floors-spine .floor-card:nth-child(7n+7)::before { background: #b09ad6; }
+.look-floors-spine .floor-card:nth-child(7n+7) .floor-num,
+.look-floors-spine .floor-card:nth-child(7n+7) .floor-room em { color: #b09ad6; }
+.look-floors-spine .floors-news { background: #080a0e; border-top: 2px solid #40c4d6; }
+.look-floors-spine .floors-source { color: #080c10; background: #40c4d6; border-color: #40c4d6; }
+

@@ -12,6 +12,16 @@ export const THEMES = [
   { id: "azorim", name: "אזורים", note: "רק לקבוצה שמנהל המערכת משייך. רקע אזורים, שקף כמו ביוקרתי" },
   { id: "luxury-light", name: "יוקרתי בהיר", note: "יוקרתי על רקע בהיר. רק מנהל המערכת משייך" },
   { id: "floors", name: "קומות", note: "מסך עומד, מספרים וחדשות. רק מנהל המערכת משייך" },
+  { id: "floors-glass", name: "קומות זכוכית לילה", note: "מגדל כהה ותגי קומה בהירים. רק מנהל המערכת משייך" },
+  { id: "floors-cream", name: "קומות בורדו ושמנת", note: "רקע בורדו וכרטיסי שמנת. רק מנהל המערכת משייך" },
+  { id: "floors-lobby", name: "קומות לובי בהיר", note: "לובי בהיר כמעט בלי מסגרות. רק מנהל המערכת משייך" },
+  { id: "floors-rail", name: "קומות עמודה", note: "לוגו, שעון ומזג אוויר בעמודה כהה. רק מנהל המערכת משייך" },
+  { id: "floors-board", name: "קומות לוח", note: "לוח כהה בשורות. רק מנהל המערכת משייך" },
+  { id: "floors-sunset", name: "קומות שקיעה", note: "גווני שקיעה חמים. רק מנהל המערכת משייך" },
+  { id: "floors-forest", name: "קומות יער", note: "ירוק יער כהה ותגים מרווה. רק מנהל המערכת משייך" },
+  { id: "floors-light", name: "קומות כרטיס בהיר", note: "כרטיסים בהירים על המגדל. רק מנהל המערכת משייך" },
+  { id: "floors-hotel", name: "קומות מלון", note: "לוח מלון על רקע שמנת. רק מנהל המערכת משייך" },
+  { id: "floors-spine", name: "קומות פס צבע", note: "רקע שחור ופס צבע לכל קומה. רק מנהל המערכת משייך" },
 ] as const;
 
 export type ThemeId = (typeof THEMES)[number]["id"];
@@ -20,6 +30,10 @@ const DEFAULT_CLIENT_IDS: ThemeId[] = ["modern", "luxury"];
 
 export function isThemeId(value: string): value is ThemeId {
   return THEMES.some((theme) => theme.id === value);
+}
+
+export function isFloorsTheme(value: string) {
+  return value === "floors" || value.startsWith("floors-");
 }
 
 export function isFaultTheme(value: string): value is ThemeId {
@@ -38,7 +52,7 @@ export function floorCaption(value: unknown) {
 export async function clientThemeIds(): Promise<ThemeId[]> {
   const row = await prisma.systemFlag.findUnique({ where: { id: "clientThemes" } }).catch(() => null);
   if (!row) return DEFAULT_CLIENT_IDS;
-  const picked = row.value.split(",").map((item) => item.trim()).filter((id): id is ThemeId => isThemeId(id) && id !== "luxury720" && id !== "azorim" && id !== "luxury-light" && id !== "floors");
+  const picked = row.value.split(",").map((item) => item.trim()).filter((id): id is ThemeId => isThemeId(id) && id !== "luxury720" && id !== "azorim" && id !== "luxury-light" && !isFloorsTheme(id));
   return picked.length > 0 ? picked : DEFAULT_CLIENT_IDS;
 }
 
@@ -50,7 +64,7 @@ export async function clientThemes() {
 export async function editorThemes(owner: boolean) {
   const shown = await clientThemes();
   if (!owner) return shown;
-  const extra = THEMES.filter((theme) => (isFaultTheme(theme.id) || theme.id === "azorim" || theme.id === "luxury-light" || theme.id === "floors") && !shown.some((item) => item.id === theme.id));
+  const extra = THEMES.filter((theme) => (isFaultTheme(theme.id) || theme.id === "azorim" || theme.id === "luxury-light" || isFloorsTheme(theme.id)) && !shown.some((item) => item.id === theme.id));
   return [...shown, ...extra.map(({ id, name }) => ({ id, name }))];
 }
 
@@ -58,7 +72,7 @@ export async function savedTheme(requested: string, current: string, owner = fal
   if (requested === "fault-card" || requested === "fault-night") return "luxury";
   if (requested === "azorim") return owner || current === "azorim" ? "azorim" : current;
   if (requested === "luxury-light") return owner || current === "luxury-light" ? "luxury-light" : current;
-  if (requested === "floors") return owner || current === "floors" ? "floors" : current;
+  if (isFloorsTheme(requested)) return owner || current === requested ? requested : current;
   if (owner && (requested === "luxury" || requested === "luxury720" || isFaultTheme(requested))) return requested;
   if (!owner && requested === "luxury" && current === "luxury720") return "luxury720";
   const ids = await clientThemeIds();

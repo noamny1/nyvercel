@@ -5,7 +5,7 @@ import { officialCity } from "@/modules/place/cities";
 import { screenWhere } from "@/modules/identity/access";
 import { isSystemAdmin } from "@/modules/identity/session";
 import { nextCode, touchGroup } from "@/modules/data/publish";
-import { floorCaption, floorPace, savedTheme } from "@/modules/slides/themes";
+import { floorCaption, floorPace, isFloorsTheme, savedTheme } from "@/modules/slides/themes";
 import { adoptGroup, chosenNews, fallbackLogo, gate, ownerGate, spreadGroupPromo, writtenAddress } from "@/modules/admin/gate";
 
 export async function createGroup(formData: FormData) {
@@ -133,11 +133,11 @@ export async function updateGroup(formData: FormData) {
     },
   });
   if (theme === "azorim") await prisma.screen.updateMany({ where: { groupId: id }, data: { theme: "azorim" } });
-  if (theme === "floors") {
+  if (isFloorsTheme(theme)) {
     await prisma.screen.updateMany({
       where: { groupId: id },
       data: {
-        theme: "floors",
+        theme,
         ...(formData.has("floorPace") ? { floorPace: pace, floorCaption: caption } : {}),
       },
     });

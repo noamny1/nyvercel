@@ -21,7 +21,7 @@ import { FaultCopy, WelcomeLine, faultPayload, faultQrSrc } from "@/components/t
 import { CinemaBoard, GlassBoard } from "@/components/themes/MotionBoard";
 import { AzorimBar, AzorimFeed } from "@/components/themes/AzorimBoard";
 import { FloorsBoard } from "@/components/themes/FloorsBoard";
-import { floorCaption, floorPace } from "@/lib/themes";
+import { floorCaption, floorPace, isFloorsTheme } from "@/lib/themes";
 import { markets } from "@/lib/markets";
 import { liveHeadlines } from "@/lib/news";
 import { prisma } from "@/lib/prisma";
@@ -80,7 +80,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
   const pool = screen.slides.length > 0 ? screen.slides : source.slides;
   const visible = pool.filter((slide) => slideIsOn(slide));
   const notices = screen.notices.length > 0 ? screen.notices : source.notices;
-  const picked = (source.theme === "azorim" || source.theme === "floors") && (!screen.theme || screen.theme === "modern") ? source.theme : (screen.theme || source.theme || "modern");
+  const picked = (source.theme === "azorim" || isFloorsTheme(source.theme)) && (!screen.theme || screen.theme === "modern") ? source.theme : (screen.theme || source.theme || "modern");
   const chosen = picked === "fault-card" || picked === "fault-night" ? "luxury" : picked;
   const theme = isThemeId(chosen) ? chosen : "modern";
   const luxury = theme === "luxury" || theme === "luxury720" || theme === "luxury-light";
@@ -91,7 +91,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
   const newsSource = screen.newsSource || source.newsSource || "ynet";
   const sourceCount = newsSource.split(",").map((item) => item.trim()).filter(Boolean).length || 1;
   const azorim = theme === "azorim";
-  const floorsOn = theme === "floors";
+  const floorsOn = isFloorsTheme(theme);
   const modern = theme === "modern";
   const newsTake = luxury || fault
     ? Math.min(20, Math.max(screen.newsCount || 8, sourceCount * 4))
@@ -138,7 +138,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
 
   return (
     <>
-    <FitStage width={floorsOn ? 720 : wide ? 1280 : 1366} height={floorsOn ? 1280 : wide ? 720 : 768} fill={floorsOn || wide ? 1 : 0.97} code={screen.code || screen.id} revision={screen.revision} className={`stage theme-${theme}${luxury ? ` layout-luxury ${heebo.className}` : ""}${theme === "luxury-light" ? " layout-lux-light" : ""}${fault ? ` layout-luxury ${theme} ${heebo.className}` : ""}${wide ? " layout-luxury720" : ""}${modern ? " layout-modern" : ""}${azorim ? ` layout-azorim ${heebo.className}` : ""}${floorsOn ? ` layout-floors ${heebo.className}` : ""}${cinematic ? ` layout-${theme} ${heebo.className}` : ""}${tickerOn && !luxury && !modern && !cinematic && !fault && !azorim && !floorsOn ? "" : " no-ticker"}`}>
+    <FitStage width={floorsOn ? 720 : wide ? 1280 : 1366} height={floorsOn ? 1280 : wide ? 720 : 768} fill={floorsOn || wide ? 1 : 0.97} code={screen.code || screen.id} revision={screen.revision} className={`stage theme-${theme}${luxury ? ` layout-luxury ${heebo.className}` : ""}${theme === "luxury-light" ? " layout-lux-light" : ""}${fault ? ` layout-luxury ${theme} ${heebo.className}` : ""}${wide ? " layout-luxury720" : ""}${modern ? " layout-modern" : ""}${azorim ? ` layout-azorim ${heebo.className}` : ""}${floorsOn ? ` layout-floors look-${theme} ${heebo.className}` : ""}${cinematic ? ` layout-${theme} ${heebo.className}` : ""}${tickerOn && !luxury && !modern && !cinematic && !fault && !azorim && !floorsOn ? "" : " no-ticker"}`}>
       <Music playlist={silenced ? "off" : screen.musicPlaylist || ""} url={silenced ? "" : screen.group?.musicUrl || ""} start={screen.id} days={screen.musicDays} from={screen.musicFrom} until={screen.musicUntil} />
       <NewsGate mode={newsMode} />
       <Wake />
@@ -337,9 +337,9 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
       {floorsOn ? (
         <FloorsBoard
           floors={floors}
-          pace={screen.theme === "floors" ? floorPace(screen.floorPace) : floorPace(source.floorPace || screen.floorPace)}
-          caption={screen.theme === "floors" ? floorCaption(screen.floorCaption) : floorCaption(source.floorCaption || screen.floorCaption)}
-          title={(screen.theme === "floors" ? floorCaption(screen.floorCaption) : floorCaption(source.floorCaption || screen.floorCaption)) === "address" ? address(street, number, city) : (source.name || screen.name)}
+          pace={isFloorsTheme(screen.theme) ? floorPace(screen.floorPace) : floorPace(source.floorPace || screen.floorPace)}
+          caption={isFloorsTheme(screen.theme) ? floorCaption(screen.floorCaption) : floorCaption(source.floorCaption || screen.floorCaption)}
+          title={(isFloorsTheme(screen.theme) ? floorCaption(screen.floorCaption) : floorCaption(source.floorCaption || screen.floorCaption)) === "address" ? address(street, number, city) : (source.name || screen.name)}
           logoUrl={logoUrl || ""}
           time={clock.time}
           temp={weather?.temp ?? null}
