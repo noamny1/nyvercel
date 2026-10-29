@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
+import { chipLabel } from "@/modules/broadcast/news-sources";
 import { useFreshHeadlines, type Headline } from "@/modules/player/useFreshHeadlines";
 import { useNewsOn } from "@/modules/player/useNewsOn";
 
@@ -61,16 +62,15 @@ export function FloorsBoard({
               <b className={`floor-num${index % 2 === 0 ? " is-green" : " is-black"}${badge.length > 3 ? " is-long" : ""}`}>{badge}</b>
               <div className="floor-copy">
                 {rooms.length === 0 ? <strong>{badge}</strong> : rooms.map((room) => (
-                  <p className={room.logoUrl ? "has-logo" : ""} key={room.id}>
-                    {room.logoUrl ? <img src={room.logoUrl} alt="" /> : null}
-                    <span className="floor-line">
+                  <p className="floor-room" key={room.id}>
+                    <span className="floor-who">
+                      {room.logoUrl ? <img src={room.logoUrl} alt="" /> : null}
                       <strong>{room.name}</strong>
-                      {room.detail ? <span>{room.detail}</span> : null}
                     </span>
+                    {room.detail ? <em>{room.detail}</em> : null}
                   </p>
                 ))}
               </div>
-              <i className="floor-go" />
             </article>
           );
         })}
@@ -129,9 +129,13 @@ function FloorsNews({
 }) {
   const newsOn = useNewsOn(newsMode);
   const fresh = useFreshHeadlines(sourceId || "ynet", newsCount, headlines);
-  const lines = newsOn ? fresh.map((item) => item.title).filter(Boolean) : notices.filter(Boolean);
+  const lines = newsOn
+    ? fresh.filter((item) => item.title)
+    : notices.filter(Boolean).map((title) => ({ title, source: "" }));
   const [index, setIndex] = useState(0);
-  const key = lines.join("\n");
+  const key = lines.map((item) => `${item.source}|${item.title}`).join("\n");
+  const item = lines[index];
+  const source = item?.source ? sourceMark(item.source) : "";
 
   useEffect(() => {
     setIndex(0);
@@ -145,7 +149,13 @@ function FloorsNews({
 
   return (
     <footer className="floors-news">
-      <span>{lines[index] || (newsOn ? "אין חדשות כרגע" : "")}</span>
+      {source ? <b className="floors-source">{source}</b> : null}
+      <span>{item?.title || (newsOn ? "אין חדשות כרגע" : "")}</span>
     </footer>
   );
+}
+
+function sourceMark(name: string) {
+  const label = chipLabel(name);
+  return label.toLowerCase() === "ynet" ? "YNET" : label;
 }

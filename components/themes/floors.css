@@ -2,12 +2,22 @@
   width: 720px;
   height: 1280px;
   display: block;
-  background: #f7f9f6;
+  background: #1a2228;
 }
 .layout-floors .slide,
 .layout-floors .rail,
 .layout-floors .ticker,
 .layout-floors .brand-bar { display: none; }
+.stage.layout-floors .music-credit {
+  left: 0;
+  right: 0;
+  top: 4px;
+  width: auto;
+  justify-content: center;
+  text-align: center;
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+}
 
 .floors-board {
   position: absolute;
@@ -17,18 +27,23 @@
   left: 0;
   display: flex;
   flex-direction: column;
-  background: #f7f9f6;
   direction: rtl;
   overflow: hidden;
   color: #1c1c1c;
+  background-color: #1a2228;
+  background-image: linear-gradient(180deg, rgba(8, 12, 16, 0.52) 0%, rgba(8, 12, 16, 0.16) 24%, rgba(8, 12, 16, 0.1) 68%, rgba(8, 12, 16, 0.58) 100%), url("/themes/floors-tower.jpg");
+  background-position: center center;
+  background-size: cover;
+  background-repeat: no-repeat;
 }
 
 .floors-head {
   flex: none;
-  background: #5db546;
+  background: transparent;
   color: #fff;
   text-align: center;
-  padding: 18px 24px 16px;
+  padding: 30px 24px 12px;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.55);
 }
 .floors-logo {
   display: inline-block;
@@ -37,6 +52,8 @@
   padding: 8px 16px;
   margin-bottom: 8px;
   color: #1c1c1c;
+  text-shadow: none;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
 }
 .floors-logo img {
   display: block;
@@ -61,7 +78,7 @@
 }
 .floors-kicker {
   display: block;
-  color: #e2f0dc;
+  color: rgba(255, 248, 236, 0.9);
   font-size: 15px;
 }
 .floors-title {
@@ -95,20 +112,20 @@
 .floors-empty {
   margin: 48px 24px;
   text-align: center;
-  color: #5a605a;
+  color: #fff;
   font-size: 22px;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
 }
 
 .floor-card {
   display: flex;
   align-items: center;
-  justify-content: center;
   direction: rtl;
-  margin: 0 28px 18px;
-  padding: 18px 20px;
-  background: #fff;
+  margin: 0 22px 14px;
+  padding: 16px 18px;
+  background: rgba(255, 255, 255, 0.88);
   border-radius: 22px;
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
 }
 .floor-num {
   display: flex;
@@ -116,7 +133,6 @@
   justify-content: center;
   width: 74px;
   height: 92px;
-  margin-left: 16px;
   border-radius: 16px;
   font-size: 48px;
   font-weight: 500;
@@ -124,73 +140,78 @@
   flex: none;
 }
 .floor-num.is-green { background: #5db546; color: #fff; }
-.floor-num.is-black { background: #161616; color: #5db546; }
+.floor-num.is-black { background: #161616; color: #e6d3ae; }
 .floor-num.is-long { font-size: 18px; padding: 0 6px; text-align: center; }
 .floor-copy {
-  width: 250px;
-  margin-left: 16px;
+  flex: 1;
+  min-width: 0;
+  margin-right: 16px;
   text-align: right;
 }
-.floor-copy p { margin: 0; }
-.floor-copy p.has-logo { display: flex; align-items: center; }
-.floor-copy p.has-logo img {
-  width: 72px;
-  height: 40px;
+.floor-room {
+  display: flex;
+  align-items: center;
+  margin: 0;
+}
+.floor-room + .floor-room { margin-top: 10px; }
+.floor-who {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+.floor-who img {
+  width: 56px;
+  height: 32px;
   margin-left: 8px;
   object-fit: contain;
   flex: none;
 }
-.floor-copy .floor-line { display: block; min-width: 0; }
-.floor-copy p + p { margin-top: 10px; }
-.floor-copy strong {
+.floor-who strong,
+.floor-copy > strong {
   display: block;
   font-size: 22px;
   font-weight: 500;
   color: #1c1c1c;
 }
-.floor-copy .floor-line > span {
-  display: block;
-  margin-top: 2px;
-  color: #5a605a;
-  font-size: 16px;
-}
-.floor-go {
-  position: relative;
-  width: 46px;
-  height: 78px;
-  border-radius: 14px;
-  background: #5db546;
+.floor-room em {
+  margin-right: auto;
+  padding-right: 12px;
+  font-style: normal;
+  font-size: 20px;
+  font-weight: 500;
+  color: #3a3834;
   flex: none;
-}
-.floor-go::before {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 10px;
-  height: 10px;
-  margin-top: -7px;
-  margin-left: -3px;
-  border-right: 3px solid #fff;
-  border-bottom: 3px solid #fff;
-  transform: rotate(135deg);
 }
 
 .floors-news {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex: none;
-  height: 72px;
-  background: #5db546;
-  color: #fff;
+  height: 68px;
+  padding: 0 18px;
+  background: rgba(16, 14, 12, 0.9);
+  color: #f6f1e8;
+  border-top: 1px solid #c6a15b;
   text-align: center;
-  line-height: 72px;
-  font-size: 22px;
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 1.2;
+}
+.floors-source {
+  flex: none;
+  margin-left: 12px;
+  padding: 4px 10px;
+  border: 1px solid #d4b483;
+  border-radius: 999px;
+  color: #e8d7b0;
+  font-size: 13px;
   font-weight: 500;
 }
 .floors-news span {
-  display: inline-block;
-  max-width: 640px;
+  display: block;
+  min-width: 0;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-  vertical-align: middle;
 }
