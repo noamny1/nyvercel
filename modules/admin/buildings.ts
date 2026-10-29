@@ -133,7 +133,7 @@ export async function addRoom(formData: FormData) {
     },
   });
   await touchFloors(floor.screenId || 0, floor.groupId || 0);
-  redirect(floorReturn(formData));
+  revalidatePath(floorReturn(formData).split("#")[0]);
 }
 export async function deleteRoom(formData: FormData) {
   const session = await gate();
@@ -191,17 +191,33 @@ export async function saveFloor(formData: FormData) {
   const floor = await prisma.floor.findUnique({ where: { id }, include: { rooms: { select: { id: true } } } });
   if (!floor || !(await allowedFloors(session, floor.screenId || 0, floor.groupId || 0))) redirect("/admin");
   const name = String(formData.get("name") || "").trim().slice(0, 40);
-  if (name) await prisma.floor.update({ where: { id }, data: { name } });
-  for (const room of floor.rooms) {
-    const roomName = String(formData.get(`room-${room.id}-name`) || "").trim().slice(0, 80);
-    if (!roomName) continue;
-    await prisma.room.update({
-      where: { id: room.id },
-      data: { name: roomName, detail: String(formData.get(`room-${room.id}-detail`) || "").trim().slice(0, 80) },
-    });
+  let ok = Boolean(name);
+  let wrote = false;
+  try {
+    if (name) {
+      await prisma.floor.update({ where: { id }, data: { name } });
+      wrote = true;
+    }
+    for (const room of floor.rooms) {
+      const roomName = String(formData.get(`room-${room.id}-name`) || "").trim().slice(0, 80);
+      if (!roomName) {
+        ok = false;
+        continue;
+      }
+      await prisma.room.update({
+        where: { id: room.id },
+        data: { name: roomName, detail: String(formData.get(`room-${room.id}-detail`) || "").trim().slice(0, 80) },
+      });
+      wrote = true;
+    }
+  } catch {
+    ok = false;
   }
-  await touchFloors(floor.screenId || 0, floor.groupId || 0);
-  revalidatePath(floorReturn(formData).split("#")[0]);
+  if (wrote) {
+    await touchFloors(floor.screenId || 0, floor.groupId || 0);
+    revalidatePath(floorReturn(formData).split("#")[0]);
+  }
+  return { ok };
 }
 export async function deleteFloor(formData: FormData) {
   const session = await gate();

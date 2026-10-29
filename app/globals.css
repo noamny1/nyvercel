@@ -163,7 +163,10 @@ body:has(.admin) { background: #F4F1ED; overflow-x: hidden; }
 .admin .floors-admin .room-fields > label { flex: 1 1 140px; }
 .admin .floors-admin .floor-rename button,
 .admin .floors-admin .room-fields button { width: auto; min-height: 40px; }
-.admin .floors-admin .floor-save-row { display: flex; justify-content: flex-start; margin: 4px 14px 8px; }
+.admin .floors-admin .floor-save-row { display: flex; align-items: center; justify-content: flex-start; margin: 4px 14px 8px; }
+.admin .floors-admin .floor-note { margin-right: 12px; font-size: 14px; }
+.admin .floors-admin .floor-note.is-ok { color: #1f7a3a; }
+.admin .floors-admin .floor-note.is-bad { color: #8a1f2b; }
 .admin .floors-admin .room-line {
   background: #fff;
   border: 1px solid rgba(90, 31, 43, 0.16);
