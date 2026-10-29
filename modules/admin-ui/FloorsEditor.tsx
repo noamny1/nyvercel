@@ -22,32 +22,36 @@ export function FloorsEditor({
       <h2>קומות וחדרים</h2>
       <p>אין שקפים ואין הודעות במסך הזה. מוסיפים קומה, ובתוכה את החדרים. לוגו לדייר או לעסק לא חובה.</p>
       {floors.map((floor) => (
-        <div className="floor-admin" key={floor.id}>
-          <div className="row">
+        <div className="floor-block" key={floor.id}>
+          <header className="floor-head">
             <strong>{floor.name}</strong>
             <form action={deleteFloor}>
               <input type="hidden" name="id" value={floor.id} />
               <input type="hidden" name="returnTo" value={returnTo} />
               <button className="light" type="submit">מחיקת קומה</button>
             </form>
-          </div>
+          </header>
           {floor.rooms.map((room) => (
             <div className="room-line" key={room.id}>
-              {room.logoUrl ? <img src={room.logoUrl} alt="" /> : <span className="room-logo-empty">בלי לוגו</span>}
-              <b>{room.name}</b>
-              {room.detail ? <small>{room.detail}</small> : null}
-              <RoomLogo roomId={room.id} logoUrl={room.logoUrl} returnTo={returnTo} />
-              <form action={deleteRoom}>
-                <input type="hidden" name="id" value={room.id} />
-                <input type="hidden" name="returnTo" value={returnTo} />
-                <button className="light" type="submit">מחיקה</button>
-              </form>
+              <div className="room-id">
+                <b>{room.name}</b>
+                {room.detail ? <small>{room.detail}</small> : null}
+              </div>
+              <div className="room-tools">
+                {room.logoUrl ? <img src={room.logoUrl} alt="" /> : <span className="room-logo-empty">בלי לוגו</span>}
+                <RoomLogo roomId={room.id} logoUrl={room.logoUrl} returnTo={returnTo} />
+                <form action={deleteRoom}>
+                  <input type="hidden" name="id" value={room.id} />
+                  <input type="hidden" name="returnTo" value={returnTo} />
+                  <button className="light" type="submit">מחיקה</button>
+                </form>
+              </div>
             </div>
           ))}
           <AddRoom floorId={floor.id} returnTo={returnTo} />
         </div>
       ))}
-      <form className="row" action={addFloor}>
+      <form className="floor-add" action={addFloor}>
         {screenId ? <input type="hidden" name="screenId" value={screenId} /> : null}
         {groupId ? <input type="hidden" name="groupId" value={groupId} /> : null}
         <input type="hidden" name="returnTo" value={returnTo} />
@@ -63,7 +67,7 @@ function AddRoom({ floorId, returnTo }: { floorId: number; returnTo: string }) {
   const [busy, setBusy] = useState("");
 
   return (
-    <form className="row" action={addRoom}>
+    <form className="room-add" action={addRoom}>
       <input type="hidden" name="floorId" value={floorId} />
       <input type="hidden" name="returnTo" value={returnTo} />
       <input type="hidden" name="logoUrl" value={logoUrl} />
