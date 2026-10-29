@@ -142,8 +142,20 @@ body:has(.admin) { background: #F4F1ED; overflow-x: hidden; }
   justify-content: space-between;
   gap: 12px;
 }
-.admin .floors-admin .floor-head { margin-bottom: 10px; }
-.admin .floors-admin .floor-head strong { font-size: 20px; font-weight: 500; }
+.admin .floors-admin .floor-head { margin-bottom: 10px; align-items: end; }
+.admin .floors-admin .floor-rename,
+.admin .floors-admin .room-edit {
+  display: flex;
+  align-items: end;
+  flex-wrap: wrap;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+.admin .floors-admin .floor-rename > label,
+.admin .floors-admin .room-edit > label { flex: 1 1 140px; }
+.admin .floors-admin .floor-rename button,
+.admin .floors-admin .room-edit button { width: auto; min-height: 40px; }
 .admin .floors-admin .room-line {
   background: #fff;
   border: 1px solid rgba(37, 37, 37, 0.08);

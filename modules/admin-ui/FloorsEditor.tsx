@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { addFloor, addRoom, deleteFloor, deleteRoom, setRoomLogo } from "@/app/admin/actions";
+import { addFloor, addRoom, deleteFloor, deleteRoom, setRoomLogo, updateFloor, updateRoom } from "@/app/admin/actions";
 
 type Room = { id: number; name: string; detail: string; logoUrl: string };
 type Floor = { id: number; name: string; rooms: Room[] };
@@ -20,11 +20,16 @@ export function FloorsEditor({
   return (
     <section className="card floors-admin">
       <h2>קומות וחדרים</h2>
-      <p>אין שקפים ואין הודעות במסך הזה. מוסיפים קומה, ובתוכה את החדרים. לוגו לדייר או לעסק לא חובה.</p>
+      <p>אין שקפים ואין הודעות במסך הזה. אפשר לערוך שם קומה, שם משרד ומספר חדר, ואז ללחוץ שמירה.</p>
       {floors.map((floor) => (
         <div className="floor-block" key={floor.id}>
           <header className="floor-head">
-            <strong>{floor.name}</strong>
+            <form className="floor-rename" action={updateFloor}>
+              <input type="hidden" name="id" value={floor.id} />
+              <input type="hidden" name="returnTo" value={returnTo} />
+              <label>שם או מספר הקומה<input name="name" required defaultValue={floor.name} maxLength={40} /></label>
+              <button type="submit">שמירה</button>
+            </form>
             <form action={deleteFloor}>
               <input type="hidden" name="id" value={floor.id} />
               <input type="hidden" name="returnTo" value={returnTo} />
@@ -33,10 +38,13 @@ export function FloorsEditor({
           </header>
           {floor.rooms.map((room) => (
             <div className="room-line" key={room.id}>
-              <div className="room-id">
-                <b>{room.name}</b>
-                {room.detail ? <small>{room.detail}</small> : null}
-              </div>
+              <form className="room-edit" action={updateRoom}>
+                <input type="hidden" name="id" value={room.id} />
+                <input type="hidden" name="returnTo" value={returnTo} />
+                <label>שם המשרד<input name="name" required defaultValue={room.name} maxLength={80} /></label>
+                <label>מספר חדר<input name="detail" defaultValue={room.detail} maxLength={80} placeholder="406" /></label>
+                <button type="submit">שמירה</button>
+              </form>
               <div className="room-tools">
                 {room.logoUrl ? <img src={room.logoUrl} alt="" /> : <span className="room-logo-empty">בלי לוגו</span>}
                 <RoomLogo roomId={room.id} logoUrl={room.logoUrl} returnTo={returnTo} />

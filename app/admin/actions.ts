@@ -112,7 +112,7 @@ export async function reorderGroupScreens(formData: FormData) {
   return reorderGroupScreensImpl(formData);
 }
 
-import { createListedScreen as createListedScreenImpl, deleteListedScreen as deleteListedScreenImpl, moveListedScreen as moveListedScreenImpl, deleteBuilding as deleteBuildingImpl, addFloor as addFloorImpl, addRoom as addRoomImpl, deleteRoom as deleteRoomImpl, setRoomLogo as setRoomLogoImpl, deleteFloor as deleteFloorImpl } from "@/modules/admin/buildings";
+import { createListedScreen as createListedScreenImpl, deleteListedScreen as deleteListedScreenImpl, moveListedScreen as moveListedScreenImpl, deleteBuilding as deleteBuildingImpl, addFloor as addFloorImpl, addRoom as addRoomImpl, updateFloor as updateFloorImpl, updateRoom as updateRoomImpl, deleteRoom as deleteRoomImpl, setRoomLogo as setRoomLogoImpl, deleteFloor as deleteFloorImpl } from "@/modules/admin/buildings";
 
 export async function createListedScreen(formData: FormData) {
   return createListedScreenImpl(formData);
@@ -136,6 +136,14 @@ export async function addFloor(formData: FormData) {
 
 export async function addRoom(formData: FormData) {
   return addRoomImpl(formData);
+}
+
+export async function updateFloor(formData: FormData) {
+  return updateFloorImpl(formData);
+}
+
+export async function updateRoom(formData: FormData) {
+  return updateRoomImpl(formData);
 }
 
 export async function deleteRoom(formData: FormData) {
