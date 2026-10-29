@@ -48,6 +48,8 @@ model ScreenGroup {
   promoSeconds Int     @default(20)
   newsSource String   @default("ynet")
   musicUrl   String   @default("")
+  floorPace  Int      @default(28)
+  floorCaption String @default("name")
   buildingId Int?
   building   Building? @relation(fields: [buildingId], references: [id], onDelete: SetNull)
   screens    Screen[]
@@ -85,6 +87,8 @@ model Screen {
   newsSource String       @default("ynet")
   newsCount  Int          @default(8)
   tickerSeconds Int       @default(12)
+  floorPace  Int          @default(28)
+  floorCaption String     @default("name")
   newsTicker String      @default("on")
   feedMode   String       @default("both")
   groupId    Int?

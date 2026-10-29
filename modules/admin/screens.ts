@@ -6,7 +6,7 @@ import { screenWhere } from "@/modules/identity/access";
 import { isSystemAdmin } from "@/modules/identity/session";
 import { nextCode, touchScreen } from "@/modules/data/publish";
 import { normalizePlaylists } from "@/modules/music/catalog";
-import { savedTheme } from "@/modules/slides/themes";
+import { floorCaption, floorPace, savedTheme } from "@/modules/slides/themes";
 import { chosenNews, gate, ownerGate, safeReturn } from "@/modules/admin/gate";
 
 export async function createScreen(formData: FormData) {
@@ -51,6 +51,7 @@ export async function updateScreen(formData: FormData) {
       newsSource: chosenNews(formData),
       newsCount: owner ? Math.min(20, Math.max(1, Number(formData.get("newsCount")) || current.newsCount || 8)) : current.newsCount,
       tickerSeconds: owner ? Math.min(40, Math.max(6, Number(formData.get("tickerSeconds")) || current.tickerSeconds || 12)) : current.tickerSeconds,
+      ...(owner && formData.has("floorPace") ? { floorPace: floorPace(formData.get("floorPace")), floorCaption: floorCaption(formData.get("floorCaption")) } : {}),
       newsTicker: ["on", "weekend", "off"].includes(String(formData.get("newsTicker"))) ? String(formData.get("newsTicker")) : "on",
       ...( ["news", "notices", "both"].includes(String(formData.get("feedMode"))) ? { feedMode: String(formData.get("feedMode")) } : {}),
       musicPlaylist: music,

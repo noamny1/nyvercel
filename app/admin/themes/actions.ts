@@ -10,7 +10,7 @@ export async function saveClientThemes(formData: FormData) {
   if (!session) redirect("/admin/login");
   if (!isSystemAdmin(session)) redirect("/admin/buildings");
   const picked = new Set(formData.getAll("theme").map((value) => String(value)).filter(isThemeId));
-  const ids = THEMES.map((theme) => theme.id).filter((id) => id !== "luxury720" && id !== "azorim" && id !== "luxury-light" && picked.has(id));
+  const ids = THEMES.map((theme) => theme.id).filter((id) => id !== "luxury720" && id !== "azorim" && id !== "luxury-light" && id !== "floors" && picked.has(id));
   if (!ids.length) ids.push("modern");
   await prisma.systemFlag.upsert({
     where: { id: "clientThemes" },

@@ -5,7 +5,7 @@ import { officialCity } from "@/modules/place/cities";
 import { screenWhere } from "@/modules/identity/access";
 import { isSystemAdmin } from "@/modules/identity/session";
 import { nextCode, touchGroup } from "@/modules/data/publish";
-import { savedTheme } from "@/modules/slides/themes";
+import { floorCaption, floorPace, savedTheme } from "@/modules/slides/themes";
 import { adoptGroup, chosenNews, fallbackLogo, gate, ownerGate, spreadGroupPromo, writtenAddress } from "@/modules/admin/gate";
 
 export async function createGroup(formData: FormData) {
@@ -112,6 +112,8 @@ export async function updateGroup(formData: FormData) {
   if (!current) redirect("/admin");
   const owner = isSystemAdmin(session);
   const theme = owner ? await savedTheme(String(formData.get("theme") || current.theme), current.theme, true) : current.theme;
+  const pace = formData.has("floorPace") ? floorPace(formData.get("floorPace")) : current.floorPace;
+  const caption = formData.has("floorCaption") ? floorCaption(formData.get("floorCaption")) : current.floorCaption;
   await prisma.screenGroup.update({
     where: { id },
     data: {
@@ -127,9 +129,19 @@ export async function updateGroup(formData: FormData) {
       faultQrUrl: String(formData.get("clearFaultQr") || "") === "1" ? "" : String(formData.get("faultQrUrl") || "").startsWith("http") ? String(formData.get("faultQrUrl") || "") : current.faultQrUrl,
       musicUrl: String(formData.get("musicUrl") || ""),
       buildingId: Number(formData.get("buildingId")) || null,
+      ...(owner && formData.has("floorPace") ? { floorPace: pace, floorCaption: caption } : {}),
     },
   });
   if (theme === "azorim") await prisma.screen.updateMany({ where: { groupId: id }, data: { theme: "azorim" } });
+  if (theme === "floors") {
+    await prisma.screen.updateMany({
+      where: { groupId: id },
+      data: {
+        theme: "floors",
+        ...(formData.has("floorPace") ? { floorPace: pace, floorCaption: caption } : {}),
+      },
+    });
+  }
   await touchGroup(id);
   redirect(`/admin/groups/${id}`);
 }

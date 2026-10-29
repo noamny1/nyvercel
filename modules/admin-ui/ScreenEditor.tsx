@@ -49,6 +49,8 @@ export function ScreenEditor({
     tickerSeconds?: number;
     newsTicker?: string;
     feedMode?: string;
+    floorPace?: number;
+    floorCaption?: string;
     musicPlaylist?: string;
     musicDays?: string;
     musicFrom?: string;
@@ -271,6 +273,23 @@ export function ScreenEditor({
                 <option value="both">חדשות והודעות</option>
               </select>
             </label>
+          ) : null}
+          {canTheme && themePick === "floors" ? (
+            <>
+              <label>כותרת
+                <select name="floorCaption" defaultValue={screen.floorCaption === "address" ? "address" : "name"}>
+                  <option value="name">שם הבניין</option>
+                  <option value="address">כתובת</option>
+                </select>
+              </label>
+              <label>מהירות גלילת קומות
+                <select name="floorPace" defaultValue={String(screen.floorPace === 16 || screen.floorPace === 46 ? screen.floorPace : 28)}>
+                  <option value="28">סטנדרטית</option>
+                  <option value="16">איטית</option>
+                  <option value="46">מהירה</option>
+                </select>
+              </label>
+            </>
           ) : null}
           {scope === "group" ? (
             <>

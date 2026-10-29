@@ -11,6 +11,7 @@ export const THEMES = [
   { id: "fault-logo", name: "התקלה ליד הלוגו", note: "ברקוד בעמודת הלוגו, ברכה בורדו למטה" },
   { id: "azorim", name: "אזורים", note: "רק לקבוצה שמנהל המערכת משייך. רקע אזורים, שקף כמו ביוקרתי" },
   { id: "luxury-light", name: "יוקרתי בהיר", note: "יוקרתי על רקע בהיר. רק מנהל המערכת משייך" },
+  { id: "floors", name: "קומות", note: "מסך עומד, מספרים וחדשות. רק מנהל המערכת משייך" },
 ] as const;
 
 export type ThemeId = (typeof THEMES)[number]["id"];
@@ -25,10 +26,19 @@ export function isFaultTheme(value: string): value is ThemeId {
   return value.startsWith("fault-") && isThemeId(value);
 }
 
+export function floorPace(value: unknown) {
+  const pace = Number(value);
+  return pace === 16 || pace === 46 ? pace : 28;
+}
+
+export function floorCaption(value: unknown) {
+  return value === "address" ? "address" : "name";
+}
+
 export async function clientThemeIds(): Promise<ThemeId[]> {
   const row = await prisma.systemFlag.findUnique({ where: { id: "clientThemes" } }).catch(() => null);
   if (!row) return DEFAULT_CLIENT_IDS;
-  const picked = row.value.split(",").map((item) => item.trim()).filter((id): id is ThemeId => isThemeId(id) && id !== "luxury720" && id !== "azorim" && id !== "luxury-light");
+  const picked = row.value.split(",").map((item) => item.trim()).filter((id): id is ThemeId => isThemeId(id) && id !== "luxury720" && id !== "azorim" && id !== "luxury-light" && id !== "floors");
   return picked.length > 0 ? picked : DEFAULT_CLIENT_IDS;
 }
 
@@ -40,7 +50,7 @@ export async function clientThemes() {
 export async function editorThemes(owner: boolean) {
   const shown = await clientThemes();
   if (!owner) return shown;
-  const extra = THEMES.filter((theme) => (isFaultTheme(theme.id) || theme.id === "azorim" || theme.id === "luxury-light") && !shown.some((item) => item.id === theme.id));
+  const extra = THEMES.filter((theme) => (isFaultTheme(theme.id) || theme.id === "azorim" || theme.id === "luxury-light" || theme.id === "floors") && !shown.some((item) => item.id === theme.id));
   return [...shown, ...extra.map(({ id, name }) => ({ id, name }))];
 }
 
@@ -48,6 +58,7 @@ export async function savedTheme(requested: string, current: string, owner = fal
   if (requested === "fault-card" || requested === "fault-night") return "luxury";
   if (requested === "azorim") return owner || current === "azorim" ? "azorim" : current;
   if (requested === "luxury-light") return owner || current === "luxury-light" ? "luxury-light" : current;
+  if (requested === "floors") return owner || current === "floors" ? "floors" : current;
   if (owner && (requested === "luxury" || requested === "luxury720" || isFaultTheme(requested))) return requested;
   if (!owner && requested === "luxury" && current === "luxury720") return "luxury720";
   const ids = await clientThemeIds();

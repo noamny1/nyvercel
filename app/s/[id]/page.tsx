@@ -20,6 +20,8 @@ import { LuxuryRail } from "@/components/themes/LuxuryRail";
 import { FaultCopy, WelcomeLine, faultPayload, faultQrSrc } from "@/components/themes/FaultParts";
 import { CinemaBoard, GlassBoard } from "@/components/themes/MotionBoard";
 import { AzorimBar, AzorimFeed } from "@/components/themes/AzorimBoard";
+import { FloorsBoard } from "@/components/themes/FloorsBoard";
+import { floorCaption, floorPace } from "@/lib/themes";
 import { markets } from "@/lib/markets";
 import { liveHeadlines } from "@/lib/news";
 import { prisma } from "@/lib/prisma";
@@ -35,6 +37,7 @@ import "@/components/themes/luxury.css";
 import "@/components/themes/fault.css";
 import "@/components/themes/motion.css";
 import "@/components/themes/azorim.css";
+import "@/components/themes/floors.css";
 
 const heebo = Heebo({ subsets: ["hebrew", "latin"], weight: ["300", "400", "500"], display: "swap" });
 
@@ -76,7 +79,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
   const pool = screen.slides.length > 0 ? screen.slides : source.slides;
   const visible = pool.filter((slide) => slideIsOn(slide));
   const notices = screen.notices.length > 0 ? screen.notices : source.notices;
-  const picked = source.theme === "azorim" && (!screen.theme || screen.theme === "modern") ? "azorim" : (screen.theme || source.theme || "modern");
+  const picked = (source.theme === "azorim" || source.theme === "floors") && (!screen.theme || screen.theme === "modern") ? source.theme : (screen.theme || source.theme || "modern");
   const chosen = picked === "fault-card" || picked === "fault-night" ? "luxury" : picked;
   const theme = isThemeId(chosen) ? chosen : "modern";
   const luxury = theme === "luxury" || theme === "luxury720" || theme === "luxury-light";
@@ -87,6 +90,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
   const newsSource = screen.newsSource || source.newsSource || "ynet";
   const sourceCount = newsSource.split(",").map((item) => item.trim()).filter(Boolean).length || 1;
   const azorim = theme === "azorim";
+  const floorsOn = theme === "floors";
   const modern = theme === "modern";
   const newsTake = luxury || fault
     ? Math.min(20, Math.max(screen.newsCount || 8, sourceCount * 4))
@@ -133,14 +137,14 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
 
   return (
     <>
-    <FitStage width={wide ? 1280 : 1366} height={wide ? 720 : 768} fill={wide ? 1 : 0.97} code={screen.code || screen.id} revision={screen.revision} className={`stage theme-${theme}${luxury ? ` layout-luxury ${heebo.className}` : ""}${theme === "luxury-light" ? " layout-lux-light" : ""}${fault ? ` layout-luxury ${theme} ${heebo.className}` : ""}${wide ? " layout-luxury720" : ""}${modern ? " layout-modern" : ""}${azorim ? ` layout-azorim ${heebo.className}` : ""}${cinematic ? ` layout-${theme} ${heebo.className}` : ""}${tickerOn && !luxury && !modern && !cinematic && !fault && !azorim ? "" : " no-ticker"}`}>
+    <FitStage width={floorsOn ? 720 : wide ? 1280 : 1366} height={floorsOn ? 1280 : wide ? 720 : 768} fill={floorsOn || wide ? 1 : 0.97} code={screen.code || screen.id} revision={screen.revision} className={`stage theme-${theme}${luxury ? ` layout-luxury ${heebo.className}` : ""}${theme === "luxury-light" ? " layout-lux-light" : ""}${fault ? ` layout-luxury ${theme} ${heebo.className}` : ""}${wide ? " layout-luxury720" : ""}${modern ? " layout-modern" : ""}${azorim ? ` layout-azorim ${heebo.className}` : ""}${floorsOn ? ` layout-floors ${heebo.className}` : ""}${cinematic ? ` layout-${theme} ${heebo.className}` : ""}${tickerOn && !luxury && !modern && !cinematic && !fault && !azorim && !floorsOn ? "" : " no-ticker"}`}>
       <Music playlist={silenced ? "off" : screen.musicPlaylist || ""} url={silenced ? "" : screen.group?.musicUrl || ""} start={screen.id} days={screen.musicDays} from={screen.musicFrom} until={screen.musicUntil} />
       <NewsGate mode={newsMode} />
       <Wake />
       <Ping code={screen.code || screen.id} revision={screen.revision} />
       <RemoteLink code={screen.code || screen.id} />
       <section className="slide">
-        {indexTheme && visible.length === 0 ? (
+        {floorsOn ? null : indexTheme && visible.length === 0 ? (
           <div className="index-board">
             <div className="index-title">מדריך משרדים</div>
             <Directory floors={floors} />
@@ -188,7 +192,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
         )}
       </section>
       <aside className="rail">
-        {(luxury || fault) ? (
+        {floorsOn ? null : (luxury || fault) ? (
           <>
             <LuxuryRail
               light={theme === "luxury-light"}
@@ -302,7 +306,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
           </footer>
         </>
       ) : null}
-      {!luxury && !fault && !modern && !cinematic && !azorim ? <NewsTicker titles={stories} seconds={screen.tickerSeconds || 12} sourceId={newsSource} take={screen.newsCount || 8} mode={newsMode} /> : null}
+      {!luxury && !fault && !modern && !cinematic && !azorim && !floorsOn ? <NewsTicker titles={stories} seconds={screen.tickerSeconds || 12} sourceId={newsSource} take={screen.newsCount || 8} mode={newsMode} /> : null}
       {theme === "glass" ? (
         <GlassBoard
           temp={weather?.temp ?? null}
@@ -327,6 +331,24 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
           city={city}
           logoUrl={screen.logoUrl || source.logoUrl}
           newsMode={newsMode}
+        />
+      ) : null}
+      {floorsOn ? (
+        <FloorsBoard
+          floors={floors}
+          pace={screen.theme === "floors" ? floorPace(screen.floorPace) : floorPace(source.floorPace || screen.floorPace)}
+          caption={screen.theme === "floors" ? floorCaption(screen.floorCaption) : floorCaption(source.floorCaption || screen.floorCaption)}
+          title={(screen.theme === "floors" ? floorCaption(screen.floorCaption) : floorCaption(source.floorCaption || screen.floorCaption)) === "address" ? address(street, number, city) : (source.name || screen.name)}
+          logoUrl={logoUrl || ""}
+          time={clock.time}
+          temp={weather?.temp ?? null}
+          weatherLabel={weather?.label || ""}
+          headlines={stories}
+          notices={notices.map((notice) => notice.text)}
+          sourceId={newsSource}
+          newsCount={newsTake}
+          newsMode={newsMode}
+          seconds={screen.tickerSeconds || 12}
         />
       ) : null}
       <footer className="brand-bar"><img src="/nymedia-logo.png" alt="NYmedia" /></footer>

@@ -21,7 +21,7 @@ export default async function ThemesPage({ searchParams }: { searchParams: Promi
       {done === "1" ? <p>הבחירה נשמרה.</p> : null}
       <form className="card" action={saveClientThemes}>
         <div className="theme-picks">
-          {THEMES.filter((theme) => theme.id !== "luxury720" && theme.id !== "azorim" && theme.id !== "luxury-light").map((theme) => (
+          {THEMES.filter((theme) => theme.id !== "luxury720" && theme.id !== "azorim" && theme.id !== "luxury-light" && theme.id !== "floors").map((theme) => (
             <label className="theme-pick" key={theme.id}>
               <input type="checkbox" name="theme" value={theme.id} defaultChecked={enabled.includes(theme.id)} />
               <span>
