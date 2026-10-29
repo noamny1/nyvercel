@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { addFloor, addRoom, deleteFloor, deleteRoom, setRoomLogo, updateFloor, updateRoom } from "@/app/admin/actions";
+import { addFloor, addRoom, deleteFloor, deleteRoom, saveFloor, setRoomLogo } from "@/app/admin/actions";
 
 type Room = { id: number; name: string; detail: string; logoUrl: string };
 type Floor = { id: number; name: string; rooms: Room[] };
@@ -20,45 +20,70 @@ export function FloorsEditor({
   return (
     <section className="card floors-admin">
       <h2>קומות וחדרים</h2>
-      <p>אין שקפים ואין הודעות במסך הזה. אפשר לערוך שם קומה, שם משרד ומספר חדר, ואז ללחוץ שמירה.</p>
-      {floors.map((floor) => (
-        <div className="floor-block" key={floor.id}>
-          <header className="floor-head">
-            <form className="floor-rename" action={updateFloor}>
-              <input type="hidden" name="id" value={floor.id} />
-              <input type="hidden" name="returnTo" value={returnTo} />
-              <label>שם או מספר הקומה<input name="name" required defaultValue={floor.name} maxLength={40} /></label>
-              <button type="submit">שמירה</button>
-            </form>
-            <form action={deleteFloor}>
-              <input type="hidden" name="id" value={floor.id} />
-              <input type="hidden" name="returnTo" value={returnTo} />
-              <button className="light" type="submit">מחיקת קומה</button>
-            </form>
-          </header>
-          {floor.rooms.map((room) => (
-            <div className="room-line" key={room.id}>
-              <form className="room-edit" action={updateRoom}>
-                <input type="hidden" name="id" value={room.id} />
-                <input type="hidden" name="returnTo" value={returnTo} />
-                <label>שם המשרד<input name="name" required defaultValue={room.name} maxLength={80} /></label>
-                <label>מספר חדר<input name="detail" defaultValue={room.detail} maxLength={80} placeholder="406" /></label>
-                <button type="submit">שמירה</button>
-              </form>
-              <div className="room-tools">
-                {room.logoUrl ? <img src={room.logoUrl} alt="" /> : <span className="room-logo-empty">בלי לוגו</span>}
-                <RoomLogo roomId={room.id} logoUrl={room.logoUrl} returnTo={returnTo} />
-                <form action={deleteRoom}>
-                  <input type="hidden" name="id" value={room.id} />
-                  <input type="hidden" name="returnTo" value={returnTo} />
-                  <button className="light" type="submit">מחיקה</button>
-                </form>
+      <p>אין שקפים ואין הודעות במסך הזה. עורכים את הקומה ואת החדרים, ולחיצה אחת על שמירת הקומה שומרת את הכל.</p>
+      {floors.map((floor) => {
+        const here = `${returnTo}#floor-${floor.id}`;
+        return (
+        <div className="floor-block" id={`floor-${floor.id}`} key={floor.id}>
+          <form
+            className="floor-save"
+            action={async (data) => {
+              const y = window.scrollY;
+              const until = Date.now() + 1500;
+              const hold = () => {
+                if (Math.abs(window.scrollY - y) > 2) window.scrollTo(0, y);
+                if (Date.now() < until) requestAnimationFrame(hold);
+              };
+              hold();
+              await saveFloor(data);
+            }}
+          >
+            <input type="hidden" name="id" value={floor.id} />
+            <input type="hidden" name="returnTo" value={returnTo} />
+            <header className="floor-head">
+              <div className="floor-rename">
+                <label>שם או מספר הקומה<input name="name" required defaultValue={floor.name} maxLength={40} /></label>
               </div>
+              <button className="light" type="submit" form={`del-floor-${floor.id}`}>מחיקת קומה</button>
+            </header>
+            {floor.rooms.map((room) => (
+              <div className="room-line" key={room.id}>
+                <div className="room-fields">
+                  <label>שם המשרד<input name={`room-${room.id}-name`} required defaultValue={room.name} maxLength={80} /></label>
+                  <label>מספר חדר<input name={`room-${room.id}-detail`} defaultValue={room.detail} maxLength={80} placeholder="406" /></label>
+                </div>
+                <div className="room-tools">
+                  {room.logoUrl ? <img src={room.logoUrl} alt="" /> : <span className="room-logo-empty">בלי לוגו</span>}
+                  <RoomLogo roomId={room.id} logoUrl={room.logoUrl} returnTo={here} />
+                  <button className="light" type="submit" form={`del-room-${room.id}`}>מחיקה</button>
+                </div>
+              </div>
+            ))}
+            <div className="floor-save-row">
+              <button type="submit">שמירת הקומה</button>
             </div>
+          </form>
+          <form id={`del-floor-${floor.id}`} action={deleteFloor} hidden>
+            <input type="hidden" name="id" value={floor.id} />
+            <input type="hidden" name="returnTo" value={returnTo} />
+          </form>
+          {floor.rooms.map((room) => (
+            <form id={`del-room-${room.id}`} action={deleteRoom} hidden key={`del-${room.id}`}>
+              <input type="hidden" name="id" value={room.id} />
+              <input type="hidden" name="returnTo" value={here} />
+            </form>
           ))}
-          <AddRoom floorId={floor.id} returnTo={returnTo} />
+          {floor.rooms.filter((room) => room.logoUrl).map((room) => (
+            <form id={`clear-room-${room.id}`} action={setRoomLogo} hidden key={`clear-${room.id}`}>
+              <input type="hidden" name="id" value={room.id} />
+              <input type="hidden" name="clearLogo" value="1" />
+              <input type="hidden" name="returnTo" value={here} />
+            </form>
+          ))}
+          <AddRoom floorId={floor.id} returnTo={here} />
         </div>
-      ))}
+        );
+      })}
       <form className="floor-add" action={addFloor}>
         {screenId ? <input type="hidden" name="screenId" value={screenId} /> : null}
         {groupId ? <input type="hidden" name="groupId" value={groupId} /> : null}
@@ -129,12 +154,7 @@ function RoomLogo({ roomId, logoUrl, returnTo }: { roomId: number; logoUrl: stri
         {busy || (logoUrl ? "החלפת לוגו" : "הוספת לוגו")}
       </label>
       {logoUrl ? (
-        <form action={setRoomLogo}>
-          <input type="hidden" name="id" value={roomId} />
-          <input type="hidden" name="clearLogo" value="1" />
-          <input type="hidden" name="returnTo" value={returnTo} />
-          <button className="light" type="submit">הסרת לוגו</button>
-        </form>
+        <button className="light" type="submit" form={`clear-room-${roomId}`}>הסרת לוגו</button>
       ) : null}
     </>
   );

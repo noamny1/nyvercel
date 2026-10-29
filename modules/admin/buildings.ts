@@ -1,3 +1,4 @@
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/modules/data/prisma";
 import { officialCity } from "@/modules/place/cities";
@@ -184,6 +185,24 @@ export async function updateRoom(formData: FormData) {
   }
   redirect(floorReturn(formData));
 }
+export async function saveFloor(formData: FormData) {
+  const session = await gate();
+  const id = Number(formData.get("id"));
+  const floor = await prisma.floor.findUnique({ where: { id }, include: { rooms: { select: { id: true } } } });
+  if (!floor || !(await allowedFloors(session, floor.screenId || 0, floor.groupId || 0))) redirect("/admin");
+  const name = String(formData.get("name") || "").trim().slice(0, 40);
+  if (name) await prisma.floor.update({ where: { id }, data: { name } });
+  for (const room of floor.rooms) {
+    const roomName = String(formData.get(`room-${room.id}-name`) || "").trim().slice(0, 80);
+    if (!roomName) continue;
+    await prisma.room.update({
+      where: { id: room.id },
+      data: { name: roomName, detail: String(formData.get(`room-${room.id}-detail`) || "").trim().slice(0, 80) },
+    });
+  }
+  await touchFloors(floor.screenId || 0, floor.groupId || 0);
+  revalidatePath(floorReturn(formData).split("#")[0]);
+}
 export async function deleteFloor(formData: FormData) {
   const session = await gate();
   const id = Number(formData.get("id"));
@@ -195,8 +214,12 @@ export async function deleteFloor(formData: FormData) {
 }
 
 function floorReturn(formData: FormData) {
-  const back = String(formData.get("returnTo") || "");
-  if (/^\/admin\/screens\/\d+$/.test(back) || /^\/admin\/groups\/\d+$/.test(back) || back.startsWith("/admin/buildings") || back.startsWith("/admin/as/") || back === "/admin/directory") return back;
+  const raw = String(formData.get("returnTo") || "");
+  const hashAt = raw.indexOf("#");
+  const hash = hashAt >= 0 ? raw.slice(hashAt) : "";
+  const back = hashAt >= 0 ? raw.slice(0, hashAt) : raw;
+  const safeHash = /^#floor-\d+$/.test(hash) ? hash : "";
+  if (/^\/admin\/screens\/\d+$/.test(back) || /^\/admin\/groups\/\d+$/.test(back) || back.startsWith("/admin/buildings") || back.startsWith("/admin/as/") || back === "/admin/directory") return back + safeHash;
   return "/admin/directory";
 }
 

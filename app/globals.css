@@ -151,7 +151,7 @@ body:has(.admin) { background: #F4F1ED; overflow-x: hidden; }
   border-bottom: 1px solid rgba(90, 31, 43, 0.28);
 }
 .admin .floors-admin .floor-rename,
-.admin .floors-admin .room-edit {
+.admin .floors-admin .room-fields {
   display: flex;
   align-items: end;
   flex-wrap: wrap;
@@ -160,9 +160,10 @@ body:has(.admin) { background: #F4F1ED; overflow-x: hidden; }
   min-width: 0;
 }
 .admin .floors-admin .floor-rename > label,
-.admin .floors-admin .room-edit > label { flex: 1 1 140px; }
+.admin .floors-admin .room-fields > label { flex: 1 1 140px; }
 .admin .floors-admin .floor-rename button,
-.admin .floors-admin .room-edit button { width: auto; min-height: 40px; }
+.admin .floors-admin .room-fields button { width: auto; min-height: 40px; }
+.admin .floors-admin .floor-save-row { display: flex; justify-content: flex-start; margin: 4px 14px 8px; }
 .admin .floors-admin .room-line {
   background: #fff;
   border: 1px solid rgba(90, 31, 43, 0.16);
