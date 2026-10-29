@@ -40,22 +40,20 @@ export function FloorsBoard({
   return (
     <div className="floors-board">
       <header className="floors-head">
+        <div className="floors-weather">
+          <span className="floors-mark">
+            <WeatherGlyph label={weatherLabel} />
+          </span>
+          <span className="floors-temp">
+            {temp !== null ? <b>{temp}°</b> : null}
+            {weatherLabel ? <small>{weatherLabel}</small> : null}
+          </span>
+        </div>
         <div className="floors-logo">
           {logoUrl ? <img src={logoUrl} alt="" /> : <span>לוגו הלקוח<small>הבניין</small></span>}
         </div>
-        <div className="floors-widgets">
-          <div className="floors-weather">
-            <span className="floors-mark">
-              <WeatherGlyph label={weatherLabel} />
-            </span>
-            <span className="floors-temp">
-              {temp !== null ? <b>{temp}°</b> : null}
-              {weatherLabel ? <small>{weatherLabel}</small> : null}
-            </span>
-          </div>
-          <div className="floors-time">
-            <b className="clock">{time}</b>
-          </div>
+        <div className="floors-time">
+          <b className="clock">{time}</b>
         </div>
       </header>
       <FloorsRoll pace={pace} watch={floors.reduce((sum, floor) => sum + 1 + floor.rooms.length, 0)}>
