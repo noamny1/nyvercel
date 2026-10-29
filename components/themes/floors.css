@@ -76,23 +76,59 @@
   font-size: 13px;
   font-weight: 400;
 }
-.floors-kicker {
-  display: block;
-  color: rgba(255, 248, 236, 0.9);
-  font-size: 15px;
+.floors-kicker,
+.floors-title,
+.floors-meta { display: none; }
+.floors-widgets {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  margin-top: 16px;
+  text-shadow: none;
 }
-.floors-title {
+.floors-weather,
+.floors-clock {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 210px;
+  min-height: 78px;
+  padding: 10px 16px;
+  background: rgba(10, 12, 14, 0.72);
+  border: 1px solid rgba(212, 180, 131, 0.45);
+  border-radius: 16px;
+  color: #f6f1e8;
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.28);
+}
+.floors-weather { margin-left: 36px; }
+.floors-weather svg { display: block; margin-left: 12px; flex: none; }
+.floors-weather span,
+.floors-clock { text-align: center; }
+.floors-clock { flex-direction: column; }
+.floors-weather b,
+.floors-clock .clock {
   display: block;
-  margin-top: 4px;
-  font-size: 28px;
+  margin: 0;
+  font-size: 34px;
   font-weight: 500;
+  line-height: 1;
+  letter-spacing: 1px;
+  font-variant-numeric: tabular-nums;
 }
-.floors-meta {
-  margin: 10px 0 0;
-  font-size: 20px;
+.floors-weather small {
+  display: block;
+  margin-top: 6px;
+  color: #e8d7b0;
+  font-size: 15px;
+  font-weight: 400;
 }
-.floors-meta b,
-.floors-meta span { margin: 0 8px; font-weight: 500; }
+.floors-clock small {
+  display: block;
+  margin: 0 0 6px;
+  color: #e8d7b0;
+  font-size: 15px;
+  font-weight: 400;
+}
 
 .floors-view {
   flex: 1;
