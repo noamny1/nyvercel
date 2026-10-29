@@ -83,23 +83,59 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 14px 0 0;
-  color: #fff;
+  margin: 16px 0 0;
+  color: #f7f3ea;
+  text-shadow: none;
 }
-.floors-weather {
+.floors-weather,
+.floors-time {
   display: flex;
-  align-items: baseline;
-  margin: 0 0 0 56px;
-  font-size: 22px;
-  font-weight: 500;
+  align-items: center;
+  height: 84px;
+  padding: 0 16px;
+  border: 1px solid rgba(212, 180, 131, 0.75);
+  border-radius: 42px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(8, 12, 16, 0.62));
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.28);
 }
-.floors-weather b { margin-left: 8px; font-size: 28px; font-weight: 500; }
+.floors-weather { margin-left: 28px; }
+.floors-mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  margin-left: 12px;
+  border-radius: 26px;
+  background: rgba(212, 180, 131, 0.16);
+  flex: none;
+}
+.floors-mark svg { display: block; }
+.floors-temp { text-align: right; }
+.floors-temp b {
+  display: block;
+  font-size: 30px;
+  font-weight: 500;
+  line-height: 1;
+}
+.floors-temp small {
+  display: block;
+  max-width: 160px;
+  margin-top: 4px;
+  overflow: hidden;
+  color: #e8d7b0;
+  font-size: 15px;
+  line-height: 1.2;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.floors-time { padding: 0 22px; }
 .floors-widgets .clock {
   margin: 0;
   font-size: 40px;
   font-weight: 500;
   line-height: 1;
-  letter-spacing: 1px;
+  letter-spacing: 2px;
   font-variant-numeric: tabular-nums;
 }
 

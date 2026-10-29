@@ -44,11 +44,18 @@ export function FloorsBoard({
           {logoUrl ? <img src={logoUrl} alt="" /> : <span>לוגו הלקוח<small>הבניין</small></span>}
         </div>
         <div className="floors-widgets">
-          <p className="floors-weather">
-            {temp !== null ? <b>{temp}°</b> : null}
-            {weatherLabel ? <span>{weatherLabel}</span> : null}
-          </p>
-          <b className="clock">{time}</b>
+          <div className="floors-weather">
+            <span className="floors-mark">
+              <WeatherGlyph label={weatherLabel} />
+            </span>
+            <span className="floors-temp">
+              {temp !== null ? <b>{temp}°</b> : null}
+              {weatherLabel ? <small>{weatherLabel}</small> : null}
+            </span>
+          </div>
+          <div className="floors-time">
+            <b className="clock">{time}</b>
+          </div>
         </div>
       </header>
       <FloorsRoll pace={pace} watch={floors.reduce((sum, floor) => sum + 1 + floor.rooms.length, 0)}>
@@ -76,6 +83,31 @@ export function FloorsBoard({
       </FloorsRoll>
       <FloorsNews headlines={headlines} notices={notices} sourceId={sourceId} newsCount={newsCount} newsMode={newsMode} seconds={seconds} />
     </div>
+  );
+}
+
+function WeatherGlyph({ label }: { label: string }) {
+  const rain = /גשם|ממטר|טפטוף|שלג|רעמים/.test(label);
+  const cloud = /מעונן|ערפל/.test(label);
+  const color = "#e8d7b0";
+  return (
+    <svg width="30" height="30" viewBox="0 0 24 24" aria-hidden="true">
+      {rain ? (
+        <>
+          <path d="M7 15h10a4 4 0 0 0 0-8 5 5 0 0 0-9.5-1A3.5 3.5 0 0 0 7 15z" fill={color} />
+          <path d="M8 17.5l-1 3M12 17.5l-1 3M16 17.5l-1 3" stroke={color} strokeWidth="1.4" strokeLinecap="round" />
+        </>
+      ) : cloud ? (
+        <path d="M7 17h10a4 4 0 0 0 0-8 5 5 0 0 0-9.5-1A3.5 3.5 0 0 0 7 17z" fill={color} />
+      ) : (
+        <>
+          <circle cx="12" cy="12" r="4" fill={color} />
+          <g stroke={color} strokeWidth="1.6" strokeLinecap="round">
+            <path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.1 5.1l1.6 1.6M17.3 17.3l1.6 1.6M18.9 5.1l-1.6 1.6M6.7 17.3l-1.6 1.6" />
+          </g>
+        </>
+      )}
+    </svg>
   );
 }
 
