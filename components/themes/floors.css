@@ -185,8 +185,8 @@
   line-height: 1;
   flex: none;
 }
-.floor-num.is-green { background: #c6a15b; color: #1c1612; }
-.floor-num.is-black { background: #111; color: #e6d3ae; border: 1px solid rgba(212, 180, 131, 0.45); }
+.floor-num.is-green { background: #d7e3ec; color: #1a2c3a; }
+.floor-num.is-black { background: #2c4458; color: #f4f7fa; border: 0; }
 .floor-num.is-long { width: 72px; font-size: 14px; padding: 0 6px; text-align: center; }
 .floor-copy {
   flex: 1;
