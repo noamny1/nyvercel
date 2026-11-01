@@ -28,7 +28,7 @@ import { prisma } from "@/lib/prisma";
 import { musicSilenced, screenTakeover } from "@/lib/flags";
 import { FIXED_VIDEOS, clientSetsDuration, fillLine } from "@/lib/ready-slides";
 import { newsTickerOn, slideIsOn } from "@/lib/schedule";
-import { shabbatFor } from "@/lib/shabbat";
+import { parashaPace, shabbatTimes } from "@/lib/shabbat";
 import { isThemeId, isFaultTheme } from "@/lib/themes";
 import { weatherFor } from "@/lib/weather";
 import "@/components/player/player.css";
@@ -99,13 +99,15 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
       ? Math.min(20, sourceCount * 3)
       : (screen.newsCount || 8);
 
-  const [weather, shabbat, headlines, rates, silenced, takeover] = await Promise.all([
+  const needsParasha = visible.some((slide) => slide.templateId === "weekly-parasha");
+  const [weather, shabbat, headlines, rates, silenced, takeover, pace] = await Promise.all([
     weatherFor([city, screen.name, source.name].filter(Boolean).join(" ")).catch(() => null),
-    shabbatFor(city).catch(() => null),
+    shabbatTimes(city).catch(() => null),
     liveHeadlines(newsSource, newsTake).catch(() => []),
     markets().catch(() => []),
     musicSilenced(),
     screenTakeover(),
+    needsParasha ? parashaPace().catch(() => 180) : Promise.resolve(0),
   ]);
   const greet = welcome(street, number, city);
   const feedMode = screen.feedMode === "news" || screen.feedMode === "notices" ? screen.feedMode : "both";
@@ -170,7 +172,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
               to = stored.to || "";
               token = stored.token || "";
             } catch { flow = ""; }
-            const slow = parasha ? Math.max(180, slide.duration || 0, flow === "static" ? 180 : Math.round((shabbat?.verses.length || 40) * 2.2)) : 0;
+            const slow = parasha ? Math.max(180, slide.duration || 0, flow === "static" ? 180 : pace) : 0;
             const meta = { day, from, to };
             return {
             imageUrl: official?.url || slide.imageUrl,
@@ -182,7 +184,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
             candles: parasha ? shabbat?.candles || "" : "",
             havdalah: parasha ? shabbat?.havdalah || "" : "",
             city: parasha ? shabbat?.city || city : "",
-            verses: parasha ? shabbat?.verses || [] : [],
+            verses: [],
             still: parasha && flow === "static",
             full,
             day,

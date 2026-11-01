@@ -1,3 +1,4 @@
+import { unstable_cache } from "next/cache";
 import { locate } from "@/modules/place/locate";
 
 export type ShabbatReading = {
@@ -6,6 +7,13 @@ export type ShabbatReading = {
   parsha: string;
   city: string;
   verses: string[];
+};
+
+export type ShabbatTimes = {
+  candles: string;
+  havdalah: string;
+  parsha: string;
+  city: string;
 };
 
 function jerusalemNow() {
@@ -37,6 +45,11 @@ function upcomingSaturday() {
   return { year: date.getUTCFullYear(), month: date.getUTCMonth() + 1, day: date.getUTCDate() };
 }
 
+function saturdayStamp() {
+  const saturday = upcomingSaturday();
+  return `${saturday.year}-${saturday.month}-${saturday.day}`;
+}
+
 function plain(html: string) {
   return html
     .replace(/<br\s*\/?>/gi, " ")
@@ -56,44 +69,79 @@ function versesFrom(value: unknown, out: string[]) {
   if (Array.isArray(value)) value.forEach((item) => versesFrom(item, out));
 }
 
-export async function shabbatFor(city: string): Promise<ShabbatReading | null> {
+function cleanParsha(value: string) {
+  return value.replace(/^פרשת\s*/, "").replace(/[\u0591-\u05BD\u05BF-\u05C7]/g, "");
+}
+
+async function readTimes(city: string): Promise<ShabbatTimes> {
   const name = city.trim() || "ירושלים";
   const place = await locate(name);
   const saturday = upcomingSaturday();
-  const stamp = `${saturday.year}-${saturday.month}-${saturday.day}`;
-  const timesUrl = place
-    ? `https://www.hebcal.com/shabbat?cfg=json&lg=he&tzid=Asia/Jerusalem&latitude=${place.latitude}&longitude=${place.longitude}&gy=${saturday.year}&gm=${saturday.month}&gd=${saturday.day}&M=on`
-    : "";
-  const [timesResponse, readingResponse] = await Promise.all([
-    timesUrl ? fetch(timesUrl, { next: { revalidate: 21600 } }) : Promise.resolve(null),
-    fetch(`https://www.hebcal.com/leyning?cfg=json&i=on&date=${stamp}`, { next: { revalidate: 21600 } }),
-  ]);
-  if ((!timesResponse || !timesResponse.ok) && !readingResponse.ok) return null;
-  const times = timesResponse?.ok
-    ? ((await timesResponse.json()) as { items?: { category: string; title: string; hebrew?: string }[] })
-    : null;
-  const candles = times?.items?.find((item) => item.category === "candles");
-  const havdalah = times?.items?.find((item) => item.category === "havdalah");
-  const parsha = times?.items?.find((item) => item.category === "parashat");
-  const reading = readingResponse.ok
-    ? ((await readingResponse.json()) as { items?: { summary?: string; name?: { he?: string } }[] })
-    : null;
-  const summary = reading?.items?.[0]?.summary || "";
-  let verses: string[] = [];
+  if (!place) return { candles: "", havdalah: "", parsha: "", city: name };
+  const url = `https://www.hebcal.com/shabbat?cfg=json&lg=he&tzid=Asia/Jerusalem&latitude=${place.latitude}&longitude=${place.longitude}&gy=${saturday.year}&gm=${saturday.month}&gd=${saturday.day}&M=on`;
+  const response = await fetch(url, { next: { revalidate: 21600 } });
+  if (!response.ok) return { candles: "", havdalah: "", parsha: "", city: name };
+  const times = (await response.json()) as { items?: { category: string; title: string; hebrew?: string }[] };
+  const candles = times.items?.find((item) => item.category === "candles");
+  const havdalah = times.items?.find((item) => item.category === "havdalah");
+  const parsha = times.items?.find((item) => item.category === "parashat");
+  return {
+    candles: candles?.title.match(/(\d{1,2}:\d{2})/)?.[1] || "",
+    havdalah: havdalah?.title.match(/(\d{1,2}:\d{2})/)?.[1] || "",
+    parsha: cleanParsha(parsha?.hebrew || parsha?.title || ""),
+    city: name,
+  };
+}
+
+async function readPortion(stamp: string) {
+  const readingResponse = await fetch(`https://www.hebcal.com/leyning?cfg=json&i=on&date=${stamp}`, { next: { revalidate: 43200 } });
+  if (!readingResponse.ok) return { parsha: "", verses: [] as string[] };
+  const reading = (await readingResponse.json()) as { items?: { summary?: string; name?: { he?: string } }[] };
+  const summary = reading.items?.[0]?.summary || "";
+  const parsha = cleanParsha(reading.items?.[0]?.name?.he || "");
+  const verses: string[] = [];
   if (summary) {
     const textResponse = await fetch(`https://www.sefaria.org/api/texts/${encodeURIComponent(summary)}?context=0&commentary=0`, {
-      next: { revalidate: 21600 },
+      next: { revalidate: 43200 },
     });
     if (textResponse.ok) {
       const text = (await textResponse.json()) as { he?: unknown };
       versesFrom(text.he, verses);
     }
   }
+  return { parsha, verses };
+}
+
+const timesFor = unstable_cache(readTimes, ["shabbat-times"], { revalidate: 21600 });
+const portionFor = unstable_cache(readPortion, ["weekly-portion"], { revalidate: 43200 });
+const paceFor = unstable_cache(async (stamp: string) => {
+  const portion = await portionFor(stamp);
+  const count = portion.verses.length || 40;
+  return Math.max(180, Math.round(count * 2.2));
+}, ["parasha-pace"], { revalidate: 43200 });
+
+export async function shabbatTimes(city: string) {
+  return timesFor(city.trim() || "ירושלים");
+}
+
+export async function weeklyPortion() {
+  return portionFor(saturdayStamp());
+}
+
+export async function parashaPace() {
+  return paceFor(saturdayStamp());
+}
+
+export async function shabbatFor(city: string): Promise<ShabbatReading | null> {
+  const [times, portion] = await Promise.all([
+    shabbatTimes(city).catch(() => ({ candles: "", havdalah: "", parsha: "", city: city.trim() || "ירושלים" })),
+    weeklyPortion().catch(() => ({ parsha: "", verses: [] as string[] })),
+  ]);
   return {
-    candles: candles?.title.match(/(\d{1,2}:\d{2})/)?.[1] || "",
-    havdalah: havdalah?.title.match(/(\d{1,2}:\d{2})/)?.[1] || "",
-    parsha: (parsha?.hebrew || reading?.items?.[0]?.name?.he || parsha?.title || "").replace(/^פרשת\s*/, "").replace(/[\u0591-\u05BD\u05BF-\u05C7]/g, ""),
-    city: name,
-    verses,
+    candles: times.candles,
+    havdalah: times.havdalah,
+    parsha: portion.parsha || times.parsha,
+    city: times.city,
+    verses: portion.verses,
   };
 }

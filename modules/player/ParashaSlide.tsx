@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 export function ParashaSlide({
   name,
@@ -21,8 +21,28 @@ export function ParashaSlide({
 }) {
   const body = useRef<HTMLDivElement>(null);
   const text = useRef<HTMLParagraphElement>(null);
-  const columns = verses.length > 120 ? 4 : verses.length > 70 ? 3 : verses.length > 32 ? 2 : 1;
-  const pace = Math.max(seconds || 180, Math.round(verses.length * 2.2));
+  const [lines, setLines] = useState(verses);
+  const columns = lines.length > 120 ? 4 : lines.length > 70 ? 3 : lines.length > 32 ? 2 : 1;
+  const pace = Math.max(seconds || 180, Math.round(lines.length * 2.2));
+
+  useEffect(() => {
+    if (verses.length) {
+      setLines(verses);
+      return;
+    }
+    let stop = false;
+    fetch("/api/parasha")
+      .then((response) => (response.ok ? response.json() : null))
+      .then((data: { verses?: unknown } | null) => {
+        if (stop || !data || !Array.isArray(data.verses)) return;
+        const next = data.verses.filter((item): item is string => typeof item === "string" && item.length > 0);
+        if (next.length) setLines(next);
+      })
+      .catch(() => undefined);
+    return () => {
+      stop = true;
+    };
+  }, [verses.length]);
 
   useLayoutEffect(() => {
     if (!still || !body.current || !text.current) return;
@@ -34,7 +54,7 @@ export function ParashaSlide({
       size -= 1;
       node.style.fontSize = `${size}px`;
     }
-  }, [still, verses, columns]);
+  }, [still, lines, columns]);
 
   useEffect(() => {
     if (still) return;
@@ -83,7 +103,7 @@ export function ParashaSlide({
       window.clearInterval(timer);
       observer?.disconnect();
     };
-  }, [still, verses, pace]);
+  }, [still, lines, pace]);
 
   return (
     <div className={still ? "parasha-slide is-still" : "parasha-slide"}>
@@ -103,7 +123,7 @@ export function ParashaSlide({
       </header>
       <div className={still ? "parasha-body is-still" : "parasha-body"} ref={body}>
         <p ref={text} style={still ? { columnCount: columns } : undefined}>
-          {verses.length ? verses.map((verse, index) => <span key={index}>{verse}</span>) : <span>הפרשה המלאה תופיע במסך לפי השבת הקרובה.</span>}
+          {lines.length ? lines.map((verse, index) => <span key={index}>{verse}</span>) : <span>הפרשה המלאה תופיע במסך לפי השבת הקרובה.</span>}
         </p>
       </div>
     </div>
