@@ -45,7 +45,7 @@ export function AzorimFeed({
   newsCount?: number;
   newsMode?: string;
 }) {
-  const fresh = useFreshHeadlines(sourceId || "ynet", newsCount, headlines);
+  const fresh = useFreshHeadlines(sourceId, newsCount, headlines);
   const newsOn = useNewsOn(newsMode);
   const [active, setActive] = useState("");
   const feedRef = useRef<HTMLDivElement>(null);

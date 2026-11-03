@@ -7,8 +7,8 @@ import { HEALTH_NOTE } from "@/modules/broadcast/news-sources";
 
 export function NewsTicker({ titles, seconds = 12, sourceId = "", take = 8, mode = "on" }: { titles: Headline[]; seconds?: number; sourceId?: string; take?: number; mode?: string }) {
   const newsOn = useNewsOn(mode);
-  const fresh = useFreshHeadlines(sourceId || "ynet", take, titles);
-  const shown = newsOn ? (sourceId ? fresh : titles) : [];
+  const fresh = useFreshHeadlines(sourceId, take, titles);
+  const shown = newsOn && sourceId ? fresh : [];
   const shownKey = shown.map((item) => item.title).join("\n");
   const [index, setIndex] = useState(0);
   useEffect(() => {
@@ -20,7 +20,7 @@ export function NewsTicker({ titles, seconds = 12, sourceId = "", take = 8, mode
     return () => clearInterval(timer);
   }, [shownKey, shown.length, seconds]);
   const item = shown[index];
-  if (!newsOn) return null;
+  if (!newsOn || !sourceId) return null;
   return (
     <div className="ticker">
       {item?.source ? <span className="ticker-source">{item.source}</span> : null}

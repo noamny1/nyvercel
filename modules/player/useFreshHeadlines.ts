@@ -20,6 +20,7 @@ export function useFreshHeadlines(sourceId: string, take: number, initial: Headl
   }, [key]);
 
   useEffect(() => {
+    if (!sourceId) return;
     if (seen.current === turn) return;
     seen.current = turn;
     const load = async () => {

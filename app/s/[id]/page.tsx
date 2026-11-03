@@ -83,13 +83,16 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
   const picked = (source.theme === "azorim" || isFloorsTheme(source.theme)) && (!screen.theme || screen.theme === "modern") ? source.theme : (screen.theme || source.theme || "modern");
   const chosen = picked === "fault-card" || picked === "fault-night" ? "luxury" : picked;
   const theme = isThemeId(chosen) ? chosen : "modern";
-  const luxury = theme === "luxury" || theme === "luxury720" || theme === "luxury-light";
+  const luxury = theme === "luxury" || theme === "luxury720" || theme === "luxury-light" || theme === "luxury-light720";
   const fault = isFaultTheme(theme);
-  const wide = theme === "luxury720";
+  const wide = theme === "luxury720" || theme === "luxury-light720";
+  const light = theme === "luxury-light" || theme === "luxury-light720";
   const clock = lobbyClock();
   const cinematic = theme === "glass" || theme === "cinema";
-  const newsSource = screen.newsSource || source.newsSource || "ynet";
-  const sourceCount = newsSource.split(",").map((item) => item.trim()).filter(Boolean).length || 1;
+  const rawNews = screen.newsSource || source.newsSource || "ynet";
+  const newsOff = rawNews.split(",").map((item) => item.trim()).filter(Boolean).every((item) => item === "off");
+  const newsSource = newsOff ? "" : rawNews;
+  const sourceCount = newsOff ? 0 : newsSource.split(",").map((item) => item.trim()).filter(Boolean).length || 1;
   const azorim = theme === "azorim";
   const floorsOn = isFloorsTheme(theme);
   const modern = theme === "modern";
@@ -103,7 +106,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
   const [weather, shabbat, headlines, rates, silenced, takeover, pace] = await Promise.all([
     weatherFor([city, screen.name, source.name].filter(Boolean).join(" ")).catch(() => null),
     shabbatTimes(city).catch(() => null),
-    liveHeadlines(newsSource, newsTake).catch(() => []),
+    newsOff ? Promise.resolve([]) : liveHeadlines(newsSource, newsTake).catch(() => []),
     markets().catch(() => []),
     musicSilenced(),
     screenTakeover(),
@@ -140,7 +143,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
 
   return (
     <>
-    <FitStage width={floorsOn ? 720 : wide ? 1280 : 1366} height={floorsOn ? 1280 : wide ? 720 : 768} fill={floorsOn || wide ? 1 : 0.97} code={screen.code || screen.id} revision={screen.revision} className={`stage theme-${theme}${luxury ? ` layout-luxury ${heebo.className}` : ""}${theme === "luxury-light" ? " layout-lux-light" : ""}${fault ? ` layout-luxury ${theme} ${heebo.className}` : ""}${wide ? " layout-luxury720" : ""}${modern ? " layout-modern" : ""}${azorim ? ` layout-azorim ${heebo.className}` : ""}${floorsOn ? ` layout-floors look-${theme} ${heebo.className}` : ""}${cinematic ? ` layout-${theme} ${heebo.className}` : ""}${tickerOn && !luxury && !modern && !cinematic && !fault && !azorim && !floorsOn ? "" : " no-ticker"}`}>
+    <FitStage width={floorsOn ? 720 : wide ? 1280 : 1366} height={floorsOn ? 1280 : wide ? 720 : 768} fill={floorsOn || wide ? 1 : 0.97} code={screen.code || screen.id} revision={screen.revision} className={`stage theme-${theme}${luxury ? ` layout-luxury ${heebo.className}` : ""}${light ? " layout-lux-light" : ""}${fault ? ` layout-luxury ${theme} ${heebo.className}` : ""}${wide ? " layout-luxury720" : ""}${modern ? " layout-modern" : ""}${azorim ? ` layout-azorim ${heebo.className}` : ""}${floorsOn ? ` layout-floors look-${theme} ${heebo.className}` : ""}${cinematic ? ` layout-${theme} ${heebo.className}` : ""}${tickerOn && !luxury && !modern && !cinematic && !fault && !azorim && !floorsOn ? "" : " no-ticker"}`}>
       <Music playlist={silenced ? "off" : screen.musicPlaylist || ""} url={silenced ? "" : screen.group?.musicUrl || ""} start={screen.id} days={screen.musicDays} from={screen.musicFrom} until={screen.musicUntil} />
       <NewsGate mode={newsMode} />
       <Wake />
@@ -154,7 +157,8 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
           </div>
         ) : (
           <Player slides={visible.map((slide) => {
-            const official = FIXED_VIDEOS.find((item) => item.id === slide.templateId);
+            const official = FIXED_VIDEOS.find((item) => item.id === slide.templateId)
+              ?? FIXED_VIDEOS.find((item) => slide.imageUrl.split("?")[0] === item.url.split("?")[0]);
             const character = Boolean(official?.url.startsWith("/safety/"));
             const parasha = slide.templateId === "weekly-parasha";
             let flow = "";
@@ -179,8 +183,8 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
             duration: clientSetsDuration(slide.templateId) ? slide.duration : official?.duration || slow || slide.duration,
             kind: slide.kind,
             templateId: slide.templateId,
-            title: parasha ? (shabbat?.parsha || "") : character && official ? official.title : fillLine(slide.title, meta),
-            detail: character && official ? official.line : fillLine(slide.detail, meta),
+            title: parasha ? (shabbat?.parsha || "") : character ? (slide.title || official?.title || "") : fillLine(slide.title, meta),
+            detail: character ? (slide.detail || official?.line || "") : fillLine(slide.detail, meta),
             candles: parasha ? shabbat?.candles || "" : "",
             havdalah: parasha ? shabbat?.havdalah || "" : "",
             city: parasha ? shabbat?.city || city : "",
@@ -198,7 +202,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
         {floorsOn ? null : (luxury || fault) ? (
           <>
             <LuxuryRail
-              light={theme === "luxury-light"}
+              light={light}
               temp={weather?.temp ?? null}
               weatherLabel={weather?.label || ""}
               mode={feedMode}

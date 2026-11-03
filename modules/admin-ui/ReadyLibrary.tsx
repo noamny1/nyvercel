@@ -6,7 +6,7 @@ import { ParashaSlide } from "@/modules/player/ParashaSlide";
 import { KnowledgeSlide } from "@/modules/player/KnowledgeSlide";
 import { isDeckId, type DeckId } from "@/modules/slides/decks";
 import { fillLine, FIXED_VIDEOS, READY_SLIDES, WEEKDAYS, clientSetsDuration, defaultWeekdays, readMeta, templateSeconds, type ReadySlide, type SlideMeta } from "@/modules/slides/ready";
-import { PestVideo, QrSlide } from "@/modules/player/SpecialSlides";
+import { CharacterVideo, PestVideo, QrSlide } from "@/modules/player/SpecialSlides";
 import "@/components/player/player.css";
 
 export type SlideDraft = {
@@ -55,10 +55,36 @@ function SlidePeek({ url, title }: { url: string; title?: string }) {
   if (url.toLowerCase().includes(".pdf")) return <span className="pdf-mark large">PDF</span>;
   return <img className="mini-preview" src={url} alt="" />;
 }
+function CopyPreview({ image, title, line, note }: { image: string; title: string; line: string; note?: string }) {
+  return (
+    <div className="copy-preview">
+      <img src={image} alt="" />
+      <div>
+        <strong>{title || "כותרת"}</strong>
+        {note ? <b>{note}</b> : null}
+        <span>{line || "כאן מופיע המלל על המסך"}</span>
+      </div>
+    </div>
+  );
+}
+
 function showsCopy(kind?: string, templateId?: string) {
   if (kind === "youtube" || templateId?.startsWith("fixed-") || templateId === "file-qr") return false;
-  if (templateId === "weekly-parasha" || templateId === "rule-smoke-gif" || isDeckId(templateId)) return false;
+  if (templateId === "weekly-parasha" || isDeckId(templateId)) return false;
   return kind === "template" || kind === "image";
+}
+
+function SmokePreview({ image, title, line }: { image: string; title: string; line: string }) {
+  return (
+    <div className="photo-slide is-smoke">
+      <img src={image} alt="" />
+      <KindMark />
+      <div>
+        <strong>{title || "כותרת"}</strong>
+        {line ? <span>{line}</span> : null}
+      </div>
+    </div>
+  );
 }
 
 function Photo({ slide, meta, overlay = true, title, line }: { slide: ReadySlide; meta: SlideMeta; overlay?: boolean; title?: string; line?: string }) {
@@ -186,6 +212,7 @@ function ExtraFields({
 
 export function ReadyLibrary({ onAdd, city = "", addLabel = "הוספה למסך" }: { onAdd: (draft: SlideDraft) => Promise<void>; city?: string; addLabel?: string }) {
   const [preview, setPreview] = useState<(typeof FIXED_VIDEOS)[number] | null>(null);
+  const [previewLine, setPreviewLine] = useState("");
   const [open, setOpen] = useState<ReadySlide | null>(null);
   const [meta, setMeta] = useState<SlideMeta>({});
   const [heading, setHeading] = useState("");
@@ -256,7 +283,7 @@ export function ReadyLibrary({ onAdd, city = "", addLabel = "הוספה למסך
     }
   }
 
-  async function addFixed(video: (typeof FIXED_VIDEOS)[number]) {
+  async function addFixed(video: (typeof FIXED_VIDEOS)[number], line: string) {
     setBusy(true);
     setError("");
     try {
@@ -265,7 +292,7 @@ export function ReadyLibrary({ onAdd, city = "", addLabel = "הוספה למסך
         imageUrl: video.url,
         templateId: video.id,
         title: extra.name.trim() || video.title,
-        detail: video.line,
+        detail: line.trim() || video.line,
         duration: video.duration,
         meta: withFull({}, extra.full),
         ...scheduleOf(extra),
@@ -373,6 +400,7 @@ export function ReadyLibrary({ onAdd, city = "", addLabel = "הוספה למסך
                 return;
               }
               setPest(false);
+              setPreviewLine(video.line);
               setExtra(freshExtra({ name: video.title, seconds: video.duration, days: defaultWeekdays(video.id, video.title) }));
               setPreview(video);
             }}>
@@ -395,12 +423,19 @@ export function ReadyLibrary({ onAdd, city = "", addLabel = "הוספה למסך
       {preview ? (
         <div className="slide-modal" role="dialog" aria-modal="true" onClick={() => setPreview(null)}>
           <div className="slide-modal-card" onClick={(event) => event.stopPropagation()}>
-            <SlidePeek url={preview.url} title={preview.title} />
+            <div className="pest-preview">
+              <CharacterVideo src={preview.url} poster={preview.poster} title={extra.name || preview.title} detail={previewLine} />
+            </div>
             <div className="slide-modal-actions">
-              <strong>{preview.title}</strong>
-              <p>{preview.line}</p>
-              <ExtraFields extra={extra} setExtra={setExtra} name seconds lockSeconds />
-              <button type="button" disabled={busy} onClick={() => void addFixed(preview).then(() => setPreview(null))}>{busy ? "שומר..." : addLabel}</button>
+              <label>כותרת על הסרטון
+                <input value={extra.name} onChange={(event) => setExtra({ ...extra, name: event.target.value })} />
+              </label>
+              <label>מלל על הסרטון
+                <textarea rows={3} value={previewLine} onChange={(event) => setPreviewLine(event.target.value)} />
+              </label>
+              <p>הסרטון קבוע. אפשר לשנות את הכותרת ואת המלל שמופיעים עליו.</p>
+              <ExtraFields extra={extra} setExtra={setExtra} seconds lockSeconds />
+              <button type="button" disabled={busy} onClick={() => void addFixed(preview, previewLine).then(() => setPreview(null))}>{busy ? "שומר..." : addLabel}</button>
               <button type="button" className="light" onClick={() => setPreview(null)}>סגירה</button>
               {error ? <p className="error">{error}</p> : null}
             </div>
@@ -410,7 +445,7 @@ export function ReadyLibrary({ onAdd, city = "", addLabel = "הוספה למסך
       {open ? (
         <div className="slide-modal" role="dialog" aria-modal="true" onClick={() => setOpen(null)}>
           <div className="slide-modal-card" onClick={(event) => event.stopPropagation()}>
-            {open.id === "weekly-parasha" ? <LiveParasha city={city} still={meta.flow === "static"} /> : isDeckId(open.id) ? <DeckPreview id={open.id} /> : <Photo slide={open} meta={meta} title={heading} line={body} overlay={open.id !== "rule-smoke-gif"} />}
+            {open.id === "weekly-parasha" ? <LiveParasha city={city} still={meta.flow === "static"} /> : isDeckId(open.id) ? <DeckPreview id={open.id} /> : open.id === "rule-smoke-gif" ? <SmokePreview image={open.image} title={heading} line={body} /> : <Photo slide={open} meta={meta} title={heading} line={body} />}
             <div className="slide-modal-actions">
               {open.id === "weekly-parasha" ? (
                 <FlowPick flow={meta.flow} onPick={(flow) => setMeta({ ...meta, flow })} />
@@ -566,10 +601,15 @@ export function SavedSlideEditor({
   onRemove: () => void;
   onClose: () => void;
 }) {
-  const pest = slide.templateId === "fixed-pest";
   const qr = slide.templateId === "file-qr";
-  const fixed = Boolean(slide.templateId?.startsWith("fixed-"));
-  const template = READY_SLIDES.find((item) => item.id === slide.templateId);
+  const matched = FIXED_VIDEOS.find((item) => item.id === slide.templateId)
+    || FIXED_VIDEOS.find((item) => slide.imageUrl.split("?")[0] === item.url.split("?")[0]);
+  const pest = slide.templateId === "fixed-pest" || matched?.id === "fixed-pest";
+  const smoke = slide.templateId === "rule-smoke-gif" || slide.imageUrl.includes("no-smoke");
+  const official = matched;
+  const character = Boolean(official?.url.startsWith("/safety/")) && !pest;
+  const fixed = Boolean(slide.templateId?.startsWith("fixed-") || official);
+  const template = READY_SLIDES.find((item) => item.id === slide.templateId) || (smoke ? READY_SLIDES.find((item) => item.id === "rule-smoke-gif") : undefined);
   const initialMeta = readMeta(slide.meta || "", pest ? { day: "שלישי", from: "09:00" } : template?.defaults || {});
   const [meta, setMeta] = useState<SlideMeta>(initialMeta);
   const [url, setUrl] = useState(slide.imageUrl);
@@ -578,8 +618,8 @@ export function SavedSlideEditor({
   const [endsOn, setEndsOn] = useState(slide.endsOn || "");
   const [picture, setPicture] = useState(slide.imageUrl);
   const [fallback, setFallback] = useState(slide.detail || "");
-  const [heading, setHeading] = useState(sourceText(slide.title || "", template?.title, initialMeta));
-  const [body, setBody] = useState(sourceText(slide.detail || "", template?.line, initialMeta));
+  const [heading, setHeading] = useState(slide.title || official?.title || sourceText("", template?.title, initialMeta));
+  const [body, setBody] = useState(slide.detail || official?.line || sourceText("", template?.line, initialMeta));
   const [token, setToken] = useState(() => {
     try { return String(JSON.parse(slide.meta || "{}").token || ""); } catch { return ""; }
   });
@@ -590,7 +630,6 @@ export function SavedSlideEditor({
   const [full, setFull] = useState(() => {
     try { return JSON.parse(slide.meta || "{}").full === true; } catch { return false; }
   });
-  const official = FIXED_VIDEOS.find((item) => item.id === slide.templateId);
   const locked = Boolean(official) && !clientSetsDuration(slide.templateId);
   const [seconds, setSeconds] = useState(slide.templateId === "weekly-parasha" ? Math.max(180, slide.duration) : locked ? (official?.duration || slide.duration) : slide.duration);
   const kind = slide.kind || "image";
@@ -611,9 +650,9 @@ export function SavedSlideEditor({
       endsOn,
       meta: JSON.stringify(base),
       ...(!locked ? { duration: slide.templateId === "weekly-parasha" ? Math.max(180, seconds) : Math.max(qr ? 8 : pest ? 5 : 3, seconds) } : {}),
-      ...((editable || pest) ? { title: fillLine(heading, meta), detail: fillLine(body, meta) } : {}),
+      ...((editable || pest || character || smoke) ? { title: heading, detail: body } : {}),
       ...(qr ? { title: heading, detail: body } : {}),
-      ...(!(editable || pest || qr) ? { title: heading } : {}),
+      ...(!(editable || pest || qr || character || smoke) ? { title: heading } : {}),
       ...(kind === "youtube" && !fixed ? { imageUrl: url, detail: fallback } : {}),
       ...(kind === "image" && picture !== slide.imageUrl ? { imageUrl: picture } : {}),
     });
@@ -626,10 +665,21 @@ export function SavedSlideEditor({
   return (
     <div className="slide-modal" role="dialog" aria-modal="true" onClick={onClose}>
       <div className="slide-modal-card" onClick={(event) => event.stopPropagation()}>
-        {slide.templateId === "weekly-parasha" ? <LiveParasha city={city} still={meta.flow === "static"} /> : isDeckId(slide.templateId) ? <DeckPreview id={slide.templateId} /> : pest ? (
-          <div className="pest-preview">
-            <PestVideo src="/safety/pest.mp4?v=16" poster="/safety/pest.jpg?v=16" title={heading} detail={body} day={meta.day} from={meta.from} />
+        {(character || smoke || pest) ? (
+          <div className="slide-modal-actions">
+            <label>כותרת על המסך
+              <input value={heading} onChange={(event) => setHeading(event.target.value)} />
+            </label>
+            <label>מלל על המסך
+              <textarea rows={4} value={body} onChange={(event) => setBody(event.target.value)} />
+            </label>
+            <p>זה המלל שמופיע על המסך. משנים כאן ולוחצים שמירה.</p>
           </div>
+        ) : null}
+        {slide.templateId === "weekly-parasha" ? <LiveParasha city={city} still={meta.flow === "static"} /> : isDeckId(slide.templateId) ? <DeckPreview id={slide.templateId} /> : (character || pest) && official ? (
+          <CopyPreview image={official.poster} title={heading} line={body} note={pest ? [meta.day ? `יום ${meta.day}` : "", meta.from || ""].filter(Boolean).join(" · ") : ""} />
+        ) : smoke ? (
+          <CopyPreview image="/ready-slides/no-smoke.gif?v=2" title={heading} line={body} />
         ) : qr ? (
           <div className="qr-preview"><QrSlide title={heading} note={body} token={token} /></div>
         ) : editable ? (
@@ -643,7 +693,7 @@ export function SavedSlideEditor({
         ) : <SlidePeek url={official?.url || picture} title={official?.title || slide.title} />}
         <div className="slide-modal-actions">
           {slide.templateId === "weekly-parasha" ? <FlowPick flow={meta.flow} onPick={(flow) => setMeta({ ...meta, flow })} /> : null}
-          {editable ? (
+          {editable && !smoke ? (
             <>
               <label>כותרת על המסך
                 <input value={heading} onChange={(event) => setHeading(event.target.value)} />
@@ -656,11 +706,8 @@ export function SavedSlideEditor({
           ) : null}
           {pest ? (
             <>
-              <label>כותרת על הסרטון<input value={heading} onChange={(event) => setHeading(event.target.value)} /></label>
-              <label>משפט קצר<textarea rows={2} value={body} onChange={(event) => setBody(event.target.value)} /></label>
               <label>יום<select value={meta.day || ""} onChange={(event) => setMeta({ ...meta, day: event.target.value })}>{WEEKDAYS.map((day) => <option key={day}>{day}</option>)}</select></label>
               <label>שעה<input type="time" value={meta.from || ""} onChange={(event) => setMeta({ ...meta, from: event.target.value })} /></label>
-              <p>הסרטון קבוע. אפשר לשנות את היום, השעה, המשפט ומספר השניות.</p>
             </>
           ) : null}
           {qr ? (
@@ -692,7 +739,7 @@ export function SavedSlideEditor({
               {note ? <p className="error">{note}</p> : null}
             </>
           ) : null}
-          {!(editable || pest || qr) ? (
+          {!(editable || pest || qr || character) ? (
             <label>שם השקף
               <input value={heading} maxLength={80} onChange={(event) => setHeading(event.target.value)} />
             </label>
@@ -744,7 +791,7 @@ export function SavedSlideEditor({
               }} />
             </label>
           ) : null}
-          {kind === "youtube" && fixed && !pest ? <p>סרטון קבוע. אפשר למחוק אותו מהמסך, אבל אי אפשר להחליף את הקישור.</p> : null}
+          {kind === "youtube" && fixed && !pest && !character ? <p>סרטון קבוע. אפשר למחוק אותו מהמסך, אבל אי אפשר להחליף את הקישור.</p> : null}
           {slide.templateId === "group-promo" ? <p>סרטון תדמית של הקבוצה. מחיקה מסירה אותו רק מהכתובת הזו.</p> : null}
           <label>שניות<input type="number" min={qr ? 8 : pest ? 5 : 3} value={seconds} readOnly={locked} onChange={(event) => setSeconds(Number(event.target.value))} /></label>
           {locked ? <p>האורך נקבע לפי הסרטון: {official?.duration} שניות.</p> : null}

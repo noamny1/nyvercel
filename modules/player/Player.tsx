@@ -179,10 +179,10 @@ function SlideFace({ slide, onReady, live = true }: { slide: PlaySlide; onReady?
   if (slide.kind === "youtube") {
     const file = isVideoFile(slide.imageUrl) ? slide.imageUrl : isVideoFile(slide.detail || "") ? slide.detail : "";
     if (file && !live) return <video className="slide-video" data-media={file} poster={file.replace(/\.mp4(\?|$)/i, ".jpg$1")} muted playsInline preload="none" />;
-    if (file && slide.templateId === "fixed-pest") {
+    if (file && (slide.templateId === "fixed-pest" || /\/safety\/pest\./.test(file))) {
       return <PestVideo src={file} poster={file.replace(/\.mp4(\?|$)/i, ".jpg$1")} title={slide.title} detail={slide.detail} day={slide.day} from={slide.from} onReady={onReady} />;
     }
-    if (file && slide.templateId?.startsWith("fixed-")) {
+    if (file && (slide.templateId?.startsWith("fixed-") || file.includes("/safety/"))) {
       return <CharacterVideo src={file} poster={file.replace(/\.mp4(\?|$)/i, ".jpg$1")} title={slide.title} detail={slide.detail} onReady={onReady} />;
     }
     if (file) return <video className="slide-video" src={file} autoPlay muted loop playsInline preload="auto" onCanPlay={onReady} onError={onReady} />;
@@ -200,9 +200,17 @@ function SlideFace({ slide, onReady, live = true }: { slide: PlaySlide; onReady?
     if (!live) return <iframe className="slide-image" data-media={file} title="שקף" />;
     return <iframe className="slide-image" src={file} title="שקף" onLoad={onReady} />;
   }
-  if (slide.templateId === "rule-smoke-gif") {
-    if (!live) return <img className="slide-image" data-media={slide.imageUrl} alt="" />;
-    return <img className="slide-image" src={slide.imageUrl} alt="" onLoad={onReady} onError={onReady} />;
+  if (slide.templateId === "rule-smoke-gif" || slide.imageUrl.includes("no-smoke")) {
+    const src = "/ready-slides/no-smoke.gif?v=2";
+    return (
+      <div className="slide-frame smoke-slide">
+        <img className="slide-image" src={live ? src : undefined} data-media={src} alt="" onLoad={onReady} onError={onReady} />
+        <div className="slide-copy is-smoke">
+          <strong>{slide.title || "אין לעשן"}</strong>
+          {slide.detail ? <span>{slide.detail}</span> : null}
+        </div>
+      </div>
+    );
   }
   if (slide.templateId === "weekly-parasha") {
     return <ParashaSlide name={slide.title || ""} candles={slide.candles || ""} havdalah={slide.havdalah || ""} city={slide.city || ""} verses={slide.verses || []} seconds={slide.duration} still={slide.still} />;

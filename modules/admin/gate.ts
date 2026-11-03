@@ -11,7 +11,8 @@ export async function gate() {
 }
 
 export function chosenNews(formData: FormData) {
-  const ids = [...new Set(formData.getAll("newsSource").map((value) => String(value).trim()).filter(Boolean))].slice(0, 4);
+  if (String(formData.get("newsOff") || "") === "1") return "off";
+  const ids = [...new Set(formData.getAll("newsSource").map((value) => String(value).trim()).filter((value) => Boolean(value) && value !== "off"))].slice(0, 4);
   return ids.join(",") || "ynet";
 }
 

@@ -56,6 +56,7 @@ export function GroupBulk({ rows, themes }: { rows: Row[]; themes: { id: string;
   const [newsTicker, setNewsTicker] = useState("on");
   const [feedMode, setFeedMode] = useState("both");
   const [news, setNews] = useState<string[]>(["ynet"]);
+  const [newsOff, setNewsOff] = useState(false);
   const [music, setMusic] = useState<string[]>([]);
   const [message, setMessage] = useState("");
   const [popup, setPopup] = useState<{ ok: boolean; text: string } | null>(null);
@@ -250,23 +251,41 @@ export function GroupBulk({ rows, themes }: { rows: Row[]; themes: { id: string;
                     מקורות חדשות
                   </label>
                 </legend>
-                <div className="choices">
+                <div className={`choices${newsOff ? " is-locked" : ""}`}>
+                  <label className="is-always">
+                    <input
+                      type="checkbox"
+                      checked={newsOff}
+                      onChange={() => {
+                        setNewsOff((value) => !value);
+                        setApply((current) => ({ ...current, news: true }));
+                      }}
+                    />
+                    רק הודעות
+                  </label>
                   {NEWS_SOURCES.map((source) => {
-                    const on = news.includes(source.id);
+                    const on = !newsOff && news.includes(source.id);
                     return (
                       <label key={source.id}>
                         <input
                           type="checkbox"
                           checked={on}
-                          disabled={!on && news.length >= 4}
-                          onChange={() => setNews((current) => {
-                            if (current.includes(source.id)) {
-                              const next = current.filter((item) => item !== source.id);
-                              return next.length ? next : current;
-                            }
-                            if (current.length >= 4) return current;
-                            return [...current, source.id];
-                          })}
+                          disabled={newsOff || (!on && news.length >= 4)}
+                          onChange={() => {
+                            setApply((current) => ({ ...current, news: true }));
+                            setNews((current) => {
+                              if (current.includes(source.id)) {
+                                const next = current.filter((item) => item !== source.id);
+                                if (!next.length) {
+                                  setNewsOff(true);
+                                  return ["ynet"];
+                                }
+                                return next;
+                              }
+                              if (current.length >= 4) return current;
+                              return [...current, source.id];
+                            });
+                          }}
                         />
                         {source.name}
                       </label>
@@ -295,7 +314,7 @@ export function GroupBulk({ rows, themes }: { rows: Row[]; themes: { id: string;
                   ))}
                 </div>
               </fieldset>
-              <button type="button" disabled={busy} onClick={() => void run(() => bulkSettings({ screenIds: picked, theme, newsTicker, feedMode, newsSource: news, music, apply }))}>
+              <button type="button" disabled={busy} onClick={() => void run(() => bulkSettings({ screenIds: picked, theme, newsTicker, feedMode, newsSource: newsOff ? [] : news, music, apply }))}>
                 {busy ? "מעדכן..." : "החל על המסכים שנבחרו"}
               </button>
             </div>

@@ -76,7 +76,7 @@ export function LuxuryRail({
     const timer = setInterval(tick, 1000);
     return () => clearInterval(timer);
   }, []);
-  const fresh = useFreshHeadlines(sourceId || "ynet", newsCount, headlines);
+  const fresh = useFreshHeadlines(sourceId, newsCount, headlines);
   const newsOn = useNewsOn(newsMode);
   const news = (newsOn ? (sourceId ? fresh : headlines) : []).filter((item) => item.title).map((item) => ({
     tag: item.source || "חדשות",

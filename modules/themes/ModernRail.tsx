@@ -46,7 +46,7 @@ export function ModernRail({
   const civil = now ? israelCivil(now, false) : "";
   const hebrew = now ? hebrewDate(israelWall(now)) : "";
   const shown = rates.slice(0, 2);
-  const fresh = useFreshHeadlines(sourceId || "ynet", newsCount, headlines);
+  const fresh = useFreshHeadlines(sourceId, newsCount, headlines);
   const newsOn = useNewsOn(newsMode);
   const news = (newsOn ? (sourceId ? fresh : headlines) : []).filter((item) => item.title);
   const pages = wheelPages(news, notices);

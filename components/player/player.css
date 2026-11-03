@@ -120,37 +120,48 @@
 }
 .slide-video { width: 100%; height: 100%; object-fit: contain; background: #000; }
 .char-stage {
+  display: flex;
+  flex-direction: column;
   width: 100%;
   height: 100%;
-  background: #111;
+  background: #161311;
 }
 .char-frame {
   position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+}
+.char-frame video {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
+  display: block;
+  object-fit: cover;
+  background: #111;
 }
-.char-frame video { width: 100%; height: 100%; display: block; object-fit: cover; background: #111; }
 .char-note {
-  position: absolute;
-  right: 16px;
-  bottom: 16px;
-  left: auto;
-  width: 280px;
-  max-width: calc(100% - 32px);
+  position: relative;
+  z-index: 3;
+  flex: 0 0 auto;
+  width: 100%;
+  max-width: none;
   box-sizing: border-box;
-  padding: 12px 14px;
-  border-radius: 12px;
-  background: rgba(244, 241, 237, 0.96);
-  color: #5A1F2B;
-  border: 1px solid #e6d3ae;
-  box-shadow: 0 8px 20px rgba(90, 31, 43, 0.16);
+  margin: 0;
+  padding: 16px 28px 18px;
+  border-radius: 0;
+  background: #24181b;
+  color: #F4F1ED;
+  border-top: 2px solid #e6d3ae;
+  box-shadow: none;
   direction: rtl;
-  text-align: right;
+  text-align: center;
   pointer-events: none;
 }
-.char-note strong { display: block; font-size: 22px; font-weight: 700; line-height: 1.15; color: #5A1F2B; }
-.char-note b { display: block; margin-top: 2px; font-size: 16px; font-weight: 600; line-height: 1.2; color: #5A1F2B; }
-.char-note span { display: block; margin-top: 3px; font-size: 16px; font-weight: 500; line-height: 1.3; color: #3a1219; }
+.char-note strong { display: block; font-size: 36px; font-weight: 700; line-height: 1.2; color: #fff; }
+.char-note b { display: block; margin-top: 4px; font-size: 22px; font-weight: 600; line-height: 1.2; color: #e6d3ae; }
+.char-note span { display: block; margin-top: 6px; font-size: 22px; font-weight: 500; line-height: 1.35; color: #F4F1ED; }
 .pest-card {
   position: absolute;
   left: 56.1%;
@@ -258,6 +269,59 @@
   font-weight: 400;
   color: #fff;
   text-shadow: 0 2px 12px rgba(0, 0, 0, 0.8);
+}
+.slide-copy.is-smoke {
+  position: relative;
+  top: auto;
+  right: auto;
+  bottom: auto;
+  left: auto;
+  z-index: 3;
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 16px 28px 20px;
+  background: #24181b;
+  border-top: 2px solid #e6d3ae;
+  text-align: center;
+}
+.smoke-slide {
+  display: flex;
+  flex-direction: column;
+  background: #24181b;
+}
+.smoke-slide > .slide-image {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.slide-copy.is-smoke strong,
+.layout-luxury .slide-copy.is-smoke strong {
+  max-width: 100%;
+  font-size: 64px;
+  font-weight: 500;
+  line-height: 1.05;
+  color: #fff;
+  text-shadow: none;
+  border-bottom: 2px solid #e6d3ae;
+  padding-bottom: 6px;
+}
+.slide-copy.is-smoke span,
+.layout-luxury .slide-copy.is-smoke span {
+  max-width: 92%;
+  font-size: 28px;
+  font-weight: 500;
+  line-height: 1.35;
+  color: #e6d3ae;
+  text-shadow: none;
+  white-space: pre-line;
 }
 .slide-frame { position: relative; width: 100%; height: 100%; overflow: hidden; }
 .parasha-slide {

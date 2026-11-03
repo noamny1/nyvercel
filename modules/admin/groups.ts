@@ -114,6 +114,7 @@ export async function updateGroup(formData: FormData) {
   const theme = owner ? await savedTheme(String(formData.get("theme") || current.theme), current.theme, true) : current.theme;
   const pace = formData.has("floorPace") ? floorPace(formData.get("floorPace")) : current.floorPace;
   const caption = formData.has("floorCaption") ? floorCaption(formData.get("floorCaption")) : current.floorCaption;
+  const newsSource = chosenNews(formData);
   await prisma.screenGroup.update({
     where: { id },
     data: {
@@ -122,7 +123,7 @@ export async function updateGroup(formData: FormData) {
       number: String(formData.get("number") || ""),
       city: officialCity(String(formData.get("city") || "")),
       theme,
-      newsSource: chosenNews(formData),
+      newsSource,
       logoUrl: String(formData.get("logoUrl") || ""),
       faultPhone: String(formData.get("faultPhone") || "").trim().slice(0, 40),
       faultLink: String(formData.get("faultLink") || "").trim().slice(0, 300),
@@ -132,6 +133,11 @@ export async function updateGroup(formData: FormData) {
       ...(owner && formData.has("floorPace") ? { floorPace: pace, floorCaption: caption } : {}),
     },
   });
+  const mine = await prisma.screen.findMany({
+    where: { groupId: id, ...(owner ? {} : await screenWhere(session)) },
+    select: { id: true },
+  });
+  if (mine.length) await prisma.screen.updateMany({ where: { id: { in: mine.map((screen) => screen.id) } }, data: { newsSource } });
   if (theme === "azorim") await prisma.screen.updateMany({ where: { groupId: id }, data: { theme: "azorim" } });
   if (isFloorsTheme(theme)) {
     await prisma.screen.updateMany({

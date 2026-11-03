@@ -49,9 +49,8 @@ export async function bulkSettings(input: {
   if (input.apply.newsTicker && ["on", "weekend", "off"].includes(String(input.newsTicker))) data.newsTicker = String(input.newsTicker);
   if (input.apply.feedMode && ["news", "notices", "both"].includes(String(input.feedMode))) data.feedMode = String(input.feedMode);
   if (input.apply.news) {
-    const ids = [...new Set((input.newsSource || []).map((item) => item.trim()).filter(Boolean))].slice(0, 4);
-    if (!ids.length) return { ok: false, error: "בחרו לפחות מקור חדשות אחד" };
-    data.newsSource = ids.join(",");
+    const ids = [...new Set((input.newsSource || []).map((item) => item.trim()).filter((item) => item && item !== "off"))].slice(0, 4);
+    data.newsSource = ids.length ? ids.join(",") : "off";
   }
   if (input.apply.music) data.musicPlaylist = normalizePlaylists(input.music || []);
   if (!Object.keys(data).length) return { ok: false, error: "סמנו מה לעדכן" };

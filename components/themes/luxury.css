@@ -418,4 +418,12 @@
 .layout-luxury.layout-lux-light .lux-item small,
 .layout-luxury.layout-lux-light .health-note,
 .layout-luxury.layout-lux-light .lux-empty { color: #5A1F2B; }
+.layout-luxury.layout-lux-light .slide { background: #F4F1ED; }
+.layout-luxury720.layout-lux-light.stage,
+.layout-luxury720.layout-lux-light.stage.no-ticker {
+  background: #F4F1ED;
+  color: #252525;
+}
+.layout-luxury720.layout-lux-light .lux-clock { color: #252525; }
+.layout-luxury720.layout-lux-light .lux-brand .lux-brand-white { filter: brightness(0); }
 

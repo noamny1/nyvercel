@@ -157,10 +157,11 @@ function FloorsNews({
   seconds: number;
 }) {
   const newsOn = useNewsOn(newsMode);
-  const fresh = useFreshHeadlines(sourceId || "ynet", newsCount, headlines);
-  const lines = newsOn
-    ? fresh.filter((item) => item.title)
-    : notices.filter(Boolean).map((title) => ({ title, source: "" }));
+  const quiet = !sourceId;
+  const fresh = useFreshHeadlines(sourceId, newsCount, headlines);
+  const lines = quiet || !newsOn
+    ? notices.filter(Boolean).map((title) => ({ title, source: "" }))
+    : fresh.filter((item) => item.title);
   const [index, setIndex] = useState(0);
   const key = lines.map((item) => `${item.source}|${item.title}`).join("\n");
   const item = lines[index];

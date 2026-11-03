@@ -107,8 +107,11 @@ export function ScreenEditor({
   const directory = isFloorsTheme(themePick);
   const view = directory && (tab === "slides" || tab === "notices") ? "floors" : tab;
   const newsCatalog = feeds && feeds.length > 0 ? feeds : NEWS_SOURCES;
+  const newsOffStored = screen.newsSource === "off";
+  const [newsOff, setNewsOff] = useState(newsOffStored);
   const [newsPick, setNewsPick] = useState(() => {
-    const picked = (screen.newsSource || "ynet").split(",").map((item) => item.trim()).filter(Boolean);
+    if (newsOffStored) return ["ynet"];
+    const picked = (screen.newsSource || "ynet").split(",").map((item) => item.trim()).filter((item) => item && item !== "off");
     return picked.slice(0, 4);
   });
   const [musicAlways, setMusicAlways] = useState((screen.musicDays || "") === "24/7");
@@ -278,7 +281,7 @@ export function ScreenEditor({
               </select>
             </label>
           ) : null}
-          {scope === "screen" && (themePick === "luxury" || themePick === "luxury720" || themePick === "luxury-light") ? (
+          {scope === "screen" && (themePick === "luxury" || themePick === "luxury720" || themePick === "luxury-light" || themePick === "luxury-light720") ? (
             <label>תוכן העמודה
               <select name="feedMode" defaultValue={screen.feedMode || "both"}>
                 <option value="news">חדשות</option>
@@ -320,10 +323,19 @@ export function ScreenEditor({
         </div>
         <fieldset className="choice-card">
           <legend>חדשות</legend>
-          <p>נבחרו {newsPick.length} מתוך 4. מה שמסומן יופיע לסירוגין על המסך.</p>
-          <div className="choices">
+          <p>{newsOff ? "החדשות כבויות. על המסך יופיעו רק הודעות." : `נבחרו ${newsPick.length} מתוך 4. מה שמסומן יופיע לסירוגין על המסך.`}</p>
+          {newsOff ? <input type="hidden" name="newsOff" value="1" /> : null}
+          <div className={`choices${newsOff ? " is-locked" : ""}`}>
+            <label className="is-always">
+              <input
+                type="checkbox"
+                checked={newsOff}
+                onChange={() => setNewsOff((value) => !value)}
+              />
+              רק הודעות
+            </label>
             {newsCatalog.map((source) => {
-              const on = newsPick.includes(source.id);
+              const on = !newsOff && newsPick.includes(source.id);
               return (
                 <label key={source.id}>
                   <input
@@ -331,12 +343,16 @@ export function ScreenEditor({
                     name="newsSource"
                     value={source.id}
                     checked={on}
-                    disabled={!on && newsPick.length >= 4}
+                    disabled={newsOff || (!on && newsPick.length >= 4)}
                     onChange={() => {
                       setNewsPick((current) => {
                         if (current.includes(source.id)) {
                           const next = current.filter((item) => item !== source.id);
-                          return next.length ? next : current;
+                          if (!next.length) {
+                            setNewsOff(true);
+                            return ["ynet"];
+                          }
+                          return next;
                         }
                         if (current.length >= 4) return current;
                         return [...current, source.id];
@@ -490,6 +506,7 @@ export function ScreenEditor({
                 }}
               >
                 <span className="slide-label">{slide.templateId === "group-promo" ? "סרטון תדמית" : slide.title || (slide.kind === "youtube" ? "סרטון" : "שקף")}</span>
+                {slide.detail ? <small className="slide-line">{slide.detail}</small> : null}
                 <span className="thumb">
                   {slide.kind === "youtube" ? <img src={/\.mp4(\?|$)/i.test(slide.imageUrl) ? slide.imageUrl.replace(/\.mp4(\?|$)/i, ".jpg$1") : `https://i.ytimg.com/vi/${slide.imageUrl.slice(-11)}/hqdefault.jpg`} alt="" /> : slide.imageUrl.toLowerCase().includes(".pdf") ? <span className="pdf-mark">PDF</span> : <img src={slide.imageUrl} alt="" />}
                   <KindMark video={slide.kind === "youtube"} />

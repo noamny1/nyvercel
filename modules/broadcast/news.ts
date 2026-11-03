@@ -106,7 +106,8 @@ export async function refreshNews(sourceId?: string) {
 }
 
 function sourceIds(value?: string) {
-  const ids = [...new Set((value || "ynet").split(",").map((item) => item.trim()).filter(Boolean))].slice(0, 4);
+  if (!value || value === "off") return value === "off" ? [] : ["ynet"];
+  const ids = [...new Set(value.split(",").map((item) => item.trim()).filter((item) => item && item !== "off"))].slice(0, 4);
   return ids.length ? ids : ["ynet"];
 }
 
@@ -146,6 +147,7 @@ function mixStories<T>(lists: T[][]) {
 
 export async function liveHeadlines(sourceId: string, take = 8) {
   const ids = sourceIds(sourceId);
+  if (!ids.length) return [];
   const limit = Math.min(20, Math.max(1, take));
   const share = Math.max(1, Math.ceil(limit / ids.length));
   const lists = await Promise.all(ids.map((id) => oneSource(id, share).catch(() => [])));
