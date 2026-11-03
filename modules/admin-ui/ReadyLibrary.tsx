@@ -676,8 +676,14 @@ export function SavedSlideEditor({
             <p>זה המלל שמופיע על המסך. משנים כאן ולוחצים שמירה.</p>
           </div>
         ) : null}
-        {slide.templateId === "weekly-parasha" ? <LiveParasha city={city} still={meta.flow === "static"} /> : isDeckId(slide.templateId) ? <DeckPreview id={slide.templateId} /> : (character || pest) && official ? (
-          <CopyPreview image={official.poster} title={heading} line={body} note={pest ? [meta.day ? `יום ${meta.day}` : "", meta.from || ""].filter(Boolean).join(" · ") : ""} />
+        {slide.templateId === "weekly-parasha" ? <LiveParasha city={city} still={meta.flow === "static"} /> : isDeckId(slide.templateId) ? <DeckPreview id={slide.templateId} /> : pest && official ? (
+          <div className="pest-preview">
+            <PestVideo src={official.url} poster={official.poster} title={heading} detail={body} day={meta.day} from={meta.from} />
+          </div>
+        ) : character && official ? (
+          <div className="pest-preview">
+            <CharacterVideo src={official.url} poster={official.poster} title={heading} detail={body} />
+          </div>
         ) : smoke ? (
           <CopyPreview image="/ready-slides/no-smoke.gif?v=2" title={heading} line={body} />
         ) : qr ? (
