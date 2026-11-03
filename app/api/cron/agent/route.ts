@@ -116,7 +116,7 @@ export async function GET(request: Request) {
   const lines = missing.map(place);
   const to = Array.from(new Set([process.env.ADMIN_EMAIL?.trim(), "noam6683@gmail.com"].filter((item): item is string => Boolean(item))));
   const subject = `אין גישה ל-${lines.length} כתובות`;
-  const text = ["כתובות בלי גישה לסטרימר, אחרי בדיקה חוזרת. אפשר לשלוח טכנאי.", "", ...lines].join("\n");
+  const text = ["כתובות בלי גישה ל-Smart TV, אחרי בדיקה חוזרת. אפשר לשלוח טכנאי.", "", ...lines].join("\n");
   const items = lines
     .map((line) => `<li style="margin:0 0 8px;font-size:18px;line-height:1.7">${escapeHtml(line)}</li>`)
     .join("");

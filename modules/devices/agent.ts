@@ -68,7 +68,7 @@ export async function runSystemAgent(): Promise<AgentReport> {
     });
   }
   if (noCode.length) {
-    findings.push({ area: "מסכי לקוח", level: "mid", title: "מסכים בלי מספר מסך", detail: `${noCode.slice(0, 6).map(place).join(", ")}. בלי מספר אי אפשר לפתוח אותם באפליקציה של הסטרימר.` });
+    findings.push({ area: "מסכי לקוח", level: "mid", title: "מסכים בלי מספר מסך", detail: `${noCode.slice(0, 6).map(place).join(", ")}. בלי מספר אי אפשר לפתוח אותם באפליקציה של ה-Smart TV.` });
   }
   if (noUser.length) {
     findings.push({ area: "אבטחה", level: "mid", title: "מסכים בלי משתמש לקוח", detail: `${noUser.slice(0, 6).map(place).join(", ")}. כדאי לשייך לקוח, כדי שרק הוא ינהל את המסך.` });
@@ -82,7 +82,7 @@ export async function runSystemAgent(): Promise<AgentReport> {
     findings.push({ area: "ביצועים", level: "mid", title: "סרטוני יוטיוב אצל לקוחות", detail: `${youtube} שקפים טוענים יוטיוב מתוך הדפדפן של הקופסה. זה כבד יותר מקובץ mp4 שלנו, ולפעמים נתקע על X96.` });
   }
   if (videos) {
-    findings.push({ area: "ביצועים", level: "ok", title: "סרטוני mp4 במסכים", detail: `${videos} סרטונים מקומיים. הם מתאימים לסטרימר כל עוד הם קצרים וברזולוציית 1080.` });
+    findings.push({ area: "ביצועים", level: "ok", title: "סרטוני mp4 במסכים", detail: `${videos} סרטונים מקומיים. הם מתאימים ל-Smart TV עם אנדרואיד כל עוד הם קצרים וברזולוציית 1080. NYM ו-NYK לא מיועדות לסטרימר.` });
   }
   if (heavyNews.length) {
     findings.push({ area: "ביצועים", level: "mid", title: "יותר מדי ידיעות למסך", detail: `${heavyNews.slice(0, 6).map(place).join(", ")} מושכים מעל 12 כותרות. 8 מספיקות לגלגל ולא מכבידות על הרשת.` });

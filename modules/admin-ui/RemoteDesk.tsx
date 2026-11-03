@@ -160,7 +160,7 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
         />
         <b>{live ? "חיבור פתוח" : "חיבור סגור"}</b>
       </p>
-      <p>זה המסך של {title}. לחיצה על התמונה לוחצת באותו מקום בסטרימר.</p>
+      <p>זה המסך של {title}. לחיצה על התמונה לוחצת באותו מקום ב-Smart TV.</p>
       <div className="remote-keys">
         <button type="button" onClick={() => send("key", { text: "4" })}>אחורה</button>
         <button type="button" onClick={() => send("key", { text: "3" })}>מסך הבית</button>
@@ -199,7 +199,7 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
         <button
           type="button"
           onClick={() => {
-            if (window.confirm("למחוק את NYMEDIA מהסטרימר?")) void send("uninstall", { text: "com.example.nymediaapp" });
+            if (window.confirm("למחוק את NYMEDIA מה-Smart TV?")) void send("uninstall", { text: "com.example.nymediaapp" });
           }}
         >
           מחיקת NYMEDIA
@@ -221,10 +221,10 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
         <button
           type="button"
           onClick={() => {
-            if (window.confirm("לאתחל את הסטרימר?")) void send("reboot");
+            if (window.confirm("לאתחל את ה-Smart TV?")) void send("reboot");
           }}
         >
-          אתחול סטרימר
+          אתחול Smart TV
         </button>
         <button
           type="button"
@@ -233,9 +233,9 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
               setNote("אין אפליקציה מחוברת שתוכל לבצע את השדרוג.");
               return;
             }
-            if (!window.confirm("להתקין את NYM ואת NYK על המסך הזה, ורק אחרי שההתקנה תקינה למחוק את האפליקציה הישנה?")) return;
+            if (!window.confirm("להתקין את NYM ואת NYK על ה-Smart TV הזה? הן עובדות על Smart TV עם אנדרואיד, לא על סטרימר. רק אחרי שההתקנה תקינה תימחק האפליקציה הישנה.")) return;
             void send("upgrade", { text: "1" });
-            setNote("השדרוג נשלח. קודם תותקן NYM, אחר כך NYK, ורק אם שתיהן תקינות תימחק הישנה.");
+            setNote("השדרוג נשלח ל-Smart TV. קודם תותקן NYM, אחר כך NYK, ורק אם שתיהן תקינות תימחק הישנה.");
           }}
         >
           שדרוג ל־NYM ו־NYK
@@ -250,7 +250,7 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
           style={{ width: 480, maxWidth: "100%", height: "auto", background: "#111", cursor: "crosshair", borderRadius: 12 }}
         />
       ) : (
-        <p>המסך עדיין לא מופיע. בסטרימר פותחים את NY Keeper ומאשרים את חלון הרוט, אפשר לצמיתות.</p>
+        <p>המסך עדיין לא מופיע. ב-Smart TV פותחים את NY Keeper ומאשרים את חלון הרוט, אפשר לצמיתות. NYM ו-NYK מותקנות רק על Smart TV עם אנדרואיד, לא על סטרימר.</p>
       )}
       <label style={{ display: "flex", gap: 8, alignItems: "center", margin: "16px 0" }}>
         העברת קובץ
@@ -269,7 +269,7 @@ export function RemoteDesk({ screenId, title }: { screenId: number; title: strin
                 contentType: file.type || "application/octet-stream",
               });
               await send("install", { text: blob.url });
-              setNote("הקובץ בדרך לסטרימר.");
+              setNote("הקובץ בדרך ל-Smart TV.");
               setBusy("");
             }).catch(() => {
               setNote("העלאת הקובץ נכשלה");
