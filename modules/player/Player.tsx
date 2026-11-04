@@ -178,13 +178,14 @@ function SlideFace({ slide, onReady, live = true }: { slide: PlaySlide; onReady?
 
   if (slide.kind === "youtube") {
     const file = isVideoFile(slide.imageUrl) ? slide.imageUrl : isVideoFile(slide.detail || "") ? slide.detail : "";
-    if (file && !live) return <video className="slide-video" data-media={file} poster={file.replace(/\.mp4(\?|$)/i, ".jpg$1")} muted playsInline preload="none" />;
+    const character = Boolean(file) && (slide.templateId?.startsWith("fixed-") || file.includes("/safety/"));
     if (file && (slide.templateId === "fixed-pest" || /\/safety\/pest\./.test(file))) {
-      return <PestVideo src={file} poster={file.replace(/\.mp4(\?|$)/i, ".jpg$1")} title={slide.title} detail={slide.detail} day={slide.day} from={slide.from} onReady={onReady} />;
+      return <PestVideo src={file} poster={file.replace(/\.mp4(\?|$)/i, ".jpg$1")} title={slide.title} detail={slide.detail} day={slide.day} from={slide.from} onReady={onReady} live={live} />;
     }
-    if (file && (slide.templateId?.startsWith("fixed-") || file.includes("/safety/"))) {
-      return <CharacterVideo src={file} poster={file.replace(/\.mp4(\?|$)/i, ".jpg$1")} title={slide.title} detail={slide.detail} onReady={onReady} />;
+    if (character && file) {
+      return <CharacterVideo src={file} poster={file.replace(/\.mp4(\?|$)/i, ".jpg$1")} title={slide.title} detail={slide.detail} onReady={onReady} live={live} />;
     }
+    if (file && !live) return <video className="slide-video" data-media={file} poster={file.replace(/\.mp4(\?|$)/i, ".jpg$1")} muted playsInline preload="none" />;
     if (file) return <video className="slide-video" src={file} autoPlay muted loop playsInline preload="auto" onCanPlay={onReady} onError={onReady} />;
     if (!live) {
       const clip = youtubeId(slide.imageUrl);

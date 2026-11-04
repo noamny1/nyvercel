@@ -7,22 +7,41 @@ export function pestWhen(day?: string, from?: string) {
   return [day ? `יום ${day}` : "", from || ""].filter(Boolean).join(" · ");
 }
 
+function motionSrc(src: string) {
+  return src.replace(/\.mp4(\?.*)?$/i, ".webp");
+}
+
 function CharacterFrame({
   src,
   poster,
   onReady,
+  live = true,
   children,
 }: {
   src: string;
   poster?: string;
   onReady?: () => void;
+  live?: boolean;
   children: ReactNode;
 }) {
+  const motion = motionSrc(src);
   return (
     <div className="char-stage">
-      <div className="char-picture">
-        <video src={src} poster={poster} autoPlay muted loop playsInline preload="auto" onCanPlay={onReady} onError={onReady} />
-      </div>
+      <img
+        src={live ? motion : undefined}
+        data-media={motion}
+        alt=""
+        onLoad={onReady}
+        onError={(event) => {
+          const image = event.currentTarget;
+          if (poster && image.dataset.fallback !== "1") {
+            image.dataset.fallback = "1";
+            image.src = poster;
+            return;
+          }
+          onReady?.();
+        }}
+      />
       {children}
     </div>
   );
@@ -34,15 +53,17 @@ export function CharacterVideo({
   detail,
   poster,
   onReady,
+  live = true,
 }: {
   src: string;
   title?: string;
   detail?: string;
   poster?: string;
   onReady?: () => void;
+  live?: boolean;
 }) {
   return (
-    <CharacterFrame src={src} poster={poster} onReady={onReady}>
+    <CharacterFrame src={src} poster={poster} onReady={onReady} live={live}>
       {title || detail ? (
         <div className="char-note">
           <strong>{title}</strong>
@@ -61,6 +82,7 @@ export function PestVideo({
   from,
   poster,
   onReady,
+  live = true,
 }: {
   src: string;
   title?: string;
@@ -69,10 +91,11 @@ export function PestVideo({
   from?: string;
   poster?: string;
   onReady?: () => void;
+  live?: boolean;
 }) {
   const when = pestWhen(day, from);
   return (
-    <CharacterFrame src={src} poster={poster} onReady={onReady}>
+    <CharacterFrame src={src} poster={poster} onReady={onReady} live={live}>
       <div className="char-note">
         <strong>{title || "הדברה"}</strong>
         {when ? <b>{when}</b> : null}
