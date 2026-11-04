@@ -122,52 +122,38 @@
 .char-stage {
   width: 100%;
   height: 100%;
-  display: -webkit-box;
   display: flex;
-  -webkit-box-align: center;
-  align-items: center;
-  -webkit-box-pack: center;
-  justify-content: center;
+  flex-direction: column;
   background: #111;
 }
-.char-frame {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  max-width: 100%;
-  max-height: 100%;
+.char-picture {
+  flex: 1 1 auto;
+  min-height: 0;
+  background: #111;
 }
-.char-frame video {
+.char-picture video {
   width: 100%;
   height: 100%;
   display: block;
   object-fit: contain;
   background: #111;
-  opacity: 0.999;
-  border-radius: 1px;
-  -webkit-transform: translate3d(0, 0, 0);
-  transform: translate3d(0, 0, 0);
 }
 .char-note {
-  position: absolute;
-  right: 16px;
-  bottom: 16px;
-  left: auto;
-  z-index: 4;
-  width: 280px;
-  max-width: calc(100% - 32px);
+  position: relative;
+  flex: 0 0 auto;
+  align-self: flex-end;
+  width: 420px;
+  max-width: calc(100% - 24px);
+  margin: 0 12px 12px;
   box-sizing: border-box;
-  padding: 12px 14px;
+  padding: 12px 16px;
   border-radius: 12px;
   background: #f4f1ed;
   color: #5A1F2B;
   border: 1px solid #e6d3ae;
-  box-shadow: 0 8px 20px rgba(90, 31, 43, 0.16);
   direction: rtl;
   text-align: right;
   pointer-events: none;
-  -webkit-transform: translate3d(0, 0, 0);
-  transform: translate3d(0, 0, 0);
 }
 .char-note strong { display: block; font-size: 22px; font-weight: 700; line-height: 1.15; color: #5A1F2B; }
 .char-note b { display: block; margin-top: 2px; font-size: 16px; font-weight: 600; line-height: 1.2; color: #5A1F2B; }
