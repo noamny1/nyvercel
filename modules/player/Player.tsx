@@ -268,6 +268,25 @@ export function Player({ slides }: { slides: PlaySlide[] }) {
   }, [current?.full]);
 
   useEffect(() => {
+    const root = document.getElementById("slide-stack");
+    if (root) {
+      root.querySelectorAll("video").forEach((node) => {
+        const video = node as HTMLVideoElement;
+        const pane = video.closest(".slide-pane");
+        if (pane && pane.classList.contains("is-off")) {
+          video.muted = true;
+          if (!video.paused) video.pause();
+        }
+      });
+    }
+    const music = document.getElementById("lobby-music") as HTMLAudioElement | null;
+    if (music && music.getAttribute("data-music") !== "0" && music.paused) {
+      music.muted = false;
+      void music.play().catch(() => undefined);
+    }
+  }, [index]);
+
+  useEffect(() => {
     if (slides.length < 2) return;
     const timer = window.setTimeout(() => {
       setHold(index);

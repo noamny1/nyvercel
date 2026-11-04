@@ -14,7 +14,7 @@ export function Ping({ code, revision }: { code: number; revision: number }) {
         const response = await fetch(`/api/ping?code=${code}&beat=1`, { method: "POST", cache: "no-store" });
         if (!response.ok) return;
         const data = (await response.json()) as { r?: number };
-        if (typeof data.r === "number" && data.r !== current) {
+        if (data.r != null && String(data.r) !== String(current)) {
           current = data.r;
           const next = `${location.pathname}?v=${data.r}`;
           location.replace(next);

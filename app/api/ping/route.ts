@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { screenToken } from "@/modules/player/stamp";
 
 export const dynamic = "force-dynamic";
 
@@ -49,11 +50,11 @@ async function beat(request: Request) {
     }
     const desk = await prisma.remoteDesk.findUnique({ where: { screenId: screen.id }, select: { wakeUntil: true } }).catch(() => null);
     const wake = !!desk?.wakeUntil && desk.wakeUntil.getTime() > Date.now();
-    return NextResponse.json({ status: "success", r: screen.revision, wake }, {
+    return NextResponse.json({ status: "success", r: screenToken(screen.revision), wake }, {
       headers: { "Cache-Control": "no-store" },
     });
   }
-  return NextResponse.json({ status: "success", r: screen.revision }, {
+  return NextResponse.json({ status: "success", r: screenToken(screen.revision) }, {
     headers: { "Cache-Control": "no-store" },
   });
 }

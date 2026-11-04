@@ -26,6 +26,7 @@ import { markets } from "@/lib/markets";
 import { liveHeadlines } from "@/lib/news";
 import { prisma } from "@/lib/prisma";
 import { musicSilenced, screenTakeover } from "@/lib/flags";
+import { screenToken } from "@/modules/player/stamp";
 import { FIXED_VIDEOS, clientSetsDuration, fillLine } from "@/lib/ready-slides";
 import { newsTickerOn, slideIsOn } from "@/lib/schedule";
 import { parashaPace, shabbatTimes } from "@/lib/shabbat";
@@ -143,7 +144,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
 
   return (
     <>
-    <FitStage width={floorsOn ? 720 : wide ? 1280 : 1366} height={floorsOn ? 1280 : wide ? 720 : 768} fill={floorsOn || wide ? 1 : 0.97} code={screen.code || screen.id} revision={screen.revision} className={`stage theme-${theme}${luxury ? ` layout-luxury ${heebo.className}` : ""}${light ? " layout-lux-light" : ""}${fault ? ` layout-luxury ${theme} ${heebo.className}` : ""}${wide ? " layout-luxury720" : ""}${modern ? " layout-modern" : ""}${azorim ? ` layout-azorim ${heebo.className}` : ""}${floorsOn ? ` layout-floors look-${theme} ${heebo.className}` : ""}${cinematic ? ` layout-${theme} ${heebo.className}` : ""}${tickerOn && !luxury && !modern && !cinematic && !fault && !azorim && !floorsOn ? "" : " no-ticker"}`}>
+    <FitStage width={floorsOn ? 720 : wide ? 1280 : 1366} height={floorsOn ? 1280 : wide ? 720 : 768} fill={floorsOn || wide ? 1 : 0.97} code={screen.code || screen.id} revision={screenToken(screen.revision)} className={`stage theme-${theme}${luxury ? ` layout-luxury ${heebo.className}` : ""}${light ? " layout-lux-light" : ""}${fault ? ` layout-luxury ${theme} ${heebo.className}` : ""}${wide ? " layout-luxury720" : ""}${modern ? " layout-modern" : ""}${azorim ? ` layout-azorim ${heebo.className}` : ""}${floorsOn ? ` layout-floors look-${theme} ${heebo.className}` : ""}${cinematic ? ` layout-${theme} ${heebo.className}` : ""}${tickerOn && !luxury && !modern && !cinematic && !fault && !azorim && !floorsOn ? "" : " no-ticker"}`}>
       <Music playlist={silenced ? "off" : screen.musicPlaylist || ""} url={silenced ? "" : screen.group?.musicUrl || ""} start={screen.id} days={screen.musicDays} from={screen.musicFrom} until={screen.musicUntil} />
       <NewsGate mode={newsMode} />
       <Wake />
@@ -395,6 +396,15 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
   paintClock();
   window.setInterval(paintClock, 250);
   function start() {
+  function resumeMusic() {
+    var music = document.getElementById("lobby-music");
+    if (!music || music.getAttribute("data-music") === "0") return;
+    music.muted = false;
+    if (music.paused) {
+      var playing = music.play();
+      if (playing && playing.catch) playing.catch(function () {});
+    }
+  }
   function hushPromo() {
     var clips = document.querySelectorAll("video[data-silent]");
     var i;
@@ -406,6 +416,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
   }
   hushPromo();
   window.setInterval(hushPromo, 1000);
+  window.setInterval(resumeMusic, 5000);
   var stage = document.querySelector("main.stage");
   var code = stage ? stage.getAttribute("data-code") : "";
   window.__nyPageBeat = 1;
@@ -454,6 +465,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
       if (video.getAttribute("data-silent") === "1") video.volume = 0;
       try { video.play(); } catch (err) {}
     }
+    resumeMusic();
     var pictures = node.getElementsByTagName("img");
     for (i = 0; i < pictures.length; i++) {
       var picture = pictures[i];
@@ -474,6 +486,11 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
         wake(nodes[i]);
       } else {
         nodes[i].className = "slide-pane is-off";
+        var hidden = nodes[i].getElementsByTagName("video");
+        var clip;
+        for (clip = 0; clip < hidden.length; clip++) {
+          try { hidden[clip].pause(); } catch (err) {}
+        }
       }
     }
   }

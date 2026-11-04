@@ -20,7 +20,7 @@ function mix(list: Track[], seed: number) {
 export function Music({ playlist, url, start, days = "0,1,2,3,4", from = "07:00", until = "22:30" }: { playlist: string; url: string; start: number; days?: string; from?: string; until?: string }) {
   const tracks = useMemo(() => mix(tracksFor(playlist), start || 1), [playlist, start]);
   const [index, setIndex] = useState(0);
-  const [on, setOn] = useState(() => musicOnNow(days, from, until));
+  const [on, setOn] = useState(() => musicOnNow(days || "0,1,2,3,4", from || "07:00", until || "22:30"));
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const onRef = useRef(on);
   const fails = useRef(0);
@@ -29,7 +29,7 @@ export function Music({ playlist, url, start, days = "0,1,2,3,4", from = "07:00"
   const src = track?.url || (!tracks.length && url && playlist !== "off" ? url : "");
 
   useEffect(() => {
-    const tick = () => setOn(musicOnNow(days, from, until));
+    const tick = () => setOn(musicOnNow(days || "0,1,2,3,4", from || "07:00", until || "22:30"));
     tick();
     const timer = window.setInterval(tick, 15000);
     return () => window.clearInterval(timer);
@@ -37,86 +37,60 @@ export function Music({ playlist, url, start, days = "0,1,2,3,4", from = "07:00"
 
   useEffect(() => {
     setIndex(0);
+    fails.current = 0;
   }, [playlist, start]);
 
   useEffect(() => {
     const audio = audioRef.current;
-    if (!audio || !src) return;
-    let stopped = false;
-    const count = Math.max(tracks.length, 1);
+    if (!audio) return;
     const kick = () => {
-      if (stopped) return;
-      if (!onRef.current) {
-        if (!audio.paused) audio.pause();
-        return;
-      }
-      audio.muted = false;
-      audio.volume = 1;
-      const attempt = audio.play();
+      if (!onRef.current || !audioRef.current) return;
+      const node = audioRef.current;
+      node.muted = false;
+      node.volume = 1;
+      const attempt = node.play();
       if (attempt) attempt.catch(() => undefined);
     };
-    const skip = () => {
-      if (stopped || !tracks.length) return;
-      fails.current += 1;
-      const wait = fails.current > count ? 20000 : 0;
-      if (fails.current > count) fails.current = 0;
-      window.setTimeout(() => {
-        if (!stopped) setIndex((value) => (value + 1) % count);
-      }, wait);
-    };
-    const absolute = new URL(src, window.location.href).href;
-    if (audio.src !== absolute) {
-      audio.src = src;
-      audio.load();
-    }
-    audio.loop = tracks.length === 0;
     kick();
-    const onReady = () => kick();
-    const onEnded = () => {
-      fails.current = 0;
-      if (tracks.length) setIndex((value) => (value + 1) % count);
-    };
-    audio.addEventListener("canplay", onReady);
-    audio.addEventListener("ended", onEnded);
-    audio.addEventListener("error", skip);
     let last = -1;
     let frozen = 0;
     const watch = window.setInterval(() => {
-      if (!onRef.current) {
-        if (!audio.paused) audio.pause();
+      const node = audioRef.current;
+      if (!node || !onRef.current) {
+        if (node && !node.paused) node.pause();
         frozen = 0;
         return;
       }
-      const time = audio.currentTime;
-      const moving = Math.abs(time - last) > 0.25;
-      if (moving) {
-        frozen = 0;
-        fails.current = 0;
-      } else if (!audio.paused && !audio.ended) {
+      if (node.paused || node.ended) {
+        kick();
+        frozen += 1;
+      } else if (Math.abs(node.currentTime - last) < 0.25) {
         frozen += 1;
       } else {
-        frozen += 1;
-      }
-      last = time;
-      if (frozen >= 4) {
         frozen = 0;
-        if (audio.error || (audio.readyState >= 2 && !audio.paused)) skip();
-        else kick();
-      } else if (audio.paused || audio.ended) {
-        kick();
+        fails.current = 0;
       }
-    }, 5000);
+      last = node.currentTime;
+      if (frozen < 8) return;
+      frozen = 0;
+      if (!tracks.length) {
+        kick();
+        return;
+      }
+      fails.current += 1;
+      const wait = fails.current > tracks.length ? 20000 : 400;
+      window.setTimeout(() => {
+        setIndex((value) => (value + 1) % tracks.length);
+      }, wait);
+      if (fails.current > tracks.length) fails.current = 0;
+    }, 4000);
     const onShow = () => {
       if (document.visibilityState === "visible") kick();
     };
     document.addEventListener("visibilitychange", onShow);
     return () => {
-      stopped = true;
-      audio.removeEventListener("canplay", onReady);
-      audio.removeEventListener("ended", onEnded);
-      audio.removeEventListener("error", skip);
-      document.removeEventListener("visibilitychange", onShow);
       window.clearInterval(watch);
+      document.removeEventListener("visibilitychange", onShow);
     };
   }, [src, tracks.length]);
 
@@ -134,7 +108,21 @@ export function Music({ playlist, url, start, days = "0,1,2,3,4", from = "07:00"
 
   return (
     <>
-      <audio ref={audioRef} id="lobby-music" preload="auto" />
+      <audio
+        ref={audioRef}
+        id="lobby-music"
+        src={src}
+        autoPlay
+        preload="auto"
+        data-music={on ? "1" : "0"}
+        onEnded={() => {
+          fails.current = 0;
+          if (tracks.length) setIndex((value) => (value + 1) % tracks.length);
+        }}
+        onError={() => {
+          if (tracks.length) setIndex((value) => (value + 1) % tracks.length);
+        }}
+      />
       {track && on ? <p className="music-credit">{track.title} · Kevin MacLeod (incompetech.com) · CC BY 4.0</p> : null}
     </>
   );
