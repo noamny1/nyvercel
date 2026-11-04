@@ -157,7 +157,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
             <Directory floors={floors} />
           </div>
         ) : (
-          <Player slides={visible.map((slide) => {
+          <Player box={wide} slides={visible.map((slide) => {
             const official = FIXED_VIDEOS.find((item) => item.id === slide.templateId)
               ?? FIXED_VIDEOS.find((item) => slide.imageUrl.split("?")[0] === item.url.split("?")[0]);
             const character = Boolean(official?.url.startsWith("/safety/"));

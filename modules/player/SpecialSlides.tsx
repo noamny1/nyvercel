@@ -16,14 +16,26 @@ function CharacterFrame({
   poster,
   onReady,
   live = true,
+  box = false,
   children,
 }: {
   src: string;
   poster?: string;
   onReady?: () => void;
   live?: boolean;
+  box?: boolean;
   children: ReactNode;
 }) {
+  if (!box) {
+    return (
+      <div className="char-stage">
+        <div className="char-frame">
+          <video src={src} poster={poster} autoPlay muted loop playsInline preload="auto" onCanPlay={onReady} onError={onReady} />
+          {children}
+        </div>
+      </div>
+    );
+  }
   const motion = motionSrc(src);
   return (
     <div className="char-stage">
@@ -54,6 +66,7 @@ export function CharacterVideo({
   poster,
   onReady,
   live = true,
+  box = false,
 }: {
   src: string;
   title?: string;
@@ -61,9 +74,10 @@ export function CharacterVideo({
   poster?: string;
   onReady?: () => void;
   live?: boolean;
+  box?: boolean;
 }) {
   return (
-    <CharacterFrame src={src} poster={poster} onReady={onReady} live={live}>
+    <CharacterFrame src={src} poster={poster} onReady={onReady} live={live} box={box}>
       {title || detail ? (
         <div className="char-note">
           <strong>{title}</strong>
@@ -83,6 +97,7 @@ export function PestVideo({
   poster,
   onReady,
   live = true,
+  box = false,
 }: {
   src: string;
   title?: string;
@@ -92,10 +107,11 @@ export function PestVideo({
   poster?: string;
   onReady?: () => void;
   live?: boolean;
+  box?: boolean;
 }) {
   const when = pestWhen(day, from);
   return (
-    <CharacterFrame src={src} poster={poster} onReady={onReady} live={live}>
+    <CharacterFrame src={src} poster={poster} onReady={onReady} live={live} box={box}>
       <div className="char-note">
         <strong>{title || "הדברה"}</strong>
         {when ? <b>{when}</b> : null}
