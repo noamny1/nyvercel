@@ -4,6 +4,17 @@ import { screenToken } from "@/modules/player/stamp";
 
 export const dynamic = "force-dynamic";
 
+let musicColumn: Promise<void> | null = null;
+
+function ensureMusicColumn() {
+  musicColumn ??= prisma.$executeRawUnsafe(
+    'ALTER TABLE "Heartbeat" ADD COLUMN IF NOT EXISTS "musicAt" TIMESTAMP(3)',
+  ).then(() => undefined).catch(() => {
+    musicColumn = null;
+  });
+  return musicColumn;
+}
+
 async function beat(request: Request) {
   const params = new URL(request.url).searchParams;
   const key = Number(params.get("code") || params.get("id"));
@@ -13,10 +24,13 @@ async function beat(request: Request) {
   if (!screen?.active) return NextResponse.json({ status: "error" }, { status: 404 });
   if (params.get("beat") === "1") {
     const at = new Date();
+    await ensureMusicColumn();
+    const music = params.get("music");
+    const musicAt = music === "1" ? at : music === "0" ? null : undefined;
     await prisma.heartbeat.upsert({
       where: { screenId: screen.id },
-      update: { at },
-      create: { screenId: screen.id, at },
+      update: musicAt === undefined ? { at } : { at, musicAt },
+      create: { screenId: screen.id, at, musicAt: music === "1" ? at : null },
     });
     if (params.get("nyk") === "1") {
       await prisma.remoteDesk.upsert({

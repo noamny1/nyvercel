@@ -424,8 +424,10 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
     var revision = stage.getAttribute("data-rev") || "";
     var beat = function () {
       try {
+        var node = document.getElementById("lobby-music");
+        var heard = node && node.getAttribute("data-music") !== "0" && !node.paused && !node.ended && node.currentTime > 0 ? "1" : "0";
         var xhr = new XMLHttpRequest();
-        xhr.open("GET", "/api/ping?code=" + encodeURIComponent(code) + "&beat=1", true);
+        xhr.open("GET", "/api/ping?code=" + encodeURIComponent(code) + "&beat=1&music=" + heard, true);
         xhr.onreadystatechange = function () {
           if (xhr.readyState !== 4 || xhr.status < 200 || xhr.status >= 300) return;
           try {

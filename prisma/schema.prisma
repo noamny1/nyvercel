@@ -119,9 +119,10 @@ model Screen {
 }
 
 model Heartbeat {
-  screenId Int      @id
-  screen   Screen   @relation(fields: [screenId], references: [id], onDelete: Cascade)
-  at       DateTime @default(now())
+  screenId Int       @id
+  screen   Screen    @relation(fields: [screenId], references: [id], onDelete: Cascade)
+  at       DateTime  @default(now())
+  musicAt  DateTime?
 
   @@index([at])
 }

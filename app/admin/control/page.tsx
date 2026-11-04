@@ -103,6 +103,7 @@ export default async function ControlPage({ searchParams }: { searchParams: Prom
           const nyk = nykStamp > 0 && (now - nykStamp < 16 * 60 * 1000 || (state === "online" && nykStamp >= keeper2Stamp));
           const keeper2 = !nyk && (!!screen.remoteDesk?.keeper2At && now - screen.remoteDesk.keeper2At.getTime() < 75000
             || !!screen.remoteDesk?.k2Beat && now - screen.remoteDesk.k2Beat.getTime() < 16 * 60 * 1000);
+          const musicOn = !!screen.heartbeat?.musicAt && now - screen.heartbeat.musicAt.getTime() <= 8 * 60 * 1000;
           return (
           <div key={screen.id} className={state}>
             <span>
@@ -110,6 +111,19 @@ export default async function ControlPage({ searchParams }: { searchParams: Prom
               {" "}{state === "online" ? "תקין" : state === "offline" ? "לא תקין" : "כבוי"} · <Link href={`/admin/screens/${screen.id}`}>{screen.name} · {screen.floor || "לובי"}</Link>
             </span>
             <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+              <i
+                className="dot"
+                title={musicOn ? "המוזיקה מתנגנת עכשיו" : "המוזיקה לא מתנגנת"}
+                style={{
+                  width: 14,
+                  height: 14,
+                  margin: 0,
+                  background: musicOn ? "#1faa4a" : "#e0922a",
+                  boxShadow: `0 0 8px ${musicOn ? "#1faa4a" : "#e0922a"}`,
+                }}
+              />
+              {musicOn ? "מוזיקה" : "בלי מוזיקה"}
+              {" · "}
               <i
                 className="dot"
                 style={{
