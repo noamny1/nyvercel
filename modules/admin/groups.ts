@@ -6,7 +6,7 @@ import { screenWhere } from "@/modules/identity/access";
 import { isSystemAdmin } from "@/modules/identity/session";
 import { nextCode, touchGroup } from "@/modules/data/publish";
 import { floorCaption, floorPace, isFloorsTheme, savedTheme } from "@/modules/slides/themes";
-import { adoptGroup, chosenNews, fallbackLogo, gate, ownerGate, spreadGroupPromo, writtenAddress } from "@/modules/admin/gate";
+import { chosenNews, fallbackLogo, gate, ownerGate, placeInGroup, spreadGroupPromo, writtenAddress } from "@/modules/admin/gate";
 
 export async function createGroup(formData: FormData) {
   await gate();
@@ -211,7 +211,7 @@ export async function moveAddress(formData: FormData) {
   const number = String(formData.get("number") || fromGroup.number);
   const city = officialCity(String(formData.get("city") || fromGroup.city));
   if (screenId) {
-    await adoptGroup(screenId, to, String(formData.get("logoChoice") || "") === "keep");
+    await placeInGroup(screenId, to, String(formData.get("logoChoice") || "") === "keep");
   } else {
     await prisma.screen.create({
       data: { groupId: to, street, number, city, name: label || "כתובת", code: await nextCode(), ...(target.logoUrl ? { logoUrl: target.logoUrl } : {}) },

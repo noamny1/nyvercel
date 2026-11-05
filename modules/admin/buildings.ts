@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/modules/data/prisma";
 import { officialCity } from "@/modules/place/cities";
 import { nextCode, touchGroup, touchScreen } from "@/modules/data/publish";
-import { adoptGroup, gate, ownerGate, starterScreen } from "@/modules/admin/gate";
+import { gate, ownerGate, placeInGroup, starterScreen } from "@/modules/admin/gate";
 import { groupWhere, screenWhere } from "@/modules/identity/access";
 import { isSystemAdmin } from "@/modules/identity/session";
 
@@ -94,7 +94,7 @@ export async function moveListedScreen(formData: FormData) {
   const id = Number(formData.get("id"));
   const groupId = Number(formData.get("groupId")) || null;
   const keepLogo = String(formData.get("logoChoice") || "") === "keep";
-  if (id && groupId) await adoptGroup(id, groupId, keepLogo);
+  if (id && groupId) await placeInGroup(id, groupId, keepLogo);
   else if (id) {
     await prisma.screen.update({ where: { id }, data: { groupId: null } });
     await touchScreen(id);
