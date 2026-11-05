@@ -20,8 +20,9 @@ function append(raw: string, extra: string) {
 
 function isTarget(screen: { street: string; number: string; city: string; name: string }) {
   const number = String(screen.number || "").trim();
-  const city = screen.city || "";
-  return (screen.street || "").includes(NEEDLE) && number === "4" && city.includes("רחובות");
+  const street = screen.street || "";
+  const name = screen.name || "";
+  return number === "4" && (street.includes(NEEDLE) || name.includes(NEEDLE));
 }
 
 function brief(screen: any) {
@@ -123,7 +124,7 @@ export async function GET(request: Request) {
     select: { id: true, name: true, street: true, number: true, city: true, _count: { select: { screens: true, slides: true } } },
   });
 
-  const attempts: Array<{ label: string; error?: string; targets?: ReturnType<typeof brief>[] }> = [];
+  const attempts: Array<{ label: string; error?: string; same?: boolean; targets?: ReturnType<typeof brief>[] }> = [];
   const urls: Array<[string, string]> = [
     ["plain", base],
     ["query-timestamp", append(base, "timestamp=" + encodeURIComponent(AT))],
@@ -136,8 +137,8 @@ export async function GET(request: Request) {
     try {
       const rows = await readScreens(client);
       const targets = rows.filter(isTarget);
-      attempts.push({ label, targets: targets.map(brief) });
       const sig = targets.map(signature).join("|");
+      attempts.push({ label, same: sig === liveSig, targets: targets.map(brief) });
       if (label !== "plain" && !chosen && targets.some((row) => row.slides.length > 0) && sig !== liveSig) {
         chosen = { label, rows: targets };
       }
