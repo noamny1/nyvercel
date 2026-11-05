@@ -57,8 +57,6 @@ const screenSelect = {
   notices: { select: { text: true, active: true } },
 };
 
-type Row = Awaited<ReturnType<PrismaClient["screen"]["findMany"]>>[number];
-
 function isTarget(screen: { street: string; number: string; city: string; name: string }) {
   const number = String(screen.number || "").trim();
   const city = screen.city || "";
@@ -67,7 +65,7 @@ function isTarget(screen: { street: string; number: string; city: string; name: 
   return (street.includes("פרשני") || name.includes("פרשני")) && number === "4" && city.includes("רחובות");
 }
 
-function brief(screen: Row & { slides: { title: string; kind: string; sort: number }[]; notices: unknown[]; logoUrl: string }) {
+function brief(screen: any) {
   return {
     id: screen.id,
     code: screen.code,
@@ -81,7 +79,7 @@ function brief(screen: Row & { slides: { title: string; kind: string; sort: numb
     hasLogo: Boolean(screen.logoUrl),
     slides: screen.slides.length,
     notices: screen.notices.length,
-    titles: screen.slides.map((slide) => ({
+    titles: screen.slides.map((slide: { sort: number; kind: string; title: string }) => ({
       sort: slide.sort,
       kind: slide.kind,
       title: (slide.title || "").slice(0, 80),
@@ -89,10 +87,10 @@ function brief(screen: Row & { slides: { title: string; kind: string; sort: numb
   };
 }
 
-function signature(screen: { slides: { sort: number; kind: string; title: string; imageUrl: string; templateId: string; active: boolean }[]; notices: { text: string; active: boolean }[]; theme: string; logoUrl: string; floor: string }) {
+function signature(screen: any) {
   return JSON.stringify({
-    slides: screen.slides.map((slide) => [slide.sort, slide.kind, slide.title, slide.imageUrl, slide.templateId, slide.active]),
-    notices: screen.notices.map((notice) => [notice.text, notice.active]),
+    slides: screen.slides.map((slide: any) => [slide.sort, slide.kind, slide.title, slide.imageUrl, slide.templateId, slide.active]),
+    notices: screen.notices.map((notice: any) => [notice.text, notice.active]),
     theme: screen.theme,
     logo: screen.logoUrl,
     floor: screen.floor,
@@ -126,7 +124,7 @@ export async function GET(request: Request) {
     ["plain-timestamp", `-c timestamp=${AT}`],
   ] as const;
 
-  let chosen: { label: string; rows: typeof liveTargets } | null = null;
+  let chosen: { label: string; rows: any[] } | null = null;
   for (const [label, options] of optionSets) {
     const client = new PrismaClient({ datasourceUrl: withOptions(base, options) });
     try {
@@ -181,11 +179,11 @@ export async function GET(request: Request) {
       restored.push({ id: source.id, error: "screen-missing" });
       continue;
     }
-    await prisma.$transaction([
+    const ops: any[] = [
       prisma.slide.deleteMany({ where: { screenId: current.id } }),
       prisma.notice.deleteMany({ where: { screenId: current.id } }),
       prisma.slide.createMany({
-        data: source.slides.map((slide) => ({
+        data: source.slides.map((slide: any) => ({
           screenId: current.id,
           imageUrl: slide.imageUrl,
           kind: slide.kind || "image",
@@ -201,31 +199,32 @@ export async function GET(request: Request) {
           endsOn: slide.endsOn || "",
         })),
       }),
-      ...(source.notices.length
-        ? [prisma.notice.createMany({
-          data: source.notices.map((notice) => ({
-            screenId: current.id,
-            text: notice.text,
-            active: notice.active !== false,
-          })),
-        })]
-        : []),
-      prisma.screen.update({
-        where: { id: current.id },
-        data: {
-          name: source.name,
-          floor: source.floor,
-          theme: source.theme,
-          logoUrl: source.logoUrl,
-          newsSource: source.newsSource,
-          newsCount: source.newsCount,
-          tickerSeconds: source.tickerSeconds,
-          newsTicker: source.newsTicker,
-          feedMode: source.feedMode,
-          musicPlaylist: source.musicPlaylist,
-        },
-      }),
-    ]);
+    ];
+    if (source.notices.length) {
+      ops.push(prisma.notice.createMany({
+        data: source.notices.map((notice: any) => ({
+          screenId: current.id,
+          text: notice.text,
+          active: notice.active !== false,
+        })),
+      }));
+    }
+    ops.push(prisma.screen.update({
+      where: { id: current.id },
+      data: {
+        name: source.name,
+        floor: source.floor,
+        theme: source.theme,
+        logoUrl: source.logoUrl,
+        newsSource: source.newsSource,
+        newsCount: source.newsCount,
+        tickerSeconds: source.tickerSeconds,
+        newsTicker: source.newsTicker,
+        feedMode: source.feedMode,
+        musicPlaylist: source.musicPlaylist,
+      },
+    }));
+    await prisma.$transaction(ops);
     await touchScreen(current.id);
     restored.push({
       id: current.id,
