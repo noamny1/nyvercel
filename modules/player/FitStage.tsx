@@ -13,14 +13,6 @@ export function FitStage({ className, children, width = WIDTH, height = HEIGHT, 
     if (!node) return;
     const fit = () => {
       const scale = Math.min(window.innerWidth / width, window.innerHeight / height) * fill;
-      if (scale > 0.98 && scale < 1.02) {
-        node.style.left = "0px";
-        node.style.top = "0px";
-        node.style.transform = "none";
-        return;
-      }
-      node.style.left = "50%";
-      node.style.top = "50%";
       node.style.transform = `translate(-50%, -50%) scale(${scale})`;
     };
     fit();

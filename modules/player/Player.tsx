@@ -167,7 +167,7 @@ function SilentClip({ src, live, onReady }: { src: string; live: boolean; onRead
   return <video ref={ref} className="slide-video" src={src} data-silent="1" autoPlay muted loop playsInline preload="auto" onCanPlay={onReady} onError={onReady} />;
 }
 
-function SlideFace({ slide, onReady, live = true, box = false }: { slide: PlaySlide; onReady?: () => void; live?: boolean; box?: boolean }) {
+function SlideFace({ slide, onReady, live = true }: { slide: PlaySlide; onReady?: () => void; live?: boolean }) {
   const soon = () => onReady?.();
   useEffect(() => {
     const media = slide.kind === "image" || slide.kind === "template" || isVideoFile(slide.imageUrl) || slide.kind === "youtube";
@@ -178,15 +178,13 @@ function SlideFace({ slide, onReady, live = true, box = false }: { slide: PlaySl
 
   if (slide.kind === "youtube") {
     const file = isVideoFile(slide.imageUrl) ? slide.imageUrl : isVideoFile(slide.detail || "") ? slide.detail : "";
-    const character = Boolean(file) && (slide.templateId?.startsWith("fixed-") || file.includes("/safety/"));
-    if (!box && file && !live) return <video className="slide-video" data-media={file} poster={file.replace(/\.mp4(\?|$)/i, ".jpg$1")} muted playsInline preload="none" />;
-    if (file && (slide.templateId === "fixed-pest" || /\/safety\/pest\./.test(file))) {
-      return <PestVideo src={file} poster={file.replace(/\.mp4(\?|$)/i, ".jpg$1")} title={slide.title} detail={slide.detail} day={slide.day} from={slide.from} onReady={onReady} live={live} box={box} />;
-    }
-    if (character && file) {
-      return <CharacterVideo src={file} poster={file.replace(/\.mp4(\?|$)/i, ".jpg$1")} title={slide.title} detail={slide.detail} onReady={onReady} live={live} box={box} />;
-    }
     if (file && !live) return <video className="slide-video" data-media={file} poster={file.replace(/\.mp4(\?|$)/i, ".jpg$1")} muted playsInline preload="none" />;
+    if (file && (slide.templateId === "fixed-pest" || /\/safety\/pest\./.test(file))) {
+      return <PestVideo src={file} poster={file.replace(/\.mp4(\?|$)/i, ".jpg$1")} title={slide.title} detail={slide.detail} day={slide.day} from={slide.from} onReady={onReady} />;
+    }
+    if (file && (slide.templateId?.startsWith("fixed-") || file.includes("/safety/"))) {
+      return <CharacterVideo src={file} poster={file.replace(/\.mp4(\?|$)/i, ".jpg$1")} title={slide.title} detail={slide.detail} onReady={onReady} />;
+    }
     if (file) return <video className="slide-video" src={file} autoPlay muted loop playsInline preload="auto" onCanPlay={onReady} onError={onReady} />;
     if (!live) {
       const clip = youtubeId(slide.imageUrl);
@@ -256,7 +254,7 @@ function preloadSlide(slide: PlaySlide | undefined) {
   image.src = slide.imageUrl;
 }
 
-export function Player({ slides, box = false }: { slides: PlaySlide[]; box?: boolean }) {
+export function Player({ slides }: { slides: PlaySlide[] }) {
   const [index, setIndex] = useState(0);
   const [hold, setHold] = useState<number | null>(null);
   const current = slides[index];
@@ -315,7 +313,7 @@ export function Player({ slides, box = false }: { slides: PlaySlide[]; box?: boo
     <div className="slide-stack" id="slide-stack">
       {slides.map((slide, item) => (
         <div key={`${slide.templateId || slide.kind || "slide"}-${item}`} className={item === index ? "slide-pane" : "slide-pane is-off"} data-sec={Math.max(3, Number(slide.duration) || 8)}>
-          <SlideFace slide={slide} live={item === index || item === hold} box={box} />
+          <SlideFace slide={slide} live={item === index || item === hold} />
         </div>
       ))}
     </div>

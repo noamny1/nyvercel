@@ -1,62 +1,10 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState } from "react";
 import QRCode from "qrcode";
 
 export function pestWhen(day?: string, from?: string) {
   return [day ? `יום ${day}` : "", from || ""].filter(Boolean).join(" · ");
-}
-
-function motionSrc(src: string) {
-  return src.replace(/\.mp4(\?.*)?$/i, ".webp");
-}
-
-function CharacterFrame({
-  src,
-  poster,
-  onReady,
-  live = true,
-  box = false,
-  children,
-}: {
-  src: string;
-  poster?: string;
-  onReady?: () => void;
-  live?: boolean;
-  box?: boolean;
-  children: ReactNode;
-}) {
-  if (!box) {
-    return (
-      <div className="char-stage">
-        <div className="char-frame">
-          <video src={src} poster={poster} autoPlay muted loop playsInline preload="auto" onCanPlay={onReady} onError={onReady} />
-          {children}
-        </div>
-      </div>
-    );
-  }
-  const motion = motionSrc(src);
-  return (
-    <div className="char-stage">
-      <img
-        src={live ? motion : undefined}
-        data-media={motion}
-        alt=""
-        onLoad={onReady}
-        onError={(event) => {
-          const image = event.currentTarget;
-          if (poster && image.dataset.fallback !== "1") {
-            image.dataset.fallback = "1";
-            image.src = poster;
-            return;
-          }
-          onReady?.();
-        }}
-      />
-      {children}
-    </div>
-  );
 }
 
 export function CharacterVideo({
@@ -65,26 +13,23 @@ export function CharacterVideo({
   detail,
   poster,
   onReady,
-  live = true,
-  box = false,
 }: {
   src: string;
   title?: string;
   detail?: string;
   poster?: string;
   onReady?: () => void;
-  live?: boolean;
-  box?: boolean;
 }) {
   return (
-    <CharacterFrame src={src} poster={poster} onReady={onReady} live={live} box={box}>
-      {title || detail ? (
+    <div className="char-stage">
+      <div className="char-frame">
+        <video src={src} poster={poster} autoPlay muted loop playsInline preload="auto" onCanPlay={onReady} onError={onReady} />
         <div className="char-note">
           <strong>{title}</strong>
           {detail ? <span>{detail}</span> : null}
         </div>
-      ) : null}
-    </CharacterFrame>
+      </div>
+    </div>
   );
 }
 
@@ -96,8 +41,6 @@ export function PestVideo({
   from,
   poster,
   onReady,
-  live = true,
-  box = false,
 }: {
   src: string;
   title?: string;
@@ -106,18 +49,19 @@ export function PestVideo({
   from?: string;
   poster?: string;
   onReady?: () => void;
-  live?: boolean;
-  box?: boolean;
 }) {
   const when = pestWhen(day, from);
   return (
-    <CharacterFrame src={src} poster={poster} onReady={onReady} live={live} box={box}>
-      <div className="char-note">
-        <strong>{title || "הדברה"}</strong>
-        {when ? <b>{when}</b> : null}
-        {detail ? <span>{detail}</span> : null}
+    <div className="char-stage">
+      <div className="char-frame">
+        <video src={src} poster={poster} autoPlay muted loop playsInline preload="auto" onCanPlay={onReady} onError={onReady} />
+        <div className="char-note">
+          <strong>{title || "הדברה"}</strong>
+          {when ? <b>{when}</b> : null}
+          {detail ? <span>{detail}</span> : null}
+        </div>
       </div>
-    </CharacterFrame>
+    </div>
   );
 }
 
