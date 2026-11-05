@@ -123,7 +123,12 @@ export async function adoptGroup(screenId: number, groupId: number) {
       : []),
     prisma.screen.update({
       where: { id: screenId },
-      data: { groupId, logoUrl: target?.logoUrl || "", listSort: (last._max.listSort || 0) + 1, users: { set: (target?.groupLinks || []).map((link) => ({ id: link.userId })) } },
+      data: {
+        groupId,
+        ...(target?.logoUrl ? { logoUrl: target.logoUrl } : {}),
+        listSort: (last._max.listSort || 0) + 1,
+        users: { set: (target?.groupLinks || []).map((link) => ({ id: link.userId })) },
+      },
     }),
   ]);
   await touchScreen(screenId);

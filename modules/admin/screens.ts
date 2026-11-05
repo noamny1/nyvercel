@@ -136,6 +136,7 @@ export async function moveScreen(formData: FormData) {
     where: { id },
     data: {
       groupId: to,
+      ...(target.logoUrl ? { logoUrl: target.logoUrl } : {}),
       street: screen.street || fromGroup.street,
       number: screen.number || fromGroup.number,
       city: screen.city || fromGroup.city,

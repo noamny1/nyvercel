@@ -95,7 +95,7 @@ export async function moveListedScreen(formData: FormData) {
   const groupId = Number(formData.get("groupId")) || null;
   if (id && groupId) await adoptGroup(id, groupId);
   else if (id) {
-    await prisma.screen.update({ where: { id }, data: { groupId } });
+    await prisma.screen.update({ where: { id }, data: { groupId: null } });
     await touchScreen(id);
   }
   redirect("/admin/buildings");

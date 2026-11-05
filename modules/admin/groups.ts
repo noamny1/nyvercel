@@ -168,8 +168,9 @@ export async function addAddress(formData: FormData) {
   if (!street && !city) redirect(`/admin/groups/${groupId}`);
   const place = [street, number].filter(Boolean).join(" ");
   const name = [place, city].filter(Boolean).join(", ");
+  const group = await prisma.screenGroup.findUnique({ where: { id: groupId }, select: { logoUrl: true } });
   await prisma.screen.create({
-    data: { name, groupId, street, number, city, code: await nextCode() },
+    data: { name, groupId, street, number, city, code: await nextCode(), ...(group?.logoUrl ? { logoUrl: group.logoUrl } : {}) },
   });
   redirect(`/admin/groups/${groupId}`);
 }
@@ -213,7 +214,7 @@ export async function moveAddress(formData: FormData) {
     await adoptGroup(screenId, to);
   } else {
     await prisma.screen.create({
-      data: { groupId: to, street, number, city, name: label || "כתובת", code: await nextCode() },
+      data: { groupId: to, street, number, city, name: label || "כתובת", code: await nextCode(), ...(target.logoUrl ? { logoUrl: target.logoUrl } : {}) },
     });
   }
   if (label && label === writtenAddress(fromGroup.street, fromGroup.number, fromGroup.city)) {
