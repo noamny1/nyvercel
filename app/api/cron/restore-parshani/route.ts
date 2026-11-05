@@ -69,8 +69,46 @@ export async function GET(request: Request) {
   }
 
   const blobs = await list({ prefix: "backups/" });
+  const live = await prisma.screen.findMany({
+    where: { OR: [{ street: { contains: "פרשני" } }, { name: { contains: "פרשני" } }] },
+    select: {
+      id: true,
+      code: true,
+      name: true,
+      street: true,
+      number: true,
+      city: true,
+      groupId: true,
+      logoUrl: true,
+      theme: true,
+      slides: { select: { id: true, kind: true, templateId: true, title: true, createdAt: true, sort: true }, orderBy: { sort: "asc" } },
+      notices: { select: { id: true, text: true } },
+      updates: { select: { id: true, text: true, active: true } },
+    },
+  });
+  const liveSummary = live.map((screen) => ({
+    id: screen.id,
+    code: screen.code,
+    name: screen.name,
+    street: screen.street,
+    number: screen.number,
+    city: screen.city,
+    groupId: screen.groupId,
+    theme: screen.theme,
+    hasLogo: Boolean(screen.logoUrl),
+    slides: screen.slides.map((slide) => ({
+      id: slide.id,
+      kind: slide.kind,
+      templateId: slide.templateId,
+      title: slide.title.slice(0, 80),
+      sort: slide.sort,
+      createdAt: slide.createdAt,
+    })),
+    notices: screen.notices.map((notice) => notice.text.slice(0, 80)),
+    updates: screen.updates.map((update) => ({ id: update.id, active: update.active, text: update.text.slice(0, 80) })),
+  }));
   const backup = blobs.blobs.find((item) => item.pathname === "backups/latest.bin") || blobs.blobs[0];
-  if (!backup) return NextResponse.json({ error: "no-backup", names: blobs.blobs.map((item) => item.pathname) }, { status: 404 });
+  if (!backup) return NextResponse.json({ error: "no-backup", names: blobs.blobs.map((item) => item.pathname), live: liveSummary }, { status: 404 });
 
   const packed = Buffer.from(await (await fetch(backup.url)).arrayBuffer());
   let body: { at?: string; screens?: BackupScreen[] };
