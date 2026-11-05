@@ -7,17 +7,53 @@ export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
 const AT = "2026-11-05T10:20:00Z";
+const NEEDLE = "פרשני";
 
 function safe(error: unknown) {
   const text = error instanceof Error ? error.message : String(error);
-  return text.replace(/postgres(?:ql)?:\/\/\S+/gi, "[redacted]").slice(0, 500);
+  return text.replace(/postgres(?:ql)?:\/\/\S+/gi, "[redacted]").replace(/ep-[a-z0-9-]+/gi, "[host]").slice(0, 400);
 }
 
-function withOptions(raw: string, options: string) {
-  const url = new URL(raw);
-  url.searchParams.set("options", options);
-  url.searchParams.set("connect_timeout", "20");
-  return url.toString();
+function append(raw: string, extra: string) {
+  return raw + (raw.includes("?") ? "&" : "?") + extra;
+}
+
+function isTarget(screen: { street: string; number: string; city: string; name: string }) {
+  const number = String(screen.number || "").trim();
+  const city = screen.city || "";
+  return (screen.street || "").includes(NEEDLE) && number === "4" && city.includes("רחובות");
+}
+
+function brief(screen: any) {
+  return {
+    id: screen.id,
+    code: screen.code,
+    name: screen.name,
+    street: screen.street,
+    number: screen.number,
+    city: screen.city,
+    floor: screen.floor,
+    theme: screen.theme,
+    groupId: screen.groupId,
+    hasLogo: Boolean(screen.logoUrl),
+    slides: screen.slides.length,
+    notices: screen.notices.length,
+    titles: screen.slides.map((slide: { sort: number; kind: string; title: string }) => ({
+      sort: slide.sort,
+      kind: slide.kind,
+      title: (slide.title || "").slice(0, 80),
+    })),
+  };
+}
+
+function signature(screen: any) {
+  return JSON.stringify({
+    slides: screen.slides.map((slide: any) => [slide.sort, slide.kind, slide.title, slide.imageUrl, slide.templateId, slide.active]),
+    notices: screen.notices.map((notice: any) => [notice.text, notice.active]),
+    theme: screen.theme,
+    logo: screen.logoUrl,
+    floor: screen.floor,
+  });
 }
 
 const screenSelect = {
@@ -57,49 +93,15 @@ const screenSelect = {
   notices: { select: { text: true, active: true } },
 };
 
-function isTarget(screen: { street: string; number: string; city: string; name: string }) {
-  const number = String(screen.number || "").trim();
-  const city = screen.city || "";
-  const street = screen.street || "";
-  const name = screen.name || "";
-  return (street.includes("פרשני") || name.includes("פרשני")) && number === "4" && city.includes("רחובות");
-}
-
-function brief(screen: any) {
-  return {
-    id: screen.id,
-    code: screen.code,
-    name: screen.name,
-    street: screen.street,
-    number: screen.number,
-    city: screen.city,
-    floor: screen.floor,
-    theme: screen.theme,
-    groupId: screen.groupId,
-    hasLogo: Boolean(screen.logoUrl),
-    slides: screen.slides.length,
-    notices: screen.notices.length,
-    titles: screen.slides.map((slide: { sort: number; kind: string; title: string }) => ({
-      sort: slide.sort,
-      kind: slide.kind,
-      title: (slide.title || "").slice(0, 80),
-    })),
-  };
-}
-
-function signature(screen: any) {
-  return JSON.stringify({
-    slides: screen.slides.map((slide: any) => [slide.sort, slide.kind, slide.title, slide.imageUrl, slide.templateId, slide.active]),
-    notices: screen.notices.map((notice: any) => [notice.text, notice.active]),
-    theme: screen.theme,
-    logo: screen.logoUrl,
-    floor: screen.floor,
-  });
-}
-
-async function readScreens(client: PrismaClient) {
+async function readScreens(client: { screen: PrismaClient["screen"] }) {
   return client.screen.findMany({
-    where: { OR: [{ street: { contains: "פרשני" } }, { name: { contains: "פרשני" } }] },
+    where: {
+      OR: [
+        { street: { contains: NEEDLE } },
+        { name: { contains: NEEDLE } },
+        { city: { contains: NEEDLE } },
+      ],
+    },
     select: screenSelect,
   });
 }
@@ -116,23 +118,27 @@ export async function GET(request: Request) {
   const liveRows = await readScreens(prisma);
   const liveTargets = liveRows.filter(isTarget);
   const liveSig = liveTargets.map(signature).join("|");
+  const groups = await prisma.screenGroup.findMany({
+    where: { OR: [{ name: { contains: NEEDLE } }, { street: { contains: NEEDLE } }, { city: { contains: NEEDLE } }] },
+    select: { id: true, name: true, street: true, number: true, city: true, _count: { select: { screens: true, slides: true } } },
+  });
 
   const attempts: Array<{ label: string; error?: string; targets?: ReturnType<typeof brief>[] }> = [];
-  const optionSets = [
-    ["timestamp", `timestamp:${AT}`],
-    ["neon-timestamp", `-c neon.timestamp=${AT}`],
-    ["plain-timestamp", `-c timestamp=${AT}`],
-  ] as const;
+  const urls: Array<[string, string]> = [
+    ["plain", base],
+    ["query-timestamp", append(base, "timestamp=" + encodeURIComponent(AT))],
+    ["options-timestamp", append(base, "options=" + encodeURIComponent("timestamp:" + AT))],
+  ];
 
   let chosen: { label: string; rows: any[] } | null = null;
-  for (const [label, options] of optionSets) {
-    const client = new PrismaClient({ datasourceUrl: withOptions(base, options) });
+  for (const [label, url] of urls) {
+    const client = new PrismaClient({ datasourceUrl: url });
     try {
       const rows = await readScreens(client);
       const targets = rows.filter(isTarget);
       attempts.push({ label, targets: targets.map(brief) });
       const sig = targets.map(signature).join("|");
-      if (!chosen && targets.some((row) => row.slides.length > 0) && sig !== liveSig) {
+      if (label !== "plain" && !chosen && targets.some((row) => row.slides.length > 0) && sig !== liveSig) {
         chosen = { label, rows: targets };
       }
     } catch (error) {
@@ -149,6 +155,8 @@ export async function GET(request: Request) {
       at: AT,
       israel: "2026-11-05 12:20",
       error: "time-travel-unchanged",
+      near: liveRows.map(brief),
+      groups,
       live: liveTargets.map(brief),
       attempts,
     }, { status: 409 });
@@ -163,6 +171,7 @@ export async function GET(request: Request) {
       via: chosen.label,
       past: chosen.rows.map(brief),
       live: liveTargets.map(brief),
+      near: liveRows.map(brief),
     });
   }
 
@@ -229,15 +238,13 @@ export async function GET(request: Request) {
     restored.push({
       id: current.id,
       code: current.code,
-      name: source.name,
       slides: source.slides.length,
       notices: source.notices.length,
       replacedSlides: current.slides.length,
       keptGroupId: current.groupId,
       pastGroupId: source.groupId,
-      via: chosen.label,
     });
   }
 
-  return NextResponse.json({ ok: true, at: AT, israel: "2026-11-05 12:20", restored });
+  return NextResponse.json({ ok: true, at: AT, restored });
 }
