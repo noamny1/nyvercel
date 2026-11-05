@@ -1,5 +1,5 @@
 import { createDecipheriv, createHash } from "crypto";
-import { list, put } from "@vercel/blob";
+import { list } from "@vercel/blob";
 import { NextResponse } from "next/server";
 import { prisma } from "@/modules/data/prisma";
 import { touchScreen } from "@/modules/data/publish";
@@ -108,11 +108,6 @@ export async function GET(request: Request) {
       restored.push({ id: source.id, error: "backup-empty", currentSlides: current.slides.length });
       continue;
     }
-    await put(
-      `backups/parshani-${source.id}-before.json`,
-      JSON.stringify({ at: new Date().toISOString(), screen: current }),
-      { access: "private", addRandomSuffix: true, contentType: "application/json" },
-    );
     await prisma.$transaction([
       prisma.slide.deleteMany({ where: { screenId: source.id } }),
       prisma.notice.deleteMany({ where: { screenId: source.id } }),
