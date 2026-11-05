@@ -96,11 +96,16 @@ export function GroupScreenList({
                   <input type="hidden" name="street" value={screen.street} />
                   <input type="hidden" name="number" value={screen.number} />
                   <input type="hidden" name="city" value={screen.city} />
-                  <select name="targetGroupId" defaultValue="" aria-label="קבוצה אחרת">
-                    <option value=""></option>
+                  <select name="targetGroupId" defaultValue="" aria-label="קבוצה אחרת" required>
+                    <option value="" disabled></option>
                     {others.map((item) => (
                       <option key={item.id} value={item.id}>{item.name}</option>
                     ))}
+                  </select>
+                  <select className="logo-choice" name="logoChoice" defaultValue="" required aria-label="האם להחליף את הלוגו">
+                    <option value="" disabled>האם להחליף את הלוגו?</option>
+                    <option value="group">כן, ללוגו הקבוצה</option>
+                    <option value="keep">לא, להשאיר את הלוגו של הכתובת</option>
                   </select>
                   <button className="light" type="submit">העברה</button>
                 </form>

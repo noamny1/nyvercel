@@ -211,7 +211,7 @@ export async function moveAddress(formData: FormData) {
   const number = String(formData.get("number") || fromGroup.number);
   const city = officialCity(String(formData.get("city") || fromGroup.city));
   if (screenId) {
-    await adoptGroup(screenId, to);
+    await adoptGroup(screenId, to, String(formData.get("logoChoice") || "") === "keep");
   } else {
     await prisma.screen.create({
       data: { groupId: to, street, number, city, name: label || "כתובת", code: await nextCode(), ...(target.logoUrl ? { logoUrl: target.logoUrl } : {}) },

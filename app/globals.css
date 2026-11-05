@@ -1034,7 +1034,8 @@ body:has(.admin) { background: #F4F1ED; overflow-x: hidden; }
 .admin table.screen-table td { background: #fff; border-top: 1px solid rgba(37, 37, 37, 0.1); border-bottom: 1px solid rgba(37, 37, 37, 0.1); }
 .admin table.screen-table td:first-child { border-right: 1px solid rgba(37, 37, 37, 0.1); border-radius: 0 12px 12px 0; }
 .admin table.screen-table td:last-child { border-left: 1px solid rgba(37, 37, 37, 0.1); border-radius: 12px 0 0 12px; }
-.admin .group-move { display: flex; gap: 4px; align-items: center; }
+.admin .group-move { display: flex; gap: 4px; align-items: center; flex-wrap: wrap; }
+.admin .logo-choice { min-width: 180px; }
 .admin .group-move button.ready { background: #2f6b45; color: #F4F1ED; border: 0; }
 .admin .group-move button:disabled { opacity: 0.45; cursor: default; }
 .admin table.screen-table .group-move select {

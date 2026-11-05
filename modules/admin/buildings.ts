@@ -93,7 +93,8 @@ export async function moveListedScreen(formData: FormData) {
   await ownerGate();
   const id = Number(formData.get("id"));
   const groupId = Number(formData.get("groupId")) || null;
-  if (id && groupId) await adoptGroup(id, groupId);
+  const keepLogo = String(formData.get("logoChoice") || "") === "keep";
+  if (id && groupId) await adoptGroup(id, groupId, keepLogo);
   else if (id) {
     await prisma.screen.update({ where: { id }, data: { groupId: null } });
     await touchScreen(id);

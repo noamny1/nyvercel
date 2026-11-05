@@ -92,7 +92,7 @@ export async function starterScreen() {
   return found.find((screen) => screen.name === name) || found[0] || null;
 }
 
-export async function adoptGroup(screenId: number, groupId: number) {
+export async function adoptGroup(screenId: number, groupId: number, keepLogo = false) {
   const [target, starter] = await Promise.all([
     prisma.screenGroup.findUnique({ where: { id: groupId }, select: { logoUrl: true, promoUrl: true, promoSeconds: true, groupLinks: { select: { userId: true } } } }),
     starterScreen(),
@@ -125,7 +125,7 @@ export async function adoptGroup(screenId: number, groupId: number) {
       where: { id: screenId },
       data: {
         groupId,
-        ...(target?.logoUrl ? { logoUrl: target.logoUrl } : {}),
+        ...(!keepLogo && target?.logoUrl ? { logoUrl: target.logoUrl } : {}),
         listSort: (last._max.listSort || 0) + 1,
         users: { set: (target?.groupLinks || []).map((link) => ({ id: link.userId })) },
       },
