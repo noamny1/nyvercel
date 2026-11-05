@@ -70,12 +70,29 @@ export async function GET(request: Request) {
   const cipher = createCipheriv("aes-256-gcm", key, iv);
   const data = Buffer.concat([cipher.update(body), cipher.final()]);
   const packed = Buffer.concat([iv, cipher.getAuthTag(), data]);
+  const stamp = new Date().toISOString().slice(0, 16).replace(/[:T]/g, "-");
+  const dated = await put(`backups/${stamp}.bin`, packed, {
+    access: "public",
+    addRandomSuffix: true,
+    contentType: "application/octet-stream",
+  });
   const previous = await list({ prefix: "backups/" });
-  await Promise.all(previous.blobs.map((item) => del(item.url)));
+  await Promise.all(
+    previous.blobs
+      .filter((item) => item.pathname === PATH || item.pathname.startsWith("backups/parshani-"))
+      .map((item) => del(item.url)),
+  );
   const blob = await put(PATH, packed, {
     access: "public",
     addRandomSuffix: false,
     contentType: "application/octet-stream",
   });
-  return NextResponse.json({ ok: true, screens: screens.length, bytes: packed.length, url: blob.pathname });
+  const cutoff = Date.now() - 14 * 24 * 60 * 60 * 1000;
+  const old = await list({ prefix: "backups/" });
+  await Promise.all(
+    old.blobs
+      .filter((item) => item.pathname !== PATH && item.uploadedAt && new Date(item.uploadedAt).getTime() < cutoff)
+      .map((item) => del(item.url)),
+  );
+  return NextResponse.json({ ok: true, screens: screens.length, bytes: packed.length, url: blob.pathname, copy: dated.pathname });
 }
