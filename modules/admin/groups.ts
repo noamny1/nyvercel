@@ -27,9 +27,17 @@ export async function setGroupLogo(formData: FormData) {
   const file = formData.get("file");
   if (!id || !(file instanceof File) || !file.size || !file.type.startsWith("image/")) redirect("/admin");
   if (!process.env.BLOB_READ_WRITE_TOKEN) redirect("/admin");
+  const current = await prisma.screenGroup.findUnique({ where: { id }, select: { logoUrl: true } });
   const blob = await put(`uploads/${Date.now()}-${file.name}`, file, { access: "public", contentType: file.type || "image/gif" });
+  const previous = current?.logoUrl || "";
   await prisma.screenGroup.update({ where: { id }, data: { logoUrl: blob.url } });
-  await prisma.screen.updateMany({ where: { groupId: id }, data: { logoUrl: blob.url } });
+  await prisma.screen.updateMany({
+    where: {
+      groupId: id,
+      OR: [{ logoUrl: "" }, ...(previous ? [{ logoUrl: previous }] : [])],
+    },
+    data: { logoUrl: blob.url },
+  });
   await touchGroup(id);
   redirect("/admin");
 }
@@ -37,7 +45,7 @@ export async function syncGroupLogos(groups: { id: number; logoUrl: string }[]) 
   for (const group of groups) {
     if (!group.logoUrl) continue;
     const changed = await prisma.screen.updateMany({
-      where: { groupId: group.id, NOT: { logoUrl: group.logoUrl } },
+      where: { groupId: group.id, logoUrl: "" },
       data: { logoUrl: group.logoUrl },
     });
     if (changed.count) await touchGroup(group.id);
