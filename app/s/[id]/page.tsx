@@ -29,7 +29,7 @@ import { musicSilenced, screenTakeover } from "@/lib/flags";
 import { screenToken } from "@/modules/player/stamp";
 import { FIXED_VIDEOS, clientSetsDuration, fillLine } from "@/lib/ready-slides";
 import { newsTickerOn, slideIsOn } from "@/lib/schedule";
-import { parashaPace, shabbatTimes } from "@/lib/shabbat";
+import { parashaPace, shabbatTimes, weeklyPortion } from "@/lib/shabbat";
 import { isThemeId, isFaultTheme } from "@/lib/themes";
 import { weatherFor } from "@/lib/weather";
 import "@/components/player/player.css";
@@ -104,7 +104,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
       : (screen.newsCount || 8);
 
   const needsParasha = visible.some((slide) => slide.templateId === "weekly-parasha");
-  const [weather, shabbat, headlines, rates, silenced, takeover, pace] = await Promise.all([
+  const [weather, shabbat, headlines, rates, silenced, takeover, pace, portion] = await Promise.all([
     weatherFor([city, screen.name, source.name].filter(Boolean).join(" ")).catch(() => null),
     shabbatTimes(city).catch(() => null),
     newsOff ? Promise.resolve([]) : liveHeadlines(newsSource, newsTake).catch(() => []),
@@ -112,6 +112,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
     musicSilenced(),
     screenTakeover(),
     needsParasha ? parashaPace().catch(() => 180) : Promise.resolve(0),
+    needsParasha ? weeklyPortion().catch(() => ({ parsha: "", verses: [] as string[] })) : Promise.resolve(null),
   ]);
   const greet = welcome(street, number, city);
   const feedMode = screen.feedMode === "news" || screen.feedMode === "notices" ? screen.feedMode : "both";
@@ -184,12 +185,12 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
             duration: clientSetsDuration(slide.templateId) ? slide.duration : official?.duration || slow || slide.duration,
             kind: slide.kind,
             templateId: slide.templateId,
-            title: parasha ? (shabbat?.parsha || "") : character ? (slide.title || official?.title || "") : fillLine(slide.title, meta),
+            title: parasha ? (portion?.parsha || shabbat?.parsha || "") : character ? (slide.title || official?.title || "") : fillLine(slide.title, meta),
             detail: character ? (slide.detail || official?.line || "") : fillLine(slide.detail, meta),
             candles: parasha ? shabbat?.candles || "" : "",
             havdalah: parasha ? shabbat?.havdalah || "" : "",
             city: parasha ? shabbat?.city || city : "",
-            verses: [],
+            verses: parasha ? portion?.verses || [] : [],
             still: parasha && flow === "static",
             full,
             day,

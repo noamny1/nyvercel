@@ -31,7 +31,7 @@ export function ParashaSlide({
       return;
     }
     let stop = false;
-    fetch("/api/parasha")
+    fetch("/api/parasha?v=2")
       .then((response) => (response.ok ? response.json() : null))
       .then((data: { verses?: unknown } | null) => {
         if (stop || !data || !Array.isArray(data.verses)) return;
