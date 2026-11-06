@@ -9,7 +9,11 @@
     },
     {
       "path": "/api/cron/backup",
-      "schedule": "20 1 * * *"
+      "schedule": "0 8 * * *"
+    },
+    {
+      "path": "/api/cron/backup-night",
+      "schedule": "0 20 * * *"
     },
     {
       "path": "/api/cron/agent",

@@ -1,98 +1,21 @@
-import { createCipheriv, createHash, randomBytes } from "crypto";
-import { del, list, put } from "@vercel/blob";
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { saveBackup } from "@/modules/backup/store";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
-const PATH = "backups/latest.bin";
-
 export async function GET(request: Request) {
-  const secret = process.env.CRON_SECRET || process.env.NEXTAUTH_SECRET;
+  const secret = process.env.CRON_SECRET || process.env.NEXTAUTH_SECRET || "";
   const header = request.headers.get("authorization");
   const fromVercel = request.headers.get("x-vercel-cron") === "1";
   if (!secret || (header !== `Bearer ${secret}` && !fromVercel)) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
-  if (!process.env.BLOB_READ_WRITE_TOKEN) {
-    return NextResponse.json({ error: "blob" }, { status: 500 });
+  try {
+    const saved = await saveBackup();
+    return NextResponse.json({ ok: true, ...saved });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "backup";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
-
-  const [screens, groups] = await Promise.all([
-    prisma.screen.findMany({
-      select: {
-        id: true,
-        code: true,
-        name: true,
-        street: true,
-        number: true,
-        city: true,
-        floor: true,
-        theme: true,
-        logoUrl: true,
-        newsSource: true,
-        newsCount: true,
-        tickerSeconds: true,
-        newsTicker: true,
-        feedMode: true,
-        groupId: true,
-        musicPlaylist: true,
-        listSort: true,
-        active: true,
-        slides: {
-          select: {
-            imageUrl: true,
-            kind: true,
-            templateId: true,
-            title: true,
-            detail: true,
-            meta: true,
-            sort: true,
-            duration: true,
-            active: true,
-            weekdays: true,
-            startsOn: true,
-            endsOn: true,
-          },
-        },
-        notices: { select: { text: true, active: true } },
-      },
-    }),
-    prisma.screenGroup.findMany({
-      select: { id: true, name: true, logoUrl: true, street: true, number: true, city: true, theme: true },
-    }),
-  ]);
-
-  const body = Buffer.from(JSON.stringify({ at: new Date().toISOString(), screens, groups }));
-  const key = createHash("sha256").update(secret).digest();
-  const iv = randomBytes(12);
-  const cipher = createCipheriv("aes-256-gcm", key, iv);
-  const data = Buffer.concat([cipher.update(body), cipher.final()]);
-  const packed = Buffer.concat([iv, cipher.getAuthTag(), data]);
-  const stamp = new Date().toISOString().slice(0, 16).replace(/[:T]/g, "-");
-  const dated = await put(`backups/${stamp}.bin`, packed, {
-    access: "public",
-    addRandomSuffix: true,
-    contentType: "application/octet-stream",
-  });
-  const previous = await list({ prefix: "backups/" });
-  await Promise.all(
-    previous.blobs
-      .filter((item) => item.pathname === PATH || item.pathname.startsWith("backups/parshani-"))
-      .map((item) => del(item.url)),
-  );
-  const blob = await put(PATH, packed, {
-    access: "public",
-    addRandomSuffix: false,
-    contentType: "application/octet-stream",
-  });
-  const cutoff = Date.now() - 14 * 24 * 60 * 60 * 1000;
-  const old = await list({ prefix: "backups/" });
-  await Promise.all(
-    old.blobs
-      .filter((item) => item.pathname !== PATH && item.uploadedAt && new Date(item.uploadedAt).getTime() < cutoff)
-      .map((item) => del(item.url)),
-  );
-  return NextResponse.json({ ok: true, screens: screens.length, bytes: packed.length, url: blob.pathname, copy: dated.pathname });
 }
