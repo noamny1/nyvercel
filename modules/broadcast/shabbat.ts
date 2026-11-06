@@ -96,23 +96,23 @@ async function readTimes(city: string): Promise<ShabbatTimes> {
 async function readPortion(stamp: string) {
   const headers = { Accept: "application/json", "User-Agent": "NYMedia/1.0 (nytv.app)" };
   const readingResponse = await fetch(`https://www.hebcal.com/leyning?cfg=json&i=on&date=${stamp}`, { cache: "no-store", headers });
-  if (!readingResponse.ok) throw new Error("leyning");
+  if (!readingResponse.ok) return { parsha: "", verses: [] as string[], reason: `leyning ${readingResponse.status}` };
   const reading = (await readingResponse.json()) as { items?: { summary?: string; name?: { he?: string } }[] };
   const item = reading.items?.find((entry) => entry.summary) || reading.items?.[0];
   const summary = item?.summary || "";
   const parsha = cleanParsha(item?.name?.he || "");
-  if (!summary) throw new Error("summary");
+  if (!summary) return { parsha, verses: [] as string[], reason: "summary" };
   const textResponse = await fetch(`https://www.sefaria.org/api/texts/${encodeURIComponent(summary)}?context=0&commentary=0`, { cache: "no-store", headers });
-  if (!textResponse.ok) throw new Error("sefaria");
-  const text = (await textResponse.json()) as { he?: unknown };
+  if (!textResponse.ok) return { parsha, verses: [] as string[], reason: `sefaria ${textResponse.status} ${summary}` };
+  const text = (await textResponse.json()) as { he?: unknown; error?: string };
   const verses: string[] = [];
   versesFrom(text.he, verses);
-  if (!verses.length) throw new Error("verses");
-  return { parsha, verses };
+  if (!verses.length) return { parsha, verses, reason: text.error || "empty-he" };
+  return { parsha, verses, reason: "" };
 }
 
 const timesFor = unstable_cache(readTimes, ["shabbat-times"], { revalidate: 21600 });
-const portionFor = unstable_cache(readPortion, ["weekly-portion-v2"], { revalidate: 43200 });
+const portionFor = unstable_cache(readPortion, ["weekly-portion-v3"], { revalidate: 30 });
 const paceFor = unstable_cache(async (stamp: string) => {
   const portion = await portionFor(stamp);
   const count = portion.verses.length || 40;
