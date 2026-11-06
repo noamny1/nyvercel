@@ -445,6 +445,29 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
     beat();
     window.setInterval(beat, 5 * 60 * 1000);
   }
+  function fillParasha() {
+    var box = document.querySelector(".parasha-body p");
+    if (!box) return;
+    var first = box.getElementsByTagName("span")[0];
+    if (!first || first.textContent.indexOf("הפרשה המלאה") !== 0) return;
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", "/api/parasha?v=3", true);
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState !== 4 || xhr.status < 200 || xhr.status >= 300) return;
+      try {
+        var data = JSON.parse(xhr.responseText);
+        if (!data || !data.verses || !data.verses.length) return;
+        while (box.firstChild) box.removeChild(box.firstChild);
+        for (var i = 0; i < data.verses.length; i++) {
+          var span = document.createElement("span");
+          span.textContent = data.verses[i];
+          box.appendChild(span);
+        }
+      } catch (err) {}
+    };
+    xhr.send();
+  }
+  fillParasha();
   var root = document.getElementById("slide-stack");
   if (!root) return;
   var nodes = root.getElementsByClassName("slide-pane");
