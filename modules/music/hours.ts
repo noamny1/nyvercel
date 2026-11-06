@@ -33,11 +33,23 @@ export function musicOnNow(days: string, from: string, until: string, date = new
   const picked = new Set(days.split(",").map((day) => day.trim()).filter((day) => /^[0-6]$/.test(day)));
   if (!picked.size) return false;
   const wall = israelWall(date);
-  if (!picked.has(String(wall.getUTCDay()))) return false;
+  const day = wall.getUTCDay();
   const start = minutes(from) ?? minutes(DEFAULT_MUSIC_FROM)!;
   const end = minutes(until) ?? minutes(DEFAULT_MUSIC_UNTIL)!;
   const now = wall.getUTCHours() * 60 + wall.getUTCMinutes();
-  if (start === end) return true;
-  if (start < end) return now >= start && now <= end;
-  return now >= start || now <= end;
+  if (picked.has(String(day))) {
+    if (start === end) return true;
+    if (start < end) return now >= start && now <= end;
+    return now >= start || now <= end;
+  }
+  if (start >= end) return false;
+  if (day === 5) {
+    const stop = Math.min(end, 14 * 60);
+    return start < stop && now >= start && now <= stop;
+  }
+  if (day === 6) {
+    const resume = 20 * 60;
+    return end > resume && now >= resume && now <= end;
+  }
+  return false;
 }
