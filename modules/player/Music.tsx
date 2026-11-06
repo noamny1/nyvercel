@@ -104,7 +104,7 @@ export function Music({ playlist, url, start, days = "0,1,2,3,4", from = "07:00"
     }
   }, [on]);
 
-  if (!src) return null;
+  if (!src || !on) return null;
 
   return (
     <>
