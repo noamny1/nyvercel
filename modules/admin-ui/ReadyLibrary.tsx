@@ -424,16 +424,26 @@ export function ReadyLibrary({ onAdd, city = "", addLabel = "הוספה למסך
         <div className="slide-modal" role="dialog" aria-modal="true" onClick={() => setPreview(null)}>
           <div className="slide-modal-card" onClick={(event) => event.stopPropagation()}>
             <div className="pest-preview">
-              <CharacterVideo src={preview.url} poster={preview.poster} title={extra.name || preview.title} detail={previewLine} />
+              {preview.id === "veahavta" ? (
+                <video className="plain-video" src={preview.url} poster={preview.poster} autoPlay muted loop playsInline />
+              ) : (
+                <CharacterVideo src={preview.url} poster={preview.poster} title={extra.name || preview.title} detail={previewLine} />
+              )}
             </div>
             <div className="slide-modal-actions">
-              <label>כותרת על הסרטון
-                <input value={extra.name} onChange={(event) => setExtra({ ...extra, name: event.target.value })} />
-              </label>
-              <label>מלל על הסרטון
-                <textarea rows={3} value={previewLine} onChange={(event) => setPreviewLine(event.target.value)} />
-              </label>
-              <p>הסרטון קבוע. אפשר לשנות את הכותרת ואת המלל שמופיעים עליו.</p>
+              {preview.id === "veahavta" ? (
+                <p>הכיתוב כבר בתוך הסרטון. מי שבוחר אותו מקבל אותו כמו שהוא.</p>
+              ) : (
+                <>
+                  <label>כותרת על הסרטון
+                    <input value={extra.name} onChange={(event) => setExtra({ ...extra, name: event.target.value })} />
+                  </label>
+                  <label>מלל על הסרטון
+                    <textarea rows={3} value={previewLine} onChange={(event) => setPreviewLine(event.target.value)} />
+                  </label>
+                  <p>הסרטון קבוע. אפשר לשנות את הכותרת ואת המלל שמופיעים עליו.</p>
+                </>
+              )}
               <ExtraFields extra={extra} setExtra={setExtra} seconds lockSeconds />
               <button type="button" disabled={busy} onClick={() => void addFixed(preview, previewLine).then(() => setPreview(null))}>{busy ? "שומר..." : addLabel}</button>
               <button type="button" className="light" onClick={() => setPreview(null)}>סגירה</button>

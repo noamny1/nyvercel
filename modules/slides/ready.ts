@@ -123,6 +123,7 @@ export function readMeta(value: string, fallback: SlideMeta): SlideMeta {
 }
 
 export const FIXED_VIDEOS = [
+  { id: "veahavta", title: "ואהבת", line: "", url: "/slides/veahavta.mp4?v=1", poster: "/slides/veahavta.jpg?v=1", duration: 12 },
   { id: "fixed-alarm", title: "אזעקה", line: "כשנשמעת אזעקה נכנסים למרחב המוגן, סוגרים את הדלת ונשארים שם עד להודעה.", url: "/safety/alarm.mp4?v=16", poster: "/safety/alarm.jpg?v=16", duration: 10 },
   { id: "fixed-fire-own", title: "שריפה", line: "בשריפה לא נכנסים למעלית. יורדים במדרגות ברוגע ומתקשרים מיד לכיבוי אש 102.", url: "/safety/fire.mp4?v=16", poster: "/safety/fire.jpg?v=16", duration: 10 },
   { id: "fixed-gas", title: "ריח גז", line: "אם מריחים גז סוגרים את הברז, פותחים חלון, לא מדליקים חשמל ומתקשרים 103.", url: "/safety/gas.mp4?v=16", poster: "/safety/gas.jpg?v=16", duration: 10 },
