@@ -12,6 +12,14 @@ const nextConfig: NextConfig = {
         source: "/logos/aa-import/:file(.*\\.mp4)",
         headers: [{ key: "Content-Disposition", value: "attachment" }],
       },
+      {
+        source: "/logos/cleaners/:file(.*\\.zip)",
+        headers: [{ key: "Content-Disposition", value: "attachment" }],
+      },
+      {
+        source: "/logos/cleaners/:file(.*\\.mp4)",
+        headers: [{ key: "Content-Disposition", value: "attachment" }],
+      },
     ];
   },
 };
