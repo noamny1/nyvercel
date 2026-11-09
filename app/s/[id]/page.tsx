@@ -74,6 +74,17 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
   const screen = await prisma.screen.findUnique({ where: { code: key }, include })
     ?? (key > 0 && key < 100000 ? await prisma.screen.findUnique({ where: { id: key }, include }) : null);
   if (!screen || Number.isNaN(Number(id))) notFound();
+  const serviceOn = screen.serviceOn !== false && screen.group?.serviceOn !== false;
+  if (!serviceOn) {
+    const code = screen.code || screen.id;
+    const revision = screenToken(screen.revision);
+    return (
+      <main className="stage" data-code={code} data-rev={revision} style={{ minHeight: "100vh", margin: 0, display: "grid", placeItems: "center", background: "#0b0b0b", color: "#e6d3ae" }}>
+        <p style={{ fontSize: 42, margin: 0 }}>השירות מושבת</p>
+        <script dangerouslySetInnerHTML={{ __html: `(function(){window.__nyPageBeat=1;var stage=document.querySelector("main.stage");var code=stage&&stage.getAttribute("data-code");var revision=stage&&stage.getAttribute("data-rev")||"";if(!code)return;var beat=function(){try{var xhr=new XMLHttpRequest();xhr.open("GET","/api/ping?code="+encodeURIComponent(code)+"&beat=1&music=0",true);xhr.onreadystatechange=function(){if(xhr.readyState!==4||xhr.status<200||xhr.status>=300)return;try{var data=JSON.parse(xhr.responseText);if(data&&data.r&&String(data.r)!==String(revision))location.replace(location.pathname+"?v="+data.r);}catch(e){}};xhr.send();}catch(e){}};beat();setInterval(beat,300000);})();` }} />
+      </main>
+    );
+  }
   const source = screen.group ?? screen;
   const street = screen.street || source.street;
   const number = screen.number || source.number;

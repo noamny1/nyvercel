@@ -87,7 +87,7 @@ export default async function AdminHome() {
             <div className="group-row" key={group.id}>
               <Link className="screen-title" href={`/admin/groups/${group.id}`}>
                 <b>{group.name || "קבוצה ללא שם"}</b>
-                <small>{group._count.screens} מסכים</small>
+                <small>{group._count.screens} מסכים{group.serviceOn === false ? " · שירות מושבת" : ""}</small>
               </Link>
               {owner ? (
                 <span className="group-tools">

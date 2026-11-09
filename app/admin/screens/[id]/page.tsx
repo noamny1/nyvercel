@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { screenWhere } from "@/lib/access";
 import { isSystemAdmin, requireSession } from "@/lib/session";
 import { editorThemes } from "@/lib/themes";
+import { setScreenService } from "@/app/admin/actions";
 
 export const dynamic = "force-dynamic";
 
@@ -43,6 +44,16 @@ export default async function ScreenPage({ params }: { params: Promise<{ id: str
       <h1>{line(screen)}</h1>
       <p>כתובת למכשיר: nytv.app/s/{screen.code || screen.id}</p>
       {isSystemAdmin(session) ? <p><Link href={`/admin/screens/${screen.id}/remote`}>שליטה מרחוק על ה-Smart TV</Link></p> : null}
+      {isSystemAdmin(session) ? (
+        <form className="card" action={setScreenService}>
+          <input type="hidden" name="id" value={screen.id} />
+          <input type="hidden" name="service" value={screen.serviceOn ? "off" : "on"} />
+          <h2>שירות לכתובת</h2>
+          <p>{screen.serviceOn ? "השירות פעיל בכתובת הזו." : "השירות מושבת בכתובת הזו. המסך לא מציג תוכן ולא מנגן. ההגדרות נשמרות."}</p>
+          {screen.group && screen.group.serviceOn === false ? <p>הקבוצה מושבתת, ולכן המסך נשאר כבוי גם אם מפעילים אותו כאן.</p> : null}
+          <button type="submit">{screen.serviceOn ? "השבתת שירות" : "הפעלת שירות"}</button>
+        </form>
+      ) : null}
       <ScreenEditor screen={screen} slides={screen.slides} notices={screen.notices} floors={screen.floors} lockAddress={!isSystemAdmin(session)} musicPeers={musicPeers} newsTuning={isSystemAdmin(session)} canTheme={isSystemAdmin(session)} themes={await editorThemes(isSystemAdmin(session))} />
     </main>
   );

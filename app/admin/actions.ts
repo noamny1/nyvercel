@@ -1,6 +1,6 @@
 "use server";
 
-import { createScreen as createScreenImpl, updateScreen as updateScreenImpl, addNotice as addNoticeImpl, toggleNotice as toggleNoticeImpl, deleteNotice as deleteNoticeImpl, updateNotice as updateNoticeImpl, removeScreen as removeScreenImpl, moveScreen as moveScreenImpl, saveUpdate as saveUpdateImpl, deleteUpdate as deleteUpdateImpl } from "@/modules/admin/screens";
+import { createScreen as createScreenImpl, updateScreen as updateScreenImpl, addNotice as addNoticeImpl, toggleNotice as toggleNoticeImpl, deleteNotice as deleteNoticeImpl, updateNotice as updateNoticeImpl, setScreenService as setScreenServiceImpl, removeScreen as removeScreenImpl, moveScreen as moveScreenImpl, saveUpdate as saveUpdateImpl, deleteUpdate as deleteUpdateImpl } from "@/modules/admin/screens";
 
 export async function createScreen(formData: FormData) {
   return createScreenImpl(formData);
@@ -26,6 +26,10 @@ export async function updateNotice(formData: FormData) {
   return updateNoticeImpl(formData);
 }
 
+export async function setScreenService(formData: FormData) {
+  return setScreenServiceImpl(formData);
+}
+
 export async function removeScreen(formData: FormData) {
   return removeScreenImpl(formData);
 }
@@ -42,7 +46,7 @@ export async function deleteUpdate(formData: FormData) {
   return deleteUpdateImpl(formData);
 }
 
-import { createGroup as createGroupImpl, setGroupLogo as setGroupLogoImpl, syncGroupLogos as syncGroupLogosImpl, setGroupPromo as setGroupPromoImpl, setGroupUser as setGroupUserImpl, removeGroupUser as removeGroupUserImpl, renameGroup as renameGroupImpl, deleteGroup as deleteGroupImpl, updateGroup as updateGroupImpl, addAddress as addAddressImpl, deleteAddress as deleteAddressImpl, moveAddress as moveAddressImpl, addGroupNotice as addGroupNoticeImpl, toggleGroupNotice as toggleGroupNoticeImpl, deleteGroupNotice as deleteGroupNoticeImpl, updateGroupNotice as updateGroupNoticeImpl, reorderGroupScreens as reorderGroupScreensImpl } from "@/modules/admin/groups";
+import { createGroup as createGroupImpl, setGroupLogo as setGroupLogoImpl, syncGroupLogos as syncGroupLogosImpl, setGroupPromo as setGroupPromoImpl, setGroupUser as setGroupUserImpl, removeGroupUser as removeGroupUserImpl, renameGroup as renameGroupImpl, deleteGroup as deleteGroupImpl, updateGroup as updateGroupImpl, setGroupService as setGroupServiceImpl, addAddress as addAddressImpl, deleteAddress as deleteAddressImpl, moveAddress as moveAddressImpl, addGroupNotice as addGroupNoticeImpl, toggleGroupNotice as toggleGroupNoticeImpl, deleteGroupNotice as deleteGroupNoticeImpl, updateGroupNotice as updateGroupNoticeImpl, reorderGroupScreens as reorderGroupScreensImpl } from "@/modules/admin/groups";
 
 export async function createGroup(formData: FormData) {
   return createGroupImpl(formData);
@@ -74,6 +78,10 @@ export async function renameGroup(formData: FormData) {
 
 export async function deleteGroup(formData: FormData) {
   return deleteGroupImpl(formData);
+}
+
+export async function setGroupService(formData: FormData) {
+  return setGroupServiceImpl(formData);
 }
 
 export async function updateGroup(formData: FormData) {

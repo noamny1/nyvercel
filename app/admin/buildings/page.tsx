@@ -249,6 +249,7 @@ export default async function BuildingsPage({ searchParams }: { searchParams: Pr
                   {owner ? (
                     <td data-label="סטטוס">
                       <span className={`status ${state === "online" ? "online" : "offline"}`} title={label} aria-label={label}><i /></span>
+                      {screen.serviceOn === false || screen.group?.serviceOn === false ? <small> מושבת</small> : null}
                     </td>
                   ) : null}
                   <td data-label="משתמשים">

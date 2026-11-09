@@ -114,6 +114,15 @@ export async function updateNotice(formData: FormData) {
   await touchScreen(screenId);
   redirect(safeReturn(formData, `/admin/screens/${screenId}`));
 }
+export async function setScreenService(formData: FormData) {
+  await ownerGate();
+  const id = Number(formData.get("id"));
+  const screen = await prisma.screen.findUnique({ where: { id }, select: { id: true } });
+  if (!screen) redirect("/admin/buildings");
+  await prisma.screen.update({ where: { id }, data: { serviceOn: String(formData.get("service") || "") === "on" } });
+  await touchScreen(id);
+  redirect(safeReturn(formData, `/admin/screens/${id}`));
+}
 export async function removeScreen(formData: FormData) {
   await ownerGate();
   const id = Number(formData.get("id"));

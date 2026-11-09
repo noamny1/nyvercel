@@ -3,7 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { ScreenEditor } from "@/components/admin/ScreenEditor";
 import { AdminNav } from "@/components/admin/AdminNav";
 import { GroupScreenList } from "@/components/admin/GroupScreenList";
-import { deleteAddress, moveAddress, renameGroup, reorderGroupScreens } from "@/app/admin/actions";
+import { deleteAddress, moveAddress, renameGroup, reorderGroupScreens, setGroupService } from "@/app/admin/actions";
 import { prisma } from "@/lib/prisma";
 import { screenWhere } from "@/lib/access";
 import { NEWS_SOURCES } from "@/lib/news-sources";
@@ -60,6 +60,15 @@ export default async function GroupPage({
           <button type="submit">עדכון שם</button>
         </form>
       ) : <h1>{group.name}</h1>}
+      {owner ? (
+        <form className="card" action={setGroupService}>
+          <input type="hidden" name="id" value={group.id} />
+          <input type="hidden" name="service" value={group.serviceOn ? "off" : "on"} />
+          <h2>שירות לקבוצה</h2>
+          <p>{group.serviceOn ? "השירות פעיל בכל הכתובות של הקבוצה." : "השירות מושבת לכל הכתובות בקבוצה. המסכים לא מציגים תוכן ולא מנגנים. ההגדרות נשמרות."}</p>
+          <button type="submit">{group.serviceOn ? "השבתת שירות לקבוצה" : "הפעלת שירות לקבוצה"}</button>
+        </form>
+      ) : null}
       <section className="card">
         <h2>מסכים משויכים</h2>
         <GroupScreenList

@@ -21,6 +21,15 @@ export async function createGroup(formData: FormData) {
   });
   redirect(`/admin/groups/${group.id}`);
 }
+export async function setGroupService(formData: FormData) {
+  await ownerGate();
+  const id = Number(formData.get("id"));
+  const group = await prisma.screenGroup.findUnique({ where: { id }, select: { id: true } });
+  if (!group) redirect("/admin");
+  await prisma.screenGroup.update({ where: { id }, data: { serviceOn: String(formData.get("service") || "") === "on" } });
+  await touchGroup(id);
+  redirect(`/admin/groups/${id}`);
+}
 export async function setGroupLogo(formData: FormData) {
   await ownerGate();
   const id = Number(formData.get("id"));

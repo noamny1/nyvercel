@@ -50,6 +50,7 @@ model ScreenGroup {
   musicUrl   String   @default("")
   floorPace  Int      @default(28)
   floorCaption String @default("name")
+  serviceOn  Boolean  @default(true)
   buildingId Int?
   building   Building? @relation(fields: [buildingId], references: [id], onDelete: SetNull)
   screens    Screen[]
@@ -94,6 +95,7 @@ model Screen {
   groupId    Int?
   group      ScreenGroup? @relation(fields: [groupId], references: [id], onDelete: SetNull)
   active     Boolean      @default(true)
+  serviceOn  Boolean      @default(true)
   lastPing   DateTime?
   code       Int?         @unique
   revision   Int          @default(1)
