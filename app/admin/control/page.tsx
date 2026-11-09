@@ -9,8 +9,8 @@ export const dynamic = "force-dynamic";
 
 const ONLINE_MS = 18 * 60 * 1000;
 
-function stateOf(screen: { active: boolean; heartbeat: { at: Date } | null }, now: number) {
-  if (!screen.active) return "inactive";
+function stateOf(screen: { active: boolean; serviceOn: boolean; group: { serviceOn: boolean } | null; heartbeat: { at: Date } | null }, now: number) {
+  if (!screen.active || !screen.serviceOn || screen.group?.serviceOn === false) return "inactive";
   if (screen.heartbeat && now - screen.heartbeat.at.getTime() <= ONLINE_MS) return "online";
   return "offline";
 }
@@ -25,21 +25,33 @@ export default async function ControlPage({ searchParams }: { searchParams: Prom
   const now = Date.now();
   const where = await screenWhere(session);
   const cutoff = new Date(now - ONLINE_MS);
+  const suspended = {
+    OR: [
+      { active: false },
+      { serviceOn: false },
+      { group: { is: { serviceOn: false } } },
+    ],
+  };
+  const serving = {
+    active: true,
+    serviceOn: true,
+    NOT: { group: { is: { serviceOn: false } } },
+  };
   const statusWhere =
     filter === "online"
-      ? { active: true, heartbeat: { is: { at: { gte: cutoff } } } }
+      ? { ...serving, heartbeat: { is: { at: { gte: cutoff } } } }
       : filter === "inactive"
-        ? { active: false }
+        ? suspended
         : filter === "offline"
           ? {
-              active: true,
+              ...serving,
               OR: [{ heartbeat: { is: null } }, { heartbeat: { is: { at: { lt: cutoff } } } }],
             }
           : {};
   const [total, inactive, online, screens] = await Promise.all([
     prisma.screen.count({ where }),
-    prisma.screen.count({ where: { AND: [where, { active: false }] } }),
-    prisma.screen.count({ where: { AND: [where, { active: true, heartbeat: { is: { at: { gte: cutoff } } } }] } }),
+    prisma.screen.count({ where: { AND: [where, suspended] } }),
+    prisma.screen.count({ where: { AND: [where, serving, { heartbeat: { is: { at: { gte: cutoff } } } }] } }),
     prisma.screen.findMany({
       where: { AND: [where, statusWhere] },
       orderBy: { id: "desc" },
@@ -88,7 +100,7 @@ export default async function ControlPage({ searchParams }: { searchParams: Prom
         </label>
         <button type="submit">חיפוש</button>
       </form>
-      <p>מסך תקין אם שלח אות ב-18 הדקות האחרונות. התימה שולחת אות כל 5 דקות, אז אות אחד שנכשל לא מסמן תקלה.</p>
+      <p>מסך תקין אם שלח אות ב-18 הדקות האחרונות. התימה שולחת אות כל 5 דקות, אז אות אחד שנכשל לא מסמן תקלה. כבוי הוא כתובת או קבוצה שהשירות שלה הושבת.</p>
       <div className="stats">
         <Link className={filter === "all" ? "stat on" : "stat"} href={link("all")}><span>סה״כ</span><b>{counts.total}</b></Link>
         <Link className={filter === "online" ? "stat on" : "stat"} href={link("online")}><span>תקין</span><b>{counts.online}</b></Link>
