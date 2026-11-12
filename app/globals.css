@@ -18,8 +18,8 @@ body:has(.admin) { background: #F4F1ED; overflow-x: hidden; }
   position: sticky;
   top: 0;
   z-index: 30;
-  width: 100vw;
-  margin-inline: calc(50% - 50vw);
+  width: auto;
+  margin-inline: -22px;
   background: #252525;
   color: #F4F1ED;
 }
@@ -1104,4 +1104,16 @@ body:has(.admin) { background: #F4F1ED; overflow-x: hidden; }
   .admin .stats { grid-template-columns: 1fr 1fr; }
   .admin .slide-grid, .admin .ready-grid { grid-template-columns: 1fr 1fr; }
   .admin .screens > a, .admin .screens > div { flex-direction: column; }
+  html, body, body:has(.admin) { max-width: 100%; overflow-x: hidden; }
+  .admin { max-width: 100%; overflow-x: hidden; }
+  .admin-bar { width: auto; margin-inline: -12px; }
+  .admin-menu { grid-template-columns: 1fr 1fr; }
+  .client-actions { grid-template-columns: 1fr 1fr; }
+  .client-actions a, .client-actions button { min-height: 46px; }
+  .admin .row, .admin .card .row, .admin .notice-item { flex-direction: column; align-items: stretch; }
+  .admin .row > label, .admin .card > label { width: 100%; min-width: 0; }
+  .admin input, .admin select, .admin textarea, .admin .group-tools select, .admin .user-find input, .admin .search-slim input { width: 100%; max-width: 100%; min-width: 0; }
+  .admin .screen-title { min-width: 0; max-width: 100%; }
+  .admin .notice-actions { width: 100%; }
+  img, video, iframe { max-width: 100%; }
 }
