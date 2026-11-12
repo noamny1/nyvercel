@@ -29,6 +29,7 @@ import { musicSilenced, screenTakeover } from "@/lib/flags";
 import { screenToken } from "@/modules/player/stamp";
 import { FIXED_VIDEOS, clientSetsDuration, fillLine } from "@/lib/ready-slides";
 import { newsTickerOn, slideIsOn } from "@/lib/schedule";
+import { CITIES } from "@/lib/cities";
 import { parashaPace, shabbatTimes, weeklyPortion } from "@/lib/shabbat";
 import { isThemeId, isFaultTheme } from "@/lib/themes";
 import { weatherFor } from "@/lib/weather";
@@ -43,6 +44,13 @@ import "@/components/themes/floors.css";
 const heebo = Heebo({ subsets: ["hebrew", "latin"], weight: ["300", "400", "500"], display: "swap" });
 
 export const dynamic = "force-dynamic";
+
+function placeCity(screen: { city: string; name: string; street: string; group: { city: string; name: string; street: string } | null }) {
+  const saved = (screen.city || screen.group?.city || "").trim();
+  if (saved) return saved;
+  const text = [screen.name, screen.street, screen.group?.name, screen.group?.street].filter(Boolean).join(" ");
+  return CITIES.find((city) => text.includes(city)) || "";
+}
 
 function address(street: string, number: string, city: string) {
   const line = [street, number].filter(Boolean).join(" ");
@@ -88,7 +96,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
   const source = screen.group ?? screen;
   const street = screen.street || source.street;
   const number = screen.number || source.number;
-  const city = screen.city || source.city;
+  const city = placeCity(screen);
   const pool = screen.slides.length > 0 ? screen.slides : source.slides;
   const visible = pool.filter((slide) => slideIsOn(slide));
   const notices = screen.notices.length > 0 ? screen.notices : source.notices;

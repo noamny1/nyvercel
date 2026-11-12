@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { screenWhere } from "@/lib/access";
 import { isSystemAdmin, requireSession } from "@/lib/session";
 import { editorThemes } from "@/lib/themes";
+import { CITIES } from "@/lib/cities";
 import { setScreenService } from "@/app/admin/actions";
 
 export const dynamic = "force-dynamic";
@@ -14,6 +15,13 @@ function line(screen: { street: string; number: string; city: string; name: stri
   const place = [screen.street || screen.group?.street || "", screen.number || screen.group?.number || ""].filter(Boolean).join(" ");
   const address = [place, screen.city || screen.group?.city || ""].filter(Boolean).join(", ") || screen.name;
   return `${address} · ${screen.floor || "לובי"}`;
+}
+
+function placeCity(screen: { city: string; name: string; street: string; group: { city: string; name: string; street: string } | null }) {
+  const saved = (screen.city || screen.group?.city || "").trim();
+  if (saved) return saved;
+  const text = [screen.name, screen.street, screen.group?.name, screen.group?.street].filter(Boolean).join(" ");
+  return CITIES.find((city) => text.includes(city)) || "";
 }
 
 export default async function ScreenPage({ params }: { params: Promise<{ id: string }> }) {
@@ -54,7 +62,7 @@ export default async function ScreenPage({ params }: { params: Promise<{ id: str
           <button type="submit">{screen.serviceOn ? "השבתת שירות" : "הפעלת שירות"}</button>
         </form>
       ) : null}
-      <ScreenEditor screen={screen} slides={screen.slides} notices={screen.notices} floors={screen.floors} lockAddress={!isSystemAdmin(session)} musicPeers={musicPeers} newsTuning={isSystemAdmin(session)} canTheme={isSystemAdmin(session)} themes={await editorThemes(isSystemAdmin(session))} />
+      <ScreenEditor screen={{ ...screen, city: placeCity(screen) }} slides={screen.slides} notices={screen.notices} floors={screen.floors} lockAddress={!isSystemAdmin(session)} musicPeers={musicPeers} newsTuning={isSystemAdmin(session)} canTheme={isSystemAdmin(session)} themes={await editorThemes(isSystemAdmin(session))} />
     </main>
   );
 }
