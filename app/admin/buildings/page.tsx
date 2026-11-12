@@ -158,7 +158,7 @@ export default async function BuildingsPage({ searchParams }: { searchParams: Pr
   );
 
   return (
-    <main className="admin">
+    <main className="admin buildings-page">
       <AdminNav />
       <h1>{owner ? "בניינים" : "המסכים שלי"}</h1>
       {owner ? (

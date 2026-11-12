@@ -1116,4 +1116,63 @@ body:has(.admin) { background: #F4F1ED; overflow-x: hidden; }
   .admin .screen-title { min-width: 0; max-width: 100%; }
   .admin .notice-actions { width: 100%; }
   img, video, iframe { max-width: 100%; }
+  .buildings-page h1 { margin: 8px 0 10px; font-size: 22px; }
+  .buildings-page .card {
+    border: 2px solid #5A1F2B;
+    border-radius: 14px;
+    padding: 10px;
+    margin: 8px 0;
+  }
+  .buildings-page .search-board .row,
+  .buildings-page .card .row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    align-items: stretch;
+  }
+  .buildings-page .search-board .row > label:first-child,
+  .buildings-page .search-board .row > button,
+  .buildings-page .card .row > button {
+    grid-column: 1 / -1;
+  }
+  .buildings-page label {
+    gap: 3px;
+    font-size: 12px;
+    color: #5A1F2B;
+  }
+  .buildings-page input,
+  .buildings-page select {
+    min-height: 38px;
+    padding: 6px 8px;
+    font-size: 15px;
+    border: 1px solid #5A1F2B;
+  }
+  .buildings-page .found { margin: 6px 0 0; font-size: 12px; }
+  .buildings-page table.screen-table tr {
+    border: 2px solid #5A1F2B;
+    border-radius: 12px;
+    margin-bottom: 8px;
+    padding: 4px 0;
+  }
+  .buildings-page table.screen-table td {
+    padding: 5px 10px;
+    font-size: 14px;
+  }
+  .buildings-page table.screen-table td::before {
+    color: #5A1F2B;
+    font-size: 12px;
+  }
+  .buildings-page .acts {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 6px;
+    padding: 6px 8px 8px;
+  }
+  .buildings-page .icon-btn,
+  .buildings-page .acts button {
+    min-height: 36px;
+    padding: 6px 8px;
+    font-size: 14px;
+    border: 1px solid #5A1F2B;
+  }
 }
