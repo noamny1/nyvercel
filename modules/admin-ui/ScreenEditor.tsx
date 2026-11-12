@@ -36,6 +36,7 @@ export function ScreenEditor({
 }: {
   screen: {
     id: number;
+    code?: number;
     name: string;
     street: string;
     number: string;
@@ -525,6 +526,7 @@ export function ScreenEditor({
             <SavedSlideEditor
               slide={slide}
               city={screen.city}
+              screen={String(screen.code || screen.id)}
               onChange={(payload) => changeSlide(slide.id, payload)}
               onRemove={() => { void removeSlide(slide.id); setOpenSlide(null); }}
               onClose={() => setOpenSlide(null)}
@@ -535,7 +537,7 @@ export function ScreenEditor({
       <section className="card slide-catalog">
         <h2>שקפים להוספה</h2>
         <p>השקפים כאן עדיין לא במסך. לחיצה עליהם מוסיפה אותם.</p>
-        <ReadyLibrary city={screen.city} onAdd={onSlide} />
+        <ReadyLibrary city={screen.city} screen={String(screen.code || screen.id)} onAdd={onSlide} />
       </section>
       </>
       ) : null}

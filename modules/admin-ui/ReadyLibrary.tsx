@@ -115,16 +115,19 @@ function DeckPreview({ id }: { id: DeckId }) {
   );
 }
 
-function LiveParasha({ city, still = false }: { city: string; still?: boolean }) {
+function LiveParasha({ city, screen = "", still = false }: { city: string; screen?: string; still?: boolean }) {
   const [reading, setReading] = useState<{ parsha: string; candles: string; havdalah?: string; city: string; verses: string[] } | null>(null);
   useEffect(() => {
     let stop = false;
-    fetch(`/api/reading?city=${encodeURIComponent(city)}`)
+    const query = new URLSearchParams();
+    if (city) query.set("city", city);
+    if (screen) query.set("screen", screen);
+    fetch(`/api/reading?${query}`)
       .then((response) => response.json())
       .then((data) => { if (!stop) setReading(data); })
       .catch(() => undefined);
     return () => { stop = true; };
-  }, [city]);
+  }, [city, screen]);
   return (
     <div className="parasha-preview">
       <ParashaSlide name={reading?.parsha || ""} candles={reading?.candles || ""} havdalah={reading?.havdalah || ""} city={reading?.city || city} verses={reading?.verses || []} seconds={180} still={still} />
@@ -210,7 +213,7 @@ function ExtraFields({
   );
 }
 
-export function ReadyLibrary({ onAdd, city = "", addLabel = "הוספה למסך" }: { onAdd: (draft: SlideDraft) => Promise<void>; city?: string; addLabel?: string }) {
+export function ReadyLibrary({ onAdd, city = "", screen = "", addLabel = "הוספה למסך" }: { onAdd: (draft: SlideDraft) => Promise<void>; city?: string; screen?: string; addLabel?: string }) {
   const [preview, setPreview] = useState<(typeof FIXED_VIDEOS)[number] | null>(null);
   const [previewLine, setPreviewLine] = useState("");
   const [open, setOpen] = useState<ReadySlide | null>(null);
@@ -455,7 +458,7 @@ export function ReadyLibrary({ onAdd, city = "", addLabel = "הוספה למסך
       {open ? (
         <div className="slide-modal" role="dialog" aria-modal="true" onClick={() => setOpen(null)}>
           <div className="slide-modal-card" onClick={(event) => event.stopPropagation()}>
-            {open.id === "weekly-parasha" ? <LiveParasha city={city} still={meta.flow === "static"} /> : isDeckId(open.id) ? <DeckPreview id={open.id} /> : open.id === "rule-smoke-gif" ? <SmokePreview image={open.image} title={heading} line={body} /> : <Photo slide={open} meta={meta} title={heading} line={body} />}
+            {open.id === "weekly-parasha" ? <LiveParasha city={city} screen={screen} still={meta.flow === "static"} /> : isDeckId(open.id) ? <DeckPreview id={open.id} /> : open.id === "rule-smoke-gif" ? <SmokePreview image={open.image} title={heading} line={body} /> : <Photo slide={open} meta={meta} title={heading} line={body} />}
             <div className="slide-modal-actions">
               {open.id === "weekly-parasha" ? (
                 <FlowPick flow={meta.flow} onPick={(flow) => setMeta({ ...meta, flow })} />
@@ -601,12 +604,14 @@ export function ReadyLibrary({ onAdd, city = "", addLabel = "הוספה למסך
 export function SavedSlideEditor({
   slide,
   city = "",
+  screen = "",
   onChange,
   onRemove,
   onClose,
 }: {
   slide: { id: number; imageUrl: string; duration: number; kind?: string; templateId?: string; title?: string; detail?: string; meta?: string; weekdays?: string; startsOn?: string; endsOn?: string };
   city?: string;
+  screen?: string;
   onChange: (payload: { duration?: number; imageUrl?: string; title?: string; detail?: string; meta?: string; weekdays?: string; startsOn?: string; endsOn?: string }) => void | Promise<void>;
   onRemove: () => void;
   onClose: () => void;
@@ -686,7 +691,7 @@ export function SavedSlideEditor({
             <p>זה המלל שמופיע על המסך. משנים כאן ולוחצים שמירה.</p>
           </div>
         ) : null}
-        {slide.templateId === "weekly-parasha" ? <LiveParasha city={city} still={meta.flow === "static"} /> : isDeckId(slide.templateId) ? <DeckPreview id={slide.templateId} /> : pest && official ? (
+        {slide.templateId === "weekly-parasha" ? <LiveParasha city={city} screen={screen} still={meta.flow === "static"} /> : isDeckId(slide.templateId) ? <DeckPreview id={slide.templateId} /> : pest && official ? (
           <div className="pest-preview">
             <PestVideo src={official.url} poster={official.poster} title={heading} detail={body} day={meta.day} from={meta.from} />
           </div>
