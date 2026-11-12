@@ -36,7 +36,7 @@ export function ScreenEditor({
 }: {
   screen: {
     id: number;
-    code?: number;
+    code?: number | null;
     name: string;
     street: string;
     number: string;
