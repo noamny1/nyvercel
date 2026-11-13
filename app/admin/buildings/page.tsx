@@ -236,6 +236,28 @@ export default async function BuildingsPage({ searchParams }: { searchParams: Pr
               const label = state === "online" ? "מחובר" : state === "inactive" ? "כבוי" : "לא מחובר";
               return (
                 <tr key={screen.id}>
+                  <td className="screen-compact">
+                    <div className="compact-top">
+                      <span className={`status ${state === "online" ? "online" : "offline"}`} title={label} aria-label={label}><i /></span>
+                      <Link href={editHref}>{[street, number].filter(Boolean).join(" ") || screen.name}</Link>
+                      <span>{city || ""}</span>
+                    </div>
+                    <div className="compact-meta">
+                      <span>{screen.code || screen.id}</span>
+                      <span>{screen.floor || "לובי"}</span>
+                      {screen.serviceOn === false || screen.group?.serviceOn === false ? <span>מושבת</span> : null}
+                    </div>
+                    <GroupMove screenId={screen.id} groupId={screen.groupId} groups={groups} />
+                    {people.length ? <div className="compact-people">{people.map((user) => <a key={user.id} className="assigned-user" href={`/admin/as/${user.id}`} target="_blank" rel="noreferrer">{user.email}</a>)}</div> : null}
+                    <div className="acts">
+                      <a className="icon-btn" href={`/s/${screen.code || screen.id}`} target="_blank">פתיחה</a>
+                      <Link className="icon-btn" href={editHref}>עריכה</Link>
+                      <form action={deleteListedScreen}>
+                        <input type="hidden" name="id" value={screen.id} />
+                        <button className="light" type="submit">מחיקה</button>
+                      </form>
+                    </div>
+                  </td>
                   <td data-label="מסך">{screen.code || screen.id}</td>
                   <td data-label="רחוב"><Link href={editHref}>{street || "—"}</Link></td>
                   <td data-label="מספר">{number || "—"}</td>

@@ -1176,3 +1176,18 @@ body:has(.admin) { background: #F4F1ED; overflow-x: hidden; }
     border: 1px solid #5A1F2B;
   }
 }
+
+.screen-compact { display: none; }
+@media (max-width: 800px) {
+  .buildings-page .screen-compact { display: grid; gap: 6px; padding: 8px 10px; }
+  .buildings-page table.screen-table td:not(.screen-compact) { display: none; }
+  .buildings-page table.screen-table tr { padding: 0; margin-bottom: 6px; }
+  .buildings-page .compact-top { display: flex; align-items: center; gap: 8px; min-width: 0; }
+  .buildings-page .compact-top a { font-size: 16px; color: #5A1F2B; text-decoration: none; }
+  .buildings-page .compact-top > span:last-child { margin-inline-start: auto; color: #6d625c; font-size: 13px; }
+  .buildings-page .compact-meta { display: flex; gap: 10px; color: #6d625c; font-size: 12px; }
+  .buildings-page .compact-people { font-size: 12px; overflow-wrap: anywhere; }
+  .buildings-page .group-move { display: flex; gap: 6px; align-items: center; }
+  .buildings-page .group-move select { min-height: 34px; flex: 1; }
+  .buildings-page .group-move button { min-height: 34px; }
+}
