@@ -1179,7 +1179,13 @@ body:has(.admin) { background: #F4F1ED; overflow-x: hidden; }
 
 .screen-compact { display: none; }
 @media (max-width: 800px) {
-  .buildings-page .screen-compact { display: grid; gap: 6px; padding: 8px 10px; }
+  .buildings-page table.screen-table td.screen-compact {
+    display: grid;
+    gap: 6px;
+    padding: 8px 10px;
+    align-items: stretch;
+  }
+  .buildings-page table.screen-table td.screen-compact::before { content: none; }
   .buildings-page table.screen-table td:not(.screen-compact) { display: none; }
   .buildings-page table.screen-table tr { padding: 0; margin-bottom: 6px; }
   .buildings-page .compact-top { display: flex; align-items: center; gap: 8px; min-width: 0; }
@@ -1189,5 +1195,8 @@ body:has(.admin) { background: #F4F1ED; overflow-x: hidden; }
   .buildings-page .compact-people { font-size: 12px; overflow-wrap: anywhere; }
   .buildings-page .group-move { display: flex; gap: 6px; align-items: center; }
   .buildings-page .group-move select { min-height: 34px; flex: 1; }
-  .buildings-page .group-move button { min-height: 34px; }
+  .buildings-page .group-move button { min-height: 34px; width: auto; }
+  .buildings-page .screen-compact .acts { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; padding: 0; }
+  .buildings-page .screen-compact .acts .icon-btn,
+  .buildings-page .screen-compact .acts button { min-height: 36px; height: auto; }
 }
