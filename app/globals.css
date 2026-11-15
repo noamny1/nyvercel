@@ -1210,3 +1210,47 @@ body:has(.admin) { background: #F4F1ED; overflow-x: hidden; }
     box-sizing: border-box;
   }
 }
+
+/* Groups page: compact cards with burgundy frame */
+.admin .group-row {
+  border: 2px solid #5A1F2B;
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: #fff;
+  gap: 8px;
+}
+.admin .group-row .screen-title b { font-size: 15px; }
+.admin .group-row .screen-title small { font-size: 12px; }
+@media (max-width: 760px) {
+  .admin .group-row {
+    padding: 8px 10px;
+    gap: 6px;
+  }
+  .admin .group-row .group-tools {
+    gap: 6px;
+  }
+  .admin .group-row .group-tools form {
+    gap: 4px;
+    flex: 0 1 auto;
+  }
+  .admin .group-row .group-tools .file-pick,
+  .admin .group-row > .group-tools > form > button {
+    min-height: 36px;
+    padding: 6px 10px;
+    font-size: 13px;
+  }
+  .admin .group-row .user-find input {
+    min-height: 36px;
+    font-size: 14px;
+    padding: 6px 10px;
+  }
+  .admin .group-row .group-members form {
+    padding: 3px 6px;
+    font-size: 12px;
+  }
+  .admin .group-row .group-tools img,
+  .admin .group-row .group-tools video {
+    width: 44px;
+    height: 24px;
+  }
+}
