@@ -67,38 +67,41 @@ export default async function BuildingsPage({ searchParams }: { searchParams: Pr
         AND name IS DISTINCT FROM btrim(concat_ws(', ', NULLIF(btrim(concat_ws(' ', street, number)), ''), NULLIF(btrim(city), '')), ', ')
     `.catch(() => 0);
   }
+  const hasFilter = Boolean(query || status || group);
   const [screens, groups, manager] = await Promise.all([
-    prisma.screen.findMany({
-      where: {
-        AND: [
-          await screenWhere(session),
-          group === "none" ? { groupId: null } : Number.isInteger(groupId) && groupId > 0 ? { groupId } : {},
-          query
-            ? {
-                OR: [
-                  ...(Number.isInteger(id) && id > 0 ? [{ id }, { code: id }] : []),
-                  { street: { contains: query, mode: "insensitive" as const } },
-                  { number: { contains: query, mode: "insensitive" as const } },
-                  { city: { contains: query, mode: "insensitive" as const } },
-                  { floor: { contains: query, mode: "insensitive" as const } },
-                  { name: { contains: query, mode: "insensitive" as const } },
-                  { group: { name: { contains: query, mode: "insensitive" as const } } },
-                  { users: { some: { email: { contains: query, mode: "insensitive" as const } } } },
-                ],
-              }
-            : {},
-        ],
-      },
-      orderBy: { id: "asc" },
-      include: {
-        group: true,
-        heartbeat: true,
-        users: { select: { id: true, name: true, email: true, role: true }, orderBy: { email: "asc" } },
-        slides: { orderBy: { sort: "asc" } },
-        notices: { orderBy: { id: "desc" } },
-        floors: { include: { rooms: { orderBy: { id: "asc" } } }, orderBy: { id: "asc" } },
-      },
-    }),
+    hasFilter
+      ? prisma.screen.findMany({
+          where: {
+            AND: [
+              await screenWhere(session),
+              group === "none" ? { groupId: null } : Number.isInteger(groupId) && groupId > 0 ? { groupId } : {},
+              query
+                ? {
+                    OR: [
+                      ...(Number.isInteger(id) && id > 0 ? [{ id }, { code: id }] : []),
+                      { street: { contains: query, mode: "insensitive" as const } },
+                      { number: { contains: query, mode: "insensitive" as const } },
+                      { city: { contains: query, mode: "insensitive" as const } },
+                      { floor: { contains: query, mode: "insensitive" as const } },
+                      { name: { contains: query, mode: "insensitive" as const } },
+                      { group: { name: { contains: query, mode: "insensitive" as const } } },
+                      { users: { some: { email: { contains: query, mode: "insensitive" as const } } } },
+                    ],
+                  }
+                : {},
+            ],
+          },
+          orderBy: { id: "asc" },
+          include: {
+            group: true,
+            heartbeat: true,
+            users: { select: { id: true, name: true, email: true, role: true }, orderBy: { email: "asc" } },
+            slides: { orderBy: { sort: "asc" } },
+            notices: { orderBy: { id: "desc" } },
+            floors: { include: { rooms: { orderBy: { id: "asc" } } }, orderBy: { id: "asc" } },
+          },
+        })
+      : Promise.resolve([]),
     prisma.screenGroup.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
     !owner && email
       ? prisma.groupManager.findFirst({
@@ -192,7 +195,7 @@ export default async function BuildingsPage({ searchParams }: { searchParams: Pr
           </label>
           <button type="submit">הצגה</button>
         </div>
-        <p className="found">מציג {listed.length} מסכים</p>
+        <p className="found">{hasFilter ? `מציג ${listed.length} מסכים` : "הקלד חיפוש כדי להציג מסכים"}</p>
       </form>
       ) : null}
       {owner ? (
@@ -230,7 +233,7 @@ export default async function BuildingsPage({ searchParams }: { searchParams: Pr
             </tr>
           </thead>
           <tbody>
-            {listed.length === 0 ? <tr><td colSpan={9}>אין מסך שמתאים לחיפוש.</td></tr> : null}
+            {listed.length === 0 ? <tr><td colSpan={9}>{hasFilter ? "אין מסך שמתאים לחיפוש." : "הקלד חיפוש בתיבה למעלה כדי להציג מסכים."}</td></tr> : null}
             {listed.map(({ screen, state, street, number, city, people }) => {
               const editHref = `/admin/screens/${screen.id}`;
               const label = state === "online" ? "מחובר" : state === "inactive" ? "כבוי" : "לא מחובר";
