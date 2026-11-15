@@ -1254,3 +1254,54 @@ body:has(.admin) { background: #F4F1ED; overflow-x: hidden; }
     height: 24px;
   }
 }
+
+/* Stronger group cards for mobile */
+@media (max-width: 760px) {
+  .admin .screens > .group-row {
+    border: 2px solid #5A1F2B !important;
+    border-radius: 10px;
+    padding: 8px 10px !important;
+    gap: 6px !important;
+    margin-bottom: 8px;
+    background: #fff;
+  }
+  .admin .screens > .group-row .screen-title {
+    min-width: 0;
+  }
+  .admin .screens > .group-row .screen-title b {
+    font-size: 15px;
+  }
+  .admin .screens > .group-row .group-tools {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    width: 100%;
+  }
+  .admin .screens > .group-row .group-tools > form,
+  .admin .screens > .group-row .group-tools > .group-members,
+  .admin .screens > .group-row .group-tools > .user-find {
+    width: auto !important;
+    flex: none !important;
+    min-width: 0;
+  }
+  .admin .screens > .group-row .group-tools > .group-members,
+  .admin .screens > .group-row .group-tools > .user-find {
+    grid-column: 1 / -1;
+  }
+  .admin .screens > .group-row .file-pick,
+  .admin .screens > .group-row > .group-tools > form > button {
+    min-height: 34px !important;
+    padding: 5px 8px !important;
+    font-size: 13px !important;
+  }
+  .admin .screens > .group-row .user-find input {
+    min-height: 34px !important;
+    font-size: 14px !important;
+    width: 100%;
+  }
+  .admin .screens > .group-row .group-tools img,
+  .admin .screens > .group-row .group-tools video {
+    width: 40px;
+    height: 22px;
+  }
+}
