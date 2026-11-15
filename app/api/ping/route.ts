@@ -7,9 +7,9 @@ export const dynamic = "force-dynamic";
 let musicColumn: Promise<void> | null = null;
 
 function ensureMusicColumn() {
-  musicColumn ??= prisma.$executeRawUnsafe(
-    'ALTER TABLE "Heartbeat" ADD COLUMN IF NOT EXISTS "musicAt" TIMESTAMP(3)',
-  ).then(() => undefined).catch(() => {
+  musicColumn ??= prisma.$executeRaw`
+    ALTER TABLE "Heartbeat" ADD COLUMN IF NOT EXISTS "musicAt" TIMESTAMP(3)
+  `.then(() => undefined).catch(() => {
     musicColumn = null;
   });
   return musicColumn;
