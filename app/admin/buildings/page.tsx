@@ -67,7 +67,7 @@ export default async function BuildingsPage({ searchParams }: { searchParams: Pr
         AND name IS DISTINCT FROM btrim(concat_ws(', ', NULLIF(btrim(concat_ws(' ', street, number)), ''), NULLIF(btrim(city), '')), ', ')
     `.catch(() => 0);
   }
-  const hasFilter = Boolean(query || status || group);
+  const hasFilter = owner ? Boolean(query || status || group) : true;
   const [screens, groups, manager] = await Promise.all([
     hasFilter
       ? prisma.screen.findMany({
