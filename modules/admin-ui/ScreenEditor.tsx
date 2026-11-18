@@ -259,7 +259,6 @@ export function ScreenEditor({
             <select name="theme" defaultValue={themePick} onChange={(event) => {
               const value = event.target.value;
               setThemePick(value);
-              if (isFloorsTheme(value)) setTab("floors");
             }}>
               {themeChoices.map((theme) => (
                 <option key={theme.id} value={theme.id}>{theme.name}</option>
