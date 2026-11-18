@@ -13,6 +13,8 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
 const statements = [
+  `ALTER TABLE "Screen" ADD COLUMN IF NOT EXISTS "buildingLogo" TEXT NOT NULL DEFAULT ''`,
+  `ALTER TABLE "ScreenGroup" ADD COLUMN IF NOT EXISTS "buildingLogo" TEXT NOT NULL DEFAULT ''`,
   `ALTER TABLE "Screen" ADD COLUMN IF NOT EXISTS "code" INTEGER`,
   `ALTER TABLE "Screen" ADD COLUMN IF NOT EXISTS "revision" INTEGER NOT NULL DEFAULT 1`,
   `CREATE UNIQUE INDEX IF NOT EXISTS "Screen_code_key" ON "Screen"("code")`,

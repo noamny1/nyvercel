@@ -167,9 +167,6 @@ export async function setRoomLogo(formData: FormData) {
 }
 
 export async function setBuildingLogo(formData: FormData) {
-  const { put } = await import("@vercel/blob");
-  const { prisma } = await import("@/lib/prisma");
-  const { redirect } = await import("next/navigation");
   const screenId = Number(formData.get("screenId"));
   const groupId = Number(formData.get("groupId"));
   const returnTo = String(formData.get("returnTo") || "/admin");
@@ -180,7 +177,7 @@ export async function setBuildingLogo(formData: FormData) {
   if (screenId) await prisma.screen.update({ where: { id: screenId }, data: { buildingLogo: blob.url } });
   else if (groupId) {
     await prisma.screenGroup.update({ where: { id: groupId }, data: { buildingLogo: blob.url } });
-    await prisma.screen.updateMany({ where: { groupId, buildingLogo: "" }, data: { buildingLogo: blob.url } });
+    await prisma.screen.updateMany({ where: { groupId }, data: { buildingLogo: blob.url } });
   }
   redirect(returnTo);
 }

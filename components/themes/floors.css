@@ -62,16 +62,11 @@
   margin-top: auto;
 }
 .floors-brand {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  padding: 8px;
-}
-.floors-brand img {
-  max-width: 140px;
-  max-height: 48px;
+  height: 28px;
+  width: auto;
   object-fit: contain;
+  flex: none;
+  margin-left: 12px;
 }
 .floors-logo {
   display: flex;

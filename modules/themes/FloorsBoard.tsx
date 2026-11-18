@@ -62,9 +62,6 @@ export function FloorsBoard({
         <div className="floors-logo floors-client-logo">
           {logoUrl ? <img src={logoUrl} alt="" /> : <span>לוגו הלקוח</span>}
         </div>
-        <div className="floors-brand">
-          <img src="/logo-white.png" alt="NYMedia" />
-        </div>
       </aside>
       <FloorsRoll pace={pace} watch={floors.reduce((sum, floor) => sum + 1 + floor.rooms.length, 0)}>
         {floors.length === 0 ? <p className="floors-empty">אין קומות להצגה</p> : floors.map((floor, index) => {
@@ -189,6 +186,7 @@ function FloorsNews({
 
   return (
     <footer className="floors-news">
+      <img className="floors-brand" src="/logo-white.png" alt="NYMedia" />
       <span>{item?.title || (newsOn ? "אין חדשות כרגע" : "")}</span>
       {source ? <b className="floors-source">{source}</b> : null}
     </footer>
