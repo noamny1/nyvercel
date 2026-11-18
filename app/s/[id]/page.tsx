@@ -368,7 +368,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
           caption={isFloorsTheme(screen.theme) ? floorCaption(screen.floorCaption) : floorCaption(source.floorCaption || screen.floorCaption)}
           title={(isFloorsTheme(screen.theme) ? floorCaption(screen.floorCaption) : floorCaption(source.floorCaption || screen.floorCaption)) === "address" ? address(street, number, city) : (source.name || screen.name)}
           logoUrl={logoUrl || ""}
-          buildingLogo={screen.buildingLogo || source.buildingLogo || ""}
+          buildingLogo={(screen as any).buildingLogo || (source as any).buildingLogo || ""}
           time={clock.time}
           temp={weather?.temp ?? null}
           weatherLabel={weather?.label || ""}
