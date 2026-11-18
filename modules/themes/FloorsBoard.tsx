@@ -39,23 +39,28 @@ export function FloorsBoard({
 }) {
   return (
     <div className="floors-board">
-      <header className="floors-head">
-        <div className="floors-weather">
-          <span className="floors-mark">
-            <WeatherGlyph label={weatherLabel} />
-          </span>
-          <span className="floors-temp">
-            {temp !== null ? <b>{temp}°</b> : null}
-            {weatherLabel ? <small>{weatherLabel}</small> : null}
-          </span>
-        </div>
+      <aside className="floors-side">
         <div className="floors-logo">
-          {logoUrl ? <img src={logoUrl} alt="" /> : <span>לוגו הלקוח<small>הבניין</small></span>}
+          {logoUrl ? <img src={logoUrl} alt="" /> : <span>לוגו הבניין</span>}
         </div>
-        <div className="floors-time">
-          <b className="clock">{time}</b>
+        <div className="floors-meta-box">
+          <div className="floors-time">
+            <b className="clock">{time}</b>
+          </div>
+          <div className="floors-weather">
+            <span className="floors-mark">
+              <WeatherGlyph label={weatherLabel} />
+            </span>
+            <span className="floors-temp">
+              {temp !== null ? <b>{temp}°</b> : null}
+              {weatherLabel ? <small>{weatherLabel}</small> : null}
+            </span>
+          </div>
         </div>
-      </header>
+        <div className="floors-brand">
+          <img src="/logo-white.png" alt="NYMedia" />
+        </div>
+      </aside>
       <FloorsRoll pace={pace} watch={floors.reduce((sum, floor) => sum + 1 + floor.rooms.length, 0)}>
         {floors.length === 0 ? <p className="floors-empty">אין קומות להצגה</p> : floors.map((floor, index) => {
           const badge = floor.name.trim() || String(index + 1);
