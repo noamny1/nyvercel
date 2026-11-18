@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { addFloor, addRoom, deleteFloor, deleteRoom, saveFloor, setRoomLogo, setBuildingLogo } from "@/app/admin/actions";
 
 type Room = { id: number; name: string; detail: string; logoUrl: string };
@@ -17,6 +17,13 @@ export function FloorsEditor({
   groupId?: number;
   returnTo: string;
 }) {
+  const [logoNote, setLogoNote] = useState("");
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const status = params.get("logo");
+    if (status === "ok") setLogoNote("לוגו הבניין הועלה בהצלחה");
+    else if (status === "fail") setLogoNote("העלאת לוגו הבניין נכשלה");
+  }, []);
   return (
     <section className="card floors-admin">
       <h2>קומות וחדרים</h2>
@@ -27,6 +34,7 @@ export function FloorsEditor({
         <input type="hidden" name="returnTo" value={returnTo} />
         <label style={{fontWeight: 500}}>לוגו הבניין<input name="file" type="file" accept="image/*" required /></label>
         <button type="submit" style={{background: "#5a1f2b", color: "#fff"}}>העלאת לוגו בניין</button>
+        {logoNote ? <p style={{margin: "8px 0 0", color: logoNote.includes("נכשלה") ? "#8a1f2b" : "#1f7a3a", fontWeight: 500}}>{logoNote}</p> : null}
       </form>
       {floors.map((floor) => (
         <FloorCard key={floor.id} floor={floor} returnTo={returnTo} />
