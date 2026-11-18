@@ -11,11 +11,13 @@ export function FloorsEditor({
   screenId = 0,
   groupId = 0,
   returnTo,
+  buildingLogo = "",
 }: {
   floors: Floor[];
   screenId?: number;
   groupId?: number;
   returnTo: string;
+  buildingLogo?: string;
 }) {
   const [logoNote, setLogoNote] = useState("");
   useEffect(() => {
@@ -28,13 +30,19 @@ export function FloorsEditor({
     <section className="card floors-admin">
       <h2>קומות וחדרים</h2>
       <p>אין שקפים ואין הודעות במסך הזה. עורכים את הקומה ואת החדרים, ולחיצה אחת על שמירת שינויים שומרת את הכל.</p>
-      <form className="floor-add" action={setBuildingLogo} style={{marginBottom: 16, padding: 12, border: "2px solid #5a1f2b", borderRadius: 8}}>
+      <form className="floor-add" action={setBuildingLogo} style={{marginBottom: 16, padding: 12, border: "2px solid #5a1f2b", borderRadius: 8, background: "#faf8f6"}}>
         {screenId ? <input type="hidden" name="screenId" value={screenId} /> : null}
         {groupId ? <input type="hidden" name="groupId" value={groupId} /> : null}
         <input type="hidden" name="returnTo" value={returnTo} />
-        <label style={{fontWeight: 500}}>לוגו הבניין<input name="file" type="file" accept="image/*" required /></label>
-        <button type="submit" style={{background: "#5a1f2b", color: "#fff"}}>העלאת לוגו בניין</button>
-        {logoNote ? <p style={{margin: "8px 0 0", color: logoNote.includes("נכשלה") ? "#8a1f2b" : "#1f7a3a", fontWeight: 500}}>{logoNote}</p> : null}
+        <div style={{display: "flex", alignItems: "center", gap: 12, marginBottom: 8}}>
+          {buildingLogo ? <img src={buildingLogo} alt="" style={{width: 80, height: 90, objectFit: "contain", background: "#fff", border: "1px solid #e6e0da", borderRadius: 6}} /> : <div style={{width: 80, height: 90, background: "#eee", borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center", color: "#999", fontSize: 12}}>אין לוגו</div>}
+          <div>
+            <label style={{fontWeight: 500, display: "block", marginBottom: 4}}>לוגו הבניין</label>
+            <input name="file" type="file" accept="image/*" />
+          </div>
+        </div>
+        <button type="submit" style={{background: "#5a1f2b", color: "#fff", padding: "8px 16px", borderRadius: 6, border: "none"}}>העלאת לוגו בניין</button>
+        {logoNote ? <p style={{margin: "10px 0 0", padding: "8px 12px", borderRadius: 6, background: logoNote.includes("נכשלה") ? "#fde8ea" : "#e8f5e9", color: logoNote.includes("נכשלה") ? "#8a1f2b" : "#1f7a3a", fontWeight: 500}}>{logoNote}</p> : null}
       </form>
       {floors.map((floor) => (
         <FloorCard key={floor.id} floor={floor} returnTo={returnTo} />

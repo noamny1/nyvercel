@@ -44,6 +44,7 @@ export function ScreenEditor({
     floor?: string;
     theme: string;
     logoUrl: string;
+    buildingLogo?: string;
     faultPhone?: string;
     faultLink?: string;
     faultQrUrl?: string;
@@ -464,7 +465,7 @@ export function ScreenEditor({
       ) : null}
 
       {view === "floors" ? (
-        <FloorsEditor floors={floors} screenId={scope === "screen" ? screen.id : 0} groupId={scope === "group" ? screen.id : 0} returnTo={returnTo || (scope === "group" ? `/admin/groups/${screen.id}` : `/admin/screens/${screen.id}`)} />
+        <FloorsEditor floors={floors} screenId={scope === "screen" ? screen.id : 0} groupId={scope === "group" ? screen.id : 0} returnTo={returnTo || (scope === "group" ? `/admin/groups/${screen.id}` : `/admin/screens/${screen.id}`)} buildingLogo={screen.buildingLogo || ""} />
       ) : null}
 
       {view === "slides" ? (
