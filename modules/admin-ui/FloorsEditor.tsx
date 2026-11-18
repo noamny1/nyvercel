@@ -21,16 +21,16 @@ export function FloorsEditor({
     <section className="card floors-admin">
       <h2>קומות וחדרים</h2>
       <p>אין שקפים ואין הודעות במסך הזה. עורכים את הקומה ואת החדרים, ולחיצה אחת על שמירת שינויים שומרת את הכל.</p>
-      {floors.map((floor) => (
-        <FloorCard key={floor.id} floor={floor} returnTo={returnTo} />
-      ))}
-      <form className="floor-add" action={setBuildingLogo}>
+      <form className="floor-add" action={setBuildingLogo} style={{marginBottom: 16, padding: 12, border: "2px solid #5a1f2b", borderRadius: 8}}>
         {screenId ? <input type="hidden" name="screenId" value={screenId} /> : null}
         {groupId ? <input type="hidden" name="groupId" value={groupId} /> : null}
         <input type="hidden" name="returnTo" value={returnTo} />
-        <label>לוגו הבניין<input name="file" type="file" accept="image/*" required /></label>
-        <button type="submit">העלאת לוגו בניין</button>
+        <label style={{fontWeight: 500}}>לוגו הבניין<input name="file" type="file" accept="image/*" required /></label>
+        <button type="submit" style={{background: "#5a1f2b", color: "#fff"}}>העלאת לוגו בניין</button>
       </form>
+      {floors.map((floor) => (
+        <FloorCard key={floor.id} floor={floor} returnTo={returnTo} />
+      ))}
       <form className="floor-add" action={addFloor}>
         {screenId ? <input type="hidden" name="screenId" value={screenId} /> : null}
         {groupId ? <input type="hidden" name="groupId" value={groupId} /> : null}
