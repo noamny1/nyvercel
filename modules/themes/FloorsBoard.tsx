@@ -12,6 +12,7 @@ export function FloorsBoard({
   floors,
   pace,
   logoUrl,
+  buildingLogo,
   time,
   temp,
   weatherLabel,
@@ -27,6 +28,7 @@ export function FloorsBoard({
   caption: "name" | "address";
   title: string;
   logoUrl: string;
+  buildingLogo: string;
   time: string;
   temp: number | null;
   weatherLabel: string;
@@ -41,7 +43,7 @@ export function FloorsBoard({
     <div className="floors-board">
       <aside className="floors-side">
         <div className="floors-logo">
-          {logoUrl ? <img src={logoUrl} alt="" /> : <span>לוגו הבניין</span>}
+          {buildingLogo ? <img src={buildingLogo} alt="" /> : <span>לוגו הבניין</span>}
         </div>
         <div className="floors-meta-box">
           <div className="floors-time">
@@ -56,6 +58,9 @@ export function FloorsBoard({
               {weatherLabel ? <small>{weatherLabel}</small> : null}
             </span>
           </div>
+        </div>
+        <div className="floors-logo floors-client-logo">
+          {logoUrl ? <img src={logoUrl} alt="" /> : <span>לוגו הלקוח</span>}
         </div>
         <div className="floors-brand">
           <img src="/logo-white.png" alt="NYMedia" />

@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { addFloor, addRoom, deleteFloor, deleteRoom, saveFloor, setRoomLogo } from "@/app/admin/actions";
+import { addFloor, addRoom, deleteFloor, deleteRoom, saveFloor, setRoomLogo, setBuildingLogo } from "@/app/admin/actions";
 
 type Room = { id: number; name: string; detail: string; logoUrl: string };
 type Floor = { id: number; name: string; rooms: Room[] };
@@ -24,6 +24,13 @@ export function FloorsEditor({
       {floors.map((floor) => (
         <FloorCard key={floor.id} floor={floor} returnTo={returnTo} />
       ))}
+      <form className="floor-add" action={setBuildingLogo}>
+        {screenId ? <input type="hidden" name="screenId" value={screenId} /> : null}
+        {groupId ? <input type="hidden" name="groupId" value={groupId} /> : null}
+        <input type="hidden" name="returnTo" value={returnTo} />
+        <label>לוגו הבניין<input name="file" type="file" accept="image/*" required /></label>
+        <button type="submit">העלאת לוגו בניין</button>
+      </form>
       <form className="floor-add" action={addFloor}>
         {screenId ? <input type="hidden" name="screenId" value={screenId} /> : null}
         {groupId ? <input type="hidden" name="groupId" value={groupId} /> : null}

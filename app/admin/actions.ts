@@ -166,6 +166,25 @@ export async function setRoomLogo(formData: FormData) {
   return setRoomLogoImpl(formData);
 }
 
+export async function setBuildingLogo(formData: FormData) {
+  const { put } = await import("@vercel/blob");
+  const { prisma } = await import("@/lib/prisma");
+  const { redirect } = await import("next/navigation");
+  const screenId = Number(formData.get("screenId"));
+  const groupId = Number(formData.get("groupId"));
+  const returnTo = String(formData.get("returnTo") || "/admin");
+  const file = formData.get("file");
+  if (!(file instanceof File) || !file.size || !file.type.startsWith("image/")) redirect(returnTo);
+  if (!process.env.BLOB_READ_WRITE_TOKEN) redirect(returnTo);
+  const blob = await put(`uploads/building-${Date.now()}-${file.name}`, file, { access: "public", contentType: file.type || "image/png" });
+  if (screenId) await prisma.screen.update({ where: { id: screenId }, data: { buildingLogo: blob.url } });
+  else if (groupId) {
+    await prisma.screenGroup.update({ where: { id: groupId }, data: { buildingLogo: blob.url } });
+    await prisma.screen.updateMany({ where: { groupId, buildingLogo: "" }, data: { buildingLogo: blob.url } });
+  }
+  redirect(returnTo);
+}
+
 export async function deleteFloor(formData: FormData) {
   return deleteFloorImpl(formData);
 }
