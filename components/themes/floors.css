@@ -56,11 +56,6 @@
   gap: 10px;
   width: 100%;
 }
-.floors-client-logo {
-  width: 250px;
-  height: 136px;
-  margin-top: auto;
-}
 .floors-brand {
   height: 28px;
   width: auto;
@@ -89,6 +84,11 @@
   width: 100%;
   height: 100%;
   object-fit: contain;
+}
+.floors-client-logo {
+  width: 250px;
+  height: 136px;
+  margin-top: auto;
 }
 .floors-logo span {
   display: block;
