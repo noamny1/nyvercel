@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, useEffect } from "react";
-import { addFloor, addRoom, deleteFloor, deleteRoom, saveFloor, setRoomLogo, setBuildingLogo } from "@/app/admin/actions";
+import { addFloor, addRoom, deleteFloor, deleteRoom, saveAllFloors, setRoomLogo, setBuildingLogo } from "@/app/admin/actions";
 
 type Room = { id: number; name: string; detail: string; logoUrl: string };
 type Floor = { id: number; name: string; rooms: Room[] };
@@ -20,6 +20,8 @@ export function FloorsEditor({
   buildingLogo?: string;
 }) {
   const [logoNote, setLogoNote] = useState("");
+  const [saveNote, setSaveNote] = useState("");
+  const [open, setOpen] = useState<Record<number, boolean>>({});
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const status = params.get("logo");
@@ -44,9 +46,30 @@ export function FloorsEditor({
         <button type="submit" style={{background: "#5a1f2b", color: "#fff", padding: "8px 16px", borderRadius: 6, border: "none"}}>העלאת לוגו בניין</button>
         {logoNote ? <p style={{margin: "10px 0 0", padding: "8px 12px", borderRadius: 6, background: logoNote.includes("נכשלה") ? "#fde8ea" : "#e8f5e9", color: logoNote.includes("נכשלה") ? "#8a1f2b" : "#1f7a3a", fontWeight: 500}}>{logoNote}</p> : null}
       </form>
-      {floors.map((floor) => (
-        <FloorCard key={floor.id} floor={floor} returnTo={returnTo} />
-      ))}
+      <form
+        className="floor-save"
+        action={async (data) => {
+          stay();
+          try {
+            const result = await saveAllFloors(data);
+            setSaveNote(result?.ok ? "ok" : "bad");
+          } catch {
+            setSaveNote("bad");
+          }
+        }}
+      >
+        {screenId ? <input type="hidden" name="screenId" value={screenId} /> : null}
+        {groupId ? <input type="hidden" name="groupId" value={groupId} /> : null}
+        <input type="hidden" name="returnTo" value={returnTo} />
+        {floors.map((floor) => (
+          <FloorCard key={floor.id} floor={floor} returnTo={returnTo} open={!!open[floor.id]} onToggle={() => setOpen((prev) => ({ ...prev, [floor.id]: !prev[floor.id] }))} />
+        ))}
+        <div className="floor-save-row" style={{marginTop: 16, justifyContent: "center"}}>
+          <button type="submit" style={{background: "#5a1f2b", color: "#fff", padding: "10px 24px", borderRadius: 8, border: "none", fontSize: 16}}>שמירת כל השינויים</button>
+          {saveNote === "ok" ? <span className="floor-note is-ok">כל השינויים נשמרו</span> : null}
+          {saveNote === "bad" ? <span className="floor-note is-bad">השמירה נכשלה</span> : null}
+        </div>
+      </form>
       <form className="floor-add" action={addFloor}>
         {screenId ? <input type="hidden" name="screenId" value={screenId} /> : null}
         {groupId ? <input type="hidden" name="groupId" value={groupId} /> : null}
@@ -58,31 +81,23 @@ export function FloorsEditor({
   );
 }
 
-function FloorCard({ floor, returnTo }: { floor: Floor; returnTo: string }) {
-  const [note, setNote] = useState("");
+function FloorCard({ floor, returnTo, open, onToggle }: { floor: Floor; returnTo: string; open: boolean; onToggle: () => void }) {
   const here = `${returnTo}#floor-${floor.id}`;
   return (
-    <div className="floor-block" id={`floor-${floor.id}`}>
-      <form
-        className="floor-save"
-        action={async (data) => {
-          stay();
-          try {
-            const result = await saveFloor(data);
-            setNote(result?.ok ? "ok" : "bad");
-          } catch {
-            setNote("bad");
-          }
-        }}
-      >
-        <input type="hidden" name="id" value={floor.id} />
-        <input type="hidden" name="returnTo" value={returnTo} />
-        <header className="floor-head">
-          <div className="floor-rename">
-            <label>שם או מספר הקומה<input name="name" required defaultValue={floor.name} maxLength={40} /></label>
+    <div className="floor-block" id={`floor-${floor.id}`} style={{border: "1px solid #e6e0da", borderRadius: 8, marginBottom: 12}}>
+        <header className="floor-head" style={{cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 12px", background: open ? "#faf8f6" : "#fff"}} onClick={onToggle}>
+          <div className="floor-rename" style={{display: "flex", alignItems: "center", gap: 8}}>
+            <span style={{fontSize: 18}}>{open ? "▼" : "◀"}</span>
+            <strong>{floor.name || "קומה"}</strong>
+            <small style={{color: "#888"}}>({floor.rooms.length} חדרים)</small>
           </div>
-          <button className="light" type="submit" form={`del-floor-${floor.id}`}>מחיקת קומה</button>
+          <button className="light" type="button" onClick={(e) => { e.stopPropagation(); }} form={`del-floor-${floor.id}`}>מחיקת קומה</button>
         </header>
+        {open ? (
+        <>
+        <div style={{padding: "8px 12px"}}>
+          <label>שם או מספר הקומה<input name={`floor-${floor.id}-name`} required defaultValue={floor.name} maxLength={40} /></label>
+        </div>
         {floor.rooms.map((room) => (
           <div className="room-line" key={room.id}>
             <div className="room-fields">
@@ -96,12 +111,9 @@ function FloorCard({ floor, returnTo }: { floor: Floor; returnTo: string }) {
             </div>
           </div>
         ))}
-        <div className="floor-save-row">
-          <button type="submit">שמירת שינויים</button>
-          {note === "ok" ? <span className="floor-note is-ok">השינויים נשמרו</span> : null}
-          {note === "bad" ? <span className="floor-note is-bad">השמירה נכשלה</span> : null}
-        </div>
-      </form>
+        <AddRoom floorId={floor.id} returnTo={here} />
+        </>
+        ) : null}
       <form id={`del-floor-${floor.id}`} action={deleteFloor} hidden>
         <input type="hidden" name="id" value={floor.id} />
         <input type="hidden" name="returnTo" value={returnTo} />
@@ -119,7 +131,6 @@ function FloorCard({ floor, returnTo }: { floor: Floor; returnTo: string }) {
           <input type="hidden" name="returnTo" value={here} />
         </form>
       ))}
-      <AddRoom floorId={floor.id} returnTo={here} />
     </div>
   );
 }

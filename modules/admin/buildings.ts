@@ -220,6 +220,34 @@ export async function saveFloor(formData: FormData) {
   }
   return { ok };
 }
+export async function saveAllFloors(formData: FormData) {
+  const session = await gate();
+  const screenId = Number(formData.get("screenId"));
+  const groupId = Number(formData.get("groupId"));
+  const returnTo = String(formData.get("returnTo") || "/admin");
+  if (!(await allowedFloors(session, screenId, groupId))) redirect("/admin");
+  const floors = await prisma.floor.findMany({
+    where: screenId ? { screenId } : { groupId },
+    include: { rooms: { select: { id: true } } },
+  });
+  let ok = true;
+  for (const floor of floors) {
+    const name = String(formData.get(`floor-${floor.id}-name`) || "").trim().slice(0, 40);
+    if (name) await prisma.floor.update({ where: { id: floor.id }, data: { name } });
+    for (const room of floor.rooms) {
+      const roomName = String(formData.get(`room-${room.id}-name`) || "").trim().slice(0, 80);
+      if (!roomName) { ok = false; continue; }
+      await prisma.room.update({
+        where: { id: room.id },
+        data: { name: roomName, detail: String(formData.get(`room-${room.id}-detail`) || "").trim().slice(0, 80) },
+      });
+    }
+  }
+  await touchFloors(screenId, groupId);
+  revalidatePath(returnTo.split("#")[0]);
+  return { ok };
+}
+
 export async function deleteFloor(formData: FormData) {
   const session = await gate();
   const id = Number(formData.get("id"));
