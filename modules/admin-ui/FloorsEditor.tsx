@@ -138,17 +138,25 @@ function FloorCard({ floor, returnTo, open, onToggle }: { floor: Floor; returnTo
 function AddRoom({ floorId, returnTo }: { floorId: number; returnTo: string }) {
   const [logoUrl, setLogoUrl] = useState("");
   const [busy, setBusy] = useState("");
+  const [note, setNote] = useState("");
   const formRef = useRef<HTMLFormElement>(null);
 
   return (
     <form
       className="room-add"
       ref={formRef}
+      style={{border: "2px solid #5a1f2b", borderRadius: 8, padding: 12, marginTop: 12, background: "#faf8f6"}}
       action={async (data) => {
         stay();
-        await addRoom(data);
-        formRef.current?.reset();
-        setLogoUrl("");
+        try {
+          await addRoom(data);
+          setNote("ok");
+          formRef.current?.reset();
+          setLogoUrl("");
+          window.location.reload();
+        } catch {
+          setNote("bad");
+        }
       }}
     >
       <input type="hidden" name="floorId" value={floorId} />
@@ -169,7 +177,9 @@ function AddRoom({ floorId, returnTo }: { floorId: number; returnTo: string }) {
         />
         {busy || (logoUrl ? "לוגו נוסף" : "לוגו לא חובה")}
       </label>
-      <button type="submit" disabled={Boolean(busy)}>הוספת חדר</button>
+      <button type="submit" disabled={Boolean(busy)} style={{background: "#5a1f2b", color: "#fff"}}>הוספת חדר</button>
+      {note === "ok" ? <span style={{color: "#1f7a3a", marginRight: 8}}>החדר נוסף</span> : null}
+      {note === "bad" ? <span style={{color: "#8a1f2b", marginRight: 8}}>הוספת החדר נכשלה</span> : null}
     </form>
   );
 }
