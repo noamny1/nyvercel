@@ -186,6 +186,33 @@ export async function updateRoom(formData: FormData) {
   }
   redirect(floorReturn(formData));
 }
+export async function autoSaveRoom(formData: FormData) {
+  const session = await gate();
+  const id = Number(formData.get("id"));
+  const room = await prisma.room.findUnique({ where: { id }, include: { floor: { select: { screenId: true, groupId: true } } } });
+  if (!room || !(await allowedFloors(session, room.floor.screenId || 0, room.floor.groupId || 0))) return { ok: false };
+  const name = String(formData.get("name") || "").trim().slice(0, 80);
+  if (!name) return { ok: false };
+  await prisma.room.update({
+    where: { id },
+    data: { name, detail: String(formData.get("detail") || "").trim().slice(0, 80) },
+  });
+  await touchFloors(room.floor.screenId || 0, room.floor.groupId || 0);
+  return { ok: true };
+}
+
+export async function autoSaveFloor(formData: FormData) {
+  const session = await gate();
+  const id = Number(formData.get("id"));
+  const floor = await prisma.floor.findUnique({ where: { id }, select: { screenId: true, groupId: true } });
+  if (!floor || !(await allowedFloors(session, floor.screenId || 0, floor.groupId || 0))) return { ok: false };
+  const name = String(formData.get("name") || "").trim().slice(0, 40);
+  if (!name) return { ok: false };
+  await prisma.floor.update({ where: { id }, data: { name } });
+  await touchFloors(floor.screenId || 0, floor.groupId || 0);
+  return { ok: true };
+}
+
 export async function saveFloor(formData: FormData) {
   const session = await gate();
   const id = Number(formData.get("id"));

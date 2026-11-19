@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, useEffect } from "react";
-import { addFloor, addRoom, deleteFloor, deleteRoom, saveAllFloors, setRoomLogo, setBuildingLogo } from "@/app/admin/actions";
+import { addFloor, addRoom, deleteFloor, deleteRoom, autoSaveRoom, autoSaveFloor, setRoomLogo, setBuildingLogo } from "@/app/admin/actions";
 
 type Room = { id: number; name: string; detail: string; logoUrl: string };
 type Floor = { id: number; name: string; rooms: Room[] };
@@ -46,30 +46,9 @@ export function FloorsEditor({
         <button type="submit" style={{background: "#5a1f2b", color: "#fff", padding: "8px 16px", borderRadius: 6, border: "none"}}>העלאת לוגו בניין</button>
         {logoNote ? <p style={{margin: "10px 0 0", padding: "8px 12px", borderRadius: 6, background: logoNote.includes("נכשלה") ? "#fde8ea" : "#e8f5e9", color: logoNote.includes("נכשלה") ? "#8a1f2b" : "#1f7a3a", fontWeight: 500}}>{logoNote}</p> : null}
       </form>
-      <form
-        className="floor-save"
-        action={async (data) => {
-          stay();
-          try {
-            const result = await saveAllFloors(data);
-            setSaveNote(result?.ok ? "ok" : "bad");
-          } catch {
-            setSaveNote("bad");
-          }
-        }}
-      >
-        {screenId ? <input type="hidden" name="screenId" value={screenId} /> : null}
-        {groupId ? <input type="hidden" name="groupId" value={groupId} /> : null}
-        <input type="hidden" name="returnTo" value={returnTo} />
-        {floors.map((floor) => (
-          <FloorCard key={floor.id} floor={floor} returnTo={returnTo} open={!!open[floor.id]} onToggle={() => setOpen((prev) => ({ ...prev, [floor.id]: !prev[floor.id] }))} />
-        ))}
-        <div className="floor-save-row" style={{marginTop: 16, justifyContent: "center"}}>
-          <button type="submit" style={{background: "#5a1f2b", color: "#fff", padding: "10px 24px", borderRadius: 8, border: "none", fontSize: 16}}>שמירת כל השינויים</button>
-          {saveNote === "ok" ? <span className="floor-note is-ok">כל השינויים נשמרו</span> : null}
-          {saveNote === "bad" ? <span className="floor-note is-bad">השמירה נכשלה</span> : null}
-        </div>
-      </form>
+      {floors.map((floor) => (
+        <FloorCard key={floor.id} floor={floor} returnTo={returnTo} open={!!open[floor.id]} onToggle={() => setOpen((prev) => ({ ...prev, [floor.id]: !prev[floor.id] }))} />
+      ))}
       <form className="floor-add" action={addFloor}>
         {screenId ? <input type="hidden" name="screenId" value={screenId} /> : null}
         {groupId ? <input type="hidden" name="groupId" value={groupId} /> : null}
@@ -96,13 +75,30 @@ function FloorCard({ floor, returnTo, open, onToggle }: { floor: Floor; returnTo
         {open ? (
         <>
         <div style={{padding: "8px 12px"}}>
-          <label>שם או מספר הקומה<input name={`floor-${floor.id}-name`} required defaultValue={floor.name} maxLength={40} /></label>
+          <label>שם או מספר הקומה<input defaultValue={floor.name} maxLength={40} onBlur={async (e) => {
+      const data = new FormData();
+      data.set("id", String(floor.id));
+      data.set("name", e.target.value);
+      await autoSaveFloor(data);
+    }} /></label>
         </div>
         {floor.rooms.map((room) => (
           <div className="room-line" key={room.id}>
             <div className="room-fields">
-              <label>שם המשרד<input name={`room-${room.id}-name`} required defaultValue={room.name} maxLength={80} /></label>
-              <label>מספר חדר<input name={`room-${room.id}-detail`} defaultValue={room.detail} maxLength={80} placeholder="406" /></label>
+              <label>שם המשרד<input defaultValue={room.name} maxLength={80} onBlur={async (e) => {
+                const data = new FormData();
+                data.set("id", String(room.id));
+                data.set("name", e.target.value);
+                data.set("detail", (e.target.closest(".room-fields")?.querySelector("input[placeholder]") as HTMLInputElement)?.value || room.detail);
+                await autoSaveRoom(data);
+              }} /></label>
+              <label>מספר חדר<input defaultValue={room.detail} maxLength={80} placeholder="406" onBlur={async (e) => {
+                const data = new FormData();
+                data.set("id", String(room.id));
+                data.set("name", (e.target.closest(".room-fields")?.querySelector("input:not([placeholder])") as HTMLInputElement)?.value || room.name);
+                data.set("detail", e.target.value);
+                await autoSaveRoom(data);
+              }} /></label>
             </div>
             <div className="room-tools">
               {room.logoUrl ? <img src={room.logoUrl} alt="" /> : <span className="room-logo-empty">בלי לוגו</span>}
@@ -169,7 +165,7 @@ function AddRoom({ floorId, returnTo }: { floorId: number; returnTo: string }) {
       className="room-add"
       style={{border: "2px solid #5a1f2b", borderRadius: 8, padding: 12, marginTop: 12, background: "#faf8f6"}}
     >
-      <label>שם<input value={name} onChange={(e) => setName(e.target.value)} required placeholder="דייר או עסק" maxLength={80} /></label>
+      <label>שם<input value={name} onChange={(e) => setName(e.target.value)} placeholder="דייר או עסק" maxLength={80} /></label>
       <label>חדר<input value={detail} onChange={(e) => setDetail(e.target.value)} placeholder="מספר או פירוט" maxLength={80} /></label>
       <label className="file-pill">
         <input
