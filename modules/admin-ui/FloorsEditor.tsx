@@ -139,31 +139,38 @@ function AddRoom({ floorId, returnTo }: { floorId: number; returnTo: string }) {
   const [logoUrl, setLogoUrl] = useState("");
   const [busy, setBusy] = useState("");
   const [note, setNote] = useState("");
-  const formRef = useRef<HTMLFormElement>(null);
+  const [name, setName] = useState("");
+  const [detail, setDetail] = useState("");
+
+  async function submit() {
+    if (!name.trim()) { setNote("bad"); return; }
+    setBusy("מוסיף...");
+    const data = new FormData();
+    data.set("floorId", String(floorId));
+    data.set("returnTo", returnTo);
+    data.set("name", name.trim());
+    data.set("detail", detail.trim());
+    data.set("logoUrl", logoUrl);
+    try {
+      await addRoom(data);
+      setNote("ok");
+      setName("");
+      setDetail("");
+      setLogoUrl("");
+      window.location.reload();
+    } catch {
+      setNote("bad");
+    }
+    setBusy("");
+  }
 
   return (
-    <form
+    <div
       className="room-add"
-      ref={formRef}
       style={{border: "2px solid #5a1f2b", borderRadius: 8, padding: 12, marginTop: 12, background: "#faf8f6"}}
-      action={async (data) => {
-        stay();
-        try {
-          await addRoom(data);
-          setNote("ok");
-          formRef.current?.reset();
-          setLogoUrl("");
-          window.location.reload();
-        } catch {
-          setNote("bad");
-        }
-      }}
     >
-      <input type="hidden" name="floorId" value={floorId} />
-      <input type="hidden" name="returnTo" value={returnTo} />
-      <input type="hidden" name="logoUrl" value={logoUrl} />
-      <label>שם<input name="name" required placeholder="דייר או עסק" maxLength={80} /></label>
-      <label>חדר<input name="detail" placeholder="מספר או פירוט" maxLength={80} /></label>
+      <label>שם<input value={name} onChange={(e) => setName(e.target.value)} required placeholder="דייר או עסק" maxLength={80} /></label>
+      <label>חדר<input value={detail} onChange={(e) => setDetail(e.target.value)} placeholder="מספר או פירוט" maxLength={80} /></label>
       <label className="file-pill">
         <input
           type="file"
@@ -177,10 +184,10 @@ function AddRoom({ floorId, returnTo }: { floorId: number; returnTo: string }) {
         />
         {busy || (logoUrl ? "לוגו נוסף" : "לוגו לא חובה")}
       </label>
-      <button type="submit" disabled={Boolean(busy)} style={{background: "#5a1f2b", color: "#fff"}}>הוספת חדר</button>
+      <button type="button" onClick={submit} disabled={Boolean(busy)} style={{background: "#5a1f2b", color: "#fff"}}>הוספת חדר</button>
       {note === "ok" ? <span style={{color: "#1f7a3a", marginRight: 8}}>החדר נוסף</span> : null}
       {note === "bad" ? <span style={{color: "#8a1f2b", marginRight: 8}}>הוספת החדר נכשלה</span> : null}
-    </form>
+    </div>
   );
 }
 
