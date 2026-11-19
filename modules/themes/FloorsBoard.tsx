@@ -186,8 +186,8 @@ function FloorsNews({
 
   return (
     <footer className="floors-news">
-      <span>{item?.title || (newsOn ? "אין חדשות כרגע" : "")}</span>
       {source ? <b className="floors-source">{source}</b> : null}
+      <span>{item?.title || (newsOn ? "אין חדשות כרגע" : "")}</span>
       <img className="floors-brand" src="/logo-white.png" alt="NYMedia" />
     </footer>
   );
