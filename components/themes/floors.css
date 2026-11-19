@@ -26,7 +26,7 @@
   bottom: 0;
   left: 0;
   display: grid;
-  grid-template-columns: 220px 1fr;
+  grid-template-columns: 280px 1fr;
   grid-template-rows: 1fr auto;
   direction: rtl;
   overflow: hidden;
@@ -46,7 +46,7 @@
   align-items: center;
   justify-content: space-evenly;
   gap: 20px;
-  padding: 20px 16px 20px 24px;
+  padding: 20px 20px 20px 30px;
   background: rgba(8, 12, 16, 0.55);
   color: #fff;
 }
