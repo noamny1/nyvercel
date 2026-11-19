@@ -236,7 +236,7 @@ export async function saveAllFloors(formData: FormData) {
     if (name) await prisma.floor.update({ where: { id: floor.id }, data: { name } });
     for (const room of floor.rooms) {
       const roomName = String(formData.get(`room-${room.id}-name`) || "").trim().slice(0, 80);
-      if (!roomName) { ok = false; continue; }
+      if (!roomName) continue;
       await prisma.room.update({
         where: { id: room.id },
         data: { name: roomName, detail: String(formData.get(`room-${room.id}-detail`) || "").trim().slice(0, 80) },
