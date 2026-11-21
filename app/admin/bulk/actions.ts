@@ -114,7 +114,7 @@ export async function bulkAddSlide(input: {
   return { ok: true, count: owned.ids.length };
 }
 
-export async function bulkUpdateSlide(input: { screenIds: number[]; imageUrl: string; title?: string; detail?: string; duration?: number }) {
+export async function bulkUpdateSlide(input: { screenIds: number[]; imageUrl: string; title?: string; detail?: string; duration?: number; weekdays?: string; startsOn?: string; endsOn?: string; meta?: string }) {
   const owned = await managerScreens(input.screenIds);
   if (owned.error) return { ok: false, error: owned.error };
   const imageUrl = input.imageUrl.trim();
@@ -123,6 +123,10 @@ export async function bulkUpdateSlide(input: { screenIds: number[]; imageUrl: st
   if (input.title !== undefined) data.title = input.title.trim().slice(0, 80);
   if (input.detail !== undefined) data.detail = input.detail.trim().slice(0, 200);
   if (input.duration !== undefined) data.duration = Math.max(3, Math.min(300, input.duration));
+  if (input.weekdays !== undefined) data.weekdays = input.weekdays;
+  if (input.startsOn !== undefined) data.startsOn = input.startsOn;
+  if (input.endsOn !== undefined) data.endsOn = input.endsOn;
+  if (input.meta !== undefined) data.meta = input.meta;
   if (Object.keys(data).length) {
     await prisma.slide.updateMany({ where: { screenId: { in: owned.ids }, imageUrl }, data });
     await refresh(owned.ids);

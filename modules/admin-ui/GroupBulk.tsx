@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { NEWS_SOURCES } from "@/modules/broadcast/news-sources";
 import { PLAYLISTS } from "@/modules/music/catalog";
 import { bulkAddNotice, bulkAddSlide, bulkRemoveNotice, bulkRemoveSlide, bulkSettings, bulkUpdateSlide } from "@/app/admin/bulk/actions";
-import { ReadyLibrary, type SlideDraft } from "@/modules/admin-ui/ReadyLibrary";
+import { ReadyLibrary, SavedSlideEditor, type SlideDraft } from "@/modules/admin-ui/ReadyLibrary";
 import { FIXED_VIDEOS, READY_SLIDES } from "@/modules/slides/ready";
 
 type Row = {
@@ -15,7 +15,7 @@ type Row = {
   city: string;
   floor?: string;
   name: string;
-  slides: { imageUrl: string; title?: string; templateId?: string }[];
+  slides: { id: number; imageUrl: string; duration: number; kind?: string; templateId?: string; title?: string; detail?: string; meta?: string; weekdays?: string; startsOn?: string; endsOn?: string }[];
   notices: { text: string }[];
 };
 
@@ -47,7 +47,7 @@ function slideThumb(slide: { imageUrl: string; templateId?: string }) {
 export function GroupBulk({ rows, themes }: { rows: Row[]; themes: { id: string; name: string }[] }) {
   const router = useRouter();
   const [tool, setTool] = useState<Tool | null>(null);
-  const [editing, setEditing] = useState<{ imageUrl: string; title: string; detail: string; duration: number } | null>(null);
+  const [editing, setEditing] = useState<typeof slides[0] | null>(null);
   const [picked, setPicked] = useState<number[]>(() => rows.map((screen) => screen.id));
   const [note, setNote] = useState("");
   const [error, setError] = useState("");
@@ -69,7 +69,7 @@ export function GroupBulk({ rows, themes }: { rows: Row[]; themes: { id: string;
   const allOn = rows.length > 0 && picked.length === rows.length;
 
   const slides = useMemo(() => {
-    const map = new Map<string, { imageUrl: string; name: string; count: number }>();
+    const map = new Map<string, { imageUrl: string; name: string; count: number; slide: typeof selected[0]["slides"][0] }>();
     for (const screen of selected) {
       const seen = new Set<string>();
       for (const slide of screen.slides) {
@@ -77,7 +77,7 @@ export function GroupBulk({ rows, themes }: { rows: Row[]; themes: { id: string;
         seen.add(slide.imageUrl);
         const current = map.get(slide.imageUrl);
         if (current) current.count += 1;
-        else map.set(slide.imageUrl, { imageUrl: slide.imageUrl, name: slideName(slide), count: 1 });
+        else map.set(slide.imageUrl, { imageUrl: slide.imageUrl, name: slideName(slide), count: 1, slide });
       }
     }
     return [...map.values()];
@@ -324,26 +324,23 @@ export function GroupBulk({ rows, themes }: { rows: Row[]; themes: { id: string;
             <div className="bulk-form">
               <h3>השקפים במסכים שנבחרו</h3>
               {editing ? (
-                <div className="bulk-edit" style={{marginBottom: 16, padding: 12, border: "2px solid #5a1f2b", borderRadius: 8, background: "#faf8f6"}}>
-                  <h4>עריכת שקף</h4>
-                  <label>כותרת<input value={editing.title} onChange={(e) => setEditing({ ...editing, title: e.target.value })} maxLength={80} /></label>
-                  <label>פירוט<input value={editing.detail} onChange={(e) => setEditing({ ...editing, detail: e.target.value })} maxLength={200} /></label>
-                  <label>שניות<input type="number" value={editing.duration} min={3} max={300} onChange={(e) => setEditing({ ...editing, duration: Number(e.target.value) })} /></label>
-                  <div style={{display: "flex", gap: 8, marginTop: 8}}>
-                    <button type="button" disabled={busy} style={{background: "#5a1f2b", color: "#fff", padding: "8px 16px", borderRadius: 6, border: "none"}} onClick={() => void run(async () => {
-                      const result = await bulkUpdateSlide({ screenIds: picked, imageUrl: editing.imageUrl, title: editing.title, detail: editing.detail, duration: editing.duration });
-                      if (result.ok) setEditing(null);
-                      return result;
-                    })}>שמירה</button>
-                    <button type="button" className="light" onClick={() => setEditing(null)}>ביטול</button>
-                  </div>
+                <div style={{marginBottom: 16}}>
+                  <SavedSlideEditor
+                    slide={editing.slide}
+                    onChange={async (payload) => {
+                      await bulkUpdateSlide({ screenIds: picked, imageUrl: editing.imageUrl, ...payload });
+                      setEditing(null);
+                    }}
+                    onRemove={() => setEditing(null)}
+                    onClose={() => setEditing(null)}
+                  />
                 </div>
               ) : null}
               {slides.length ? (
                 <div className="bulk-list">
                   {slides.map((slide) => (
                     <article key={slide.imageUrl}>
-                      <div className="bulk-slide" style={{cursor: "pointer"}} onClick={() => setEditing({ imageUrl: slide.imageUrl, title: slide.name || "", detail: "", duration: 8 })}>
+                      <div className="bulk-slide" style={{cursor: "pointer"}} onClick={() => setEditing(slide)}>
                         {(() => {
                           const thumb = slideThumb(slide);
                           if (thumb.kind === "pdf") return <span className="bulk-thumb is-pdf">PDF</span>;
@@ -352,7 +349,7 @@ export function GroupBulk({ rows, themes }: { rows: Row[]; themes: { id: string;
                         })()}
                         <span>{slide.name} · ב-{slide.count} מסכים</span>
                       </div>
-                      <button className="light" type="button" disabled={busy} onClick={() => setEditing({ imageUrl: slide.imageUrl, title: slide.name || "", detail: "", duration: 8 })}>עריכה</button>
+                      <button className="light" type="button" disabled={busy} onClick={() => setEditing(slide)}>עריכה</button>
                       <button
                         className="light"
                         type="button"
