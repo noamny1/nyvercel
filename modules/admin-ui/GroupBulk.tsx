@@ -323,6 +323,22 @@ export function GroupBulk({ rows, themes }: { rows: Row[]; themes: { id: string;
           {tool === "existing" ? (
             <div className="bulk-form">
               <h3>השקפים במסכים שנבחרו</h3>
+              {editing ? (
+                <div className="bulk-edit" style={{marginBottom: 16, padding: 12, border: "2px solid #5a1f2b", borderRadius: 8, background: "#faf8f6"}}>
+                  <h4>עריכת שקף</h4>
+                  <label>כותרת<input value={editing.title} onChange={(e) => setEditing({ ...editing, title: e.target.value })} maxLength={80} /></label>
+                  <label>פירוט<input value={editing.detail} onChange={(e) => setEditing({ ...editing, detail: e.target.value })} maxLength={200} /></label>
+                  <label>שניות<input type="number" value={editing.duration} min={3} max={300} onChange={(e) => setEditing({ ...editing, duration: Number(e.target.value) })} /></label>
+                  <div style={{display: "flex", gap: 8, marginTop: 8}}>
+                    <button type="button" disabled={busy} style={{background: "#5a1f2b", color: "#fff", padding: "8px 16px", borderRadius: 6, border: "none"}} onClick={() => void run(async () => {
+                      const result = await bulkUpdateSlide({ screenIds: picked, imageUrl: editing.imageUrl, title: editing.title, detail: editing.detail, duration: editing.duration });
+                      if (result.ok) setEditing(null);
+                      return result;
+                    })}>שמירה</button>
+                    <button type="button" className="light" onClick={() => setEditing(null)}>ביטול</button>
+                  </div>
+                </div>
+              ) : null}
               {slides.length ? (
                 <div className="bulk-list">
                   {slides.map((slide) => (
@@ -350,22 +366,7 @@ export function GroupBulk({ rows, themes }: { rows: Row[]; themes: { id: string;
                       </button>
                     </article>
                   ))}
-                  {editing ? (
-                    <div className="bulk-edit" style={{marginTop: 16, padding: 12, border: "2px solid #5a1f2b", borderRadius: 8, background: "#faf8f6"}}>
-                      <h4>עריכת שקף</h4>
-                      <label>כותרת<input value={editing.title} onChange={(e) => setEditing({ ...editing, title: e.target.value })} maxLength={80} /></label>
-                      <label>פירוט<input value={editing.detail} onChange={(e) => setEditing({ ...editing, detail: e.target.value })} maxLength={200} /></label>
-                      <label>שניות<input type="number" value={editing.duration} min={3} max={300} onChange={(e) => setEditing({ ...editing, duration: Number(e.target.value) })} /></label>
-                      <div style={{display: "flex", gap: 8, marginTop: 8}}>
-                        <button type="button" disabled={busy} style={{background: "#5a1f2b", color: "#fff"}} onClick={() => void run(async () => {
-                          const result = await bulkUpdateSlide({ screenIds: picked, imageUrl: editing.imageUrl, title: editing.title, detail: editing.detail, duration: editing.duration });
-                          if (result.ok) setEditing(null);
-                          return result;
-                        })}>שמירה</button>
-                        <button type="button" className="light" onClick={() => setEditing(null)}>ביטול</button>
-                      </div>
-                    </div>
-                  ) : null}
+
                 </div>
               ) : <p>אין שקפים במסכים שנבחרו.</p>}
             </div>
