@@ -47,6 +47,7 @@ function slideThumb(slide: { imageUrl: string; templateId?: string }) {
 export function GroupBulk({ rows, themes }: { rows: Row[]; themes: { id: string; name: string }[] }) {
   const router = useRouter();
   const [tool, setTool] = useState<Tool | null>(null);
+  const [editing, setEditing] = useState<{ imageUrl: string; title: string; detail: string; duration: number } | null>(null);
   const [picked, setPicked] = useState<number[]>(() => rows.map((screen) => screen.id));
   const [note, setNote] = useState("");
   const [error, setError] = useState("");
