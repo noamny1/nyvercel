@@ -114,6 +114,22 @@ export async function bulkAddSlide(input: {
   return { ok: true, count: owned.ids.length };
 }
 
+export async function bulkUpdateSlide(input: { screenIds: number[]; imageUrl: string; title?: string; detail?: string; duration?: number }) {
+  const owned = await managerScreens(input.screenIds);
+  if (owned.error) return { ok: false, error: owned.error };
+  const imageUrl = input.imageUrl.trim();
+  if (!imageUrl) return { ok: false, error: "חסר שקף" };
+  const data: Record<string, unknown> = {};
+  if (input.title !== undefined) data.title = input.title.trim().slice(0, 80);
+  if (input.detail !== undefined) data.detail = input.detail.trim().slice(0, 200);
+  if (input.duration !== undefined) data.duration = Math.max(3, Math.min(300, input.duration));
+  if (Object.keys(data).length) {
+    await prisma.slide.updateMany({ where: { screenId: { in: owned.ids }, imageUrl }, data });
+    await refresh(owned.ids);
+  }
+  return { ok: true, count: owned.ids.length };
+}
+
 export async function bulkRemoveSlide(input: { screenIds: number[]; imageUrl: string }) {
   const owned = await managerScreens(input.screenIds);
   if (owned.error) return { ok: false, error: owned.error };

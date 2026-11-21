@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { NEWS_SOURCES } from "@/modules/broadcast/news-sources";
 import { PLAYLISTS } from "@/modules/music/catalog";
-import { bulkAddNotice, bulkAddSlide, bulkRemoveNotice, bulkRemoveSlide, bulkSettings } from "@/app/admin/bulk/actions";
+import { bulkAddNotice, bulkAddSlide, bulkRemoveNotice, bulkRemoveSlide, bulkSettings, bulkUpdateSlide } from "@/app/admin/bulk/actions";
 import { ReadyLibrary, type SlideDraft } from "@/modules/admin-ui/ReadyLibrary";
 import { FIXED_VIDEOS, READY_SLIDES } from "@/modules/slides/ready";
 
@@ -326,7 +326,7 @@ export function GroupBulk({ rows, themes }: { rows: Row[]; themes: { id: string;
                 <div className="bulk-list">
                   {slides.map((slide) => (
                     <article key={slide.imageUrl}>
-                      <div className="bulk-slide">
+                      <div className="bulk-slide" style={{cursor: "pointer"}} onClick={() => setEditing({ imageUrl: slide.imageUrl, title: slide.name || "", detail: "", duration: 8 })}>
                         {(() => {
                           const thumb = slideThumb(slide);
                           if (thumb.kind === "pdf") return <span className="bulk-thumb is-pdf">PDF</span>;
@@ -335,6 +335,7 @@ export function GroupBulk({ rows, themes }: { rows: Row[]; themes: { id: string;
                         })()}
                         <span>{slide.name} · ב-{slide.count} מסכים</span>
                       </div>
+                      <button className="light" type="button" disabled={busy} onClick={() => setEditing({ imageUrl: slide.imageUrl, title: slide.name || "", detail: "", duration: 8 })}>עריכה</button>
                       <button
                         className="light"
                         type="button"
@@ -348,6 +349,22 @@ export function GroupBulk({ rows, themes }: { rows: Row[]; themes: { id: string;
                       </button>
                     </article>
                   ))}
+                  {editing ? (
+                    <div className="bulk-edit" style={{marginTop: 16, padding: 12, border: "2px solid #5a1f2b", borderRadius: 8, background: "#faf8f6"}}>
+                      <h4>עריכת שקף</h4>
+                      <label>כותרת<input value={editing.title} onChange={(e) => setEditing({ ...editing, title: e.target.value })} maxLength={80} /></label>
+                      <label>פירוט<input value={editing.detail} onChange={(e) => setEditing({ ...editing, detail: e.target.value })} maxLength={200} /></label>
+                      <label>שניות<input type="number" value={editing.duration} min={3} max={300} onChange={(e) => setEditing({ ...editing, duration: Number(e.target.value) })} /></label>
+                      <div style={{display: "flex", gap: 8, marginTop: 8}}>
+                        <button type="button" disabled={busy} style={{background: "#5a1f2b", color: "#fff"}} onClick={() => void run(async () => {
+                          const result = await bulkUpdateSlide({ screenIds: picked, imageUrl: editing.imageUrl, title: editing.title, detail: editing.detail, duration: editing.duration });
+                          if (result.ok) setEditing(null);
+                          return result;
+                        })}>שמירה</button>
+                        <button type="button" className="light" onClick={() => setEditing(null)}>ביטול</button>
+                      </div>
+                    </div>
+                  ) : null}
                 </div>
               ) : <p>אין שקפים במסכים שנבחרו.</p>}
             </div>
