@@ -284,10 +284,11 @@ model FileLink {
 }
 
 model Room {
-  id      Int    @id @default(autoincrement())
-  floorId Int
-  floor   Floor  @relation(fields: [floorId], references: [id], onDelete: Cascade)
-  name    String
-  detail  String @default("")
-  logoUrl String @default("")
+  id        Int    @id @default(autoincrement())
+  floorId   Int
+  floor     Floor  @relation(fields: [floorId], references: [id], onDelete: Cascade)
+  name      String
+  detail    String @default("")
+  logoUrl   String @default("")
+  specialty String @default("")
 }

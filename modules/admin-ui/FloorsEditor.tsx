@@ -3,7 +3,7 @@
 import { useRef, useState, useEffect } from "react";
 import { addFloor, addRoom, deleteFloor, deleteRoom, autoSaveRoom, autoSaveFloor, setRoomLogo, setBuildingLogo } from "@/app/admin/actions";
 
-type Room = { id: number; name: string; detail: string; logoUrl: string };
+type Room = { id: number; name: string; detail: string; logoUrl: string; specialty?: string };
 type Floor = { id: number; name: string; rooms: Room[] };
 
 export function FloorsEditor({
@@ -97,6 +97,15 @@ function FloorCard({ floor, returnTo, open, onToggle }: { floor: Floor; returnTo
                 data.set("id", String(room.id));
                 data.set("name", (e.target.closest(".room-fields")?.querySelector("input:not([placeholder])") as HTMLInputElement)?.value || room.name);
                 data.set("detail", e.target.value);
+                data.set("specialty", (e.target.closest(".room-fields")?.querySelector("input[placeholder='מומחיות']") as HTMLInputElement)?.value || room.specialty || "");
+                await autoSaveRoom(data);
+              }} /></label>
+              <label>מומחיות<input defaultValue={room.specialty || ""} maxLength={80} placeholder="מומחיות" onBlur={async (e) => {
+                const data = new FormData();
+                data.set("id", String(room.id));
+                data.set("name", (e.target.closest(".room-fields")?.querySelector("input:not([placeholder])") as HTMLInputElement)?.value || room.name);
+                data.set("detail", (e.target.closest(".room-fields")?.querySelector("input[placeholder='406']") as HTMLInputElement)?.value || room.detail);
+                data.set("specialty", e.target.value);
                 await autoSaveRoom(data);
               }} /></label>
             </div>

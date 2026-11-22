@@ -23,6 +23,7 @@ export const THEMES = [
   { id: "floors-light", name: "קומות כרטיס בהיר", note: "כרטיסים בהירים על המגדל. רק מנהל המערכת משייך" },
   { id: "floors-hotel", name: "קומות מלון", note: "לוח מלון על רקע שמנת. רק מנהל המערכת משייך" },
   { id: "floors-spine", name: "קומות פס צבע", note: "רקע שחור ופס צבע לכל קומה. רק מנהל המערכת משייך" },
+  { id: "floors-doctors", name: "קומות בית הרופאים", note: "כמו קומות, עם עמודת מומחיות לכל חדר. רק מנהל המערכת משייך" },
 ] as const;
 
 export type ThemeId = (typeof THEMES)[number]["id"];

@@ -5,7 +5,7 @@ import { chipLabel } from "@/modules/broadcast/news-sources";
 import { useFreshHeadlines, type Headline } from "@/modules/player/useFreshHeadlines";
 import { useNewsOn } from "@/modules/player/useNewsOn";
 
-type Room = { id: number; name: string; detail: string; logoUrl?: string };
+type Room = { id: number; name: string; detail: string; logoUrl?: string; specialty?: string };
 type Floor = { id: number; name: string; rooms: Room[] };
 
 export function FloorsBoard({

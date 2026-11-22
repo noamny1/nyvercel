@@ -195,7 +195,7 @@ export async function autoSaveRoom(formData: FormData) {
   if (!name) return { ok: false };
   await prisma.room.update({
     where: { id },
-    data: { name, detail: String(formData.get("detail") || "").trim().slice(0, 80) },
+    data: { name, detail: String(formData.get("detail") || "").trim().slice(0, 80), specialty: String(formData.get("specialty") || "").trim().slice(0, 80) },
   });
   await touchFloors(room.floor.screenId || 0, room.floor.groupId || 0);
   return { ok: true };
