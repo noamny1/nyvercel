@@ -111,7 +111,7 @@ export function UsersPanel({ users, query }: { users: UserRow[]; query: string }
         <h2>משתמש חדש</h2>
         <div className="row">
           <label>שם הלקוח<input name="name" required placeholder="ועד הבית" /></label>
-          <label>אימייל<input name="email" type="email" required /></label>
+          <label>אימייל<input name="email" type="text" inputMode="email" required pattern="[^@\s]+@[^@\s]+\.[^@\s]+" title="הזן כתובת אימייל תקינה" /></label>
           <label>סיסמה<input name="password" required minLength={6} value={password} onChange={(event) => setPassword(event.target.value)} placeholder="לפחות 6 תווים" /></label>
           <button className="light" type="button" onClick={() => setPassword(makePassword())}>סיסמה אוטומטית</button>
         </div>
