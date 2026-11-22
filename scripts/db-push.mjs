@@ -128,6 +128,7 @@ const statements = [
   `ALTER TABLE "Floor" ALTER COLUMN "groupId" DROP NOT NULL`,
   `ALTER TABLE "Floor" ADD COLUMN IF NOT EXISTS "screenId" INTEGER`,
   `ALTER TABLE "Room" ADD COLUMN IF NOT EXISTS "logoUrl" TEXT NOT NULL DEFAULT ''`,
+  `ALTER TABLE "Room" ADD COLUMN IF NOT EXISTS "specialty" TEXT NOT NULL DEFAULT ''`,
   `CREATE INDEX IF NOT EXISTS "Floor_screenId_idx" ON "Floor"("screenId")`,
   `DO $$ BEGIN
     ALTER TABLE "Floor"
