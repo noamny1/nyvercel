@@ -248,6 +248,11 @@
   background: #fff;
   border-radius: 4px;
 }
+.floor-who-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
 .floor-who strong,
 .floor-copy > strong {
   display: block;
