@@ -76,7 +76,7 @@ export function FloorsBoard({
                     <span className="floor-who">
                       {room.logoUrl ? <img src={room.logoUrl} alt="" /> : null}
                       <strong>{room.name}</strong>
-                      {room.specialty ? <small className="room-specialty">מומחיות - {room.specialty}</small> : null}
+                      {room.specialty ? <small className="room-specialty">{"מומחיות - "}{room.specialty}</small> : null}
                     </span>
                     {room.detail ? <i className="floor-leader" /> : null}
                     {room.detail ? <em>{room.detail}</em> : null}
