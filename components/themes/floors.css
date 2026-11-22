@@ -508,8 +508,9 @@
 
 .room-specialty {
   display: block;
-  margin-top: 2px;
-  font-size: 12px;
+  margin-top: 4px;
+  font-size: 13px;
   font-weight: 400;
-  opacity: 0.85;
+  color: inherit;
+  opacity: 0.9;
 }
