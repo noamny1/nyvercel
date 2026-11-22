@@ -505,3 +505,11 @@
   grid-row: 2; background: #080a0e; border-top: 2px solid #40c4d6; }
 .look-floors-spine .floors-source { color: #080c10; background: #40c4d6; border-color: #40c4d6; }
 
+
+.room-specialty {
+  display: block;
+  margin-top: 2px;
+  color: #5a1f2b;
+  font-size: 13px;
+  font-weight: 400;
+}
