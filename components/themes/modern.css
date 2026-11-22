@@ -109,7 +109,7 @@
   transform-origin: 60px 60px;
   transform: rotate(-90deg);
   animation: modern-arc linear forwards;
-}
+ will-change: transform; }
 .theme-modern .modern-face {
   position: absolute;
   inset: 18px 16px;
@@ -128,8 +128,8 @@
   text-align: right;
   transform-style: preserve-3d;
 }
-.theme-modern .modern-face.is-in { animation: modern-enter 0.95s cubic-bezier(0.16, 0.84, 0.28, 1) both; }
-.theme-modern .modern-face.is-out { animation: modern-leave 0.9s cubic-bezier(0.6, 0.02, 0.2, 1) forwards; }
+.theme-modern .modern-face.is-in { animation: modern-enter 0.95s cubic-bezier(0.16, 0.84, 0.28, 1) both;  will-change: transform; }
+.theme-modern .modern-face.is-out { animation: modern-leave 0.9s cubic-bezier(0.6, 0.02, 0.2, 1) forwards;  will-change: transform; }
 .theme-modern .modern-face.is-in::after {
   content: "";
   position: absolute;

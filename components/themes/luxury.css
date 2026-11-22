@@ -105,7 +105,7 @@
 }
 .layout-luxury .lux-chips .is-on { background: #5A1F2B; border-color: #5A1F2B; }
 .layout-luxury .lux-feed { flex: 0 0 340px; overflow: hidden; mask-image: linear-gradient(to bottom, transparent, #000 6%, #000 94%, transparent); }
-.layout-luxury .lux-track { animation: lux-rise linear infinite; }
+.layout-luxury .lux-track { animation: lux-rise linear infinite;  will-change: transform; }
 .layout-luxury .lux-item { padding: 10px 0; border-bottom: 1px solid #5c4e48; }
 .layout-luxury .lux-item small { display: block; margin-bottom: 3px; color: #e6d3ae; font-size: 13px; }
 .layout-luxury .lux-item p {
@@ -259,7 +259,7 @@
 .layout-luxury.stage.slide-full .luxury-foot { display: none; }
 .layout-luxury.stage.slide-full .brand-bar { display: flex; }
 @media (prefers-reduced-motion: reduce) {
-  .layout-luxury .lux-track { animation: none; }
+  .layout-luxury .lux-track { animation: none;  will-change: transform; }
 }
 .layout-luxury720.stage,
 .layout-luxury720.stage.no-ticker {
