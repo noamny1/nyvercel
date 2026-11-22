@@ -509,7 +509,7 @@
 .room-specialty {
   display: block;
   margin-top: 2px;
-  color: #5a1f2b;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 400;
+  opacity: 0.85;
 }
