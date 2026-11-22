@@ -17,7 +17,8 @@ export function GroupMove({
   const [logoChoice, setLogoChoice] = useState("");
   const changed = value !== current;
   const joining = changed && value !== "";
-  const ready = changed && (!joining || logoChoice === "group" || logoChoice === "keep");
+  const leaving = changed && value === "" && current !== "";
+  const ready = changed && (leaving ? (logoChoice === "clear" || logoChoice === "keep") : (!joining || logoChoice === "group" || logoChoice === "keep"));
 
   return (
     <form className="group-move" action={moveListedScreen}>
@@ -33,6 +34,13 @@ export function GroupMove({
           <option value="">האם להחליף את הלוגו?</option>
           <option value="group">כן, ללוגו הקבוצה</option>
           <option value="keep">לא, להשאיר את הלוגו של הכתובת</option>
+        </select>
+      ) : null}
+      {leaving ? (
+        <select className="logo-choice" name="logoChoice" aria-label="האם להסיר את הלוגו" value={logoChoice} required onChange={(event) => setLogoChoice(event.target.value)}>
+          <option value="">האם להסיר את הלוגו?</option>
+          <option value="clear">כן, להסיר את הלוגו</option>
+          <option value="keep">לא, להשאיר את הלוגו</option>
         </select>
       ) : null}
       <button className={ready ? "ready" : "light"} type="submit" disabled={!ready}>העברה</button>

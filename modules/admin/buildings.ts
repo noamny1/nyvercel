@@ -93,10 +93,24 @@ export async function moveListedScreen(formData: FormData) {
   await ownerGate();
   const id = Number(formData.get("id"));
   const groupId = Number(formData.get("groupId")) || null;
-  const keepLogo = String(formData.get("logoChoice") || "") === "keep";
+  const logoChoice = String(formData.get("logoChoice") || "");
+  const keepLogo = logoChoice === "keep";
+  const clearLogo = logoChoice === "clear";
   if (id && groupId) await placeInGroup(id, groupId, keepLogo);
   else if (id) {
-    await prisma.screen.update({ where: { id }, data: { groupId: null } });
+    const screen = await prisma.screen.findUnique({ where: { id }, select: { groupId: true } });
+    const data: Record<string, unknown> = { groupId: null };
+    if (clearLogo) data.logoUrl = "";
+    await prisma.screen.update({ where: { id }, data });
+    if (screen?.groupId) {
+      const managers = await prisma.groupManager.findMany({ where: { groupId: screen.groupId }, select: { userId: true } });
+      if (managers.length) {
+        await prisma.screen.update({
+          where: { id },
+          data: { users: { disconnect: managers.map((m) => ({ id: m.userId })) } },
+        });
+      }
+    }
     await touchScreen(id);
   }
   redirect("/admin/buildings");
