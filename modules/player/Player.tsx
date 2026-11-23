@@ -6,6 +6,7 @@ import { ParashaSlide } from "@/modules/player/ParashaSlide";
 import { KnowledgeSlide } from "@/modules/player/KnowledgeSlide";
 import { CharacterVideo, PestVideo, QrSlide } from "@/modules/player/SpecialSlides";
 import { isDeckId } from "@/modules/slides/decks";
+import { landscapeOfDay } from "@/lib/landscapes";
 
 export type PlaySlide = {
   imageUrl: string;
@@ -211,6 +212,10 @@ function SlideFace({ slide, onReady, live = true }: { slide: PlaySlide; onReady?
         </div>
       </div>
     );
+  }
+  if (slide.templateId === "landscapes") {
+    const url = landscapeOfDay();
+    return <img className="slide-image" src={url} alt="נוף" onLoad={onReady} onError={onReady} />;
   }
   if (slide.templateId === "weekly-parasha") {
     return <ParashaSlide name={slide.title || ""} candles={slide.candles || ""} havdalah={slide.havdalah || ""} city={slide.city || ""} verses={slide.verses || []} seconds={slide.duration} still={slide.still} />;

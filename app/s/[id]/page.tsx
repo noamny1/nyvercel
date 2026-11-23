@@ -28,6 +28,7 @@ import { prisma } from "@/lib/prisma";
 import { musicSilenced, screenTakeover } from "@/lib/flags";
 import { screenToken } from "@/modules/player/stamp";
 import { FIXED_VIDEOS, clientSetsDuration, fillLine } from "@/lib/ready-slides";
+import { landscapeOfDay } from "@/lib/landscapes";
 import { newsTickerOn, slideIsOn } from "@/lib/schedule";
 import { CITIES } from "@/lib/cities";
 import { parashaPace, shabbatTimes, weeklyPortion } from "@/lib/shabbat";
@@ -200,7 +201,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
             const slow = parasha ? Math.max(180, slide.duration || 0, flow === "static" ? 180 : pace) : 0;
             const meta = { day, from, to };
             return {
-            imageUrl: official?.url || slide.imageUrl,
+            imageUrl: slide.templateId === "landscapes" ? landscapeOfDay() : (official?.url || slide.imageUrl),
             duration: clientSetsDuration(slide.templateId) ? slide.duration : official?.duration || slow || slide.duration,
             kind: slide.kind,
             templateId: slide.templateId,
