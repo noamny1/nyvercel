@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { upload as blobUpload } from "@vercel/blob/client";
 import { KindMark, ReadyLibrary, SavedSlideEditor, type SlideDraft } from "@/modules/admin-ui/ReadyLibrary";
 import { NEWS_SOURCES } from "@/modules/broadcast/news-sources";
 import { isFloorsTheme, THEMES } from "@/modules/slides/themes";
@@ -143,6 +144,13 @@ export function ScreenEditor({
   }
 
   async function upload(file: File, kind: "image" | "slide" | "video") {
+    if (kind === "video") {
+      const blob = await blobUpload(`uploads/${Date.now()}-${file.name}`, file, {
+        access: "public",
+        handleUploadUrl: "/api/upload/video",
+      });
+      return blob.url;
+    }
     const body = new FormData();
     body.set("file", file);
     body.set("kind", kind);
