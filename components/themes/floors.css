@@ -294,8 +294,8 @@
 }
 .floors-source {
   flex: none;
-  margin-right: 12px;
-  padding: 4px 10px;
+  margin-right: 24px;
+  padding: 4px 14px;
   border: 1px solid #d4b483;
   border-radius: 999px;
   color: #e8d7b0;
