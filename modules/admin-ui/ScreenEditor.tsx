@@ -142,7 +142,7 @@ export function ScreenEditor({
     }).then(() => router.refresh());
   }
 
-  async function upload(file: File, kind: "image" | "slide") {
+  async function upload(file: File, kind: "image" | "slide" | "video") {
     const body = new FormData();
     body.set("file", file);
     body.set("kind", kind);
@@ -186,7 +186,7 @@ export function ScreenEditor({
 
   async function onSlide(draft: SlideDraft) {
     setMessage("");
-    const imageUrl = draft.file ? await upload(draft.file, "slide") : draft.imageUrl || "";
+    const imageUrl = draft.file ? await upload(draft.file, draft.kind === "video" ? "video" : "slide") : draft.imageUrl || "";
     if (!imageUrl) throw new Error("חסר קובץ או קישור");
     const response = await fetch("/api/slides", {
       method: "POST",

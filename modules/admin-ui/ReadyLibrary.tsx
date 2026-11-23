@@ -10,7 +10,7 @@ import { CharacterVideo, PestVideo, QrSlide } from "@/modules/player/SpecialSlid
 import "@/components/player/player.css";
 
 export type SlideDraft = {
-  kind: "image" | "template" | "youtube";
+  kind: "image" | "template" | "youtube" | "video";
   imageUrl?: string;
   file?: File;
   templateId?: string;
@@ -220,7 +220,7 @@ export function ReadyLibrary({ onAdd, city = "", screen = "", addLabel = "הוס
   const [meta, setMeta] = useState<SlideMeta>({});
   const [heading, setHeading] = useState("");
   const [body, setBody] = useState("");
-  const [mode, setMode] = useState<"" | "image" | "youtube">("");
+  const [mode, setMode] = useState<"" | "image" | "youtube" | "video">("");
   const [pest, setPest] = useState(false);
   const [pestDay, setPestDay] = useState("שלישי");
   const [pestFrom, setPestFrom] = useState("09:00");
@@ -237,6 +237,7 @@ export function ReadyLibrary({ onAdd, city = "", screen = "", addLabel = "הוס
   const [error, setError] = useState("");
   const [extra, setExtra] = useState<Extra>(freshExtra());
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [videoFile, setVideoFile] = useState<File | null>(null);
 
   function choose(slide: ReadySlide) {
     setError("");
@@ -259,6 +260,29 @@ export function ReadyLibrary({ onAdd, city = "", screen = "", addLabel = "הוס
       startsOn: extraValue.startsOn,
       endsOn: extraValue.endsOn,
     };
+  }
+
+
+  async function saveVideo() {
+    if (!videoFile) { setError("בחר סרטון"); return; }
+    if (videoFile.size > 50 * 1024 * 1024) { setError("הסרטון גדול מ-50 מגה"); return; }
+    setBusy(true);
+    setError("");
+    try {
+      await onAdd({
+        kind: "video",
+        file: videoFile,
+        title: extra.name || videoFile.name.replace(/\.[^.]+$/, ""),
+        duration: Math.max(5, extra.seconds || 15),
+        ...scheduleOf(extra),
+      });
+      setMode("");
+      setVideoFile(null);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "ההעלאה נכשלה");
+    } finally {
+      setBusy(false);
+    }
   }
 
   async function saveTemplate() {
@@ -377,6 +401,9 @@ export function ReadyLibrary({ onAdd, city = "", screen = "", addLabel = "הוס
           <span className="thumb add-thumb">
             <KindMark />
           </span>
+        </button>
+        <button type="button" className="ready-card add-card" onClick={() => { setOpen(null); setExtra(freshExtra({ seconds: 15 })); setMode("video"); setError(""); setVideoFile(null); }}>
+          <span className="slide-label">העלאת סרטון</span>
         </button>
         <button type="button" className="ready-card add-card" onClick={() => { setOpen(null); setExtra(freshExtra({ seconds: 30 })); setMode("youtube"); setError(""); }}>
           <span className="slide-label">סרטון יוטיוב חדש</span>
@@ -578,6 +605,24 @@ export function ReadyLibrary({ onAdd, city = "", screen = "", addLabel = "הוס
                 ...scheduleOf(extra),
               }).then(() => { setMode(""); setImageFile(null); }).catch((reason) => setError(reason instanceof Error ? reason.message : "השמירה נכשלה")).finally(() => setBusy(false));
             }}>{busy ? "שומר..." : addLabel}</button>
+            {error ? <p className="error">{error}</p> : null}
+            <button type="button" className="light" onClick={() => setMode("")}>סגירה</button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+      {mode === "video" ? (
+        <div className="slide-modal" role="dialog" aria-modal="true" onClick={() => setMode("")}>
+          <div className="slide-modal-card" onClick={(event) => event.stopPropagation()}>
+            <h3>העלאת סרטון</h3>
+            <div className="slide-modal-actions">
+            <p>מעלים סרטון MP4, WebM או MOV עד 50 מגה.</p>
+            <label>סרטון
+              <input type="file" accept="video/mp4,video/webm,video/quicktime,.mp4,.webm,.mov" onChange={(event) => setVideoFile(event.target.files?.[0] || null)} />
+            </label>
+            {videoFile ? <p>{videoFile.name} ({Math.round(videoFile.size / 1024 / 1024)} מגה)</p> : null}
+            <ExtraFields extra={extra} setExtra={setExtra} name seconds />
+            <button type="button" disabled={busy || !videoFile} onClick={saveVideo}>{busy ? "מעלה..." : addLabel}</button>
             {error ? <p className="error">{error}</p> : null}
             <button type="button" className="light" onClick={() => setMode("")}>סגירה</button>
             </div>

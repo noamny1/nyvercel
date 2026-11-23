@@ -34,7 +34,7 @@ export async function POST(request: Request) {
       ...owner,
       imageUrl: body.imageUrl,
       duration: Math.max(3, Number(body.duration) || 8),
-      kind: body.kind === "template" || body.kind === "youtube" ? body.kind : "image",
+      kind: body.kind === "template" || body.kind === "youtube" || body.kind === "video" ? body.kind : "image",
       templateId: body.templateId || "",
       title: body.title || "",
       detail: body.detail || "",

@@ -14,7 +14,12 @@ export async function POST(request: Request) {
   const kind = String(form.get("kind") || "image");
   const isImage = file.type.startsWith("image/");
   const isPdf = file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
-  if (kind === "slide" ? !(isImage || isPdf) : !isImage) {
+  const isVideo = file.type.startsWith("video/") || /\.(mp4|webm|mov)$/i.test(file.name);
+  const maxVideo = 50 * 1024 * 1024;
+  if (kind === "video") {
+    if (!isVideo) return NextResponse.json({ error: "אפשר להעלות קובץ וידאו (MP4, WebM, MOV)" }, { status: 400 });
+    if (file.size > maxVideo) return NextResponse.json({ error: "הסרטון גדול מ-50 מגה" }, { status: 400 });
+  } else if (kind === "slide" ? !(isImage || isPdf) : !isImage) {
     return NextResponse.json({ error: kind === "slide" ? "אפשר להעלות תמונה או PDF" : "אפשר להעלות תמונה או GIF" }, { status: 400 });
   }
 
