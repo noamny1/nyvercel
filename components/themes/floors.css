@@ -256,8 +256,8 @@
 .floor-who strong,
 .floor-copy > strong {
   display: block;
-  font-size: 20px;
-  font-weight: 500;
+  font-size: 26px;
+  font-weight: 700;
   color: #f6f1e8;
 }
 .floor-leader {
@@ -268,8 +268,8 @@
 }
 .floor-room em {
   font-style: normal;
-  font-size: 20px;
-  font-weight: 500;
+  font-size: 26px;
+  font-weight: 700;
   color: #e8d7b0;
   flex: none;
 }
@@ -514,8 +514,8 @@
 .room-specialty {
   display: block;
   margin-top: 4px;
-  font-size: 13px;
-  font-weight: 400;
+  font-size: 18px;
+  font-weight: 600;
   color: #f6f1e8;
-  opacity: 0.9;
+  opacity: 0.95;
 }
