@@ -265,7 +265,7 @@ export function ReadyLibrary({ onAdd, city = "", screen = "", addLabel = "הוס
 
   async function saveVideo() {
     if (!videoFile) { setError("בחר סרטון"); return; }
-    if (videoFile.size > 50 * 1024 * 1024) { setError("הסרטון גדול מ-50 מגה"); return; }
+    if (videoFile.size > 15 * 1024 * 1024) { setError("הסרטון גדול מ-15 מגה. דחוס אותו או העלה ליוטיוב."); return; }
     setBusy(true);
     setError("");
     try {
@@ -616,7 +616,8 @@ export function ReadyLibrary({ onAdd, city = "", screen = "", addLabel = "הוס
           <div className="slide-modal-card" onClick={(event) => event.stopPropagation()}>
             <h3>העלאת סרטון</h3>
             <div className="slide-modal-actions">
-            <p>מעלים סרטון MP4, WebM או MOV עד 50 מגה.</p>
+            <p>מעלים סרטון MP4 עד 15 מגה. לסרטונים גדולים יותר, העלה ליוטיוב והשתמש בקישור.</p>
+            <p style={{fontSize: 13, color: "#666"}}>טיפ: דחוס את הסרטון ב-<a href="https://www.freeconvert.com/video-compressor" target="_blank" rel="noopener">FreeConvert</a> לפני ההעלאה.</p>
             <label>סרטון
               <input type="file" accept="video/mp4,video/webm,video/quicktime,.mp4,.webm,.mov" onChange={(event) => setVideoFile(event.target.files?.[0] || null)} />
             </label>
