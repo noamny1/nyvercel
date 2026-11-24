@@ -188,17 +188,21 @@ export async function setBuildingLogo(formData: FormData) {
   const returnTo = String(formData.get("returnTo") || "/admin");
   const file = formData.get("file");
   const sep = returnTo.includes("?") ? "&" : "?";
-  if (!(file instanceof File) || !file.size || !file.type.startsWith("image/")) redirect(returnTo + sep + "logo=fail");
+  if (!(file instanceof File) || !file.size) redirect(returnTo + sep + "logo=fail");
+  const isImage = file.type.startsWith("image/") || /\.(jpg|jpeg|png|gif|webp)$/i.test(file.name);
+  if (!isImage) redirect(returnTo + sep + "logo=fail");
   if (!process.env.BLOB_READ_WRITE_TOKEN) redirect(returnTo + sep + "logo=fail");
   try {
-    const blob = await put(`uploads/building-${Date.now()}-${file.name}`, file, { access: "public", contentType: file.type || "image/png" });
+    const contentType = file.type || (file.name.toLowerCase().endsWith(".png") ? "image/png" : "image/jpeg");
+    const blob = await put(`uploads/building-${Date.now()}-${file.name}`, file, { access: "public", contentType });
     if (screenId) await prisma.screen.update({ where: { id: screenId }, data: { buildingLogo: blob.url } });
     else if (groupId) {
       await prisma.screenGroup.update({ where: { id: groupId }, data: { buildingLogo: blob.url } });
       await prisma.screen.updateMany({ where: { groupId }, data: { buildingLogo: blob.url } });
     }
     redirect(returnTo + sep + "logo=ok");
-  } catch {
+  } catch (e) {
+    console.error("building logo upload failed", e);
     redirect(returnTo + sep + "logo=fail");
   }
 }
