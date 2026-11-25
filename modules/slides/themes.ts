@@ -67,7 +67,7 @@ export async function clientThemes() {
 export async function editorThemes(owner: boolean) {
   const shown = await clientThemes();
   if (!owner) return shown;
-  const extra = THEMES.filter((theme) => (isFaultTheme(theme.id) || theme.id === "azorim" || theme.id === "luxury-light" || theme.id === "luxury-light720" || isFloorsTheme(theme.id)) && !shown.some((item) => item.id === theme.id));
+  const extra = THEMES.filter((theme) => (isFaultTheme(theme.id) || theme.id === "azorim" || theme.id === "luxury-light" || theme.id === "luxury-light720" || theme.id === "madanes" || isFloorsTheme(theme.id)) && !shown.some((item) => item.id === theme.id));
   return [...shown, ...extra.map(({ id, name }) => ({ id, name }))];
 }
 
