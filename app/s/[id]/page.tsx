@@ -21,7 +21,7 @@ import { FaultCopy, WelcomeLine, faultPayload, faultQrSrc } from "@/components/t
 import { CinemaBoard, GlassBoard } from "@/components/themes/MotionBoard";
 import { AzorimBar, AzorimFeed } from "@/components/themes/AzorimBoard";
 import { FloorsBoard } from "@/components/themes/FloorsBoard";
-import { MadanesBoard } from "@/modules/themes/MadanesBoard";
+import { MadanesBar, MadanesFeed } from "@/modules/themes/MadanesBoard";
 import { floorCaption, floorPace, isFloorsTheme } from "@/lib/themes";
 import { markets } from "@/lib/markets";
 import { liveHeadlines } from "@/lib/news";
@@ -250,6 +250,14 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
             newsCount={newsTake}
             newsMode={newsMode}
           />
+        ) : madanes ? (
+          <MadanesFeed
+            headlines={stories}
+            notices={notices.map((notice) => notice.text)}
+            sourceId={newsSource}
+            newsCount={newsTake}
+            newsMode={newsMode}
+          />
         ) : modern ? (
           <ModernRail
             address={address(street, number, city)}
@@ -282,6 +290,17 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
       {theme === "azorim" ? (
         <footer className="az-foot">
           <AzorimBar
+            line={greet.line}
+            city={greet.city}
+            temp={weather?.temp ?? null}
+            weatherLabel={weather?.label || ""}
+            initialTime={clock.time}
+          />
+        </footer>
+      ) : null}
+      {theme === "madanes" ? (
+        <footer className="md-foot">
+          <MadanesBar
             line={greet.line}
             city={greet.city}
             temp={weather?.temp ?? null}
@@ -383,14 +402,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
           seconds={screen.tickerSeconds || 12}
         />
       ) : null}
-      {madanes ? (
-        <MadanesBoard
-          logo={logoUrl || ""}
-          weather={{ temp: weather?.temp ?? null, label: weather?.label || "" }}
-          news={stories}
-          newsOn={newsMode !== "off"}
-        />
-      ) : null}
+
       <footer className="brand-bar"><img src="/nymedia-logo.png" alt="NYmedia" /></footer>
     </FitStage>
     <script dangerouslySetInnerHTML={{ __html: `

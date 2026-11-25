@@ -1,129 +1,180 @@
-.layout-madanes {
-  display: grid;
-  grid-template-columns: 1fr 280px;
-  grid-template-rows: 1fr 70px;
-  height: 100vh;
-  background: #f0f2f5;
-  direction: rtl;
+.layout-madanes.stage,
+.layout-madanes.stage.no-ticker {
+  grid-template-columns: 330px minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) 136px;
+  gap: 10px;
+  padding: 12px;
+  background-color: #fff;
+  background-image: url("/themes/madanes-bg.png");
+  background-repeat: no-repeat;
+  background-position: left top;
+  background-size: 100% 100%;
+  background-origin: border-box;
+  background-clip: border-box;
+  color: #8B1538;
 }
-
-.madanes-main {
-  grid-column: 1;
-  grid-row: 1;
-  overflow: hidden;
-}
-
-.madanes-side {
+.layout-madanes .slide {
   grid-column: 2;
   grid-row: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  padding: 20px;
+  border-radius: 16px;
+  overflow: hidden;
   background: transparent;
 }
-
-.madanes-logo {
-  background: #0A4C85;
-  border-radius: 16px;
-  padding: 16px;
+.layout-madanes .slide-layer,
+.layout-madanes .slide-pane,
+.layout-madanes .slide-image { background: #fff; }
+.layout-madanes .slide-image { object-fit: contain; }
+.layout-madanes .rail,
+.layout-madanes.stage.no-ticker .rail {
+  grid-column: 1;
+  grid-row: 1 / span 2;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 120px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-}
-.madanes-logo img {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
-}
-.madanes-logo span {
-  color: #fff;
-  font-size: 18px;
-}
-
-.madanes-clock {
-  background: #fff;
-  border-radius: 16px;
-  padding: 20px;
-  text-align: center;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
-.madanes-time {
-  font-size: 42px;
-  font-weight: 700;
-  color: #0A4C85;
-}
-.madanes-date {
-  font-size: 16px;
-  color: #333;
-  margin-top: 8px;
-}
-.madanes-hebrew {
-  font-size: 14px;
-  color: #666;
-  margin-top: 4px;
-}
-
-.madanes-weather {
-  background: #fff;
-  border-radius: 16px;
-  padding: 16px;
-  flex: 1;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
-.madanes-day {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 0;
-  border-bottom: 1px solid #eee;
-}
-.madanes-day:last-child { border-bottom: none; }
-.madanes-day-name {
-  flex: 1;
-  font-weight: 500;
-  color: #333;
-}
-.madanes-day-icon { font-size: 24px; }
-.madanes-day-temp {
-  font-size: 22px;
-  font-weight: 700;
-  color: #0A4C85;
-}
-.madanes-day-desc {
-  font-size: 13px;
-  color: #666;
-  width: 80px;
-}
-
-.madanes-news {
-  grid-column: 1 / -1;
-  grid-row: 2;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 0 20px;
-  background: #3B709D;
-  color: #fff;
+  flex-direction: column;
+  margin: 0;
+  padding: 184px 0 0;
+  overflow: hidden;
+  background: transparent;
+  border: 0;
   direction: rtl;
 }
-.madanes-brand {
-  height: 40px;
-  width: auto;
-}
-.madanes-news span {
+.layout-madanes .az-feed {
   flex: 1;
+  min-height: 0;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  padding: 12px 14px 8px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.96);
+  border: 2px solid #1E4B8C;
+  box-shadow: 0 10px 22px rgba(120, 20, 50, 0.16);
   overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  font-size: 18px;
+  direction: rtl;
+  text-align: right;
 }
-.madanes-source {
-  background: #0A4C85;
-  padding: 4px 12px;
+.layout-madanes .az-chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.layout-madanes .az-chips span {
+  border: 1px solid #1E4B8C;
   border-radius: 999px;
-  font-size: 13px;
-  font-weight: 500;
+  padding: 3px 10px;
+  color: #1E4B8C;
+  font-size: 12px;
+  font-weight: 400;
 }
+.layout-madanes .az-chips .is-on {
+  background: #1E4B8C;
+  color: #fff;
+}
+.layout-madanes .az-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  mask-image: linear-gradient(to bottom, transparent, #000 8%, #000 92%, transparent);
+}
+.layout-madanes .az-track { animation: az-rise linear infinite;  will-change: transform; }
+.layout-madanes .az-item { padding: 10px 0; border-bottom: 1px solid rgba(252, 68, 108, 0.28); }
+.layout-madanes .az-item small { display: block; margin-bottom: 3px; color: #1E4B8C; font-size: 13px; }
+.layout-madanes .az-item p {
+  margin: 0;
+  max-width: 100%;
+  color: #8B1538;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.35;
+  overflow-wrap: break-word;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.layout-madanes .az-item em {
+  display: block;
+  margin-top: 4px;
+  color: #1E4B8C;
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 300;
+}
+.layout-madanes .az-empty { margin: 24px 0; color: #1E4B8C; font-weight: 300; }
+@keyframes az-rise {
+  from { transform: translateY(0); }
+  to { transform: translateY(-50%); }
+}
+.layout-madanes .az-foot {
+  grid-column: 2;
+  grid-row: 2;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 460px;
+  gap: 12px;
+  min-width: 0;
+  direction: ltr;
+}
+.layout-madanes .az-info,
+.layout-madanes .az-hello {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  border-radius: 16px;
+  box-shadow: 0 10px 22px rgba(20, 16, 18, 0.28);
+}
+.layout-madanes .az-hello {
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 18px;
+  background: #FFF6F2;
+  color: #3A1C28;
+  direction: rtl;
+  text-align: center;
+}
+.layout-madanes .az-hello small {
+  color: #C43A60;
+  font-size: 20px;
+  font-weight: 300;
+}
+.layout-madanes .az-hello strong {
+  max-width: 100%;
+  font-size: 30px;
+  font-weight: 500;
+  line-height: 1.2;
+  color: #3A1C28;
+}
+.layout-madanes .az-info {
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 16px;
+  background: #242426;
+  direction: rtl;
+}
+.layout-madanes .az-info img {
+  display: block;
+  height: 58px;
+  width: auto;
+  max-width: 190px;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+}
+.layout-madanes .az-time { text-align: right; color: #fff; }
+.layout-madanes .az-time strong {
+  display: block;
+  font-size: 40px;
+  font-weight: 500;
+  line-height: 1;
+  color: #fff;
+  direction: ltr;
+}
+.layout-madanes .az-time span {
+  display: block;
+  margin-top: 4px;
+  color: #E8C4CE;
+  font-size: 18px;
+  font-weight: 400;
+  direction: rtl;
+}
+.layout-madanes .ticker,
+.layout-madanes .brand-bar { display: none; }
