@@ -21,6 +21,7 @@ import { FaultCopy, WelcomeLine, faultPayload, faultQrSrc } from "@/components/t
 import { CinemaBoard, GlassBoard } from "@/components/themes/MotionBoard";
 import { AzorimBar, AzorimFeed } from "@/components/themes/AzorimBoard";
 import { FloorsBoard } from "@/components/themes/FloorsBoard";
+import { MadanesBoard } from "@/modules/themes/MadanesBoard";
 import { floorCaption, floorPace, isFloorsTheme } from "@/lib/themes";
 import { markets } from "@/lib/markets";
 import { liveHeadlines } from "@/lib/news";
