@@ -41,6 +41,7 @@ import "@/components/themes/luxury.css";
 import "@/components/themes/fault.css";
 import "@/components/themes/motion.css";
 import "@/components/themes/azorim.css";
+import "@/components/themes/madanes.css";
 import "@/components/themes/floors.css";
 
 const heebo = Heebo({ subsets: ["hebrew", "latin"], weight: ["300", "400", "500"], display: "swap" });
