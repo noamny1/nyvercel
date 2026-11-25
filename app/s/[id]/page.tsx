@@ -116,6 +116,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
   const sourceCount = newsOff ? 0 : newsSource.split(",").map((item) => item.trim()).filter(Boolean).length || 1;
   const azorim = theme === "azorim";
   const floorsOn = isFloorsTheme(theme);
+  const madanes = theme === "madanes";
   const modern = theme === "modern";
   const newsTake = luxury || fault
     ? Math.min(20, Math.max(screen.newsCount || 8, sourceCount * 4))
@@ -165,7 +166,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
 
   return (
     <>
-    <FitStage width={floorsOn ? 1280 : wide ? 1280 : 1366} height={floorsOn ? 720 : wide ? 720 : 768} fill={floorsOn || wide ? 1 : 0.97} code={screen.code || screen.id} revision={screenToken(screen.revision)} className={`stage theme-${theme}${luxury ? ` layout-luxury ${heebo.className}` : ""}${light ? " layout-lux-light" : ""}${fault ? ` layout-luxury ${theme} ${heebo.className}` : ""}${wide ? " layout-luxury720" : ""}${modern ? " layout-modern" : ""}${azorim ? ` layout-azorim ${heebo.className}` : ""}${floorsOn ? ` layout-floors look-${theme} ${heebo.className}` : ""}${cinematic ? ` layout-${theme} ${heebo.className}` : ""}${tickerOn && !luxury && !modern && !cinematic && !fault && !azorim && !floorsOn ? "" : " no-ticker"}`}>
+    <FitStage width={floorsOn ? 1280 : wide ? 1280 : 1366} height={floorsOn ? 720 : wide ? 720 : 768} fill={floorsOn || wide ? 1 : 0.97} code={screen.code || screen.id} revision={screenToken(screen.revision)} className={`stage theme-${theme}${luxury ? ` layout-luxury ${heebo.className}` : ""}${light ? " layout-lux-light" : ""}${fault ? ` layout-luxury ${theme} ${heebo.className}` : ""}${wide ? " layout-luxury720" : ""}${modern ? " layout-modern" : ""}${azorim ? ` layout-azorim ${heebo.className}` : ""}${floorsOn ? ` layout-floors look-${theme} ${heebo.className}` : ""}${madanes ? ` layout-madanes ${heebo.className}` : ""}${cinematic ? ` layout-${theme} ${heebo.className}` : ""}${tickerOn && !luxury && !modern && !cinematic && !fault && !azorim && !floorsOn ? "" : " no-ticker"}`}>
       <Music playlist={silenced ? "off" : screen.musicPlaylist || ""} url={silenced ? "" : screen.group?.musicUrl || ""} start={screen.id} days={screen.musicDays} from={screen.musicFrom} until={screen.musicUntil} />
       <NewsGate mode={newsMode} />
       <Wake />

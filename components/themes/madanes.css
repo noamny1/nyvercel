@@ -1,0 +1,129 @@
+.layout-madanes {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  grid-template-rows: 1fr 70px;
+  height: 100vh;
+  background: #f0f2f5;
+  direction: rtl;
+}
+
+.madanes-main {
+  grid-column: 1;
+  grid-row: 1;
+  overflow: hidden;
+}
+
+.madanes-side {
+  grid-column: 2;
+  grid-row: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px;
+  background: transparent;
+}
+
+.madanes-logo {
+  background: #0A4C85;
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 120px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+.madanes-logo img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+.madanes-logo span {
+  color: #fff;
+  font-size: 18px;
+}
+
+.madanes-clock {
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+.madanes-time {
+  font-size: 42px;
+  font-weight: 700;
+  color: #0A4C85;
+}
+.madanes-date {
+  font-size: 16px;
+  color: #333;
+  margin-top: 8px;
+}
+.madanes-hebrew {
+  font-size: 14px;
+  color: #666;
+  margin-top: 4px;
+}
+
+.madanes-weather {
+  background: #fff;
+  border-radius: 16px;
+  padding: 16px;
+  flex: 1;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+.madanes-day {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid #eee;
+}
+.madanes-day:last-child { border-bottom: none; }
+.madanes-day-name {
+  flex: 1;
+  font-weight: 500;
+  color: #333;
+}
+.madanes-day-icon { font-size: 24px; }
+.madanes-day-temp {
+  font-size: 22px;
+  font-weight: 700;
+  color: #0A4C85;
+}
+.madanes-day-desc {
+  font-size: 13px;
+  color: #666;
+  width: 80px;
+}
+
+.madanes-news {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 20px;
+  background: #3B709D;
+  color: #fff;
+  direction: rtl;
+}
+.madanes-brand {
+  height: 40px;
+  width: auto;
+}
+.madanes-news span {
+  flex: 1;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 18px;
+}
+.madanes-source {
+  background: #0A4C85;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 500;
+}
