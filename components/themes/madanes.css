@@ -155,7 +155,7 @@
   filter: brightness(0) invert(1);
 }
 .layout-madanes .md-time { text-align: right; color: #fff; }
-.layout-madanes .md-weather { color: #E74C3C; font-size: 16px; }
+.layout-madanes .md-weather { color: #8B1538; font-size: 16px; }
 .layout-madanes .md-weather-icon { margin-left: 6px; font-style: normal; }
 .layout-madanes .md-time strong {
   display: block;
