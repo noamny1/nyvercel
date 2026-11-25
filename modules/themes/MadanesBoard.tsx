@@ -11,7 +11,7 @@ export function MadanesBoard({
   newsOn,
 }: {
   logo: string;
-  weather: Weather[];
+  weather: { temp: number | null; label: string };
   news: { title: string; source: string }[];
   newsOn: boolean;
 }) {
@@ -60,14 +60,11 @@ export function MadanesBoard({
           <div className="madanes-hebrew">{hebrewDate}</div>
         </div>
         <div className="madanes-weather">
-          {weather.slice(0, 3).map((w, i) => (
-            <div key={i} className="madanes-day">
-              <span className="madanes-day-name">{w.day}</span>
-              <span className="madanes-day-icon">{w.icon}</span>
-              <span className="madanes-day-temp">{w.temp}°</span>
-              <span className="madanes-day-desc">{w.desc}</span>
-            </div>
-          ))}
+          <div className="madanes-day">
+            <span className="madanes-day-name">היום</span>
+            <span className="madanes-day-temp">{weather.temp ?? "--"}°</span>
+            <span className="madanes-day-desc">{weather.label}</span>
+          </div>
         </div>
       </aside>
       <footer className="madanes-news">

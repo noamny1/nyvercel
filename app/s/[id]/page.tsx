@@ -386,7 +386,7 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
       {madanes ? (
         <MadanesBoard
           logo={logoUrl || ""}
-          weather={weather?.days || []}
+          weather={{ temp: weather?.temp ?? null, label: weather?.label || "" }}
           news={stories}
           newsOn={newsMode !== "off"}
         />
