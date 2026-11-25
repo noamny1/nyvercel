@@ -223,7 +223,7 @@ function SlideFace({ slide, onReady, live = true }: { slide: PlaySlide; onReady?
   if (isDeckId(slide.templateId)) {
     return <KnowledgeSlide deck={slide.templateId} />;
   }
-  if (slide.kind === "template" || (slide.kind === "image" && (slide.title || slide.detail))) {
+  if (slide.kind === "template") {
     const bubble = /general-clean|greet-welcome/.test(`${slide.templateId || ""} ${slide.imageUrl || ""}`);
     return (
       <div className={bubble ? "slide-frame is-overlay" : "slide-frame"}>
