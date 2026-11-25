@@ -382,6 +382,14 @@ export default async function ScreenView({ params }: { params: Promise<{ id: str
           seconds={screen.tickerSeconds || 12}
         />
       ) : null}
+      {madanes ? (
+        <MadanesBoard
+          logo={logoUrl || ""}
+          weather={weather?.days || []}
+          news={stories}
+          newsOn={newsMode !== "off"}
+        />
+      ) : null}
       <footer className="brand-bar"><img src="/nymedia-logo.png" alt="NYmedia" /></footer>
     </FitStage>
     <script dangerouslySetInnerHTML={{ __html: `
