@@ -142,7 +142,10 @@ export function MadanesBar({
         <img src="/logo-nymedia.png" alt="NYmedia" />
         <div className="md-time">
           <strong dir="ltr">{time}</strong>
-          <span>{temp === null ? "—" : `${temp}°`} {weatherLabel}</span>
+          <span className="md-weather">
+            <i className="md-weather-icon">☀</i>
+            {temp === null ? "—" : `${temp}°`} {weatherLabel}
+          </span>
         </div>
       </div>
     </>
