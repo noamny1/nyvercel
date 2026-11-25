@@ -76,6 +76,7 @@ export async function savedTheme(requested: string, current: string, owner = fal
   if (requested === "azorim") return owner || current === "azorim" ? "azorim" : current;
   if (requested === "luxury-light" || requested === "luxury-light720") return owner || current === requested ? requested : current;
   if (isFloorsTheme(requested)) return owner || current === requested ? requested : current;
+  if (requested === "madanes") return owner || current === "madanes" ? "madanes" : current;
   if (owner && (requested === "luxury" || requested === "luxury720" || requested === "luxury-light720" || isFaultTheme(requested))) return requested;
   if (!owner && requested === "luxury" && current === "luxury720") return "luxury720";
   const ids = await clientThemeIds();
