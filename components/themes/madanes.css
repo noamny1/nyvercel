@@ -128,7 +128,7 @@
   text-align: center;
 }
 .layout-madanes .md-hello small {
-  color: #C43A60;
+  color: #8B1538;
   font-size: 20px;
   font-weight: 300;
 }
@@ -137,13 +137,13 @@
   font-size: 30px;
   font-weight: 500;
   line-height: 1.2;
-  color: #3A1C28;
+  color: #1E4B8C;
 }
 .layout-madanes .md-info {
   justify-content: space-between;
   gap: 12px;
   padding: 0 16px;
-  background: #242426;
+  background: #1E4B8C;
   direction: rtl;
 }
 .layout-madanes .md-info img {
@@ -177,11 +177,11 @@
 .layout-madanes::before {
   content: "";
   position: absolute;
-  top: 15px;
-  left: 15px;
+  top: 20px;
+  left: 25px;
   width: 280px;
-  height: 140px;
-  background: #fff url("/themes/madanes-logo.png") no-repeat center;
+  height: 130px;
+  background: #fff url("/themes/madanes-logo.png") no-repeat center center;
   background-size: contain;
   border-radius: 12px;
   z-index: 10;
