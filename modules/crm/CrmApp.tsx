@@ -268,32 +268,48 @@ function ChoiceField({
   onChange: (value: string) => void;
   onAdd: (value: string) => void;
 }) {
+  const [adding, setAdding] = useState(false);
   const [custom, setCustom] = useState("");
   const list = value && !options.includes(value) ? [value, ...options] : options;
   return (
     <>
-      <select value={value} onChange={(event) => onChange(event.target.value)}>
+      <select
+        value={adding ? "__add__" : value}
+        onChange={(event) => {
+          if (event.target.value === "__add__") {
+            setAdding(true);
+            return;
+          }
+          setAdding(false);
+          onChange(event.target.value);
+        }}
+      >
         <option value="">בחירה</option>
         {list.map((option) => <option key={option} value={option}>{option}</option>)}
+        <option value="__add__">הוספת ערך חדש</option>
       </select>
-      <span className="crm-add-choice">
-        <input
-          value={custom}
-          placeholder="ערך חדש"
-          onChange={(event) => setCustom(event.target.value)}
-        />
-        <button
-          type="button"
-          onClick={() => {
-            const next = custom.trim();
-            if (!next) return;
-            onAdd(next);
-            setCustom("");
-          }}
-        >
-          הוסף
-        </button>
-      </span>
+      {adding ? (
+        <span className="crm-add-choice">
+          <input
+            value={custom}
+            placeholder="ערך חדש"
+            autoFocus
+            onChange={(event) => setCustom(event.target.value)}
+          />
+          <button
+            type="button"
+            onClick={() => {
+              const next = custom.trim();
+              if (!next) return;
+              onAdd(next);
+              setCustom("");
+              setAdding(false);
+            }}
+          >
+            הוסף
+          </button>
+        </span>
+      ) : null}
     </>
   );
 }
