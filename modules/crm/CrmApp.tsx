@@ -212,25 +212,36 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
       {editing && (
         <div className="crm-editor">
           <div className="crm-editor-bar">
-            <button type="button" onClick={() => setEditing(null)}>סגור</button>
-            <strong>{editing.id ? "עריכה" : newLabel}</strong>
-            <button type="button" onClick={save} disabled={busy}>{busy ? "שומר" : "שמירה"}</button>
+            <button type="button" className="crm-ghost" onClick={() => setEditing(null)}>סגור</button>
+            <button type="button" className="crm-save" onClick={save} disabled={busy}>{busy ? "שומר" : "שמירה"}</button>
           </div>
-          <label>
+          <div className="crm-hero">
+            <p>{editing.id ? "עריכת כתובת" : newLabel}</p>
+            <h2>{draft.Name || "כתובת חדשה"}</h2>
+            <div className="crm-hero-pills">
+              {draft["עיר"] ? <span>{draft["עיר"]}</span> : null}
+              {draft["סטטוס"] ? <span className={/פעיל|בוצע|שולם/.test(draft["סטטוס"]) ? "ok" : /סירוב|ניתוק|החזר/.test(draft["סטטוס"]) ? "bad" : "wait"}>{draft["סטטוס"]}</span> : null}
+              {draft["תשלום חודשי"] ? <span className="pay">₪ {draft["תשלום חודשי"]}</span> : null}
+            </div>
+          </div>
+          <label className="crm-field">
             לשונית
             <select value={draftBoard} onChange={(event) => setDraftBoard(event.target.value)}>
               {BOARDS.map((name) => <option key={name} value={name}>{name}</option>)}
             </select>
           </label>
-          <label>
+          <label className="crm-field">
             שם
             <input value={draft.Name || ""} onChange={(event) => setDraft({ ...draft, Name: event.target.value })} />
           </label>
           {sections(formKeys).map((group) => (
-            <details key={group.title} open={group.title !== "חיבור"} className="crm-group">
-              <summary>{group.title}</summary>
+            <details key={group.title} open={group.title !== "חיבור"} className="crm-group" data-tone={group.title}>
+              <summary>
+                <b>{group.title}</b>
+                <i>{group.keys.filter((key) => (draft[key] || "").trim()).length}/{group.keys.length}</i>
+              </summary>
               {group.keys.map((key) => (
-                <label key={key}>
+                <label key={key} className="crm-field">
                   {key}
                   {CHOICE_FIELDS.includes(key) ? (
                     <ChoiceField

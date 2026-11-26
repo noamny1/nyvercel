@@ -43,16 +43,37 @@
 .crm-empty, .crm-note { text-align: center; color: #6b625c; }
 .crm-app .crm-more { width: 100%; background: #fff; color: #5a1f2b; border-radius: 14px; padding: 14px; font-weight: 700; box-shadow: 0 8px 24px rgba(28, 20, 18, .06); }
 .crm-app .crm-fab { position: fixed; z-index: 6; left: 16px; right: 16px; bottom: 16px; background: #5a1f2b; color: #fff; border-radius: 14px; padding: 15px; font-size: 17px; font-weight: 700; box-shadow: 0 10px 24px rgba(90, 31, 43, .35); }
-.crm-editor { position: fixed; inset: 0; z-index: 8; background: #f6f3ef; overflow: auto; padding: 12px 16px 32px; }
-.crm-editor-bar { position: sticky; top: 0; z-index: 2; display: flex; justify-content: space-between; align-items: center; gap: 8px; background: #f6f3ef; padding: 8px 0 12px; }
-.crm-editor-bar strong { color: #1c1412; font-size: 18px; }
-.crm-app .crm-editor-bar button, .crm-app .crm-delete { background: #5a1f2b; color: #fff; border-radius: 12px; padding: 10px 16px; font-weight: 700; }
-.crm-editor label { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; font-size: 13px; font-weight: 700; color: #5a1f2b; }
-.crm-editor input, .crm-editor select, .crm-editor textarea { width: 100%; box-sizing: border-box; border: 1px solid #e6ddd4; border-radius: 12px; padding: 12px; font: inherit; font-size: 16px; font-weight: 500; background: #fff; color: #1c1412; }
+.crm-editor { position: fixed; inset: 0; z-index: 8; overflow: auto; padding: 0 14px calc(28px + env(safe-area-inset-bottom)); background: radial-gradient(120% 28% at 100% 0%, rgba(243, 230, 196, .45), transparent 46%), linear-gradient(180deg, #5a1f2b 0 168px, #f3eee8 168px); }
+.crm-editor-bar { position: sticky; top: 0; z-index: 3; display: flex; justify-content: space-between; align-items: center; gap: 8px; margin: 0 -14px 12px; padding: calc(12px + env(safe-area-inset-top)) 14px 12px; background: #5a1f2b; box-shadow: 0 8px 18px rgba(90, 31, 43, .18); }
+.crm-app .crm-ghost { background: rgba(255,255,255,.16); color: #fff; border: 1px solid rgba(255,255,255,.28); border-radius: 999px; padding: 10px 16px; font-weight: 700; }
+.crm-app .crm-save { background: linear-gradient(180deg, #f8edd2, #e4cb8d); color: #5a1f2b; border-radius: 999px; padding: 10px 18px; font-weight: 800; box-shadow: 0 8px 18px rgba(28, 20, 18, .22); }
+.crm-app .crm-save:disabled { opacity: .7; }
+.crm-hero { background: #fff; border-radius: 22px; padding: 16px 16px 14px; margin-bottom: 14px; border-top: 4px solid #c4a46a; box-shadow: 0 18px 36px rgba(90, 31, 43, .16); }
+.crm-hero p { margin: 0; color: #8a5a22; font-size: 13px; font-weight: 800; }
+.crm-hero h2 { margin: 4px 0 10px; color: #1c1412; font-size: 26px; line-height: 1.25; }
+.crm-hero-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+.crm-hero-pills span { background: #f6efe4; color: #5a1f2b; border-radius: 999px; padding: 5px 10px; font-size: 13px; font-weight: 700; }
+.crm-hero-pills .ok { background: #e5f3ea; color: #1d6b3a; }
+.crm-hero-pills .bad { background: #fde8e8; color: #9b2c2c; }
+.crm-hero-pills .wait { background: #f6efe4; color: #7a5b32; }
+.crm-hero-pills .pay { background: #5a1f2b; color: #f3e6c4; }
+.crm-editor .crm-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; font-size: 13px; font-weight: 800; color: #5a1f2b; }
+.crm-group { background: #fff; border-radius: 20px; padding: 4px 14px 8px; margin-bottom: 12px; border-right: 5px solid #5a1f2b; box-shadow: 0 10px 24px rgba(28, 20, 18, .06); }
+.crm-group[data-tone="חיוב"] { border-right-color: #c4a46a; }
+.crm-group[data-tone="עבודה"] { border-right-color: #1d6b3a; }
+.crm-group[data-tone="התקנה"] { border-right-color: #2d4a73; }
+.crm-group[data-tone="חיבור"] { border-right-color: #8d6b3a; }
+.crm-group[data-tone="תשלומים"] { border-right-color: #9b2c2c; }
+.crm-group summary { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-weight: 800; color: #5a1f2b; padding: 14px 0; cursor: pointer; list-style: none; }
+.crm-group summary::-webkit-details-marker { display: none; }
+.crm-group summary b { font-size: 16px; }
+.crm-group summary i { font-style: normal; background: #f3e6c4; color: #5a1f2b; border-radius: 999px; padding: 2px 8px; font-size: 12px; }
+.crm-group[data-tone="עבודה"] summary i { background: #e5f3ea; color: #1d6b3a; }
+.crm-group[data-tone="התקנה"] summary i { background: #e7eef8; color: #2d4a73; }
+.crm-editor input, .crm-editor select, .crm-editor textarea { width: 100%; box-sizing: border-box; border: 1px solid #eadfd2; border-radius: 14px; padding: 13px 12px; font: inherit; font-size: 16px; font-weight: 500; background: #fffdf9; color: #1c1412; transition: border-color .15s, box-shadow .15s; }
 .crm-editor textarea { min-height: 84px; }
-.crm-group { background: #fff; border-radius: 18px; padding: 6px 14px 8px; margin-bottom: 12px; box-shadow: 0 8px 24px rgba(28, 20, 18, .05); }
-.crm-group summary { font-weight: 800; color: #5a1f2b; padding: 10px 0; }
-.crm-app .crm-delete { width: 100%; background: #8d3b3b; margin-top: 8px; }
+.crm-editor input:focus, .crm-editor select:focus, .crm-editor textarea:focus, .crm-app .crm-choice-btn:focus { outline: none; border-color: #c4a46a; box-shadow: 0 0 0 4px rgba(196, 164, 106, .28); }
+.crm-app .crm-delete { width: 100%; background: #fff; color: #9b2c2c; border: 1px solid #f0c7c7; border-radius: 14px; padding: 12px; font-weight: 800; margin-top: 4px; }
 @media (min-width: 800px) {
   .crm-app .crm-fab { left: auto; width: 240px; }
   .crm-editor { left: auto; width: min(560px, 100%); box-shadow: -16px 0 40px rgba(28, 20, 18, .16); }
