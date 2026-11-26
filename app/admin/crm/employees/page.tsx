@@ -1,7 +1,11 @@
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
+import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { isSystemAdmin, requireSession } from "@/lib/session";
 
 export default async function EmployeesPage() {
+  const session = await requireSession();
+  if (!session || !isSystemAdmin(session)) redirect("/admin/login");
   const employees = await prisma.crmEmployee.findMany({ where: { active: true } });
   
   return (

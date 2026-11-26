@@ -1,7 +1,11 @@
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
+import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { isSystemAdmin, requireSession } from "@/lib/session";
 
 export default async function TasksPage() {
+  const session = await requireSession();
+  if (!session || !isSystemAdmin(session)) redirect("/admin/login");
   const tasks = await prisma.crmTask.findMany({ 
     include: { client: true, employee: true },
     orderBy: { createdAt: "desc" }

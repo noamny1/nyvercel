@@ -1,8 +1,12 @@
 export const dynamic = 'force-dynamic';
+import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { isSystemAdmin, requireSession } from "@/lib/session";
 import { CrmDashboard } from "@/modules/crm/CrmDashboard";
 
 export default async function CrmPage() {
+  const session = await requireSession();
+  if (!session || !isSystemAdmin(session)) redirect("/admin/login");
   const [clients, employees, tasks] = await Promise.all([
     prisma.crmClient.findMany({ orderBy: { name: "asc" }, take: 100 }),
     prisma.crmEmployee.findMany({ where: { active: true } }),

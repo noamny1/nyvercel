@@ -295,27 +295,44 @@ model Room {
 
 
 model CrmClient {
-  id            Int      @id @default(autoincrement())
-  name          String
-  city          String?
-  status        String?
-  workContent   String?
-  notes         String?
-  oneTimeCharge Float?
-  monthlyPay    Float?
-  monthlyPay2   Float?
-  internetCost  Float?
-  clientType    String?
+  id             Int       @id @default(autoincrement())
+  name           String
+  city           String?
+  status         String?
+  workContent    String?
+  notes          String?
+  oneTimeCharge  Float?
+  monthlyPay     Float?
+  monthlyPay2    Float?
+  internetCost   Float?
+  clientType     String?
   infrastructure String?
-  paymentMethod String?
-  theme         String?
-  installDate   DateTime?
-  screenCount   Int?
-  paidUntil     String?
-  mondayId      String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  tasks         CrmTask[]
+  paymentMethod  String?
+  theme          String?
+  installDate    DateTime?
+  hotLine        String?
+  ipDns          String?
+  loginUser      String?
+  loginPass      String?
+  modemData      String?
+  subscriberId   String?
+  modemPass      String?
+  dvrType        String?
+  dvrIp          String?
+  dvrPorts       String?
+  dvrUser        String?
+  dvrPass        String?
+  screenCount    Int?
+  addressCount   Int?
+  bank           String?
+  branch         String?
+  account        String?
+  files          String?
+  paidUntil      String?
+  mondayId       String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  tasks          CrmTask[]
 }
 
 model CrmEmployee {
