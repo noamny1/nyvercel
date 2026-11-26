@@ -241,6 +241,14 @@ const statements = [
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
   )`,
+  `DO $$ BEGIN
+    IF NOT EXISTS (SELECT 1 FROM "SchemaNote" WHERE "id" = 'crm-clear-imported-v1') THEN
+      DELETE FROM "CrmTask";
+      DELETE FROM "CrmClient";
+      DELETE FROM "CrmEmployee";
+      INSERT INTO "SchemaNote" ("id") VALUES ('crm-clear-imported-v1');
+    END IF;
+  END $$`,
   `CREATE TABLE IF NOT EXISTS "FileLink" (
     "token" TEXT NOT NULL,
     "url" TEXT NOT NULL,
