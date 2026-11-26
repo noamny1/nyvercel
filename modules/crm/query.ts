@@ -5,7 +5,9 @@ export const TASKS = ["משימות נירית", "משימות נועם", "מש�
 export const HISTORY = "היסטורית משימות";
 export const CHOICE_FIELDS = ["עיר", "סטטוס", "סוג לקוח", "תימה", "אמצעי תשלום", "תשתית"];
 
-const closed = { path: ["סטטוס משימה"], equals: "נסגרה" };
+function isClosed(fields: Record<string, string>) {
+  return fields["סטטוס משימה"] === "נסגרה";
+}
 
 function fieldsOf(value: unknown, name: string) {
   const fields: Record<string, string> = {};
@@ -21,30 +23,33 @@ function fieldsOf(value: unknown, name: string) {
 
 export async function loadBoard(board: string) {
   const rows = await prisma.crmClient.findMany({
-    where: board === HISTORY
-      ? { OR: [{ board: HISTORY }, { board: { in: TASKS }, fields: closed }] }
-      : TASKS.includes(board)
-        ? { board, NOT: { fields: closed } }
-        : { board },
+    where: board === HISTORY ? { board: { in: [...TASKS, HISTORY] } } : { board },
     select: { id: true, name: true, board: true, createdAt: true, fields: true },
   });
-  return rows.map((client) => ({
-    id: client.id,
-    board: client.board || "כתובות פעילות",
-    name: client.name,
-    createdAt: client.createdAt.toISOString(),
-    fields: fieldsOf(client.fields, client.name),
-  }));
+  return rows
+    .map((client) => ({
+      id: client.id,
+      board: client.board || "כתובות פעילות",
+      name: client.name,
+      createdAt: client.createdAt.toISOString(),
+      fields: fieldsOf(client.fields, client.name),
+    }))
+    .filter((row) => {
+      if (board === HISTORY) return row.board === HISTORY || (TASKS.includes(row.board) && isClosed(row.fields));
+      if (TASKS.includes(board)) return !isClosed(row.fields);
+      return true;
+    });
 }
 
 export async function loadCounts() {
-  const [grouped, closedRows] = await Promise.all([
+  const [grouped, taskRows] = await Promise.all([
     prisma.crmClient.groupBy({ by: ["board"], _count: { _all: true } }),
-    prisma.crmClient.findMany({ where: { board: { in: TASKS }, fields: closed }, select: { board: true } }),
+    prisma.crmClient.findMany({ where: { board: { in: TASKS } }, select: { board: true, fields: true } }),
   ]);
   const counts: Record<string, number> = Object.fromEntries([...BOARDS, HISTORY].map((name) => [name, 0]));
   for (const row of grouped) counts[row.board] = (counts[row.board] || 0) + row._count._all;
-  for (const row of closedRows) {
+  for (const row of taskRows) {
+    if (!isClosed(fieldsOf(row.fields, ""))) continue;
     counts[row.board] = Math.max(0, (counts[row.board] || 0) - 1);
     counts[HISTORY] += 1;
   }
