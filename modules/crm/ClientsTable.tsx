@@ -117,6 +117,15 @@ export function ClientsTable({ rows }: { rows: CrmRow[] }) {
   const current = Math.min(page, pages - 1);
   const slice = matched.slice(current * pageSize, current * pageSize + pageSize);
 
+  if (rows.length === 0) {
+    return (
+      <div className="crm-table">
+        <h2>אין לקוחות</h2>
+        <p>הרשימה ריקה. אפשר להעלות קובץ חדש.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="crm-table">
       <div className="crm-tools">
