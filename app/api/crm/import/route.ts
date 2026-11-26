@@ -1,5 +1,11 @@
 import { prisma } from "@/lib/prisma";
+import { isSystemAdmin, requireSession } from "@/lib/session";
 import { NextResponse } from "next/server";
+
+async function allowed() {
+  const session = await requireSession();
+  return Boolean(session && isSystemAdmin(session));
+}
 
 function text(value: unknown) {
   if (value === null || value === undefined) return null;
@@ -26,6 +32,7 @@ function when(value: unknown) {
 }
 
 export async function POST(req: Request) {
+  if (!(await allowed())) return NextResponse.json({ error: "forbidden" }, { status: 403 });
   const { clients } = await req.json();
   if (!Array.isArray(clients)) {
     return NextResponse.json({ error: "clients array required" }, { status: 400 });
@@ -81,11 +88,13 @@ export async function POST(req: Request) {
 }
 
 export async function GET() {
+  if (!(await allowed())) return NextResponse.json({ error: "forbidden" }, { status: 403 });
   const count = await prisma.crmClient.count();
   return NextResponse.json({ count });
 }
 
 export async function DELETE() {
+  if (!(await allowed())) return NextResponse.json({ error: "forbidden" }, { status: 403 });
   await prisma.crmClient.deleteMany({});
   return NextResponse.json({ cleared: true });
 }
