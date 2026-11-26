@@ -11,9 +11,9 @@ export type CrmRow = {
 };
 
 const GROUPS = [
-  { title: "פרטים", keys: ["עיר", "סטטוס", "סוג לקוח", "תימה"] },
-  { title: "חיוב", keys: ["חיוב חד פעמי", "תשלום חודשי", "תשלום חודשי 2", "הוצאה חודשית קו אינטרנט", "אמצעי תשלום", "שולם עד"] },
+  { title: "פרטים", keys: ["שם", "עיר", "סטטוס", "סוג לקוח", "תימה"] },
   { title: "עבודה", keys: ["תכולת העבודה", "הערות"] },
+  { title: "חיוב", keys: ["חיוב חד פעמי", "תשלום חודשי", "תשלום חודשי 2", "הוצאה חודשית קו אינטרנט", "אמצעי תשלום", "שולם עד"] },
   { title: "התקנה", keys: ["תשתית", "תאריך התקנה", "מספר קו הוט/בזק", "מס' מסכים בבניין", "מס' כתובות לתשלום"] },
   { title: "חיבור", keys: ["IP/DNS", "User", "Pass", "נתוני מודם/סים", "מס מנוי", "סיסמא מודם", "סוג DVR", "Ip Dvr", "Ports", "User Dvr", "Pass Dvr"] },
 ];
@@ -44,7 +44,7 @@ function keysFor(board: string, fields: Record<string, string>) {
 function sections(keys: string[]) {
   const used = new Set<string>();
   const out = GROUPS.map((group) => {
-    const picked = group.keys.filter((key) => keys.includes(key));
+    const picked = group.keys.filter((key) => key === "שם" || keys.includes(key));
     picked.forEach((key) => used.add(key));
     return { title: group.title, keys: picked };
   }).filter((group) => group.keys.length);
@@ -230,20 +230,18 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
               {BOARDS.map((name) => <option key={name} value={name}>{name}</option>)}
             </select>
           </label>
-          <label className="crm-field">
-            שם
-            <input value={draft.Name || ""} onChange={(event) => setDraft({ ...draft, Name: event.target.value })} />
-          </label>
           {sections(formKeys).map((group) => (
             <details key={group.title} open={group.title !== "חיבור"} className="crm-group" data-tone={group.title}>
               <summary>
                 <b>{group.title}</b>
-                <i>{group.keys.filter((key) => (draft[key] || "").trim()).length}/{group.keys.length}</i>
+                <i>{group.keys.filter((key) => (key === "שם" ? draft.Name || "" : draft[key] || "").trim()).length}/{group.keys.length}</i>
               </summary>
               {group.keys.map((key) => (
                 <label key={key} className="crm-field">
                   {key}
-                  {CHOICE_FIELDS.includes(key) ? (
+                  {key === "שם" ? (
+                    <input value={draft.Name || ""} onChange={(event) => setDraft({ ...draft, Name: event.target.value })} />
+                  ) : CHOICE_FIELDS.includes(key) ? (
                     <ChoiceField
                       value={draft[key] || ""}
                       options={choices[key] || []}
