@@ -163,6 +163,50 @@ const statements = [
     "value" TEXT NOT NULL DEFAULT '',
     CONSTRAINT "SystemFlag_pkey" PRIMARY KEY ("id")
   )`,
+  
+  `CREATE TABLE IF NOT EXISTS "CrmClient" (
+    "id" SERIAL PRIMARY KEY,
+    "name" TEXT NOT NULL,
+    "city" TEXT,
+    "status" TEXT,
+    "workContent" TEXT,
+    "notes" TEXT,
+    "oneTimeCharge" DOUBLE PRECISION,
+    "monthlyPay" DOUBLE PRECISION,
+    "monthlyPay2" DOUBLE PRECISION,
+    "internetCost" DOUBLE PRECISION,
+    "clientType" TEXT,
+    "infrastructure" TEXT,
+    "paymentMethod" TEXT,
+    "theme" TEXT,
+    "installDate" TIMESTAMP(3),
+    "screenCount" INTEGER,
+    "paidUntil" TEXT,
+    "mondayId" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+  )`,
+  `CREATE TABLE IF NOT EXISTS "CrmEmployee" (
+    "id" SERIAL PRIMARY KEY,
+    "name" TEXT NOT NULL,
+    "email" TEXT UNIQUE,
+    "phone" TEXT,
+    "role" TEXT NOT NULL DEFAULT 'employee',
+    "active" BOOLEAN NOT NULL DEFAULT true,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+  )`,
+  `CREATE TABLE IF NOT EXISTS "CrmTask" (
+    "id" SERIAL PRIMARY KEY,
+    "title" TEXT NOT NULL,
+    "description" TEXT,
+    "status" TEXT NOT NULL DEFAULT 'open',
+    "priority" TEXT NOT NULL DEFAULT 'normal',
+    "dueDate" TIMESTAMP(3),
+    "clientId" INTEGER,
+    "employeeId" INTEGER,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+  )`,
   `CREATE TABLE IF NOT EXISTS "FileLink" (
     "token" TEXT NOT NULL,
     "url" TEXT NOT NULL,
