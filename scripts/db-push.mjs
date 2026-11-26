@@ -220,6 +220,8 @@ const statements = [
   `ALTER TABLE "CrmClient" ADD COLUMN IF NOT EXISTS "branch" TEXT`,
   `ALTER TABLE "CrmClient" ADD COLUMN IF NOT EXISTS "account" TEXT`,
   `ALTER TABLE "CrmClient" ADD COLUMN IF NOT EXISTS "files" TEXT`,
+  `ALTER TABLE "CrmClient" ADD COLUMN IF NOT EXISTS "board" TEXT NOT NULL DEFAULT ''`,
+  `ALTER TABLE "CrmClient" ADD COLUMN IF NOT EXISTS "fields" JSONB`,
   `CREATE TABLE IF NOT EXISTS "CrmEmployee" (
     "id" SERIAL PRIMARY KEY,
     "name" TEXT NOT NULL,
@@ -268,6 +270,34 @@ const statements = [
 
 try {
   for (const sql of statements) await prisma.$executeRawUnsafe(sql);
+  const seeded = await prisma.$queryRawUnsafe(
+    `SELECT "id" FROM "SchemaNote" WHERE "id" = 'crm-seed-book1-v1'`,
+  );
+  if (!seeded.length) {
+    const { readFileSync } = await import("node:fs");
+    const rows = JSON.parse(readFileSync(new URL("../data/crm-seed.json", import.meta.url), "utf8"));
+    const money = (value) => {
+      const number = Number(String(value || "").replace(/,/g, ""));
+      return Number.isFinite(number) ? number : null;
+    };
+    for (let i = 0; i < rows.length; i += 80) {
+      await prisma.crmClient.createMany({
+        data: rows.slice(i, i + 80).map((row) => ({
+          name: String(row.name || "ללא שם").slice(0, 200),
+          board: String(row.board || ""),
+          city: row.fields?.["עיר"] || null,
+          status: row.fields?.["סטטוס"] || null,
+          notes: row.fields?.["הערות"] || null,
+          monthlyPay: money(row.fields?.["תשלום חודשי"]),
+          fields: row.fields || {},
+        })),
+      });
+    }
+    await prisma.$executeRawUnsafe(
+      `INSERT INTO "SchemaNote" ("id") VALUES ('crm-seed-book1-v1')`,
+    );
+    console.log(`Imported ${rows.length} CRM rows`);
+  }
 } catch (error) {
   console.error(error instanceof Error ? error.message : error);
   process.exit(1);

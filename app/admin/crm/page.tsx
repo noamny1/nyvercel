@@ -1,28 +1,22 @@
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
+
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { isSystemAdmin, requireSession } from "@/lib/session";
-import { CrmDashboard } from "@/modules/crm/CrmDashboard";
+import { CrmApp, type CrmRow } from "@/modules/crm/CrmApp";
 
 export default async function CrmPage() {
   const session = await requireSession();
   if (!session || !isSystemAdmin(session)) redirect("/admin/login");
-  const [clients, employees, tasks] = await Promise.all([
-    prisma.crmClient.findMany({ orderBy: { name: "asc" }, take: 100 }),
-    prisma.crmEmployee.findMany({ where: { active: true } }),
-    prisma.crmTask.findMany({ 
-      include: { client: true, employee: true },
-      orderBy: { createdAt: "desc" },
-      take: 50 
-    }),
-  ]);
-
-  const stats = {
-    clients: await prisma.crmClient.count(),
-    employees: employees.length,
-    openTasks: await prisma.crmTask.count({ where: { status: "open" } }),
-    doneTasks: await prisma.crmTask.count({ where: { status: "done" } }),
-  };
-
-  return <CrmDashboard clients={clients} employees={employees} tasks={tasks} stats={stats} />;
+  const clients = await prisma.crmClient.findMany({ orderBy: { name: "asc" } });
+  const rows: CrmRow[] = clients.map((client) => {
+    const raw = client.fields;
+    const fields: Record<string, string> = {};
+    if (raw && typeof raw === "object" && !Array.isArray(raw)) {
+      for (const [key, value] of Object.entries(raw)) fields[key] = value == null ? "" : String(value);
+    }
+    if (!fields.Name) fields.Name = client.name;
+    return { id: client.id, board: client.board || "כתובות פעילות", name: client.name, fields };
+  });
+  return <CrmApp rows={rows} />;
 }
