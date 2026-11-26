@@ -33,8 +33,13 @@
 .crm-filter-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; max-width: 1100px; margin: 8px auto 0; }
 .crm-filter-panel select { width: 100%; box-sizing: border-box; border: 0; border-radius: 12px; padding: 12px; font: inherit; font-size: 15px; background: #fff; color: #1c1412; }
 @media (max-width: 640px) { .crm-filter-panel { grid-template-columns: 1fr; } }
-.crm-head.active, .crm-app .crm-line.active { grid-template-columns: minmax(140px, 1.35fr) minmax(72px, .65fr) minmax(90px, .8fr) minmax(120px, 1.15fr) minmax(96px, .85fr) 78px 74px; min-width: 920px; }
-.board-row { display: flex; flex-wrap: wrap; gap: 6px; overflow: visible; padding: 10px 12px 4px; max-width: 1100px; margin: 0 auto; }
+.crm-head, .crm-app .crm-line { display: grid; grid-template-columns: minmax(150px, 1.5fr) minmax(78px, .7fr) minmax(96px, .9fr) minmax(130px, 1.3fr) 78px 74px; align-items: center; gap: 10px; min-width: 760px; padding: 12px 14px; }
+.board-row { display: flex; flex-wrap: nowrap; gap: 6px; overflow-x: auto; padding: 10px 12px 4px; max-width: 1100px; margin: 0 auto; scrollbar-width: none; }
+.board-row::-webkit-scrollbar { display: none; }
+.crm-app .board-row .board-chip { flex: 0 0 auto; }
+.crm-section-title { display: flex; align-items: center; justify-content: space-between; gap: 12px; max-width: 1100px; margin: 12px auto 0; padding: 0 16px; }
+.crm-section-title h2 { margin: 0; color: #5a1f2b; font-size: 20px; }
+.crm-section-title b { background: #5a1f2b; color: #fff; border-radius: 999px; padding: 3px 10px; font-size: 13px; }
 .crm-subnav { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; max-width: 1100px; margin: 4px auto 8px; padding: 8px 10px; background: #fff; border: 1px solid #ead7c4; border-radius: 16px; box-shadow: 0 6px 16px rgba(90, 31, 43, .06); }
 .crm-subnav strong { color: #5a1f2b; font-size: 13px; padding: 0 4px; }
 .crm-app .crm-subnav .board-chip { background: #f7f1ea; }
@@ -57,13 +62,14 @@
 .crm-empty, .crm-note { text-align: center; color: #6b625c; }
 .crm-app .crm-more { width: 100%; background: #fff; color: #5a1f2b; border-radius: 14px; padding: 14px; font-weight: 700; box-shadow: 0 8px 24px rgba(28, 20, 18, .06); }
 .crm-app .crm-fab { position: fixed; z-index: 6; left: 16px; right: 16px; bottom: 16px; background: #5a1f2b; color: #fff; border-radius: 14px; padding: 15px; font-size: 17px; font-weight: 700; box-shadow: 0 10px 24px rgba(90, 31, 43, .35); }
-.crm-editor { position: fixed; inset: 0; z-index: 8; overflow: auto; padding: calc(14px + env(safe-area-inset-top)) 14px calc(96px + env(safe-area-inset-bottom)); background: radial-gradient(120% 28% at 100% 0%, rgba(243, 230, 196, .45), transparent 46%), linear-gradient(180deg, #5a1f2b 0 120px, #f3eee8 120px); }
+.crm-editor { position: fixed; inset: 0; z-index: 8; display: flex; flex-direction: column; overflow: hidden; padding: calc(14px + env(safe-area-inset-top)) 14px 0; background: radial-gradient(120% 28% at 100% 0%, rgba(243, 230, 196, .45), transparent 46%), linear-gradient(180deg, #5a1f2b 0 120px, #f3eee8 120px); }
+.crm-editor-body { flex: 1; min-height: 0; overflow: auto; padding-bottom: calc(96px + env(safe-area-inset-bottom)); }
 .crm-editor-actions { position: fixed; z-index: 9; right: 0; left: 0; bottom: 0; display: grid; grid-template-columns: 1fr 1fr 1.25fr; gap: 8px; padding: 12px 14px calc(12px + env(safe-area-inset-bottom)); background: #fff; border-top: 1px solid #eadfd2; box-shadow: 0 -10px 28px rgba(28, 20, 18, .1); }
 .crm-editor-actions.two { grid-template-columns: 1fr 1.4fr; }
 .crm-app .crm-editor-actions .crm-ghost { width: 100%; background: #fff; color: #5a1f2b; border: 1px solid #c9b3a4; border-radius: 14px; padding: 14px 8px; font-weight: 800; }
 .crm-app .crm-editor-actions .crm-delete { width: 100%; margin: 0; background: #fff; color: #9b2c2c; border: 1px solid #e7b4b4; border-radius: 14px; padding: 14px 8px; font-weight: 800; }
 .crm-app .crm-editor-actions .crm-save { width: 100%; background: linear-gradient(180deg, #f8edd2, #e4cb8d); color: #5a1f2b; border-radius: 14px; padding: 14px 8px; font-weight: 800; box-shadow: 0 6px 14px rgba(90, 31, 43, .16); }
-.crm-hero { background: #fff; border-radius: 22px; padding: 16px 16px 14px; margin-bottom: 14px; border-top: 4px solid #c4a46a; box-shadow: 0 18px 36px rgba(90, 31, 43, .16); }
+.crm-hero { flex: 0 0 auto; background: #fff; border-radius: 22px; padding: 16px 16px 14px; margin-bottom: 14px; border-top: 4px solid #c4a46a; box-shadow: 0 18px 36px rgba(90, 31, 43, .16); }
 .crm-hero p { margin: 0; color: #8a5a22; font-size: 13px; font-weight: 800; }
 .crm-hero h2 { margin: 4px 0 10px; color: #1c1412; font-size: 26px; line-height: 1.25; }
 .crm-hero-pills { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -106,6 +112,14 @@
 .crm-app .crm-close-task:disabled { background: #d9e7de; color: #1d6b3a; }
 
 .crm-list { max-width: 1100px; margin: 8px auto 12px; background: #fff; border-radius: 16px; overflow: auto; }
+.crm-list.fit { overflow: hidden; }
+.crm-app .crm-address { display: flex; flex-direction: column; gap: 4px; width: 100%; min-width: 0; text-align: right; background: #fff; color: #1c1412; border: 0; border-bottom: 1px solid #f0e8e0; padding: 12px 14px; }
+.crm-app .crm-address:hover { background: #fbf7f1; }
+.crm-address-top, .crm-address-meta { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-width: 0; }
+.crm-address-top .crm-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 17px; }
+.crm-address-meta { color: #5c534e; font-size: 13px; }
+.crm-address-meta span:first-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.crm-app .crm-address .crm-note-line { white-space: normal; }
 .crm-head, .crm-app .crm-line { display: grid; grid-template-columns: minmax(150px, 1.5fr) minmax(78px, .7fr) minmax(96px, .9fr) minmax(130px, 1.3fr) 78px 74px; align-items: center; gap: 10px; min-width: 760px; padding: 12px 14px; }
 .crm-head.bank, .crm-app .crm-line.bank { grid-template-columns: minmax(150px, 1.1fr) minmax(180px, 2fr) minmax(88px, .7fr) 86px 86px 86px; min-width: 760px; }
 .crm-app .crm-line.bank { cursor: pointer; }
