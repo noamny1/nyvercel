@@ -18,6 +18,10 @@ const GROUPS = [
   { title: "חיבור", keys: ["IP/DNS", "User", "Pass", "נתוני מודם/סים", "מס מנוי", "סיסמא מודם", "סוג DVR", "Ip Dvr", "Ports", "User Dvr", "Pass Dvr"] },
 ];
 
+function isCity(value: string) {
+  return !/\d|שח|הרשא|ביטול|סכום|מסב|לחייב|חיייב|חן /.test(value);
+}
+
 const CHOICE_FIELDS = ["עיר", "סטטוס", "סוג לקוח", "תימה", "אמצעי תשלום", "תשתית"];
 
 const ADDRESS = new Set<string>([
@@ -67,7 +71,8 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
       const values = new Set<string>(addedChoices[key] || []);
       for (const row of items) {
         const value = (row.fields[key] || "").trim();
-        if (value) values.add(value);
+        if (!value || (key === "עיר" && !isCity(value))) continue;
+        values.add(value);
       }
       map[key] = Array.from(values).sort((a, b) => a.localeCompare(b, "he"));
     }
@@ -231,6 +236,7 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
                     <ChoiceField
                       value={draft[key] || ""}
                       options={choices[key] || []}
+                      includeValue={key !== "עיר" || isCity(draft[key] || "")}
                       onChange={(value) => setDraft((current) => ({ ...current, [key]: value }))}
                       onAdd={(value) => {
                         setAddedChoices((current) => ({
@@ -260,18 +266,20 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
 function ChoiceField({
   value,
   options,
+  includeValue = true,
   onChange,
   onAdd,
 }: {
   value: string;
   options: string[];
+  includeValue?: boolean;
   onChange: (value: string) => void;
   onAdd: (value: string) => void;
 }) {
   const [open, setOpen] = useState(false);
   const [adding, setAdding] = useState(false);
   const [custom, setCustom] = useState("");
-  const list = value && !options.includes(value) ? [value, ...options] : options;
+  const list = includeValue && value && !options.includes(value) ? [value, ...options] : options;
   return (
     <span className="crm-choice">
       <button type="button" className={open ? "crm-choice-btn is-open" : "crm-choice-btn"} onClick={() => { setOpen((current) => !current); setAdding(false); }}>
