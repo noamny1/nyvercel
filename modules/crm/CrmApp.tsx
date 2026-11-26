@@ -25,6 +25,13 @@ function isCity(value: string) {
 const CHOICE_FIELDS = ["עיר", "סטטוס", "סוג לקוח", "תימה", "אמצעי תשלום", "תשתית"];
 
 const TASKS = ["משימות נירית", "משימות נועם", "משימות יובל"];
+const BILLING = ["חיוב מס\"ב 16 לחודש", "הוראות קבע וועד", "העברות בנקאיות חברות ניהול"];
+const HIDDEN = new Set<string>([...TASKS, ...BILLING]);
+const BILLING_LABEL: Record<string, string> = {
+  "חיוב מס\"ב 16 לחודש": "מס\"ב 16",
+  "הוראות קבע וועד": "הוראות קבע",
+  "העברות בנקאיות חברות ניהול": "העברות בנקאיות",
+};
 
 const ADDRESS = new Set<string>([
   "משימות נירית",
@@ -58,7 +65,7 @@ function sections(keys: string[]) {
 export function CrmApp({ rows }: { rows: CrmRow[] }) {
   const [items, setItems] = useState(rows);
   const [board, setBoard] = useState<string>("כתובות פעילות");
-  const [tasksOpen, setTasksOpen] = useState(false);
+  const [openMenu, setOpenMenu] = useState<"" | "tasks" | "billing">("");
   const [query, setQuery] = useState("");
   const [shown, setShown] = useState(40);
   const [editing, setEditing] = useState<CrmRow | null>(null);
@@ -176,26 +183,36 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
         <button
           type="button"
           className={TASKS.includes(board) ? "board-chip on" : "board-chip"}
-          onClick={() => setTasksOpen((open) => !open)}
+          onClick={() => setOpenMenu((open) => open === "tasks" ? "" : "tasks")}
         >
           משימות <b>{TASKS.reduce((sum, name) => sum + (counts[name] || 0), 0)}</b>
         </button>
-        {BOARDS.filter((name) => !TASKS.includes(name)).map((name) => (
-          <button
-            key={name}
-            type="button"
-            className={name === board ? "board-chip on" : "board-chip"}
-            onClick={() => {
-              setBoard(name);
-              setTasksOpen(false);
-              setShown(40);
-            }}
-          >
-            {name} <b>{counts[name] || 0}</b>
-          </button>
+        {BOARDS.filter((name) => !HIDDEN.has(name)).map((name) => (
+          <span key={name} className="board-slot">
+            <button
+              type="button"
+              className={name === board ? "board-chip on" : "board-chip"}
+              onClick={() => {
+                setBoard(name);
+                setOpenMenu("");
+                setShown(40);
+              }}
+            >
+              {name} <b>{counts[name] || 0}</b>
+            </button>
+            {name === "חיוב חד פעמי" ? (
+              <button
+                type="button"
+                className={BILLING.includes(board) ? "board-chip on" : "board-chip"}
+                onClick={() => setOpenMenu((open) => open === "billing" ? "" : "billing")}
+              >
+                גבייה <b>{BILLING.reduce((sum, item) => sum + (counts[item] || 0), 0)}</b>
+              </button>
+            ) : null}
+          </span>
         ))}
       </div>
-      {tasksOpen ? (
+      {openMenu === "tasks" ? (
         <div className="board-row task-row">
           {TASKS.map((name) => (
             <button
@@ -208,6 +225,23 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
               }}
             >
               {name.replace("משימות ", "")} <b>{counts[name] || 0}</b>
+            </button>
+          ))}
+        </div>
+      ) : null}
+      {openMenu === "billing" ? (
+        <div className="board-row task-row">
+          {BILLING.map((name) => (
+            <button
+              key={name}
+              type="button"
+              className={name === board ? "board-chip on" : "board-chip"}
+              onClick={() => {
+                setBoard(name);
+                setShown(40);
+              }}
+            >
+              {BILLING_LABEL[name]} <b>{counts[name] || 0}</b>
             </button>
           ))}
         </div>
