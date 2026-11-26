@@ -366,6 +366,16 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
             <span>הערות</span>
             <span>תאריך פתיחה</span>
           </div>
+        ) : board === "הוראות קבע וועד" ? (
+          <div className="crm-head bank">
+            <span>כתובת</span>
+            <span>עיר</span>
+            <span>סוג לקוח</span>
+            <span>הערות</span>
+            <span>מס חשבון</span>
+            <span>תשלום</span>
+            <span>סטטוס</span>
+          </div>
         ) : (
           <div className="crm-head">
             <span>כתובת</span>
@@ -407,13 +417,16 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
           const status = row.fields["סטטוס"];
           const pay = row.fields["תשלום חודשי"] || row.fields["סכום"] || row.fields["סכום אפריל"];
           const extra = row.fields["הערות"] || row.fields["תכולת העבודה"];
+          const account = row.fields["מס חשבון בנק"] || row.fields["מספר חשבון"] || "";
           const tone = /פעיל|בוצע|שולם/.test(status || "") ? "ok" : /סירוב|ניתוק|לא שולם|החזר/.test(status || "") ? "bad" : "wait";
+          const standing = row.board === "הוראות קבע וועד";
           return (
-            <button key={row.id} type="button" className="crm-line" onClick={() => open(row)}>
+            <button key={row.id} type="button" className={standing ? "crm-line bank" : "crm-line"} onClick={() => open(row)}>
               <strong className="crm-name">{row.name}</strong>
               <span>{city}</span>
               <span>{kind}</span>
               <span className="crm-note-line">{extra}</span>
+              {standing ? <span>{account}</span> : null}
               <span className="crm-pay">{pay ? `₪ ${pay}` : ""}</span>
               {status ? <i className={`crm-pill ${tone}`}>{status}</i> : <span />}
             </button>
