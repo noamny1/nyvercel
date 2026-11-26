@@ -70,8 +70,8 @@ function sections(keys: string[]) {
 
 export function CrmApp({ rows }: { rows: CrmRow[] }) {
   const [items, setItems] = useState(rows);
-  const [board, setBoard] = useState<string>("כתובות פעילות");
-  const [openMenu, setOpenMenu] = useState<"" | "tasks" | "billing">("");
+  const [board, setBoard] = useState<string>("משימות יובל");
+  const [openMenu, setOpenMenu] = useState<"" | "tasks" | "billing">("tasks");
   const [query, setQuery] = useState("");
   const [shown, setShown] = useState(40);
   const [editing, setEditing] = useState<CrmRow | null>(null);
