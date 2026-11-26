@@ -25,6 +25,7 @@ function isCity(value: string) {
 const CHOICE_FIELDS = ["עיר", "סטטוס", "סוג לקוח", "תימה", "אמצעי תשלום", "תשתית"];
 
 const TASKS = ["משימות נירית", "משימות נועם", "משימות יובל"];
+const HISTORY = "היסטורית משימות";
 function place(row: CrmRow) {
   if (TASKS.includes(row.board) && row.fields["סטטוס משימה"] === "נסגרה") return HISTORY;
   return row.board;
