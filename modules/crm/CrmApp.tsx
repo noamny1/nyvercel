@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { BOARD_FIELDS, BOARDS } from "@/modules/crm/boards";
+import { isPaid, PAID, recentPayMonths, UNPAID } from "@/modules/crm/pay-months";
 
 export type CrmRow = {
   id: number;
@@ -236,10 +237,22 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
     setEditing(null);
   }
 
+  async function setPay(row: CrmRow, month: string, value: string) {
+    const fields = { ...(row.fields || {}), [month]: value };
+    setItems((current) => current.map((item) => (item.id === row.id ? { ...item, fields } : item)));
+    const response = await fetch(`/api/crm/clients/${row.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: row.name, board: row.board, fields }),
+    });
+    if (!response.ok) setNote("עדכון התשלום נכשל");
+  }
+
   const formKeys = editing ? keysFor(draftBoard, draft) : [];
   const taskMode = TASKS.includes(board) || openMenu === "tasks";
   const editingTask = Boolean(editing && (TASKS.includes(draftBoard) || draftBoard === HISTORY));
   const newLabel = taskMode ? "משימה חדשה" : ADDRESS.has(board) ? "כתובת חדשה" : "לקוח חדש";
+  const payMonths = recentPayMonths();
 
   return (
     <div className="crm-app" dir="rtl">
@@ -373,8 +386,7 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
             <span>סוג לקוח</span>
             <span>הערות</span>
             <span>מס חשבון</span>
-            <span>תשלום</span>
-            <span>סטטוס</span>
+            {payMonths.map((month) => <span key={month}>{month}</span>)}
           </div>
         ) : (
           <div className="crm-head">
@@ -420,13 +432,41 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
           const account = row.fields["מס חשבון בנק"] || row.fields["מספר חשבון"] || "";
           const tone = /פעיל|בוצע|שולם/.test(status || "") ? "ok" : /סירוב|ניתוק|לא שולם|החזר/.test(status || "") ? "bad" : "wait";
           const standing = row.board === "הוראות קבע וועד";
+          if (standing) {
+            return (
+              <div key={row.id} className="crm-line bank" onClick={() => open(row)}>
+                <strong className="crm-name">{row.name}</strong>
+                <span>{city}</span>
+                <span>{kind}</span>
+                <span className="crm-note-line">{extra}</span>
+                <span>{account}</span>
+                {payMonths.map((month) => {
+                  const paid = isPaid(row.fields[month] || "");
+                  return (
+                    <select
+                      key={month}
+                      className={paid ? "crm-pay-choice ok" : "crm-pay-choice bad"}
+                      value={paid ? PAID : UNPAID}
+                      onClick={(event) => event.stopPropagation()}
+                      onChange={(event) => {
+                        event.stopPropagation();
+                        setPay(row, month, event.target.value);
+                      }}
+                    >
+                      <option value={PAID}>שולם</option>
+                      <option value={UNPAID}>לא שולם</option>
+                    </select>
+                  );
+                })}
+              </div>
+            );
+          }
           return (
-            <button key={row.id} type="button" className={standing ? "crm-line bank" : "crm-line"} onClick={() => open(row)}>
+            <button key={row.id} type="button" className="crm-line" onClick={() => open(row)}>
               <strong className="crm-name">{row.name}</strong>
               <span>{city}</span>
               <span>{kind}</span>
               <span className="crm-note-line">{extra}</span>
-              {standing ? <span>{account}</span> : null}
               <span className="crm-pay">{pay ? `₪ ${pay}` : ""}</span>
               {status ? <i className={`crm-pill ${tone}`}>{status}</i> : <span />}
             </button>

@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { isSystemAdmin, requireSession } from "@/lib/session";
+import { recentPayMonths, UNPAID } from "@/modules/crm/pay-months";
 import { NextResponse } from "next/server";
 
 async function denied() {
@@ -33,6 +34,10 @@ export async function POST(req: Request) {
   if (!name) return NextResponse.json({ error: "missing name" }, { status: 400 });
   fields.Name = name;
   const board = String(body.board || "").slice(0, 80);
+  if (board === "הוראות קבע וועד") {
+    const current = recentPayMonths().at(-1);
+    if (current && !String(fields[current] || "").trim()) fields[current] = UNPAID;
+  }
   const client = await prisma.crmClient.create({
     data: {
       name,

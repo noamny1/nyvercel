@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { sendFileMail } from "@/modules/data/mail";
+import { ensureCurrentPayMonth } from "@/modules/crm/ensure-pay-month";
 import { crmWorkbook, type WorkRow } from "@/modules/crm/workbook";
 import { NextResponse } from "next/server";
 
@@ -29,7 +30,8 @@ export async function GET(request: Request) {
   if (!secret || (header !== `Bearer ${secret}` && !fromVercel)) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
-  if (jerusalemHour() !== "23") return NextResponse.json({ ok: true, skipped: "hour" });
+  const pay = await ensureCurrentPayMonth();
+  if (jerusalemHour() !== "23") return NextResponse.json({ ok: true, skipped: "hour", pay });
   const day = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Jerusalem" }).format(new Date());
   const flag = await prisma.systemFlag.findUnique({ where: { id: "crm-backup-day" } });
   if (flag?.value === day) return NextResponse.json({ ok: true, skipped: "sent" });
