@@ -78,6 +78,7 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
   const [draft, setDraft] = useState<Record<string, string>>({});
   const [draftBoard, setDraftBoard] = useState("");
   const [busy, setBusy] = useState(false);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [note, setNote] = useState("");
   const [addedChoices, setAddedChoices] = useState<Record<string, string[]>>({});
 
@@ -124,6 +125,7 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
     setEditing(row);
     setDraft({ ...row.fields, Name: row.name });
     setDraftBoard(row.board);
+    setConfirmingDelete(false);
     setNote("");
   }
 
@@ -134,6 +136,7 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
     setEditing({ id: 0, board: target, name: "", fields: {} });
     setDraft(task ? { Name: "", "תאריך פתיחה": today } : { Name: "" });
     setDraftBoard(target);
+    setConfirmingDelete(false);
     setNote("");
   }
 
@@ -220,8 +223,9 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
   }
 
   async function remove() {
-    if (!editing?.id || !window.confirm("למחוק את הרשומה?")) return;
+    if (!editing?.id) return;
     setBusy(true);
+    setConfirmingDelete(false);
     const response = await fetch(`/api/crm/clients/${editing.id}`, { method: "DELETE" });
     setBusy(false);
     if (!response.ok) {
@@ -538,11 +542,23 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
           {note && <p className="crm-note">{note}</p>}
           <div className={editing.id ? "crm-editor-actions" : "crm-editor-actions two"}>
             <button type="button" className="crm-ghost" onClick={() => setEditing(null)}>סגור</button>
-            {editing.id ? <button type="button" className="crm-delete" onClick={remove}>מחיקה</button> : null}
+            {editing.id ? <button type="button" className="crm-delete" onClick={() => setConfirmingDelete(true)}>מחיקה</button> : null}
             <button type="button" className="crm-save" onClick={save} disabled={busy}>{busy ? "שומר" : "שמירה"}</button>
           </div>
         </div>
       )}
+      {confirmingDelete ? (
+        <div className="crm-confirm" role="dialog" aria-modal="true">
+          <div className="crm-confirm-card">
+            <strong>האם אתה בטוח שברצונך למחוק?</strong>
+            <p>{draft.Name || editing?.name || "הרשומה תימחק"}</p>
+            <div>
+              <button type="button" className="crm-ghost" onClick={() => setConfirmingDelete(false)} disabled={busy}>ביטול</button>
+              <button type="button" className="crm-delete" onClick={remove} disabled={busy}>{busy ? "מוחק" : "אישור"}</button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

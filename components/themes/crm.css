@@ -81,6 +81,14 @@
 .crm-editor textarea { min-height: 84px; }
 .crm-editor input:focus, .crm-editor select:focus, .crm-editor textarea:focus, .crm-app .crm-choice-btn:focus { outline: none; border-color: #c4a46a; box-shadow: 0 0 0 4px rgba(196, 164, 106, .28); }
 .crm-app .crm-delete { width: 100%; background: #fff; color: #9b2c2c; border: 1px solid #f0c7c7; border-radius: 14px; padding: 12px; font-weight: 800; margin-top: 4px; }
+.crm-confirm { position: fixed; inset: 0; z-index: 30; display: grid; place-items: center; padding: 20px; background: rgba(28, 20, 18, .55); }
+.crm-confirm-card { width: min(420px, 100%); background: #fff; border-radius: 20px; padding: 20px; box-shadow: 0 18px 50px rgba(28, 20, 18, .28); text-align: center; }
+.crm-confirm-card strong { display: block; color: #5a1f2b; font-size: 20px; line-height: 1.4; }
+.crm-confirm-card p { margin: 10px 0 18px; color: #5c534e; font-size: 16px; }
+.crm-confirm-card div { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.crm-confirm-card .crm-ghost, .crm-confirm-card .crm-delete { margin: 0; min-height: 48px; border-radius: 14px; font-weight: 800; }
+.crm-confirm-card .crm-ghost { background: #fff; color: #5a1f2b; border: 1px solid #c9b3a4; }
+.crm-confirm-card .crm-delete { background: #9b2c2c; color: #fff; border: 0; }
 @media (min-width: 800px) {
   .crm-app .crm-fab { left: auto; width: 240px; }
   .crm-editor, .crm-editor-actions { left: auto; width: min(560px, 100%); }
