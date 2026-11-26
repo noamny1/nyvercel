@@ -137,6 +137,7 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
         <div className="crm-top-row">
           <h1>CRM</h1>
           <a href="/admin">לניהול המסכים</a>
+          <a href="/admin/crm">לתצוגה החדשה</a>
         </div>
         <input
           className="crm-search"
