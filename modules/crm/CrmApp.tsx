@@ -113,10 +113,12 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
   }
 
   function create() {
-    const blank: CrmRow = { id: 0, board, name: "", fields: {} };
-    setEditing(blank);
-    setDraft({ Name: "" });
-    setDraftBoard(board);
+    const task = TASKS.includes(board) || openMenu === "tasks";
+    const target = task ? (TASKS.includes(board) ? board : TASKS[0]) : board;
+    const today = new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Jerusalem" });
+    setEditing({ id: 0, board: target, name: "", fields: {} });
+    setDraft(task ? { Name: "", "תאריך פתיחה": today } : { Name: "" });
+    setDraftBoard(target);
     setNote("");
   }
 
@@ -129,7 +131,18 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
     }
     setBusy(true);
     setNote("");
-    const payload = { name, board: draftBoard, fields: { ...draft, Name: name } };
+    const task = TASKS.includes(draftBoard);
+    const fields = task
+      ? {
+          ...(editing.fields || {}),
+          Name: name,
+          "עיר": draft["עיר"] || "",
+          "תכולת העבודה": draft["תכולת העבודה"] || "",
+          "הערות": draft["הערות"] || "",
+          "תאריך פתיחה": draft["תאריך פתיחה"] || "",
+        }
+      : { ...draft, Name: name };
+    const payload = { name, board: draftBoard, fields };
     const response = await fetch(editing.id ? `/api/crm/clients/${editing.id}` : "/api/crm/clients", {
       method: editing.id ? "PATCH" : "POST",
       headers: { "Content-Type": "application/json" },
@@ -161,7 +174,9 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
   }
 
   const formKeys = editing ? keysFor(draftBoard, draft) : [];
-  const newLabel = ADDRESS.has(board) ? "כתובת חדשה" : "לקוח חדש";
+  const taskMode = TASKS.includes(board) || openMenu === "tasks";
+  const editingTask = Boolean(editing && TASKS.includes(draftBoard));
+  const newLabel = taskMode ? "משימה חדשה" : ADDRESS.has(board) ? "כתובת חדשה" : "לקוח חדש";
 
   return (
     <div className="crm-app" dir="rtl">
@@ -248,15 +263,36 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
         </div>
       ) : null}
       <div className="crm-list">
-        <div className="crm-head">
-          <span>כתובת</span>
-          <span>עיר</span>
-          <span>סוג לקוח</span>
-          <span>הערות</span>
-          <span>תשלום</span>
-          <span>סטטוס</span>
-        </div>
+        {taskMode && TASKS.includes(board) ? (
+          <div className="crm-head task">
+            <span>שם</span>
+            <span>עיר</span>
+            <span>תכולת עבודה</span>
+            <span>הערות</span>
+            <span>תאריך פתיחה</span>
+          </div>
+        ) : (
+          <div className="crm-head">
+            <span>כתובת</span>
+            <span>עיר</span>
+            <span>סוג לקוח</span>
+            <span>הערות</span>
+            <span>תשלום</span>
+            <span>סטטוס</span>
+          </div>
+        )}
         {visible.slice(0, shown).map((row) => {
+          if (TASKS.includes(row.board)) {
+            return (
+              <button key={row.id} type="button" className="crm-line task" onClick={() => open(row)}>
+                <strong className="crm-name">{row.name}</strong>
+                <span>{row.fields["עיר"]}</span>
+                <span className="crm-note-line">{row.fields["תכולת העבודה"]}</span>
+                <span className="crm-note-line">{row.fields["הערות"]}</span>
+                <span>{row.fields["תאריך פתיחה"]}</span>
+              </button>
+            );
+          }
           const city = row.fields["עיר"];
           const kind = row.fields["סוג לקוח"];
           const status = row.fields["סטטוס"];
@@ -289,18 +325,59 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
             <button type="button" className="crm-save" onClick={save} disabled={busy}>{busy ? "שומר" : "שמירה"}</button>
           </div>
           <div className="crm-hero">
-            <p>{editing.id ? "עריכת כתובת" : newLabel}</p>
-            <h2>{draft.Name || "כתובת חדשה"}</h2>
+            <p>{editingTask ? (editing.id ? "עריכת משימה" : "משימה חדשה") : (editing.id ? "עריכת כתובת" : newLabel)}</p>
+            <h2>{draft.Name || (editingTask ? "משימה חדשה" : "כתובת חדשה")}</h2>
             <div className="crm-hero-pills">
-              {draft["עיר"] ? <span>{draft["עיר"]}</span> : null}
-              {draft["סטטוס"] ? <span className={/פעיל|בוצע|שולם/.test(draft["סטטוס"]) ? "ok" : /סירוב|ניתוק|החזר/.test(draft["סטטוס"]) ? "bad" : "wait"}>{draft["סטטוס"]}</span> : null}
-              {draft["תשלום חודשי"] ? <span className="pay">₪ {draft["תשלום חודשי"]}</span> : null}
+              {editingTask ? (
+                <>
+                  {draft["עיר"] ? <span>{draft["עיר"]}</span> : null}
+                  {draft["תאריך פתיחה"] ? <span>{draft["תאריך פתיחה"]}</span> : null}
+                </>
+              ) : (
+                <>
+                  {draft["עיר"] ? <span>{draft["עיר"]}</span> : null}
+                  {draft["סטטוס"] ? <span className={/פעיל|בוצע|שולם/.test(draft["סטטוס"]) ? "ok" : /סירוב|ניתוק|החזר/.test(draft["סטטוס"]) ? "bad" : "wait"}>{draft["סטטוס"]}</span> : null}
+                  {draft["תשלום חודשי"] ? <span className="pay">₪ {draft["תשלום חודשי"]}</span> : null}
+                </>
+              )}
             </div>
           </div>
+          {editingTask ? (
+            <div className="crm-group" data-tone="עבודה">
+              <label className="crm-field">
+                שייך ל
+                <select value={draftBoard} onChange={(event) => setDraftBoard(event.target.value)}>
+                  {TASKS.map((name) => <option key={name} value={name}>{name.replace("משימות ", "")}</option>)}
+                </select>
+              </label>
+              <label className="crm-field">
+                שם
+                <input value={draft.Name || ""} onChange={(event) => setDraft({ ...draft, Name: event.target.value })} />
+              </label>
+              <label className="crm-field">
+                עיר
+                <input value={draft["עיר"] || ""} onChange={(event) => setDraft({ ...draft, "עיר": event.target.value })} />
+              </label>
+              <label className="crm-field">
+                תכולת העבודה
+                <textarea value={draft["תכולת העבודה"] || ""} onChange={(event) => setDraft({ ...draft, "תכולת העבודה": event.target.value })} />
+              </label>
+              <label className="crm-field">
+                הערות
+                <textarea value={draft["הערות"] || ""} onChange={(event) => setDraft({ ...draft, "הערות": event.target.value })} />
+              </label>
+              <label className="crm-field">
+                תאריך פתיחה
+                <input type="date" value={draft["תאריך פתיחה"] || ""} onChange={(event) => setDraft({ ...draft, "תאריך פתיחה": event.target.value })} />
+              </label>
+              <p className="crm-hint">אפשר למלא רק מה שצריך. המשימה לא מקושרת לכתובות ולשאר הלשוניות.</p>
+            </div>
+          ) : (
+          <>
           <label className="crm-field">
             לשונית
             <select value={draftBoard} onChange={(event) => setDraftBoard(event.target.value)}>
-              {BOARDS.map((name) => <option key={name} value={name}>{name}</option>)}
+              {BOARDS.filter((name) => !TASKS.includes(name)).map((name) => <option key={name} value={name}>{name}</option>)}
             </select>
           </label>
           {sections(formKeys).map((group) => (
@@ -337,6 +414,8 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
               ))}
             </details>
           ))}
+          </>
+          )}
           {note && <p className="crm-note">{note}</p>}
           {editing.id ? <button type="button" className="crm-delete" onClick={remove}>מחיקה</button> : null}
         </div>
