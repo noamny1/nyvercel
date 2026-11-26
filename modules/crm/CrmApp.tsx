@@ -8,6 +8,7 @@ export type CrmRow = {
   id: number;
   board: string;
   name: string;
+  createdAt?: string;
   fields: Record<string, string>;
 };
 
@@ -119,6 +120,9 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
     if (TASKS.includes(board)) {
       return rows.sort((a, b) => (b.fields["תאריך פתיחה"] || "").localeCompare(a.fields["תאריך פתיחה"] || ""));
     }
+    if (board === "כתובות פעילות") {
+      return rows.sort((a, b) => (b.createdAt || "").localeCompare(a.createdAt || "") || b.id - a.id);
+    }
     return rows;
   }, [items, board, query]);
 
@@ -176,7 +180,7 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
       return;
     }
     const body = await response.json().catch(() => ({}));
-    const next: CrmRow = { id: editing.id || body.id, board: draftBoard, name, fields: payload.fields };
+    const next: CrmRow = { id: editing.id || body.id, board: draftBoard, name, createdAt: editing.createdAt || new Date().toISOString(), fields: payload.fields };
     setItems((current) => editing.id ? current.map((row) => row.id === editing.id ? next : row) : [next, ...current]);
     setEditing(null);
     if (draftBoard !== board) setBoard(draftBoard);
@@ -215,7 +219,7 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
       return;
     }
     setBusy(false);
-    const next: CrmRow = { id: editing.id, board: HISTORY, name, fields };
+    const next: CrmRow = { id: editing.id, board: HISTORY, name, createdAt: editing.createdAt, fields };
     setItems((current) => current.map((row) => (row.id === editing.id ? next : row)));
     setEditing(null);
     setBoard(HISTORY);

@@ -18,7 +18,7 @@ export default async function CrmPage() {
       for (const [key, value] of Object.entries(raw)) fields[key] = value == null ? "" : String(value);
     }
     if (!fields.Name) fields.Name = client.name;
-    return { id: client.id, board: client.board || "כתובות פעילות", name: client.name, fields };
+    return { id: client.id, board: client.board || "כתובות פעילות", name: client.name, createdAt: client.createdAt.toISOString(), fields };
   });
   return <CrmApp rows={rows} />;
 }
