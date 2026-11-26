@@ -316,6 +316,7 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
         ))}
       </div>
       {openMenu === "tasks" ? (
+        <>
         <div className="board-row task-row">
           {TASKS.map((name) => (
             <button
@@ -348,6 +349,7 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
           </label>
           <button type="button" onClick={saveWhatsapp} disabled={busy}>שמירת חיבור</button>
         </div>
+        </>
       ) : null}
       {openMenu === "billing" ? (
         <div className="board-row task-row">
