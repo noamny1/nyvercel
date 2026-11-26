@@ -137,7 +137,6 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
         <div className="crm-top-row">
           <h1>CRM</h1>
           <a href="/admin">לניהול המסכים</a>
-          <a href="/admin/crm">לתצוגה החדשה</a>
         </div>
         <input
           className="crm-search"
@@ -164,7 +163,7 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
           </button>
         ))}
       </div>
-      <div className="crm-cards">
+      <div className="crm-list">
         {visible.slice(0, shown).map((row) => {
           const city = row.fields["עיר"];
           const status = row.fields["סטטוס"];
@@ -172,26 +171,22 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
           const extra = row.fields["הערות"] || row.fields["תכולת העבודה"] || row.fields["סוג לקוח"];
           const tone = /פעיל|בוצע|שולם/.test(status || "") ? "ok" : /סירוב|ניתוק|לא שולם|החזר/.test(status || "") ? "bad" : "wait";
           return (
-            <button key={row.id} type="button" className="crm-card" onClick={() => open(row)}>
-              <div className="crm-card-top">
-                <strong className="crm-name">{row.name}</strong>
-                {status ? <i className={`crm-pill ${tone}`}>{status}</i> : null}
-              </div>
-              <div className="crm-card-meta">
-                {city ? <span>{city}</span> : null}
-                {pay ? <span className="crm-pay">₪ {pay}</span> : null}
-              </div>
-              {extra ? <p className="crm-note-line">{extra}</p> : null}
+            <button key={row.id} type="button" className="crm-line" onClick={() => open(row)}>
+              <strong className="crm-name">{row.name}</strong>
+              <span>{city}</span>
+              <span className="crm-note-line">{extra}</span>
+              <span className="crm-pay">{pay ? `₪ ${pay}` : ""}</span>
+              {status ? <i className={`crm-pill ${tone}`}>{status}</i> : <i />}
             </button>
           );
         })}
         {!visible.length && <p className="crm-empty">אין רשומות בלשונית הזו</p>}
-        {shown < visible.length && (
-          <button type="button" className="crm-more" onClick={() => setShown((count) => count + 40)}>
-            עוד {Math.min(40, visible.length - shown)}
-          </button>
-        )}
       </div>
+      {shown < visible.length && (
+        <button type="button" className="crm-more" onClick={() => setShown((count) => count + 40)}>
+          עוד {Math.min(40, visible.length - shown)}
+        </button>
+      )}
       <button type="button" className="crm-fab" onClick={create}>{newLabel}</button>
       {editing && (
         <div className="crm-editor">
