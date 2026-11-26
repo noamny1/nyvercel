@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { BOARD_FIELDS, BOARDS } from "@/modules/crm/boards";
 
 export type CrmRow = {
@@ -25,6 +25,10 @@ function isCity(value: string) {
 const CHOICE_FIELDS = ["עיר", "סטטוס", "סוג לקוח", "תימה", "אמצעי תשלום", "תשתית"];
 
 const TASKS = ["משימות נירית", "משימות נועם", "משימות יובל"];
+function place(row: CrmRow) {
+  if (TASKS.includes(row.board) && row.fields["סטטוס משימה"] === "נסגרה") return HISTORY;
+  return row.board;
+}
 const BILLING = ["חיוב מס\"ב 16 לחודש", "הוראות קבע וועד", "העברות בנקאיות חברות ניהול", "ארנון תשלומים"];
 const HIDDEN = new Set<string>([...TASKS, ...BILLING]);
 const BILLING_LABEL: Record<string, string> = {
@@ -75,20 +79,6 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState("");
   const [addedChoices, setAddedChoices] = useState<Record<string, string[]>>({});
-  const [waOn, setWaOn] = useState(false);
-  const [waGroup, setWaGroup] = useState("");
-  const [waInstance, setWaInstance] = useState("");
-  const [waToken, setWaToken] = useState("");
-
-  useEffect(() => {
-    fetch("/api/crm/whatsapp")
-      .then((response) => response.json())
-      .then((body) => {
-        setWaOn(Boolean(body.connected));
-        setWaGroup(body.group || "");
-      })
-      .catch(() => undefined);
-  }, []);
 
   const choices = useMemo(() => {
     const map: Record<string, string[]> = {};
@@ -106,17 +96,27 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
 
   const counts = useMemo(() => {
     const map = Object.fromEntries(BOARDS.map((name) => [name, 0]));
-    for (const row of items) map[row.board] = (map[row.board] || 0) + 1;
+    for (const row of items) {
+      const name = place(row);
+      map[name] = (map[name] || 0) + 1;
+    }
     return map;
   }, [items]);
 
   const visible = useMemo(() => {
     const needle = query.trim().toLowerCase();
-    return items.filter((row) => {
-      if (row.board !== board) return false;
+    const rows = items.filter((row) => {
+      if (place(row) !== board) return false;
       if (!needle) return true;
       return `${row.name} ${Object.values(row.fields).join(" ")}`.toLowerCase().includes(needle);
     });
+    if (board === HISTORY) {
+      return rows.sort((a, b) => (b.fields["תאריך סגירה"] || "").localeCompare(a.fields["תאריך סגירה"] || ""));
+    }
+    if (TASKS.includes(board)) {
+      return rows.sort((a, b) => (b.fields["תאריך פתיחה"] || "").localeCompare(a.fields["תאריך פתיחה"] || ""));
+    }
+    return rows;
   }, [items, board, query]);
 
   function open(row: CrmRow) {
@@ -145,7 +145,7 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
     }
     setBusy(true);
     setNote("");
-    const task = TASKS.includes(draftBoard);
+    const task = TASKS.includes(draftBoard) || draftBoard === HISTORY;
     const fields = task
       ? {
           ...(editing.fields || {}),
@@ -154,6 +154,9 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
           "תכולת העבודה": draft["תכולת העבודה"] || "",
           "הערות": draft["הערות"] || "",
           "תאריך פתיחה": draft["תאריך פתיחה"] || "",
+          "סטטוס משימה": draft["סטטוס משימה"] || "",
+          "תאריך סגירה": draft["תאריך סגירה"] || "",
+          "נסגר על ידי": draft["נסגר על ידי"] || "",
         }
       : { ...draft, Name: name };
     const payload = { name, board: draftBoard, fields };
@@ -199,52 +202,20 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
     const saved = await fetch(`/api/crm/clients/${editing.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, board: draftBoard, fields }),
+      body: JSON.stringify({ name, board: HISTORY, fields }),
     });
     if (!saved.ok) {
       setBusy(false);
       setNote("הסגירה נכשלה");
       return;
     }
-    const text = [
-      "משימה נסגרה",
-      `סוגר: ${who}`,
-      `שם: ${name}`,
-      draft["עיר"] ? `עיר: ${draft["עיר"]}` : "",
-      draft["תכולת העבודה"] ? `תכולת העבודה: ${draft["תכולת העבודה"]}` : "",
-      draft["הערות"] ? `הערות: ${draft["הערות"]}` : "",
-      `תאריך סגירה: ${today}`,
-    ].filter(Boolean).join("\n");
-    const sent = await fetch("/api/crm/whatsapp", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text }),
-    });
-    const body = await sent.json().catch(() => ({}));
     setBusy(false);
-    const next: CrmRow = { id: editing.id, board: draftBoard, name, fields };
+    const next: CrmRow = { id: editing.id, board: HISTORY, name, fields };
     setItems((current) => current.map((row) => (row.id === editing.id ? next : row)));
-    setEditing(next);
-    setDraft(fields);
-    setNote(body.sent ? "המשימה נסגרה וההודעה נשלחה לקבוצה" : "המשימה נסגרה. הוואטסאפ עדיין לא מחובר, ההודעה לא נשלחה");
-  }
-
-  async function saveWhatsapp() {
-    setBusy(true);
-    const response = await fetch("/api/crm/whatsapp", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ instance: waInstance, token: waToken, group: waGroup }),
-    });
-    const body = await response.json().catch(() => ({}));
-    setBusy(false);
-    if (!response.ok) {
-      setNote("מזהה הקבוצה צריך להסתיים ב-@g.us");
-      return;
-    }
-    setWaOn(Boolean(body.connected));
-    setWaToken("");
-    setNote(body.connected ? "הוואטסאפ חובר לקבוצה" : "הפרטים נשמרו, חסר חיבור");
+    setEditing(null);
+    setBoard(HISTORY);
+    setOpenMenu("tasks");
+    setNote("המשימה עברה להיסטוריה");
   }
 
   async function remove() {
@@ -262,7 +233,7 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
 
   const formKeys = editing ? keysFor(draftBoard, draft) : [];
   const taskMode = TASKS.includes(board) || openMenu === "tasks";
-  const editingTask = Boolean(editing && TASKS.includes(draftBoard));
+  const editingTask = Boolean(editing && (TASKS.includes(draftBoard) || draftBoard === HISTORY));
   const newLabel = taskMode ? "משימה חדשה" : ADDRESS.has(board) ? "כתובת חדשה" : "לקוח חדש";
 
   return (
@@ -285,7 +256,7 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
       <div className="board-row">
         <button
           type="button"
-          className={TASKS.includes(board) ? "board-chip on" : "board-chip"}
+          className={TASKS.includes(board) || board === HISTORY ? "board-chip on" : "board-chip"}
           onClick={() => setOpenMenu((open) => open === "tasks" ? "" : "tasks")}
         >
           משימות <b>{TASKS.reduce((sum, name) => sum + (counts[name] || 0), 0)}</b>
@@ -316,7 +287,6 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
         ))}
       </div>
       {openMenu === "tasks" ? (
-        <>
         <div className="board-row task-row">
           {TASKS.map((name) => (
             <button
@@ -331,25 +301,17 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
               {name.replace("משימות ", "")} <b>{counts[name] || 0}</b>
             </button>
           ))}
+          <button
+            type="button"
+            className={board === HISTORY ? "board-chip on" : "board-chip"}
+            onClick={() => {
+              setBoard(HISTORY);
+              setShown(40);
+            }}
+          >
+            היסטורית משימות <b>{counts[HISTORY] || 0}</b>
+          </button>
         </div>
-        <div className="wa-box">
-          <strong>{waOn ? "וואטסאפ מחובר לקבוצת העובדים" : "חיבור וואטסאפ לקבוצת העובדים"}</strong>
-          <p>כשנירית, נועם או יובל סוגרים משימה, נשלחת הודעה מהמספר שלך לקבוצה.</p>
-          <label>
-            מזהה חיבור
-            <input value={waInstance} placeholder="idInstance" onChange={(event) => setWaInstance(event.target.value)} />
-          </label>
-          <label>
-            מפתח
-            <input value={waToken} placeholder="apiToken" onChange={(event) => setWaToken(event.target.value)} />
-          </label>
-          <label>
-            מזהה קבוצה
-            <input value={waGroup} placeholder="1203...@g.us" onChange={(event) => setWaGroup(event.target.value)} />
-          </label>
-          <button type="button" onClick={saveWhatsapp} disabled={busy}>שמירת חיבור</button>
-        </div>
-        </>
       ) : null}
       {openMenu === "billing" ? (
         <div className="board-row task-row">
@@ -369,7 +331,15 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
         </div>
       ) : null}
       <div className="crm-list">
-        {taskMode && TASKS.includes(board) ? (
+        {board === HISTORY ? (
+          <div className="crm-head task">
+            <span>שם</span>
+            <span>עיר</span>
+            <span>תכולת עבודה</span>
+            <span>נסגר על ידי</span>
+            <span>תאריך סגירה</span>
+          </div>
+        ) : taskMode && TASKS.includes(board) ? (
           <div className="crm-head task">
             <span>שם</span>
             <span>עיר</span>
@@ -388,6 +358,17 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
           </div>
         )}
         {visible.slice(0, shown).map((row) => {
+          if (place(row) === HISTORY) {
+            return (
+              <button key={row.id} type="button" className="crm-line task" onClick={() => open(row)}>
+                <strong className="crm-name">{row.name}</strong>
+                <span>{row.fields["עיר"]}</span>
+                <span className="crm-note-line">{row.fields["תכולת העבודה"]}</span>
+                <span>{row.fields["נסגר על ידי"]}</span>
+                <span>{row.fields["תאריך סגירה"]}</span>
+              </button>
+            );
+          }
           if (TASKS.includes(row.board)) {
             return (
               <button key={row.id} type="button" className="crm-line task" onClick={() => open(row)}>
@@ -449,12 +430,25 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
           </div>
           {editingTask ? (
             <div className="crm-group" data-tone="עבודה">
-              <label className="crm-field">
-                שייך ל
-                <select value={draftBoard} onChange={(event) => setDraftBoard(event.target.value)}>
-                  {TASKS.map((name) => <option key={name} value={name}>{name.replace("משימות ", "")}</option>)}
-                </select>
-              </label>
+              {draftBoard === HISTORY ? (
+                <>
+                  <label className="crm-field">
+                    נסגר על ידי
+                    <input value={draft["נסגר על ידי"] || ""} readOnly />
+                  </label>
+                  <label className="crm-field">
+                    תאריך סגירה
+                    <input value={draft["תאריך סגירה"] || ""} readOnly />
+                  </label>
+                </>
+              ) : (
+                <label className="crm-field">
+                  שייך ל
+                  <select value={draftBoard} onChange={(event) => setDraftBoard(event.target.value)}>
+                    {TASKS.map((name) => <option key={name} value={name}>{name.replace("משימות ", "")}</option>)}
+                  </select>
+                </label>
+              )}
               <label className="crm-field">
                 שם
                 <input value={draft.Name || ""} onChange={(event) => setDraft({ ...draft, Name: event.target.value })} />
@@ -476,9 +470,9 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
                 <input type="date" value={draft["תאריך פתיחה"] || ""} onChange={(event) => setDraft({ ...draft, "תאריך פתיחה": event.target.value })} />
               </label>
               <p className="crm-hint">אפשר למלא רק מה שצריך. המשימה לא מקושרת לכתובות ולשאר הלשוניות.</p>
-              {editing.id ? (
-                <button type="button" className="crm-close-task" onClick={closeTask} disabled={busy || draft["סטטוס משימה"] === "נסגרה"}>
-                  {draft["סטטוס משימה"] === "נסגרה" ? "המשימה נסגרה" : "סגירת משימה"}
+              {editing.id && TASKS.includes(draftBoard) ? (
+                <button type="button" className="crm-close-task" onClick={closeTask} disabled={busy}>
+                  סגירת משימה
                 </button>
               ) : null}
             </div>

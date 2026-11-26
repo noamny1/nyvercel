@@ -84,11 +84,6 @@
   .crm-editor, .crm-editor-actions { left: auto; width: min(560px, 100%); }
   .crm-editor { box-shadow: -16px 0 40px rgba(28, 20, 18, .16); }
 }
-.wa-box { max-width: 1100px; margin: 0 auto 10px; background: #fff; border: 1px solid #eadfd2; border-right: 5px solid #1d6b3a; border-radius: 16px; padding: 12px; display: grid; gap: 8px; }
-.wa-box strong { color: #1d6b3a; }
-.wa-box p, .wa-box label { margin: 0; color: #5c534e; font-size: 13px; font-weight: 700; display: flex; flex-direction: column; gap: 4px; }
-.wa-box input { border: 1px solid #eadfd2; border-radius: 12px; padding: 10px 12px; font: inherit; font-size: 16px; font-weight: 500; }
-.crm-app .wa-box button { background: #1d6b3a; color: #fff; border-radius: 12px; padding: 12px; font-weight: 800; }
 .crm-app .crm-close-task { width: 100%; margin-top: 4px; background: #1d6b3a; color: #fff; border-radius: 14px; padding: 14px; font-weight: 800; }
 .crm-app .crm-close-task:disabled { background: #d9e7de; color: #1d6b3a; }
 
