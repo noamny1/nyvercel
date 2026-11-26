@@ -382,8 +382,6 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
         ) : board === "הוראות קבע וועד" ? (
           <div className="crm-head bank">
             <span>כתובת</span>
-            <span>עיר</span>
-            <span>סוג לקוח</span>
             <span>הערות</span>
             <span>מס חשבון</span>
             {payMonths.map((month) => <span key={month}>{month}</span>)}
@@ -436,8 +434,6 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
             return (
               <div key={row.id} className="crm-line bank" onClick={() => open(row)}>
                 <strong className="crm-name">{row.name}</strong>
-                <span>{city}</span>
-                <span>{kind}</span>
                 <span className="crm-note-line">{extra}</span>
                 <span>{account}</span>
                 {payMonths.map((month) => {
