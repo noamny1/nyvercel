@@ -320,10 +320,6 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
       <button type="button" className="crm-fab" onClick={create}>{newLabel}</button>
       {editing && (
         <div className="crm-editor">
-          <div className="crm-editor-bar">
-            <button type="button" className="crm-ghost" onClick={() => setEditing(null)}>סגור</button>
-            <button type="button" className="crm-save" onClick={save} disabled={busy}>{busy ? "שומר" : "שמירה"}</button>
-          </div>
           <div className="crm-hero">
             <p>{editingTask ? (editing.id ? "עריכת משימה" : "משימה חדשה") : (editing.id ? "עריכת כתובת" : newLabel)}</p>
             <h2>{draft.Name || (editingTask ? "משימה חדשה" : "כתובת חדשה")}</h2>
@@ -417,7 +413,11 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
           </>
           )}
           {note && <p className="crm-note">{note}</p>}
-          {editing.id ? <button type="button" className="crm-delete" onClick={remove}>מחיקה</button> : null}
+          <div className={editing.id ? "crm-editor-actions" : "crm-editor-actions two"}>
+            <button type="button" className="crm-ghost" onClick={() => setEditing(null)}>סגור</button>
+            {editing.id ? <button type="button" className="crm-delete" onClick={remove}>מחיקה</button> : null}
+            <button type="button" className="crm-save" onClick={save} disabled={busy}>{busy ? "שומר" : "שמירה"}</button>
+          </div>
         </div>
       )}
     </div>
