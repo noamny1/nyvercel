@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { BOARD_FIELDS, BOARDS } from "@/modules/crm/boards";
 import { isPaid, PAID, recentPayMonths, UNPAID } from "@/modules/crm/pay-months";
 
@@ -75,6 +75,9 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
   const [board, setBoard] = useState<string>("משימות יובל");
   const [openMenu, setOpenMenu] = useState<"" | "tasks" | "billing">("tasks");
   const [query, setQuery] = useState("");
+  const [filterOn, setFilterOn] = useState(false);
+  const [filterKey, setFilterKey] = useState("");
+  const [filterValue, setFilterValue] = useState("");
   const [shown, setShown] = useState(40);
   const [editing, setEditing] = useState<CrmRow | null>(null);
   const [draft, setDraft] = useState<Record<string, string>>({});
@@ -111,6 +114,10 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
     const needle = query.trim().toLowerCase();
     const rows = items.filter((row) => {
       if (place(row) !== board) return false;
+      if (filterKey && filterValue) {
+        const value = filterKey === "שם" ? row.name : row.fields[filterKey] || "";
+        if (value.trim() !== filterValue) return false;
+      }
       if (!needle) return true;
       return `${row.name} ${Object.values(row.fields).join(" ")}`.toLowerCase().includes(needle);
     });
@@ -124,7 +131,13 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
       return rows.sort((a, b) => (b.createdAt || "").localeCompare(a.createdAt || "") || b.id - a.id);
     }
     return rows;
-  }, [items, board, query]);
+  }, [items, board, query, filterKey, filterValue]);
+
+  useEffect(() => {
+    setFilterOn(false);
+    setFilterKey("");
+    setFilterValue("");
+  }, [board]);
 
   function open(row: CrmRow) {
     setEditing(row);
@@ -257,6 +270,29 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
   const editingTask = Boolean(editing && (TASKS.includes(draftBoard) || draftBoard === HISTORY));
   const newLabel = taskMode ? "משימה חדשה" : ADDRESS.has(board) ? "כתובת חדשה" : "לקוח חדש";
   const payMonths = recentPayMonths();
+  const filterKeys = useMemo(() => {
+    const found = new Set<string>();
+    for (const row of items) {
+      if (place(row) !== board) continue;
+      if (row.name.trim()) found.add("שם");
+      for (const [key, value] of Object.entries(row.fields)) {
+        if (key === "Name" || !String(value || "").trim() || /pass|סיסמ/i.test(key)) continue;
+        found.add(key);
+      }
+    }
+    const first = ["שם", "עיר", "סטטוס", "סוג לקוח", "אמצעי תשלום", "תימה", "תשתית", "הערות", "תשלום חודשי"];
+    return [...first.filter((key) => found.has(key)), ...Array.from(found).filter((key) => !first.includes(key)).sort((a, b) => a.localeCompare(b, "he"))];
+  }, [items, board]);
+  const filterValues = useMemo(() => {
+    if (!filterKey) return [];
+    const values = new Set<string>();
+    for (const row of items) {
+      if (place(row) !== board) continue;
+      const value = (filterKey === "שם" ? row.name : row.fields[filterKey] || "").trim();
+      if (value) values.add(value);
+    }
+    return Array.from(values).sort((a, b) => a.localeCompare(b, "he"));
+  }, [items, board, filterKey]);
 
   return (
     <div className="crm-app" dir="rtl">
@@ -268,15 +304,46 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
             <a href="/admin">לניהול המסכים</a>
           </div>
         </div>
-        <input
-          className="crm-search"
-          value={query}
-          placeholder="חיפוש בלשונית"
-          onChange={(event) => {
-            setQuery(event.target.value);
-            setShown(40);
-          }}
-        />
+        <div className="crm-tools">
+          <input
+            className="crm-search"
+            value={query}
+            placeholder="חיפוש בלשונית"
+            onChange={(event) => {
+              setQuery(event.target.value);
+              setShown(40);
+            }}
+          />
+          <button type="button" className={filterOn || filterValue ? "crm-filter on" : "crm-filter"} onClick={() => setFilterOn((open) => !open)}>
+            מסנן
+          </button>
+        </div>
+        {filterOn ? (
+          <div className="crm-filter-panel">
+            <select
+              value={filterKey}
+              onChange={(event) => {
+                setFilterKey(event.target.value);
+                setFilterValue("");
+                setShown(40);
+              }}
+            >
+              <option value="">בחירת משתנה</option>
+              {filterKeys.map((key) => <option key={key} value={key}>{key}</option>)}
+            </select>
+            <select
+              value={filterValue}
+              disabled={!filterKey}
+              onChange={(event) => {
+                setFilterValue(event.target.value);
+                setShown(40);
+              }}
+            >
+              <option value="">כל הערכים</option>
+              {filterValues.map((value) => <option key={value} value={value}>{value}</option>)}
+            </select>
+          </div>
+        ) : null}
       </header>
       <div className="board-row">
         <button
@@ -390,6 +457,16 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
             <span>מס חשבון</span>
             {payMonths.map((month) => <span key={month}>{month}</span>)}
           </div>
+        ) : board === "כתובות פעילות" ? (
+          <div className="crm-head active">
+            <span>כתובת</span>
+            <span>עיר</span>
+            <span>סוג לקוח</span>
+            <span>הערות</span>
+            <span>אמצעי תשלום</span>
+            <span>תשלום</span>
+            <span>סטטוס</span>
+          </div>
         ) : (
           <div className="crm-head">
             <span>כתובת</span>
@@ -432,6 +509,7 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
           const pay = row.fields["תשלום חודשי"] || row.fields["סכום"] || row.fields["סכום אפריל"];
           const extra = row.fields["הערות"] || row.fields["תכולת העבודה"];
           const account = row.fields["מס חשבון בנק"] || row.fields["מספר חשבון"] || "";
+          const method = row.fields["אמצעי תשלום"] || "";
           const tone = /פעיל|בוצע|שולם/.test(status || "") ? "ok" : /סירוב|ניתוק|לא שולם|החזר/.test(status || "") ? "bad" : "wait";
           const standing = row.board === "הוראות קבע וועד";
           if (standing) {
@@ -462,11 +540,12 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
             );
           }
           return (
-            <button key={row.id} type="button" className="crm-line" onClick={() => open(row)}>
+            <button key={row.id} type="button" className={row.board === "כתובות פעילות" ? "crm-line active" : "crm-line"} onClick={() => open(row)}>
               <strong className="crm-name">{row.name}</strong>
               <span>{city}</span>
               <span>{kind}</span>
               <span className="crm-note-line">{extra}</span>
+              {row.board === "כתובות פעילות" ? <span>{method}</span> : null}
               <span className="crm-pay">{pay ? `₪ ${pay}` : ""}</span>
               {status ? <i className={`crm-pill ${tone}`}>{status}</i> : <span />}
             </button>
