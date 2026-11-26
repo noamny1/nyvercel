@@ -24,6 +24,8 @@ function isCity(value: string) {
 
 const CHOICE_FIELDS = ["עיר", "סטטוס", "סוג לקוח", "תימה", "אמצעי תשלום", "תשתית"];
 
+const TASKS = ["משימות נירית", "משימות נועם", "משימות יובל"];
+
 const ADDRESS = new Set<string>([
   "משימות נירית",
   "משימות נועם",
@@ -56,6 +58,7 @@ function sections(keys: string[]) {
 export function CrmApp({ rows }: { rows: CrmRow[] }) {
   const [items, setItems] = useState(rows);
   const [board, setBoard] = useState<string>("כתובות פעילות");
+  const [tasksOpen, setTasksOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [shown, setShown] = useState(40);
   const [editing, setEditing] = useState<CrmRow | null>(null);
@@ -170,13 +173,21 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
         />
       </header>
       <div className="board-row">
-        {BOARDS.map((name) => (
+        <button
+          type="button"
+          className={TASKS.includes(board) ? "board-chip on" : "board-chip"}
+          onClick={() => setTasksOpen((open) => !open)}
+        >
+          משימות <b>{TASKS.reduce((sum, name) => sum + (counts[name] || 0), 0)}</b>
+        </button>
+        {BOARDS.filter((name) => !TASKS.includes(name)).map((name) => (
           <button
             key={name}
             type="button"
             className={name === board ? "board-chip on" : "board-chip"}
             onClick={() => {
               setBoard(name);
+              setTasksOpen(false);
               setShown(40);
             }}
           >
@@ -184,6 +195,23 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
           </button>
         ))}
       </div>
+      {tasksOpen ? (
+        <div className="board-row task-row">
+          {TASKS.map((name) => (
+            <button
+              key={name}
+              type="button"
+              className={name === board ? "board-chip on" : "board-chip"}
+              onClick={() => {
+                setBoard(name);
+                setShown(40);
+              }}
+            >
+              {name.replace("משימות ", "")} <b>{counts[name] || 0}</b>
+            </button>
+          ))}
+        </div>
+      ) : null}
       <div className="crm-list">
         <div className="crm-head">
           <span>כתובת</span>
