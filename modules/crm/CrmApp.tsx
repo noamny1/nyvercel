@@ -423,7 +423,7 @@ export function CrmApp({ rows, counts: initialCounts, choiceValues }: { rows: Cr
         <h2>{BILLING_LABEL[board] || (board === "הזמנות חדשות-ומשימות" ? "הזמנות" : board)}</h2>
         <b>{counts[board] || 0}</b>
       </div>
-      <div className={board === "כתובות פעילות" ? "crm-list fit" : "crm-list"}>
+      <div className="crm-list">
         {board === HISTORY ? (
           <div className="crm-head task">
             <span>שם</span>
@@ -447,7 +447,17 @@ export function CrmApp({ rows, counts: initialCounts, choiceValues }: { rows: Cr
             <span>מס חשבון</span>
             {payMonths.map((month) => <span key={month}>{month}</span>)}
           </div>
-        ) : board === "כתובות פעילות" ? null : (
+        ) : board === "כתובות פעילות" ? (
+          <div className="crm-head active">
+            <span>כתובת</span>
+            <span>עיר</span>
+            <span>סוג לקוח</span>
+            <span>הערות</span>
+            <span>אמצעי תשלום</span>
+            <span>תשלום</span>
+            <span>סטטוס</span>
+          </div>
+        ) : (
           <div className="crm-head">
             <span>כתובת</span>
             <span>עיר</span>
@@ -520,27 +530,13 @@ export function CrmApp({ rows, counts: initialCounts, choiceValues }: { rows: Cr
               </div>
             );
           }
-          if (row.board === "כתובות פעילות") {
-            return (
-              <button key={row.id} type="button" className="crm-address" onClick={() => open(row)}>
-                <span className="crm-address-top">
-                  <strong className="crm-name">{row.name}</strong>
-                  {status ? <i className={`crm-pill ${tone}`}>{status}</i> : <span />}
-                </span>
-                <span className="crm-address-meta">
-                  <span>{[city, kind, method].filter(Boolean).join(" · ")}</span>
-                  <span className="crm-pay">{pay ? `₪ ${pay}` : ""}</span>
-                </span>
-                {extra ? <span className="crm-note-line">{extra}</span> : null}
-              </button>
-            );
-          }
           return (
-            <button key={row.id} type="button" className="crm-line" onClick={() => open(row)}>
+            <button key={row.id} type="button" className={row.board === "כתובות פעילות" ? "crm-line active" : "crm-line"} onClick={() => open(row)}>
               <strong className="crm-name">{row.name}</strong>
               <span>{city}</span>
               <span>{kind}</span>
               <span className="crm-note-line">{extra}</span>
+              {row.board === "כתובות פעילות" ? <span>{method}</span> : null}
               <span className="crm-pay">{pay ? `₪ ${pay}` : ""}</span>
               {status ? <i className={`crm-pill ${tone}`}>{status}</i> : <span />}
             </button>

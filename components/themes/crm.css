@@ -33,7 +33,6 @@
 .crm-filter-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; max-width: 1100px; margin: 8px auto 0; }
 .crm-filter-panel select { width: 100%; box-sizing: border-box; border: 0; border-radius: 12px; padding: 12px; font: inherit; font-size: 15px; background: #fff; color: #1c1412; }
 @media (max-width: 640px) { .crm-filter-panel { grid-template-columns: 1fr; } }
-.crm-head, .crm-app .crm-line { display: grid; grid-template-columns: minmax(150px, 1.5fr) minmax(78px, .7fr) minmax(96px, .9fr) minmax(130px, 1.3fr) 78px 74px; align-items: center; gap: 10px; min-width: 760px; padding: 12px 14px; }
 .board-row { display: flex; flex-wrap: nowrap; gap: 6px; overflow-x: auto; padding: 10px 12px 4px; max-width: 1100px; margin: 0 auto; scrollbar-width: none; }
 .board-row::-webkit-scrollbar { display: none; }
 .crm-app .board-row .board-chip { flex: 0 0 auto; }
@@ -112,14 +111,7 @@
 .crm-app .crm-close-task:disabled { background: #d9e7de; color: #1d6b3a; }
 
 .crm-list { max-width: 1100px; margin: 8px auto 12px; background: #fff; border-radius: 16px; overflow: auto; }
-.crm-list.fit { overflow: hidden; }
-.crm-app .crm-address { display: flex; flex-direction: column; gap: 4px; width: 100%; min-width: 0; text-align: right; background: #fff; color: #1c1412; border: 0; border-bottom: 1px solid #f0e8e0; padding: 12px 14px; }
-.crm-app .crm-address:hover { background: #fbf7f1; }
-.crm-address-top, .crm-address-meta { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-width: 0; }
-.crm-address-top .crm-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 17px; }
-.crm-address-meta { color: #5c534e; font-size: 13px; }
-.crm-address-meta span:first-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.crm-app .crm-address .crm-note-line { white-space: normal; }
+.crm-head.active, .crm-app .crm-line.active { grid-template-columns: minmax(140px, 1.35fr) minmax(72px, .65fr) minmax(90px, .8fr) minmax(120px, 1.15fr) minmax(96px, .85fr) 78px 74px; min-width: 920px; }
 .crm-head, .crm-app .crm-line { display: grid; grid-template-columns: minmax(150px, 1.5fr) minmax(78px, .7fr) minmax(96px, .9fr) minmax(130px, 1.3fr) 78px 74px; align-items: center; gap: 10px; min-width: 760px; padding: 12px 14px; }
 .crm-head.bank, .crm-app .crm-line.bank { grid-template-columns: minmax(150px, 1.1fr) minmax(180px, 2fr) minmax(88px, .7fr) 86px 86px 86px; min-width: 760px; }
 .crm-app .crm-line.bank { cursor: pointer; }
