@@ -160,11 +160,18 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
           const status = row.fields["סטטוס"];
           const pay = row.fields["תשלום חודשי"] || row.fields["סכום"] || row.fields["סכום אפריל"];
           const extra = row.fields["הערות"] || row.fields["תכולת העבודה"] || row.fields["סוג לקוח"];
+          const tone = /פעיל|בוצע|שולם/.test(status || "") ? "ok" : /סירוב|ניתוק|לא שולם|החזר/.test(status || "") ? "bad" : "wait";
           return (
             <button key={row.id} type="button" className="crm-card" onClick={() => open(row)}>
-              <strong>{row.name}</strong>
-              <span>{[city, status].filter(Boolean).join(" · ") || "\u00a0"}</span>
-              <em>{pay ? `₪ ${pay}` : extra || "\u00a0"}</em>
+              <div className="crm-card-top">
+                <strong className="crm-name">{row.name}</strong>
+                {status ? <i className={`crm-pill ${tone}`}>{status}</i> : null}
+              </div>
+              <div className="crm-card-meta">
+                {city ? <span>{city}</span> : null}
+                {pay ? <span className="crm-pay">₪ {pay}</span> : null}
+              </div>
+              {extra ? <p className="crm-note-line">{extra}</p> : null}
             </button>
           );
         })}
