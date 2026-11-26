@@ -292,3 +292,54 @@ model Room {
   logoUrl   String @default("")
   specialty String @default("")
 }
+
+
+model CrmClient {
+  id            Int      @id @default(autoincrement())
+  name          String
+  city          String?
+  status        String?
+  workContent   String?
+  notes         String?
+  oneTimeCharge Float?
+  monthlyPay    Float?
+  monthlyPay2   Float?
+  internetCost  Float?
+  clientType    String?
+  infrastructure String?
+  paymentMethod String?
+  theme         String?
+  installDate   DateTime?
+  screenCount   Int?
+  paidUntil     String?
+  mondayId      String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  tasks         CrmTask[]
+}
+
+model CrmEmployee {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String?  @unique
+  phone     String?
+  role      String   @default("employee")
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  tasks     CrmTask[]
+}
+
+model CrmTask {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  status      String   @default("open")
+  priority    String   @default("normal")
+  dueDate     DateTime?
+  clientId    Int?
+  client      CrmClient? @relation(fields: [clientId], references: [id])
+  employeeId  Int?
+  employee    CrmEmployee? @relation(fields: [employeeId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
