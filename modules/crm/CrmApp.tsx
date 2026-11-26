@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { BOARD_FIELDS, BOARDS } from "@/modules/crm/boards";
 import { isPaid, PAID, recentPayMonths, UNPAID } from "@/modules/crm/pay-months";
+import { CHOICE_FIELDS, HISTORY, TASKS } from "@/modules/crm/query";
 
 export type CrmRow = {
   id: number;
@@ -24,10 +25,6 @@ function isCity(value: string) {
   return !/\d|שח|הרשא|ביטול|סכום|מסב|לחייב|חיייב|חן /.test(value);
 }
 
-const CHOICE_FIELDS = ["עיר", "סטטוס", "סוג לקוח", "תימה", "אמצעי תשלום", "תשתית"];
-
-const TASKS = ["משימות נירית", "משימות נועם", "משימות יובל"];
-const HISTORY = "היסטורית משימות";
 function place(row: CrmRow) {
   if (TASKS.includes(row.board) && row.fields["סטטוס משימה"] === "נסגרה") return HISTORY;
   return row.board;
@@ -69,8 +66,9 @@ function sections(keys: string[]) {
   return out;
 }
 
-export function CrmApp({ rows }: { rows: CrmRow[] }) {
-  const [items, setItems] = useState(rows);
+export function CrmApp({ rows, counts: initialCounts, choiceValues }: { rows: CrmRow[]; counts: Record<string, number>; choiceValues: Record<string, string[]> }) {
+  const [cache, setCache] = useState<Record<string, CrmRow[]>>({ "משימות יובל": rows });
+  const [counts, setCounts] = useState(initialCounts);
   const [board, setBoard] = useState<string>("משימות יובל");
   const [openMenu, setOpenMenu] = useState<"" | "tasks" | "billing">("tasks");
   const [query, setQuery] = useState("");
@@ -89,26 +87,13 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
   const choices = useMemo(() => {
     const map: Record<string, string[]> = {};
     for (const key of CHOICE_FIELDS) {
-      const values = new Set<string>(addedChoices[key] || []);
-      for (const row of items) {
-        const value = (row.fields[key] || "").trim();
-        if (!value || (key === "עיר" && !isCity(value))) continue;
-        values.add(value);
-      }
-      map[key] = Array.from(values).sort((a, b) => a.localeCompare(b, "he"));
+      const values = new Set<string>([...(choiceValues[key] || []), ...(addedChoices[key] || [])]);
+      map[key] = Array.from(values).filter((value) => key !== "עיר" || isCity(value)).sort((a, b) => a.localeCompare(b, "he"));
     }
     return map;
-  }, [items, addedChoices]);
+  }, [choiceValues, addedChoices]);
 
-  const counts = useMemo(() => {
-    const map = Object.fromEntries(BOARDS.map((name) => [name, 0]));
-    for (const row of items) {
-      const name = place(row);
-      map[name] = (map[name] || 0) + 1;
-    }
-    return map;
-  }, [items]);
-
+  const items = cache[board] || [];
   const visible = useMemo(() => {
     const needle = query.trim().toLowerCase();
     const rows = items.filter((row) => {
@@ -137,6 +122,44 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
     setFilterKey("");
     setFilterValue("");
   }, [board]);
+
+  useEffect(() => {
+    if (cache[board]) return;
+    let cancel = false;
+    fetch(`/api/crm/clients?board=${encodeURIComponent(board)}`)
+      .then(async (response) => {
+        const body = await response.json().catch(() => ({}));
+        if (cancel) return;
+        if (!response.ok) {
+          setNote("הטעינה נכשלה");
+          setCache((current) => (current[board] ? current : { ...current, [board]: [] }));
+          return;
+        }
+        setCache((current) => (current[board] ? current : { ...current, [board]: body.rows || [] }));
+      })
+      .catch(() => {
+        if (!cancel) setNote("הטעינה נכשלה");
+      });
+    return () => {
+      cancel = true;
+    };
+  }, [board]);
+
+  function remember(next: CrmRow, previous?: CrmRow) {
+    const from = previous ? place(previous) : "";
+    const to = place(next);
+    setCache((current) => {
+      const copy = { ...current };
+      if (from && from !== to && copy[from]) copy[from] = copy[from].filter((row) => row.id !== next.id);
+      if (copy[to]) copy[to] = [next, ...copy[to].filter((row) => row.id !== next.id)];
+      return copy;
+    });
+    setCounts((current) => {
+      if (!previous) return { ...current, [to]: (current[to] || 0) + 1 };
+      if (from === to) return current;
+      return { ...current, [from]: Math.max(0, (current[from] || 0) - 1), [to]: (current[to] || 0) + 1 };
+    });
+  }
 
   function open(row: CrmRow) {
     setEditing(row);
@@ -193,7 +216,7 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
     }
     const body = await response.json().catch(() => ({}));
     const next: CrmRow = { id: editing.id || body.id, board: draftBoard, name, createdAt: editing.createdAt || new Date().toISOString(), fields: payload.fields };
-    setItems((current) => editing.id ? current.map((row) => row.id === editing.id ? next : row) : [next, ...current]);
+    remember(next, editing.id ? editing : undefined);
     setEditing(null);
     if (draftBoard !== board) setBoard(draftBoard);
   }
@@ -232,7 +255,7 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
     }
     setBusy(false);
     const next: CrmRow = { id: editing.id, board: HISTORY, name, createdAt: editing.createdAt, fields };
-    setItems((current) => current.map((row) => (row.id === editing.id ? next : row)));
+    remember(next, editing);
     setEditing(null);
     setBoard(HISTORY);
     setOpenMenu("tasks");
@@ -249,13 +272,22 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
       setNote("המחיקה נכשלה");
       return;
     }
-    setItems((current) => current.filter((row) => row.id !== editing.id));
+    const removed = place(editing);
+    setCache((current) => {
+      if (!current[removed]) return current;
+      return { ...current, [removed]: current[removed].filter((row) => row.id !== editing.id) };
+    });
+    setCounts((current) => ({ ...current, [removed]: Math.max(0, (current[removed] || 0) - 1) }));
     setEditing(null);
   }
 
   async function setPay(row: CrmRow, month: string, value: string) {
     const fields = { ...(row.fields || {}), [month]: value };
-    setItems((current) => current.map((item) => (item.id === row.id ? { ...item, fields } : item)));
+    const key = place(row);
+    setCache((current) => {
+      if (!current[key]) return current;
+      return { ...current, [key]: current[key].map((item) => (item.id === row.id ? { ...item, fields } : item)) };
+    });
     const response = await fetch(`/api/crm/clients/${row.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -431,7 +463,8 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
             <span>סטטוס</span>
           </div>
         )}
-        {visible.slice(0, shown).map((row) => {
+        {!cache[board] ? <p className="crm-empty">טוען...</p> : null}
+        {cache[board] ? visible.slice(0, shown).map((row) => {
           if (place(row) === HISTORY) {
             return (
               <button key={row.id} type="button" className="crm-line task" onClick={() => open(row)}>
@@ -504,8 +537,8 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
               {status ? <i className={`crm-pill ${tone}`}>{status}</i> : <span />}
             </button>
           );
-        })}
-        {!visible.length && <p className="crm-empty">אין רשומות בלשונית הזו</p>}
+        }) : null}
+        {cache[board] && !visible.length ? <p className="crm-empty">אין רשומות בלשונית הזו</p> : null}
       </div>
       {shown < visible.length && (
         <button type="button" className="crm-more" onClick={() => setShown((count) => count + 40)}>

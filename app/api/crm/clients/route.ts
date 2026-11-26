@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { isSystemAdmin, requireSession } from "@/lib/session";
 import { recentPayMonths, UNPAID } from "@/modules/crm/pay-months";
+import { loadBoard } from "@/modules/crm/query";
 import { NextResponse } from "next/server";
 
 async function denied() {
@@ -23,6 +24,14 @@ function clean(fields: unknown) {
 function money(value: string | undefined) {
   const number = Number(String(value || "").replace(/,/g, ""));
   return Number.isFinite(number) ? number : null;
+}
+
+export async function GET(req: Request) {
+  const block = await denied();
+  if (block) return block;
+  const board = new URL(req.url).searchParams.get("board") || "";
+  if (!board) return NextResponse.json({ error: "missing board" }, { status: 400 });
+  return NextResponse.json({ rows: await loadBoard(board) });
 }
 
 export async function POST(req: Request) {
