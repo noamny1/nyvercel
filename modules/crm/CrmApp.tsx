@@ -185,19 +185,29 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
         ))}
       </div>
       <div className="crm-list">
+        <div className="crm-head">
+          <span>כתובת</span>
+          <span>עיר</span>
+          <span>סוג לקוח</span>
+          <span>הערות</span>
+          <span>תשלום</span>
+          <span>סטטוס</span>
+        </div>
         {visible.slice(0, shown).map((row) => {
           const city = row.fields["עיר"];
+          const kind = row.fields["סוג לקוח"];
           const status = row.fields["סטטוס"];
           const pay = row.fields["תשלום חודשי"] || row.fields["סכום"] || row.fields["סכום אפריל"];
-          const extra = row.fields["הערות"] || row.fields["תכולת העבודה"] || row.fields["סוג לקוח"];
+          const extra = row.fields["הערות"] || row.fields["תכולת העבודה"];
           const tone = /פעיל|בוצע|שולם/.test(status || "") ? "ok" : /סירוב|ניתוק|לא שולם|החזר/.test(status || "") ? "bad" : "wait";
           return (
             <button key={row.id} type="button" className="crm-line" onClick={() => open(row)}>
               <strong className="crm-name">{row.name}</strong>
               <span>{city}</span>
+              <span>{kind}</span>
               <span className="crm-note-line">{extra}</span>
               <span className="crm-pay">{pay ? `₪ ${pay}` : ""}</span>
-              {status ? <i className={`crm-pill ${tone}`}>{status}</i> : <i />}
+              {status ? <i className={`crm-pill ${tone}`}>{status}</i> : <span />}
             </button>
           );
         })}
