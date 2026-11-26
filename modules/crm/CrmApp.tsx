@@ -260,12 +260,23 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
       <div className="board-row">
         <button
           type="button"
+          className={board === "כתובות פעילות" ? "board-chip on" : "board-chip"}
+          onClick={() => {
+            setBoard("כתובות פעילות");
+            setOpenMenu("");
+            setShown(40);
+          }}
+        >
+          כתובות פעילות <b>{counts["כתובות פעילות"] || 0}</b>
+        </button>
+        <button
+          type="button"
           className={TASKS.includes(board) || board === HISTORY ? "board-chip on" : "board-chip"}
           onClick={() => setOpenMenu((open) => open === "tasks" ? "" : "tasks")}
         >
           משימות <b>{TASKS.reduce((sum, name) => sum + (counts[name] || 0), 0)}</b>
         </button>
-        {BOARDS.filter((name) => !HIDDEN.has(name)).map((name) => (
+        {BOARDS.filter((name) => !HIDDEN.has(name) && name !== "כתובות פעילות").map((name) => (
           <span key={name} className="board-slot">
             <button
               type="button"

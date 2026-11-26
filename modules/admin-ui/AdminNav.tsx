@@ -39,7 +39,18 @@ export function AdminNav() {
           {OWNER_LINKS.map(([href, label]) => {
             const on = href === "/admin" ? path === "/admin" : path.startsWith(href);
             return (
-              <Link key={href} href={href} className={on ? "is-on" : undefined}>{label}</Link>
+              <Link
+                key={href}
+                href={href}
+                className={on ? "is-on" : undefined}
+                onClick={(event) => {
+                  if (href !== "/admin/crm") return;
+                  event.preventDefault();
+                  window.location.assign("/admin/crm");
+                }}
+              >
+                {label}
+              </Link>
             );
           })}
         </nav>
