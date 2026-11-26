@@ -18,6 +18,8 @@ const GROUPS = [
   { title: "חיבור", keys: ["IP/DNS", "User", "Pass", "נתוני מודם/סים", "מס מנוי", "סיסמא מודם", "סוג DVR", "Ip Dvr", "Ports", "User Dvr", "Pass Dvr"] },
 ];
 
+const CHOICE_FIELDS = ["עיר", "סטטוס", "סוג לקוח", "תימה", "אמצעי תשלום", "תשתית"];
+
 const ADDRESS = new Set<string>([
   "משימות נירית",
   "משימות נועם",
@@ -57,6 +59,20 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
   const [draftBoard, setDraftBoard] = useState("");
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState("");
+  const [addedChoices, setAddedChoices] = useState<Record<string, string[]>>({});
+
+  const choices = useMemo(() => {
+    const map: Record<string, string[]> = {};
+    for (const key of CHOICE_FIELDS) {
+      const values = new Set<string>(addedChoices[key] || []);
+      for (const row of items) {
+        const value = (row.fields[key] || "").trim();
+        if (value) values.add(value);
+      }
+      map[key] = Array.from(values).sort((a, b) => a.localeCompare(b, "he"));
+    }
+    return map;
+  }, [items, addedChoices]);
 
   const counts = useMemo(() => {
     const map = Object.fromEntries(BOARDS.map((name) => [name, 0]));
@@ -211,7 +227,20 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
               {group.keys.map((key) => (
                 <label key={key}>
                   {key}
-                  {(draft[key] || "").length > 40 || key.includes("הערות") || key.includes("תכול") ? (
+                  {CHOICE_FIELDS.includes(key) ? (
+                    <ChoiceField
+                      value={draft[key] || ""}
+                      options={choices[key] || []}
+                      onChange={(value) => setDraft((current) => ({ ...current, [key]: value }))}
+                      onAdd={(value) => {
+                        setAddedChoices((current) => ({
+                          ...current,
+                          [key]: Array.from(new Set([...(current[key] || []), value])),
+                        }));
+                        setDraft((current) => ({ ...current, [key]: value }));
+                      }}
+                    />
+                  ) : (draft[key] || "").length > 40 || key.includes("הערות") || key.includes("תכול") ? (
                     <textarea value={draft[key] || ""} onChange={(event) => setDraft({ ...draft, [key]: event.target.value })} />
                   ) : (
                     <input value={draft[key] || ""} onChange={(event) => setDraft({ ...draft, [key]: event.target.value })} />
@@ -225,5 +254,46 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
         </div>
       )}
     </div>
+  );
+}
+
+function ChoiceField({
+  value,
+  options,
+  onChange,
+  onAdd,
+}: {
+  value: string;
+  options: string[];
+  onChange: (value: string) => void;
+  onAdd: (value: string) => void;
+}) {
+  const [custom, setCustom] = useState("");
+  const list = value && !options.includes(value) ? [value, ...options] : options;
+  return (
+    <>
+      <select value={value} onChange={(event) => onChange(event.target.value)}>
+        <option value="">בחירה</option>
+        {list.map((option) => <option key={option} value={option}>{option}</option>)}
+      </select>
+      <span className="crm-add-choice">
+        <input
+          value={custom}
+          placeholder="ערך חדש"
+          onChange={(event) => setCustom(event.target.value)}
+        />
+        <button
+          type="button"
+          onClick={() => {
+            const next = custom.trim();
+            if (!next) return;
+            onAdd(next);
+            setCustom("");
+          }}
+        >
+          הוסף
+        </button>
+      </span>
+    </>
   );
 }
