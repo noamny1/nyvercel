@@ -33,7 +33,6 @@ function place(row: CrmRow) {
   return row.board;
 }
 const BILLING = ["חיוב מס\"ב 16 לחודש", "הוראות קבע וועד", "העברות בנקאיות חברות ניהול", "ארנון תשלומים"];
-const HIDDEN = new Set<string>([...TASKS, ...BILLING]);
 const BILLING_LABEL: Record<string, string> = {
   "חיוב מס\"ב 16 לחודש": "מס\"ב 16",
   "הוראות קבע וועד": "הוראות קבע",
@@ -346,88 +345,43 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
         ) : null}
       </header>
       <div className="board-row">
-        <button
-          type="button"
-          className={board === "כתובות פעילות" ? "board-chip on" : "board-chip"}
-          onClick={() => {
-            setBoard("כתובות פעילות");
-            setOpenMenu("");
-            setShown(40);
-          }}
-        >
+        <button type="button" className={board === "כתובות פעילות" ? "board-chip on" : "board-chip"} onClick={() => { setBoard("כתובות פעילות"); setOpenMenu(""); setShown(40); }}>
           כתובות פעילות <b>{counts["כתובות פעילות"] || 0}</b>
         </button>
-        <button
-          type="button"
-          className={TASKS.includes(board) || board === HISTORY ? "board-chip on" : "board-chip"}
-          onClick={() => setOpenMenu((open) => open === "tasks" ? "" : "tasks")}
-        >
+        <button type="button" className={openMenu === "tasks" || TASKS.includes(board) || board === HISTORY ? "board-chip on" : "board-chip"} onClick={() => { setShown(40); if (openMenu === "tasks") { setOpenMenu(""); return; } setOpenMenu("tasks"); if (!TASKS.includes(board) && board !== HISTORY) setBoard("משימות יובל"); }}>
           משימות <b>{TASKS.reduce((sum, name) => sum + (counts[name] || 0), 0)}</b>
         </button>
-        {BOARDS.filter((name) => !HIDDEN.has(name) && name !== "כתובות פעילות").map((name) => (
-          <span key={name} className="board-slot">
-            <button
-              type="button"
-              className={name === board ? "board-chip on" : "board-chip"}
-              onClick={() => {
-                setBoard(name);
-                setOpenMenu("");
-                setShown(40);
-              }}
-            >
-              {name} <b>{counts[name] || 0}</b>
-            </button>
-            {name === "חיוב חד פעמי" ? (
-              <button
-                type="button"
-                className={BILLING.includes(board) ? "board-chip on" : "board-chip"}
-                onClick={() => setOpenMenu((open) => open === "billing" ? "" : "billing")}
-              >
-                גבייה <b>{BILLING.reduce((sum, item) => sum + (counts[item] || 0), 0)}</b>
-              </button>
-            ) : null}
-          </span>
-        ))}
+        <button type="button" className={board === "הזמנות חדשות-ומשימות" ? "board-chip on" : "board-chip"} onClick={() => { setBoard("הזמנות חדשות-ומשימות"); setOpenMenu(""); setShown(40); }}>
+          הזמנות <b>{counts["הזמנות חדשות-ומשימות"] || 0}</b>
+        </button>
+        <button type="button" className={board === "חיוב חד פעמי" ? "board-chip on" : "board-chip"} onClick={() => { setBoard("חיוב חד פעמי"); setOpenMenu(""); setShown(40); }}>
+          חיוב חד פעמי <b>{counts["חיוב חד פעמי"] || 0}</b>
+        </button>
+        <button type="button" className={openMenu === "billing" || BILLING.includes(board) ? "board-chip on" : "board-chip"} onClick={() => { setShown(40); if (openMenu === "billing") { setOpenMenu(""); return; } setOpenMenu("billing"); if (!BILLING.includes(board)) setBoard(BILLING[0]); }}>
+          גבייה <b>{BILLING.reduce((sum, item) => sum + (counts[item] || 0), 0)}</b>
+        </button>
+        <button type="button" className={board === "ניתוקים" ? "board-chip on" : "board-chip"} onClick={() => { setBoard("ניתוקים"); setOpenMenu(""); setShown(40); }}>
+          ניתוקים <b>{counts["ניתוקים"] || 0}</b>
+        </button>
       </div>
       {openMenu === "tasks" ? (
-        <div className="board-row task-row">
+        <div className="crm-subnav">
+          <strong>משימות</strong>
           {TASKS.map((name) => (
-            <button
-              key={name}
-              type="button"
-              className={name === board ? "board-chip on" : "board-chip"}
-              onClick={() => {
-                setBoard(name);
-                setShown(40);
-              }}
-            >
+            <button key={name} type="button" className={name === board ? "board-chip on" : "board-chip"} onClick={() => { setBoard(name); setShown(40); }}>
               {name.replace("משימות ", "")} <b>{counts[name] || 0}</b>
             </button>
           ))}
-          <button
-            type="button"
-            className={board === HISTORY ? "board-chip on" : "board-chip"}
-            onClick={() => {
-              setBoard(HISTORY);
-              setShown(40);
-            }}
-          >
-            היסטורית משימות <b>{counts[HISTORY] || 0}</b>
+          <button type="button" className={board === HISTORY ? "board-chip on" : "board-chip"} onClick={() => { setBoard(HISTORY); setShown(40); }}>
+            היסטוריה <b>{counts[HISTORY] || 0}</b>
           </button>
         </div>
       ) : null}
       {openMenu === "billing" ? (
-        <div className="board-row task-row">
+        <div className="crm-subnav">
+          <strong>גבייה</strong>
           {BILLING.map((name) => (
-            <button
-              key={name}
-              type="button"
-              className={name === board ? "board-chip on" : "board-chip"}
-              onClick={() => {
-                setBoard(name);
-                setShown(40);
-              }}
-            >
+            <button key={name} type="button" className={name === board ? "board-chip on" : "board-chip"} onClick={() => { setBoard(name); setShown(40); }}>
               {BILLING_LABEL[name]} <b>{counts[name] || 0}</b>
             </button>
           ))}
