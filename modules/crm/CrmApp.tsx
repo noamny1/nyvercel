@@ -274,7 +274,7 @@ function ChoiceField({
   const list = value && !options.includes(value) ? [value, ...options] : options;
   return (
     <span className="crm-choice">
-      <button type="button" className="crm-choice-btn" onClick={() => { setOpen((current) => !current); setAdding(false); }}>
+      <button type="button" className={open ? "crm-choice-btn is-open" : "crm-choice-btn"} onClick={() => { setOpen((current) => !current); setAdding(false); }}>
         {value || "בחירה"}
       </button>
       {open ? (
