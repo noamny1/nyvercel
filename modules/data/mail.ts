@@ -87,3 +87,29 @@ export async function sendClientMail(card: MailCard) {
   }
   return { ok: true as const };
 }
+
+export async function sendFileMail(input: { to: string[]; subject: string; text: string; filename: string; content: Buffer }) {
+  const key = process.env.RESEND_API_KEY;
+  if (!key) return { ok: false as const, error: "מפתח המייל לא מוגדר בשרת." };
+  if (!input.to.length) return { ok: false as const, error: "אין כתובת מייל למנהל המערכת." };
+  const response = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${key}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      from: process.env.EMAIL_FROM || "NYmedia <noreply@nytv.app>",
+      to: input.to,
+      subject: input.subject,
+      text: input.text,
+      attachments: [{ filename: input.filename, content: input.content.toString("base64") }],
+    }),
+  });
+  if (!response.ok) {
+    const body = await response.json().catch(() => ({}));
+    const reason = typeof body?.message === "string" ? body.message : `שגיאה ${response.status}`;
+    return { ok: false as const, error: `המייל לא נשלח. ${reason}` };
+  }
+  return { ok: true as const };
+}

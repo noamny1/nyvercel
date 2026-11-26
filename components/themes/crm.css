@@ -23,6 +23,8 @@
 .crm-top-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; max-width: 1100px; margin: 0 auto; }
 .crm-top h1 { margin: 0; font-size: 22px; letter-spacing: .02em; }
 .crm-top a { color: #f3e6c4; font-size: 14px; text-decoration: none; }
+.crm-top-links { display: flex; align-items: center; gap: 12px; }
+.crm-top a.crm-backup { background: #f3e6c4; color: #5a1f2b; border-radius: 999px; padding: 7px 12px; font-weight: 800; }
 .crm-app .crm-search { display: block; width: 100%; max-width: 1100px; margin: 12px auto 0; box-sizing: border-box; border: 0; border-radius: 12px; padding: 13px 14px; font-size: 16px; background: #fff; color: #1c1412; box-shadow: inset 0 0 0 1px rgba(255,255,255,.4); }
 .board-row { display: flex; flex-wrap: wrap; gap: 6px; overflow: visible; padding: 10px 12px 4px; max-width: 1100px; margin: 0 auto; }
 .board-slot { display: contents; }

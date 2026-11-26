@@ -242,7 +242,10 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
       <header className="crm-top">
         <div className="crm-top-row">
           <h1>CRM</h1>
-          <a href="/admin">לניהול המסכים</a>
+          <div className="crm-top-links">
+            <a className="crm-backup" href="/api/crm/export">גיבוי לאקסל</a>
+            <a href="/admin">לניהול המסכים</a>
+          </div>
         </div>
         <input
           className="crm-search"
