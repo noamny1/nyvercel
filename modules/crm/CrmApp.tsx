@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { BOARD_FIELDS, BOARDS } from "@/modules/crm/boards";
 
 export type CrmRow = {
@@ -75,6 +75,20 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState("");
   const [addedChoices, setAddedChoices] = useState<Record<string, string[]>>({});
+  const [waOn, setWaOn] = useState(false);
+  const [waGroup, setWaGroup] = useState("");
+  const [waInstance, setWaInstance] = useState("");
+  const [waToken, setWaToken] = useState("");
+
+  useEffect(() => {
+    fetch("/api/crm/whatsapp")
+      .then((response) => response.json())
+      .then((body) => {
+        setWaOn(Boolean(body.connected));
+        setWaGroup(body.group || "");
+      })
+      .catch(() => undefined);
+  }, []);
 
   const choices = useMemo(() => {
     const map: Record<string, string[]> = {};
@@ -158,6 +172,79 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
     setItems((current) => editing.id ? current.map((row) => row.id === editing.id ? next : row) : [next, ...current]);
     setEditing(null);
     if (draftBoard !== board) setBoard(draftBoard);
+  }
+
+  async function closeTask() {
+    if (!editing?.id) return;
+    const name = (draft.Name || "").trim();
+    if (!name) {
+      setNote("צריך שם");
+      return;
+    }
+    const who = draftBoard.replace("משימות ", "");
+    const today = new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Jerusalem" });
+    const fields = {
+      ...(editing.fields || {}),
+      Name: name,
+      "עיר": draft["עיר"] || "",
+      "תכולת העבודה": draft["תכולת העבודה"] || "",
+      "הערות": draft["הערות"] || "",
+      "תאריך פתיחה": draft["תאריך פתיחה"] || "",
+      "סטטוס משימה": "נסגרה",
+      "תאריך סגירה": today,
+      "נסגר על ידי": who,
+    };
+    setBusy(true);
+    setNote("");
+    const saved = await fetch(`/api/crm/clients/${editing.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, board: draftBoard, fields }),
+    });
+    if (!saved.ok) {
+      setBusy(false);
+      setNote("הסגירה נכשלה");
+      return;
+    }
+    const text = [
+      "משימה נסגרה",
+      `סוגר: ${who}`,
+      `שם: ${name}`,
+      draft["עיר"] ? `עיר: ${draft["עיר"]}` : "",
+      draft["תכולת העבודה"] ? `תכולת העבודה: ${draft["תכולת העבודה"]}` : "",
+      draft["הערות"] ? `הערות: ${draft["הערות"]}` : "",
+      `תאריך סגירה: ${today}`,
+    ].filter(Boolean).join("\n");
+    const sent = await fetch("/api/crm/whatsapp", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text }),
+    });
+    const body = await sent.json().catch(() => ({}));
+    setBusy(false);
+    const next: CrmRow = { id: editing.id, board: draftBoard, name, fields };
+    setItems((current) => current.map((row) => (row.id === editing.id ? next : row)));
+    setEditing(next);
+    setDraft(fields);
+    setNote(body.sent ? "המשימה נסגרה וההודעה נשלחה לקבוצה" : "המשימה נסגרה. הוואטסאפ עדיין לא מחובר, ההודעה לא נשלחה");
+  }
+
+  async function saveWhatsapp() {
+    setBusy(true);
+    const response = await fetch("/api/crm/whatsapp", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ instance: waInstance, token: waToken, group: waGroup }),
+    });
+    const body = await response.json().catch(() => ({}));
+    setBusy(false);
+    if (!response.ok) {
+      setNote("מזהה הקבוצה צריך להסתיים ב-@g.us");
+      return;
+    }
+    setWaOn(Boolean(body.connected));
+    setWaToken("");
+    setNote(body.connected ? "הוואטסאפ חובר לקבוצה" : "הפרטים נשמרו, חסר חיבור");
   }
 
   async function remove() {
@@ -244,6 +331,23 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
             </button>
           ))}
         </div>
+        <div className="wa-box">
+          <strong>{waOn ? "וואטסאפ מחובר לקבוצת העובדים" : "חיבור וואטסאפ לקבוצת העובדים"}</strong>
+          <p>כשנירית, נועם או יובל סוגרים משימה, נשלחת הודעה מהמספר שלך לקבוצה.</p>
+          <label>
+            מזהה חיבור
+            <input value={waInstance} placeholder="idInstance" onChange={(event) => setWaInstance(event.target.value)} />
+          </label>
+          <label>
+            מפתח
+            <input value={waToken} placeholder="apiToken" onChange={(event) => setWaToken(event.target.value)} />
+          </label>
+          <label>
+            מזהה קבוצה
+            <input value={waGroup} placeholder="1203...@g.us" onChange={(event) => setWaGroup(event.target.value)} />
+          </label>
+          <button type="button" onClick={saveWhatsapp} disabled={busy}>שמירת חיבור</button>
+        </div>
       ) : null}
       {openMenu === "billing" ? (
         <div className="board-row task-row">
@@ -289,7 +393,10 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
                 <span>{row.fields["עיר"]}</span>
                 <span className="crm-note-line">{row.fields["תכולת העבודה"]}</span>
                 <span className="crm-note-line">{row.fields["הערות"]}</span>
-                <span>{row.fields["תאריך פתיחה"]}</span>
+                <span>
+                  {row.fields["תאריך פתיחה"]}
+                  {row.fields["סטטוס משימה"] === "נסגרה" ? <i className="crm-pill ok">נסגרה</i> : null}
+                </span>
               </button>
             );
           }
@@ -367,6 +474,11 @@ export function CrmApp({ rows }: { rows: CrmRow[] }) {
                 <input type="date" value={draft["תאריך פתיחה"] || ""} onChange={(event) => setDraft({ ...draft, "תאריך פתיחה": event.target.value })} />
               </label>
               <p className="crm-hint">אפשר למלא רק מה שצריך. המשימה לא מקושרת לכתובות ולשאר הלשוניות.</p>
+              {editing.id ? (
+                <button type="button" className="crm-close-task" onClick={closeTask} disabled={busy || draft["סטטוס משימה"] === "נסגרה"}>
+                  {draft["סטטוס משימה"] === "נסגרה" ? "המשימה נסגרה" : "סגירת משימה"}
+                </button>
+              ) : null}
             </div>
           ) : (
           <>
