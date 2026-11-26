@@ -18,10 +18,19 @@ const GROUPS = [
   { title: "חיבור", keys: ["IP/DNS", "User", "Pass", "נתוני מודם/סים", "מס מנוי", "סיסמא מודם", "סוג DVR", "Ip Dvr", "Ports", "User Dvr", "Pass Dvr"] },
 ];
 
-const ADDRESS = new Set<string>(BOARDS.slice(0, 6));
+const ADDRESS = new Set<string>([
+  "משימות נירית",
+  "משימות נועם",
+  "משימות יובל",
+  "הזמנות חדשות-ומשימות",
+  "חיוב חד פעמי",
+  "חיוב מס\"ב 16 לחודש",
+  "ניתוקים",
+  "כתובות פעילות",
+]);
 
 function keysFor(board: string, fields: Record<string, string>) {
-  const base = BOARD_FIELDS[board] || [];
+  const base = BOARD_FIELDS[board]?.length ? BOARD_FIELDS[board] : BOARD_FIELDS["משימות נירית"] || [];
   const extra = Object.keys(fields).filter((key) => key !== "Name" && !base.includes(key));
   return [...base, ...extra];
 }
@@ -40,7 +49,7 @@ function sections(keys: string[]) {
 
 export function CrmApp({ rows }: { rows: CrmRow[] }) {
   const [items, setItems] = useState(rows);
-  const [board, setBoard] = useState<string>(BOARDS[5]);
+  const [board, setBoard] = useState<string>("כתובות פעילות");
   const [query, setQuery] = useState("");
   const [shown, setShown] = useState(40);
   const [editing, setEditing] = useState<CrmRow | null>(null);
