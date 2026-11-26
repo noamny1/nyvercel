@@ -92,9 +92,3 @@ export async function GET() {
   const count = await prisma.crmClient.count();
   return NextResponse.json({ count });
 }
-
-export async function DELETE() {
-  if (!(await allowed())) return NextResponse.json({ error: "forbidden" }, { status: 403 });
-  await prisma.crmClient.deleteMany({});
-  return NextResponse.json({ cleared: true });
-}
