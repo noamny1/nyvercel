@@ -268,48 +268,46 @@ function ChoiceField({
   onChange: (value: string) => void;
   onAdd: (value: string) => void;
 }) {
+  const [open, setOpen] = useState(false);
   const [adding, setAdding] = useState(false);
   const [custom, setCustom] = useState("");
   const list = value && !options.includes(value) ? [value, ...options] : options;
   return (
-    <>
-      <select
-        value={adding ? "__add__" : value}
-        onChange={(event) => {
-          if (event.target.value === "__add__") {
-            setAdding(true);
-            return;
-          }
-          setAdding(false);
-          onChange(event.target.value);
-        }}
-      >
-        <option value="">בחירה</option>
-        {list.map((option) => <option key={option} value={option}>{option}</option>)}
-        <option value="__add__">הוספת ערך חדש</option>
-      </select>
-      {adding ? (
-        <span className="crm-add-choice">
-          <input
-            value={custom}
-            placeholder="ערך חדש"
-            autoFocus
-            onChange={(event) => setCustom(event.target.value)}
-          />
-          <button
-            type="button"
-            onClick={() => {
-              const next = custom.trim();
-              if (!next) return;
-              onAdd(next);
-              setCustom("");
-              setAdding(false);
-            }}
-          >
-            הוסף
-          </button>
+    <span className="crm-choice">
+      <button type="button" className="crm-choice-btn" onClick={() => { setOpen((current) => !current); setAdding(false); }}>
+        {value || "בחירה"}
+      </button>
+      {open ? (
+        <span className="crm-choice-menu">
+          <span className="crm-choice-options">
+            <button type="button" onClick={() => { onChange(""); setOpen(false); }}>בחירה</button>
+            {list.map((option) => (
+              <button key={option} type="button" className={option === value ? "is-on" : undefined} onClick={() => { onChange(option); setOpen(false); }}>
+                {option}
+              </button>
+            ))}
+          </span>
+          <button type="button" className="crm-choice-add" onClick={() => setAdding(true)}>הוספת ערך חדש</button>
+          {adding ? (
+            <span className="crm-add-choice">
+              <input value={custom} placeholder="ערך חדש" autoFocus onChange={(event) => setCustom(event.target.value)} />
+              <button
+                type="button"
+                onClick={() => {
+                  const next = custom.trim();
+                  if (!next) return;
+                  onAdd(next);
+                  setCustom("");
+                  setAdding(false);
+                  setOpen(false);
+                }}
+              >
+                הוסף
+              </button>
+            </span>
+          ) : null}
         </span>
       ) : null}
-    </>
+    </span>
   );
 }
